@@ -266,17 +266,18 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       id: _routineId,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
-      days: _selectedDays.map((day) {
-        final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
-        return RoutineDay(
-          id: dayId,
-          routineId: _routineId,
-          dayOfWeek: WeekDayExtension.fromString(day),
-          name: day,
-          sections: [], // No crear secciones automáticamente
-          isActive: true,
-        );
-      }).toList(),
+      days:
+          _selectedDays.map((day) {
+            final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
+            return RoutineDay(
+              id: dayId,
+              routineId: _routineId,
+              dayOfWeek: WeekDayExtension.fromString(day),
+              name: day,
+              sections: [], // No crear secciones automáticamente
+              isActive: true,
+            );
+          }).toList(),
       isActive: true,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

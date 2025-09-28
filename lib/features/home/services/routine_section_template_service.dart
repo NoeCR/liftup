@@ -43,13 +43,13 @@ class RoutineSectionTemplateService extends _$RoutineSectionTemplateService {
   Future<void> initializeDefaultTemplates() async {
     final box = ref.read(databaseServiceProvider.notifier).routineSectionTemplatesBox;
     
-    // Solo inicializar si no hay plantillas
-    if (box.isEmpty) {
-      for (final template in DefaultSectionTemplates.templates) {
-        await box.put(template.id, template);
-      }
-      ref.invalidateSelf();
+    // Limpiar plantillas existentes y cargar las nuevas
+    await box.clear();
+    
+    for (final template in DefaultSectionTemplates.templates) {
+      await box.put(template.id, template);
     }
+    ref.invalidateSelf();
   }
 
   Future<List<RoutineSectionTemplate>> getDefaultTemplates() async {
