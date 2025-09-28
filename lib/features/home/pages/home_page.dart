@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../sessions/notifiers/exercise_completion_notifier.dart';
+import '../../sessions/notifiers/exercise_state_notifier.dart';
 import '../../../common/widgets/section_header.dart';
 import '../../../common/widgets/exercise_card.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
@@ -140,13 +142,14 @@ class _HomePageState extends ConsumerState<HomePage> {
   ) {
     return Column(
       children: [
-        SectionHeader(
-          title: section.name,
-          isCollapsed: section.isCollapsed,
-          onToggleCollapsed: () {
-            // TODO: Implement toggle collapsed
-          },
-        ),
+         SectionHeader(
+           title: section.name,
+           isCollapsed: section.isCollapsed,
+           onToggleCollapsed: () {
+             ref.read(routineNotifierProvider.notifier)
+                 .toggleSectionCollapsed(section.id);
+           },
+         ),
         if (!section.isCollapsed) ...[
           exerciseAsync.when(
             data: (exercises) {
@@ -175,20 +178,33 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                       );
 
-                      return ExerciseCard(
-                        routineExercise: routineExercise,
-                        exercise: exercise,
-                        onTap: () => context.push('/exercise/${exercise.id}'),
-                        onToggleCompleted: () {
-                          // TODO: Implement toggle completed
-                        },
-                        onWeightChanged: (weight) {
-                          // TODO: Implement weight change
-                        },
-                        onRepsChanged: (reps) {
-                          // TODO: Implement reps change
-                        },
-                      );
+                       // Initialize exercise state if not exists
+                       ref.read(exerciseStateNotifierProvider.notifier)
+                           .initializeExercise(routineExercise);
+                       
+                       // Get current exercise state
+                       final currentExercise = ref.watch(exerciseStateNotifierProvider
+                           .select((state) => state[routineExercise.id])) ?? routineExercise;
+
+                       return ExerciseCard(
+                         routineExercise: currentExercise,
+                         exercise: exercise,
+                         isCompleted: ref.watch(exerciseCompletionNotifierProvider)
+                             .contains(routineExercise.id),
+                         onTap: () => context.push('/exercise/${exercise.id}'),
+                         onToggleCompleted: () {
+                           ref.read(exerciseCompletionNotifierProvider.notifier)
+                               .toggleExerciseCompletion(routineExercise.id);
+                         },
+                         onWeightChanged: (weight) {
+                           ref.read(exerciseStateNotifierProvider.notifier)
+                               .updateExerciseWeight(routineExercise.id, weight);
+                         },
+                         onRepsChanged: (reps) {
+                           ref.read(exerciseStateNotifierProvider.notifier)
+                               .updateExerciseReps(routineExercise.id, reps);
+                         },
+                       );
                     }).toList(),
               );
             },
@@ -225,7 +241,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              // TODO: Navigate to create routine
+              context.push('/create-routine');
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),
@@ -334,13 +350,14 @@ class _HomePageState extends ConsumerState<HomePage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () {
-              // TODO: Retry loading
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Reintentar'),
-          ),
+           FilledButton.icon(
+             onPressed: () {
+               ref.invalidate(routineNotifierProvider);
+               ref.invalidate(exerciseNotifierProvider);
+             },
+             icon: const Icon(Icons.refresh),
+             label: const Text('Reintentar'),
+           ),
         ],
       ),
     );
