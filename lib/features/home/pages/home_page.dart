@@ -142,14 +142,15 @@ class _HomePageState extends ConsumerState<HomePage> {
   ) {
     return Column(
       children: [
-         SectionHeader(
-           title: section.name,
-           isCollapsed: section.isCollapsed,
-           onToggleCollapsed: () {
-             ref.read(routineNotifierProvider.notifier)
-                 .toggleSectionCollapsed(section.id);
-           },
-         ),
+        SectionHeader(
+          title: section.name,
+          isCollapsed: section.isCollapsed,
+          onToggleCollapsed: () {
+            ref
+                .read(routineNotifierProvider.notifier)
+                .toggleSectionCollapsed(section.id);
+          },
+        ),
         if (!section.isCollapsed) ...[
           exerciseAsync.when(
             data: (exercises) {
@@ -178,33 +179,43 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                       );
 
-                       // Initialize exercise state if not exists
-                       ref.read(exerciseStateNotifierProvider.notifier)
-                           .initializeExercise(routineExercise);
-                       
-                       // Get current exercise state
-                       final currentExercise = ref.watch(exerciseStateNotifierProvider
-                           .select((state) => state[routineExercise.id])) ?? routineExercise;
+                      // Initialize exercise state if not exists
+                      ref
+                          .read(exerciseStateNotifierProvider.notifier)
+                          .initializeExercise(routineExercise);
 
-                       return ExerciseCard(
-                         routineExercise: currentExercise,
-                         exercise: exercise,
-                         isCompleted: ref.watch(exerciseCompletionNotifierProvider)
-                             .contains(routineExercise.id),
-                         onTap: () => context.push('/exercise/${exercise.id}'),
-                         onToggleCompleted: () {
-                           ref.read(exerciseCompletionNotifierProvider.notifier)
-                               .toggleExerciseCompletion(routineExercise.id);
-                         },
-                         onWeightChanged: (weight) {
-                           ref.read(exerciseStateNotifierProvider.notifier)
-                               .updateExerciseWeight(routineExercise.id, weight);
-                         },
-                         onRepsChanged: (reps) {
-                           ref.read(exerciseStateNotifierProvider.notifier)
-                               .updateExerciseReps(routineExercise.id, reps);
-                         },
-                       );
+                      // Get current exercise state
+                      final currentExercise =
+                          ref.watch(
+                            exerciseStateNotifierProvider.select(
+                              (state) => state[routineExercise.id],
+                            ),
+                          ) ??
+                          routineExercise;
+
+                      return ExerciseCard(
+                        routineExercise: currentExercise,
+                        exercise: exercise,
+                        isCompleted: ref
+                            .watch(exerciseCompletionNotifierProvider)
+                            .contains(routineExercise.id),
+                        onTap: () => context.push('/exercise/${exercise.id}'),
+                        onToggleCompleted: () {
+                          ref
+                              .read(exerciseCompletionNotifierProvider.notifier)
+                              .toggleExerciseCompletion(routineExercise.id);
+                        },
+                        onWeightChanged: (weight) {
+                          ref
+                              .read(exerciseStateNotifierProvider.notifier)
+                              .updateExerciseWeight(routineExercise.id, weight);
+                        },
+                        onRepsChanged: (reps) {
+                          ref
+                              .read(exerciseStateNotifierProvider.notifier)
+                              .updateExerciseReps(routineExercise.id, reps);
+                        },
+                      );
                     }).toList(),
               );
             },
@@ -350,14 +361,14 @@ class _HomePageState extends ConsumerState<HomePage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-           FilledButton.icon(
-             onPressed: () {
-               ref.invalidate(routineNotifierProvider);
-               ref.invalidate(exerciseNotifierProvider);
-             },
-             icon: const Icon(Icons.refresh),
-             label: const Text('Reintentar'),
-           ),
+          FilledButton.icon(
+            onPressed: () {
+              ref.invalidate(routineNotifierProvider);
+              ref.invalidate(exerciseNotifierProvider);
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Reintentar'),
+          ),
         ],
       ),
     );

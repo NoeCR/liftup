@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../notifiers/routine_notifier.dart';
+import '../models/routine.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
   const CreateRoutinePage({super.key});
@@ -12,6 +15,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final Set<String> _selectedDays = <String>{};
 
   @override
   void dispose() {
@@ -30,10 +34,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         title: const Text('Crear Rutina'),
         backgroundColor: colorScheme.surface,
         actions: [
-          TextButton(
-            onPressed: _saveRoutine,
-            child: const Text('Guardar'),
-          ),
+          TextButton(onPressed: _saveRoutine, child: const Text('Guardar')),
         ],
       ),
       body: Padding(
@@ -94,12 +95,18 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Navigate to add exercises
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Funcionalidad de agregar ejercicios próximamente'),
-                      ),
-                    );
+                    if (_selectedDays.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Primero selecciona los días de la semana'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+                    
+                    // Navigate to exercise selection
+                    context.push('/exercise-selection?title=Agregar Ejercicios&subtitle=Selecciona ejercicios para tu rutina');
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Agregar Ejercicios'),
@@ -129,28 +136,120 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: days.map((day) {
-        return FilterChip(
-          label: Text(day),
-          selected: false, // TODO: Implement day selection
-          onSelected: (selected) {
-            // TODO: Implement day selection logic
-          },
-          selectedColor: colorScheme.primaryContainer,
-          checkmarkColor: colorScheme.onPrimaryContainer,
-        );
-      }).toList(),
+       children:
+           days.map((day) {
+             return FilterChip(
+               label: Text(day),
+               selected: _selectedDays.contains(day),
+               onSelected: (selected) {
+                 setState(() {
+                   if (selected) {
+                     _selectedDays.add(day);
+                   } else {
+                     _selectedDays.remove(day);
+                   }
+                 });
+               },
+               selectedColor: colorScheme.primaryContainer,
+               checkmarkColor: colorScheme.onPrimaryContainer,
+             );
+           }).toList(),
     );
   }
 
   void _saveRoutine() {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement save routine logic
+      if (_selectedDays.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor selecciona al menos un día de la semana'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Create routine with selected days
+      final routineId = DateTime.now().millisecondsSinceEpoch.toString();
+      final routine = Routine(
+        id: routineId,
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        days: _selectedDays.map((day) {
+          final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
+          return RoutineDay(
+            id: dayId,
+            routineId: routineId,
+            dayOfWeek: _getWeekDayFromString(day),
+            name: day,
+            sections: [
+              RoutineSection(
+                id: 'warmup_${DateTime.now().millisecondsSinceEpoch}',
+                routineDayId: dayId,
+                name: 'Calentamiento',
+                exercises: [],
+                isCollapsed: false,
+                order: 0,
+              ),
+              RoutineSection(
+                id: 'main_${DateTime.now().millisecondsSinceEpoch}',
+                routineDayId: dayId,
+                name: 'Ejercicios Principales',
+                exercises: [],
+                isCollapsed: false,
+                order: 1,
+              ),
+              RoutineSection(
+                id: 'cooldown_${DateTime.now().millisecondsSinceEpoch}',
+                routineDayId: dayId,
+                name: 'Enfriamiento',
+                exercises: [],
+                isCollapsed: false,
+                order: 2,
+              ),
+            ],
+            isActive: true,
+          );
+        }).toList(),
+        isActive: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      // Save routine using the notifier
+      ref.read(routineNotifierProvider.notifier).addRoutine(routine);
+
+      // Show success message and navigate back
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Funcionalidad de guardar rutina próximamente'),
+        SnackBar(
+          content: Text('Rutina "${routine.name}" creada exitosamente'),
+          backgroundColor: Colors.green,
         ),
       );
+
+      // Navigate back to home
+      Navigator.of(context).pop();
+    }
+  }
+
+  WeekDay _getWeekDayFromString(String day) {
+    switch (day.toLowerCase()) {
+      case 'lunes':
+        return WeekDay.monday;
+      case 'martes':
+        return WeekDay.tuesday;
+      case 'miércoles':
+        return WeekDay.wednesday;
+      case 'jueves':
+        return WeekDay.thursday;
+      case 'viernes':
+        return WeekDay.friday;
+      case 'sábado':
+        return WeekDay.saturday;
+      case 'domingo':
+        return WeekDay.sunday;
+      default:
+        return WeekDay.monday;
     }
   }
 }
