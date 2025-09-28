@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'muscle_group_enum.g.dart';
 
-@HiveType(typeId: 12)
+@HiveType(typeId: 13)
 enum MuscleGroup {
   // Pecho
   @HiveField(0)
