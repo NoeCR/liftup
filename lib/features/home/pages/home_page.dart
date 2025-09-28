@@ -293,13 +293,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              print('DEBUG: Navegando a crear rutina...');
-              try {
-                context.push('/create-routine');
-                print('DEBUG: Navegación exitosa');
-              } catch (e) {
-                print('DEBUG: Error en navegación: $e');
-              }
+              context.push('/create-routine');
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),
@@ -334,13 +328,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              print('DEBUG: Navegando a crear rutina...');
-              try {
-                context.push('/create-routine');
-                print('DEBUG: Navegación exitosa');
-              } catch (e) {
-                print('DEBUG: Error en navegación: $e');
-              }
+              context.push('/create-routine');
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),

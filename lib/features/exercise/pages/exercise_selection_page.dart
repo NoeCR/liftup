@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
 import '../../home/notifiers/routine_exercise_notifier.dart';
+import '../../home/notifiers/routine_notifier.dart';
+import '../../home/models/routine.dart';
 
 class ExerciseSelectionPage extends ConsumerStatefulWidget {
   final String? routineId;
@@ -333,9 +335,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
         // If we have a routineId, we should also update the routine in the database
         if (widget.routineId != null) {
-          // TODO: Update routine with selected exercises
-          // This will be implemented when we connect the routine exercise notifier
-          // with the actual routine saving
+          _updateRoutineWithExercises(widget.routineId!, sectionId, selectedExercises);
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -372,5 +372,49 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       case ExerciseCategory.fullBody:
         return 'Cuerpo Completo';
     }
+  }
+
+  void _updateRoutineWithExercises(String routineId, String sectionId, List<Exercise> exercises) {
+    // Get current routine
+    final routineAsync = ref.read(routineNotifierProvider);
+    routineAsync.whenData((routines) {
+      final routine = routines.firstWhere(
+        (r) => r.id == routineId,
+        orElse: () => throw Exception('Routine not found'),
+      );
+
+      // Create RoutineExercise objects
+      final routineExercises = exercises.map((exercise) => RoutineExercise(
+        id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
+        routineSectionId: sectionId,
+        exerciseId: exercise.id,
+        sets: 3,
+        reps: 10,
+        weight: 0.0,
+        restTimeSeconds: 60,
+        notes: '',
+        order: 0,
+      )).toList();
+
+      // Update the routine with new exercises
+      final updatedRoutine = routine.copyWith(
+        days: routine.days.map((day) {
+          return day.copyWith(
+            sections: day.sections.map((section) {
+              if (section.id == sectionId) {
+                return section.copyWith(
+                  exercises: [...section.exercises, ...routineExercises],
+                );
+              }
+              return section;
+            }).toList(),
+          );
+        }).toList(),
+        updatedAt: DateTime.now(),
+      );
+
+      // Save the updated routine
+      ref.read(routineNotifierProvider.notifier).updateRoutine(updatedRoutine);
+    });
   }
 }

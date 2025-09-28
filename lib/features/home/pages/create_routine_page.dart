@@ -27,7 +27,6 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
   @override
   Widget build(BuildContext context) {
-    print('DEBUG: CreateRoutinePage build() llamado');
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
