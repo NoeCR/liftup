@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 
 part 'routine_section_template.g.dart';
 
@@ -31,6 +32,9 @@ class RoutineSectionTemplate extends Equatable {
   @HiveField(7)
   final DateTime updatedAt;
 
+  @HiveField(8)
+  final SectionMuscleGroup muscleGroup;
+
   const RoutineSectionTemplate({
     required this.id,
     required this.name,
@@ -40,6 +44,7 @@ class RoutineSectionTemplate extends Equatable {
     this.isDefault = false,
     required this.createdAt,
     required this.updatedAt,
+    required this.muscleGroup,
   });
 
   factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) =>
@@ -55,6 +60,7 @@ class RoutineSectionTemplate extends Equatable {
     bool? isDefault,
     DateTime? createdAt,
     DateTime? updatedAt,
+    SectionMuscleGroup? muscleGroup,
   }) {
     return RoutineSectionTemplate(
       id: id ?? this.id,
@@ -65,6 +71,7 @@ class RoutineSectionTemplate extends Equatable {
       isDefault: isDefault ?? this.isDefault,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      muscleGroup: muscleGroup ?? this.muscleGroup,
     );
   }
 
@@ -78,6 +85,7 @@ class RoutineSectionTemplate extends Equatable {
         isDefault,
         createdAt,
         updatedAt,
+        muscleGroup,
       ];
 }
 
@@ -93,26 +101,84 @@ class DefaultSectionTemplates {
       isDefault: true,
       createdAt: DateTime(2024, 1, 1),
       updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.warmup,
     ),
     RoutineSectionTemplate(
-      id: 'main',
-      name: 'Ejercicios Principales',
-      description: 'Ejercicios principales del entrenamiento',
+      id: 'chest',
+      name: 'Pecho',
+      description: 'Ejercicios para el desarrollo del pecho',
       iconName: 'fitness_center',
       order: 1,
       isDefault: true,
       createdAt: DateTime(2024, 1, 1),
       updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.chest,
+    ),
+    RoutineSectionTemplate(
+      id: 'back',
+      name: 'Espalda',
+      description: 'Ejercicios para fortalecer la espalda',
+      iconName: 'sports_gymnastics',
+      order: 2,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.back,
+    ),
+    RoutineSectionTemplate(
+      id: 'shoulders',
+      name: 'Hombros',
+      description: 'Ejercicios para los hombros',
+      iconName: 'sports_martial_arts',
+      order: 3,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.shoulders,
+    ),
+    RoutineSectionTemplate(
+      id: 'arms',
+      name: 'Brazos',
+      description: 'Ejercicios para bíceps y tríceps',
+      iconName: 'sports_basketball',
+      order: 4,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.biceps,
+    ),
+    RoutineSectionTemplate(
+      id: 'legs',
+      name: 'Piernas',
+      description: 'Ejercicios para cuádriceps e isquiotibiales',
+      iconName: 'directions_run',
+      order: 5,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.quadriceps,
+    ),
+    RoutineSectionTemplate(
+      id: 'core',
+      name: 'Core',
+      description: 'Ejercicios para el core y abdominales',
+      iconName: 'self_improvement',
+      order: 6,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.core,
     ),
     RoutineSectionTemplate(
       id: 'cooldown',
       name: 'Enfriamiento',
       description: 'Ejercicios de relajación y estiramiento',
       iconName: 'self_improvement',
-      order: 2,
+      order: 7,
       isDefault: true,
       createdAt: DateTime(2024, 1, 1),
       updatedAt: DateTime(2024, 1, 1),
+      muscleGroup: SectionMuscleGroup.cooldown,
     ),
   ];
 

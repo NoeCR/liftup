@@ -5,6 +5,7 @@ import '../notifiers/routine_notifier.dart';
 import '../notifiers/routine_section_template_notifier.dart';
 import '../models/routine.dart';
 import '../../../common/enums/week_day_enum.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
   const CreateRoutinePage({super.key});
@@ -207,8 +208,9 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
   }
 
   List<RoutineSection> _buildSectionsFromTemplates(String dayId) {
-    final sectionTemplates = ref.read(routineSectionTemplateNotifierProvider).value ?? [];
-    
+    final sectionTemplates =
+        ref.read(routineSectionTemplateNotifierProvider).value ?? [];
+
     return sectionTemplates.map((template) {
       return RoutineSection(
         id: '${template.id}_${DateTime.now().millisecondsSinceEpoch}',
@@ -219,6 +221,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         order: template.order,
         sectionTemplateId: template.id,
         iconName: template.iconName,
+        muscleGroup: template.muscleGroup,
       );
     }).toList();
   }

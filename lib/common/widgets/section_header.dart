@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../common/enums/section_muscle_group_enum.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -6,6 +7,7 @@ class SectionHeader extends StatelessWidget {
   final VoidCallback? onToggleCollapsed;
   final Widget? trailing;
   final String? iconName;
+  final SectionMuscleGroup? muscleGroup;
 
   const SectionHeader({
     super.key,
@@ -14,6 +16,7 @@ class SectionHeader extends StatelessWidget {
     this.onToggleCollapsed,
     this.trailing,
     this.iconName,
+    this.muscleGroup,
   });
 
   @override
@@ -33,9 +36,9 @@ class SectionHeader extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                if (iconName != null) ...[
+                if (iconName != null || muscleGroup != null) ...[
                   Icon(
-                    _getIconData(iconName!),
+                    _getIconData(iconName ?? muscleGroup?.iconName ?? 'fitness_center'),
                     color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),

@@ -7,6 +7,7 @@ import '../../features/home/models/routine_section_template.dart';
 import '../../features/statistics/models/progress_data.dart';
 import '../../common/enums/week_day_enum.dart';
 import '../../common/enums/muscle_group_enum.dart';
+import '../../common/enums/section_muscle_group_enum.dart';
 
 class HiveAdapters {
   static void registerAdapters() {
@@ -38,5 +39,8 @@ class HiveAdapters {
 
     // Routine Section Template adapters
     Hive.registerAdapter(RoutineSectionTemplateAdapter());
+
+    // Section Muscle Group adapters
+    Hive.registerAdapter(SectionMuscleGroupAdapter());
   }
 }

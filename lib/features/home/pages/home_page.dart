@@ -212,6 +212,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           title: section.name,
           isCollapsed: section.isCollapsed,
           iconName: section.iconName,
+          muscleGroup: section.muscleGroup,
           onToggleCollapsed: () {
             ref
                 .read(routineNotifierProvider.notifier)

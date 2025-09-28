@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/routine_section_template.dart';
 import '../services/routine_section_template_service.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 
 part 'routine_section_template_notifier.g.dart';
 
@@ -20,6 +21,7 @@ class RoutineSectionTemplateNotifier extends _$RoutineSectionTemplateNotifier {
     required String name,
     String? description,
     required String iconName,
+    required SectionMuscleGroup muscleGroup,
   }) async {
     final service = ref.read(routineSectionTemplateServiceProvider.notifier);
     final currentTemplates = await future;
@@ -33,6 +35,7 @@ class RoutineSectionTemplateNotifier extends _$RoutineSectionTemplateNotifier {
       isDefault: false,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      muscleGroup: muscleGroup,
     );
 
     await service.saveSectionTemplate(newTemplate);

@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import '../../../common/enums/week_day_enum.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 
 part 'routine.g.dart';
 
@@ -172,6 +173,9 @@ class RoutineSection extends Equatable {
   @HiveField(7)
   final String? iconName;
 
+  @HiveField(8)
+  final SectionMuscleGroup? muscleGroup;
+
   const RoutineSection({
     required this.id,
     required this.routineDayId,
@@ -181,6 +185,7 @@ class RoutineSection extends Equatable {
     required this.order,
     this.sectionTemplateId,
     this.iconName,
+    this.muscleGroup,
   });
 
   factory RoutineSection.fromJson(Map<String, dynamic> json) =>
@@ -196,6 +201,7 @@ class RoutineSection extends Equatable {
     int? order,
     String? sectionTemplateId,
     String? iconName,
+    SectionMuscleGroup? muscleGroup,
   }) {
     return RoutineSection(
       id: id ?? this.id,
@@ -206,6 +212,7 @@ class RoutineSection extends Equatable {
       order: order ?? this.order,
       sectionTemplateId: sectionTemplateId ?? this.sectionTemplateId,
       iconName: iconName ?? this.iconName,
+      muscleGroup: muscleGroup ?? this.muscleGroup,
     );
   }
 
@@ -219,6 +226,7 @@ class RoutineSection extends Equatable {
     order,
     sectionTemplateId,
     iconName,
+    muscleGroup,
   ];
 }
 

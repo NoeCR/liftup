@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/routine_section_template_notifier.dart';
 import '../models/routine_section_template.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 
 class SectionTemplatesPage extends ConsumerStatefulWidget {
@@ -244,6 +245,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     final nameController = TextEditingController(text: template?.name ?? '');
     final descriptionController = TextEditingController(text: template?.description ?? '');
     String selectedIcon = template?.iconName ?? 'fitness_center';
+    SectionMuscleGroup selectedMuscleGroup = template?.muscleGroup ?? SectionMuscleGroup.chest;
 
     showDialog(
       context: context,
@@ -269,6 +271,33 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 2,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Grupo muscular:',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<SectionMuscleGroup>(
+                  value: selectedMuscleGroup,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  items: SectionMuscleGroup.values.map((group) {
+                    return DropdownMenuItem(
+                      value: group,
+                      child: Text(group.displayName),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedMuscleGroup = value;
+                        // Auto-update icon based on muscle group
+                        selectedIcon = value.iconName;
+                      });
+                    }
+                  },
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -329,6 +358,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                           ? null
                           : descriptionController.text.trim(),
                       iconName: selectedIcon,
+                      muscleGroup: selectedMuscleGroup,
                     );
                   } else {
                     ref.read(routineSectionTemplateNotifierProvider.notifier)
@@ -339,6 +369,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                             ? null
                             : descriptionController.text.trim(),
                         iconName: selectedIcon,
+                        muscleGroup: selectedMuscleGroup,
                       ),
                     );
                   }

@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
 import '../../../common/enums/week_day_enum.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 import 'routine_section_template_notifier.dart';
 
 part 'routine_notifier.g.dart';
@@ -143,6 +144,7 @@ class RoutineNotifier extends _$RoutineNotifier {
         order: template.order,
         sectionTemplateId: template.id,
         iconName: template.iconName,
+        muscleGroup: template.muscleGroup,
       );
     }).toList();
 
