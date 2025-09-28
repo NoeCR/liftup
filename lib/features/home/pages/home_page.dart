@@ -4,8 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../../common/widgets/section_header.dart';
-import '../../../common/widgets/exercise_card.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
+import '../widgets/exercise_card_wrapper.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 
@@ -54,16 +54,48 @@ class _HomePageState extends ConsumerState<HomePage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final menuOptions = [
-      'Hoy',
-      'Pecho',
-      'Pierna',
-      'Cardio',
-      'Lunes',
-      'Martes',
-      'Miércoles',
-    ];
+    return Consumer(
+      builder: (context, ref, child) {
+        final routineAsync = ref.watch(routineNotifierProvider);
 
+        return routineAsync.when(
+          data: (routines) {
+            // Build menu options from routines
+            final menuOptions = <String>['Hoy'];
+
+            // Add routine names to menu
+            for (final routine in routines) {
+              if (routine.isActive) {
+                menuOptions.add(routine.name);
+              }
+            }
+
+            // Add day options
+            menuOptions.addAll([
+              'Lunes',
+              'Martes',
+              'Miércoles',
+              'Jueves',
+              'Viernes',
+              'Sábado',
+              'Domingo',
+            ]);
+
+            return _buildMenuOptions(menuOptions, theme, colorScheme);
+          },
+          loading: () => _buildMenuOptions(['Hoy'], theme, colorScheme),
+          error:
+              (error, stack) => _buildMenuOptions(['Hoy'], theme, colorScheme),
+        );
+      },
+    );
+  }
+
+  Widget _buildMenuOptions(
+    List<String> menuOptions,
+    ThemeData theme,
+    ColorScheme colorScheme,
+  ) {
     return Container(
       height: 60,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -106,13 +138,31 @@ class _HomePageState extends ConsumerState<HomePage> {
               return _buildEmptyState();
             }
 
-            // Get today's routine
-            final todayRoutine = _getTodayRoutine(routines);
-            if (todayRoutine == null) {
-              return _buildNoRoutineForToday();
+            // Get selected routine or today's routine
+            Routine? selectedRoutine;
+
+            if (_selectedMenuOption == 'Hoy') {
+              selectedRoutine = _getTodayRoutine(routines);
+              if (selectedRoutine == null) {
+                return _buildNoRoutineForToday();
+              }
+            } else if (_isDayOfWeek(_selectedMenuOption)) {
+              // Get routine for selected day
+              final selectedDay = _getWeekDayFromString(_selectedMenuOption);
+              selectedRoutine = routines.firstWhere(
+                (routine) =>
+                    routine.days.any((day) => day.dayOfWeek == selectedDay),
+                orElse: () => routines.first,
+              );
+            } else {
+              // Get routine by name
+              selectedRoutine = routines.firstWhere(
+                (routine) => routine.name == _selectedMenuOption,
+                orElse: () => routines.first,
+              );
             }
 
-            return _buildRoutineContent(todayRoutine, exerciseAsync);
+            return _buildRoutineContent(selectedRoutine, exerciseAsync);
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => _buildErrorState(error.toString()),
@@ -122,13 +172,38 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   Widget _buildRoutineContent(
-    RoutineDay routineDay,
+    Routine routine,
     AsyncValue<List<Exercise>> exerciseAsync,
   ) {
+    // Get the appropriate day from the routine
+    RoutineDay? routineDay;
+
+    if (_selectedMenuOption == 'Hoy') {
+      final today = DateTime.now().weekday;
+      final weekDay = _getWeekDayFromInt(today);
+      routineDay = routine.days.firstWhere(
+        (day) => day.dayOfWeek == weekDay && day.isActive,
+        orElse: () => routine.days.first,
+      );
+    } else if (_isDayOfWeek(_selectedMenuOption)) {
+      final selectedDay = _getWeekDayFromString(_selectedMenuOption);
+      routineDay = routine.days.firstWhere(
+        (day) => day.dayOfWeek == selectedDay && day.isActive,
+        orElse: () => routine.days.first,
+      );
+    } else {
+      // For routine name selection, show the first day
+      if (routine.days.isEmpty) {
+        return _buildNoRoutineForToday();
+      }
+      routineDay = routine.days.first;
+    }
+
+    final selectedDay = routineDay;
     return ListView.builder(
-      itemCount: routineDay.sections.length,
+      itemCount: selectedDay.sections.length,
       itemBuilder: (context, index) {
-        final section = routineDay.sections[index];
+        final section = selectedDay.sections[index];
         return _buildRoutineSection(section, exerciseAsync);
       },
     );
@@ -144,7 +219,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           title: section.name,
           isCollapsed: section.isCollapsed,
           onToggleCollapsed: () {
-            // TODO: Implement toggle collapsed
+            ref
+                .read(routineNotifierProvider.notifier)
+                .toggleSectionCollapsed(section.id);
           },
         ),
         if (!section.isCollapsed) ...[
@@ -175,19 +252,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                       );
 
-                      return ExerciseCard(
+                      return ExerciseCardWrapper(
                         routineExercise: routineExercise,
                         exercise: exercise,
                         onTap: () => context.push('/exercise/${exercise.id}'),
-                        onToggleCompleted: () {
-                          // TODO: Implement toggle completed
-                        },
-                        onWeightChanged: (weight) {
-                          // TODO: Implement weight change
-                        },
-                        onRepsChanged: (reps) {
-                          // TODO: Implement reps change
-                        },
                       );
                     }).toList(),
               );
@@ -225,7 +293,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              // TODO: Navigate to create routine
+              context.push('/create-routine');
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),
@@ -260,7 +328,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              // TODO: Navigate to create routine
+              context.push('/create-routine');
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),
@@ -336,7 +404,8 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              // TODO: Retry loading
+              ref.invalidate(routineNotifierProvider);
+              ref.invalidate(exerciseNotifierProvider);
             },
             icon: const Icon(Icons.refresh),
             label: const Text('Reintentar'),
@@ -358,7 +427,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  RoutineDay? _getTodayRoutine(List<Routine> routines) {
+  Routine? _getTodayRoutine(List<Routine> routines) {
     final today = DateTime.now().weekday;
     final weekDay = _getWeekDayFromInt(today);
 
@@ -367,7 +436,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
       for (final day in routine.days) {
         if (day.dayOfWeek == weekDay && day.isActive) {
-          return day;
+          return routine;
         }
       }
     }
@@ -394,5 +463,39 @@ class _HomePageState extends ConsumerState<HomePage> {
       default:
         return WeekDay.monday;
     }
+  }
+
+  WeekDay _getWeekDayFromString(String day) {
+    switch (day.toLowerCase()) {
+      case 'lunes':
+        return WeekDay.monday;
+      case 'martes':
+        return WeekDay.tuesday;
+      case 'miércoles':
+        return WeekDay.wednesday;
+      case 'jueves':
+        return WeekDay.thursday;
+      case 'viernes':
+        return WeekDay.friday;
+      case 'sábado':
+        return WeekDay.saturday;
+      case 'domingo':
+        return WeekDay.sunday;
+      default:
+        return WeekDay.monday;
+    }
+  }
+
+  bool _isDayOfWeek(String option) {
+    const daysOfWeek = [
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+      'Domingo',
+    ];
+    return daysOfWeek.contains(option);
   }
 }

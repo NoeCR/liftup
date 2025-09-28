@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/home/pages/home_page.dart';
+import '../../features/home/pages/create_routine_page.dart';
 import '../../features/exercise/pages/exercise_detail_page.dart';
 import '../../features/exercise/pages/exercise_list_page.dart';
+import '../../features/exercise/pages/exercise_selection_page.dart';
 import '../../features/sessions/pages/session_page.dart';
 import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 
 class AppRouter {
   static const String home = '/';
+  static const String createRoutine = '/create-routine';
   static const String exerciseList = '/exercises';
+  static const String exerciseSelection = '/exercise-selection';
   static const String exerciseDetail = '/exercise/:id';
   static const String session = '/session';
   static const String statistics = '/statistics';
@@ -24,9 +28,31 @@ class AppRouter {
         builder: (context, state) => const HomePage(),
       ),
       GoRoute(
+        path: createRoutine,
+        name: 'createRoutine',
+        builder: (context, state) => const CreateRoutinePage(),
+      ),
+      GoRoute(
         path: exerciseList,
         name: 'exerciseList',
         builder: (context, state) => const ExerciseListPage(),
+      ),
+      GoRoute(
+        path: exerciseSelection,
+        name: 'exerciseSelection',
+        builder: (context, state) {
+          final routineId = state.uri.queryParameters['routineId'];
+          final sectionId = state.uri.queryParameters['sectionId'];
+          final title = state.uri.queryParameters['title'] ?? 'Seleccionar Ejercicios';
+          final subtitle = state.uri.queryParameters['subtitle'];
+          
+          return ExerciseSelectionPage(
+            routineId: routineId,
+            sectionId: sectionId,
+            title: title,
+            subtitle: subtitle,
+          );
+        },
       ),
       GoRoute(
         path: exerciseDetail,
