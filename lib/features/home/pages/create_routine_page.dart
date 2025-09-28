@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
-import '../notifiers/routine_section_template_notifier.dart';
 import '../models/routine.dart';
 import '../../../common/enums/week_day_enum.dart';
-import '../../../common/enums/section_muscle_group_enum.dart';
 import '../../../core/navigation/app_router.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
@@ -183,7 +181,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
                 routineId: _routineId,
                 dayOfWeek: WeekDayExtension.fromString(day),
                 name: day,
-                sections: _buildSectionsFromTemplates(dayId),
+                sections: [], // No crear secciones automáticamente
                 isActive: true,
               );
             }).toList(),
@@ -216,22 +214,4 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     }
   }
 
-  List<RoutineSection> _buildSectionsFromTemplates(String dayId) {
-    final sectionTemplates =
-        ref.read(routineSectionTemplateNotifierProvider).value ?? [];
-
-    return sectionTemplates.map((template) {
-      return RoutineSection(
-        id: '${template.id}_${DateTime.now().millisecondsSinceEpoch}',
-        routineDayId: dayId,
-        name: template.name,
-        exercises: [],
-        isCollapsed: false,
-        order: template.order,
-        sectionTemplateId: template.id,
-        iconName: template.iconName,
-        muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
-      );
-    }).toList();
-  }
 }
