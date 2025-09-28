@@ -1,0 +1,94 @@
+{
+    "app": {
+        "title": "LiftUp",
+        "welcome": "Welcome to LiftUp!",
+        "createFirstRoutine": "Create your first routine to get started",
+        "createRoutine": "Create Routine"
+    },
+    "home": {
+        "title": "Home",
+        "today": "Today",
+        "chest": "Chest",
+        "legs": "Legs",
+        "cardio": "Cardio",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "noRoutineForToday": "No routine for today",
+        "enjoyRestDay": "Enjoy a rest day or create a routine",
+        "addExercises": "Add exercises",
+        "tapToAddExercises": "Tap to add exercises to this section"
+    },
+    "exercises": {
+        "title": "Exercises",
+        "searchPlaceholder": "Search exercises...",
+        "all": "All",
+        "chest": "Chest",
+        "back": "Back",
+        "shoulders": "Shoulders",
+        "arms": "Arms",
+        "legs": "Legs",
+        "core": "Core",
+        "cardio": "Cardio",
+        "fullBody": "Full Body",
+        "noExercisesFound": "No exercises found",
+        "tryOtherSearchTerms": "Try other search terms",
+        "errorLoadingExercises": "Error loading exercises",
+        "musclesWorked": "Muscles Worked",
+        "tips": "Tips",
+        "commonMistakes": "Common Mistakes",
+        "demoVideo": "Demo Video",
+        "videoNotAvailable": "Video not available",
+        "beginner": "Beginner",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced"
+    },
+    "session": {
+        "title": "Workout Session",
+        "workoutTime": "Workout Time",
+        "pause": "Pause",
+        "finish": "Finish",
+        "noActiveSession": "No active session",
+        "startNewSession": "Start a new workout session",
+        "startSession": "Start Session",
+        "train": "Train"
+    },
+    "statistics": {
+        "title": "Statistics"
+    },
+    "settings": {
+        "title": "Settings"
+    },
+    "common": {
+        "series": "sets",
+        "reps": "reps",
+        "weight": "Weight (kg)",
+        "completed": "Completed",
+        "markAsCompleted": "Mark as completed",
+        "retry": "Retry",
+        "error": "Error",
+        "loading": "Loading...",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "add": "Add",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import",
+        "share": "Share"
+    },
+    "errors": {
+        "pageNotFound": "Page not found",
+        "pageNotFoundDescription": "The page you're looking for doesn't exist",
+        "backToHome": "Back to home",
+        "errorLoadingData": "Error loading data",
+        "errorLoadingExercise": "Error loading exercise",
+        "exerciseNotFound": "Exercise not found"
+    }
+}

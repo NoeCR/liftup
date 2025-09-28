@@ -1,0 +1,140 @@
+import 'package:hive/hive.dart';
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'exercise.g.dart';
+
+@HiveType(typeId: 0)
+@JsonSerializable()
+class Exercise extends Equatable {
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final String name;
+
+  @HiveField(2)
+  final String description;
+
+  @HiveField(3)
+  final String imageUrl;
+
+  @HiveField(4)
+  final String? videoUrl;
+
+  @HiveField(5)
+  final List<String> muscleGroups;
+
+  @HiveField(6)
+  final List<String> tips;
+
+  @HiveField(7)
+  final List<String> commonMistakes;
+
+  @HiveField(8)
+  final ExerciseCategory category;
+
+  @HiveField(9)
+  final ExerciseDifficulty difficulty;
+
+  @HiveField(10)
+  final DateTime createdAt;
+
+  @HiveField(11)
+  final DateTime updatedAt;
+
+  const Exercise({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.imageUrl,
+    this.videoUrl,
+    required this.muscleGroups,
+    required this.tips,
+    required this.commonMistakes,
+    required this.category,
+    required this.difficulty,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory Exercise.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseFromJson(json);
+  Map<String, dynamic> toJson() => _$ExerciseToJson(this);
+
+  Exercise copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? imageUrl,
+    String? videoUrl,
+    List<String>? muscleGroups,
+    List<String>? tips,
+    List<String>? commonMistakes,
+    ExerciseCategory? category,
+    ExerciseDifficulty? difficulty,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Exercise(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      imageUrl: imageUrl ?? this.imageUrl,
+      videoUrl: videoUrl ?? this.videoUrl,
+      muscleGroups: muscleGroups ?? this.muscleGroups,
+      tips: tips ?? this.tips,
+      commonMistakes: commonMistakes ?? this.commonMistakes,
+      category: category ?? this.category,
+      difficulty: difficulty ?? this.difficulty,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    description,
+    imageUrl,
+    videoUrl,
+    muscleGroups,
+    tips,
+    commonMistakes,
+    category,
+    difficulty,
+    createdAt,
+    updatedAt,
+  ];
+}
+
+@HiveType(typeId: 1)
+enum ExerciseCategory {
+  @HiveField(0)
+  chest,
+  @HiveField(1)
+  back,
+  @HiveField(2)
+  shoulders,
+  @HiveField(3)
+  arms,
+  @HiveField(4)
+  legs,
+  @HiveField(5)
+  core,
+  @HiveField(6)
+  cardio,
+  @HiveField(7)
+  fullBody,
+}
+
+@HiveType(typeId: 2)
+enum ExerciseDifficulty {
+  @HiveField(0)
+  beginner,
+  @HiveField(1)
+  intermediate,
+  @HiveField(2)
+  advanced,
+}

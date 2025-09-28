@@ -1,0 +1,94 @@
+{
+    "app": {
+        "title": "LiftUp",
+        "welcome": "¡Bienvenido a LiftUp!",
+        "createFirstRoutine": "Crea tu primera rutina para comenzar",
+        "createRoutine": "Crear Rutina"
+    },
+    "home": {
+        "title": "Inicio",
+        "today": "Hoy",
+        "chest": "Pecho",
+        "legs": "Pierna",
+        "cardio": "Cardio",
+        "monday": "Lunes",
+        "tuesday": "Martes",
+        "wednesday": "Miércoles",
+        "thursday": "Jueves",
+        "friday": "Viernes",
+        "saturday": "Sábado",
+        "sunday": "Domingo",
+        "noRoutineForToday": "No hay rutina para hoy",
+        "enjoyRestDay": "Disfruta de un día de descanso o crea una rutina",
+        "addExercises": "Agregar ejercicios",
+        "tapToAddExercises": "Toca para agregar ejercicios a esta sección"
+    },
+    "exercises": {
+        "title": "Ejercicios",
+        "searchPlaceholder": "Buscar ejercicios...",
+        "all": "Todos",
+        "chest": "Pecho",
+        "back": "Espalda",
+        "shoulders": "Hombros",
+        "arms": "Brazos",
+        "legs": "Piernas",
+        "core": "Core",
+        "cardio": "Cardio",
+        "fullBody": "Cuerpo Completo",
+        "noExercisesFound": "No se encontraron ejercicios",
+        "tryOtherSearchTerms": "Intenta con otros términos de búsqueda",
+        "errorLoadingExercises": "Error al cargar los ejercicios",
+        "musclesWorked": "Músculos Trabajados",
+        "tips": "Consejos",
+        "commonMistakes": "Errores Comunes",
+        "demoVideo": "Video de Demostración",
+        "videoNotAvailable": "Video no disponible",
+        "beginner": "Principiante",
+        "intermediate": "Intermedio",
+        "advanced": "Avanzado"
+    },
+    "session": {
+        "title": "Sesión de Entrenamiento",
+        "workoutTime": "Tiempo de Entrenamiento",
+        "pause": "Pausar",
+        "finish": "Finalizar",
+        "noActiveSession": "No hay sesión activa",
+        "startNewSession": "Inicia una nueva sesión de entrenamiento",
+        "startSession": "Iniciar Sesión",
+        "train": "Entrenar"
+    },
+    "statistics": {
+        "title": "Estadísticas"
+    },
+    "settings": {
+        "title": "Configuración"
+    },
+    "common": {
+        "series": "series",
+        "reps": "reps",
+        "weight": "Peso (kg)",
+        "completed": "Completado",
+        "markAsCompleted": "Marcar como completado",
+        "retry": "Reintentar",
+        "error": "Error",
+        "loading": "Cargando...",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "add": "Agregar",
+        "search": "Buscar",
+        "filter": "Filtrar",
+        "export": "Exportar",
+        "import": "Importar",
+        "share": "Compartir"
+    },
+    "errors": {
+        "pageNotFound": "Página no encontrada",
+        "pageNotFoundDescription": "La página que buscas no existe",
+        "backToHome": "Volver al inicio",
+        "errorLoadingData": "Error al cargar los datos",
+        "errorLoadingExercise": "Error al cargar el ejercicio",
+        "exerciseNotFound": "Ejercicio no encontrado"
+    }
+}
