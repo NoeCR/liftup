@@ -16,7 +16,9 @@ void main() async {
     print('Error initializing database: $e');
     // Force reset database if initialization fails
     try {
-      await container.read(databaseServiceProvider.notifier).forceResetDatabase();
+      await container
+          .read(databaseServiceProvider.notifier)
+          .forceResetDatabase();
     } catch (resetError) {
       print('Error resetting database: $resetError');
     }

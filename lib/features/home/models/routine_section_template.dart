@@ -33,7 +33,7 @@ class RoutineSectionTemplate extends Equatable {
   final DateTime updatedAt;
 
   @HiveField(8)
-  final SectionMuscleGroup muscleGroup;
+  final SectionMuscleGroup? muscleGroup;
 
   const RoutineSectionTemplate({
     required this.id,
@@ -44,7 +44,7 @@ class RoutineSectionTemplate extends Equatable {
     this.isDefault = false,
     required this.createdAt,
     required this.updatedAt,
-    required this.muscleGroup,
+    this.muscleGroup,
   });
 
   factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) =>

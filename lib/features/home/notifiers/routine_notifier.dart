@@ -148,7 +148,7 @@ class RoutineNotifier extends _$RoutineNotifier {
               order: template.order,
               sectionTemplateId: template.id,
               iconName: template.iconName,
-              muscleGroup: template.muscleGroup,
+              muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
             );
           }).toList();
 

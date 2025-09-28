@@ -21,7 +21,7 @@ class RoutineSectionTemplateNotifier extends _$RoutineSectionTemplateNotifier {
     required String name,
     String? description,
     required String iconName,
-    required SectionMuscleGroup muscleGroup,
+    SectionMuscleGroup? muscleGroup,
   }) async {
     final service = ref.read(routineSectionTemplateServiceProvider.notifier);
     final currentTemplates = await future;
