@@ -1,0 +1,161 @@
+import 'package:hive/hive.dart';
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'routine_section_template.g.dart';
+
+@HiveType(typeId: 14)
+@JsonSerializable()
+class RoutineSectionTemplate extends Equatable {
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final String name;
+
+  @HiveField(2)
+  final String? description;
+
+  @HiveField(3)
+  final String iconName;
+
+  @HiveField(4)
+  final int order;
+
+  @HiveField(5)
+  final bool isDefault;
+
+  @HiveField(6)
+  final DateTime createdAt;
+
+  @HiveField(7)
+  final DateTime updatedAt;
+
+  const RoutineSectionTemplate({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.iconName,
+    required this.order,
+    this.isDefault = false,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) =>
+      _$RoutineSectionTemplateFromJson(json);
+  Map<String, dynamic> toJson() => _$RoutineSectionTemplateToJson(this);
+
+  RoutineSectionTemplate copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? iconName,
+    int? order,
+    bool? isDefault,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return RoutineSectionTemplate(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      iconName: iconName ?? this.iconName,
+      order: order ?? this.order,
+      isDefault: isDefault ?? this.isDefault,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        description,
+        iconName,
+        order,
+        isDefault,
+        createdAt,
+        updatedAt,
+      ];
+}
+
+// Secciones predefinidas por defecto
+class DefaultSectionTemplates {
+  static List<RoutineSectionTemplate> get templates => [
+    RoutineSectionTemplate(
+      id: 'warmup',
+      name: 'Calentamiento',
+      description: 'Ejercicios de preparación y activación',
+      iconName: 'warm_up',
+      order: 0,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+    ),
+    RoutineSectionTemplate(
+      id: 'main',
+      name: 'Ejercicios Principales',
+      description: 'Ejercicios principales del entrenamiento',
+      iconName: 'fitness_center',
+      order: 1,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+    ),
+    RoutineSectionTemplate(
+      id: 'cooldown',
+      name: 'Enfriamiento',
+      description: 'Ejercicios de relajación y estiramiento',
+      iconName: 'self_improvement',
+      order: 2,
+      isDefault: true,
+      createdAt: DateTime(2024, 1, 1),
+      updatedAt: DateTime(2024, 1, 1),
+    ),
+  ];
+
+  static const List<String> availableIcons = [
+    'warm_up',
+    'fitness_center',
+    'self_improvement',
+    'sports_gymnastics',
+    'pool',
+    'directions_run',
+    'sports_martial_arts',
+    'sports_tennis',
+    'sports_basketball',
+    'sports_soccer',
+    'sports_volleyball',
+    'sports_handball',
+    'sports_kabaddi',
+    'sports_motorsports',
+    'sports_mma',
+    'sports_rugby',
+    'sports_cricket',
+    'sports_golf',
+    'sports_hockey',
+    'sports_baseball',
+    'sports_football',
+    'sports_esports',
+    'sports',
+    'sports_score',
+    'sports_bar',
+    'sports_cafe',
+    'sports_kabaddi',
+    'sports_motorsports',
+    'sports_mma',
+    'sports_rugby',
+    'sports_cricket',
+    'sports_golf',
+    'sports_hockey',
+    'sports_baseball',
+    'sports_football',
+    'sports_esports',
+    'sports',
+    'sports_score',
+    'sports_bar',
+    'sports_cafe',
+  ];
+}

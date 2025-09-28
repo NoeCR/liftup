@@ -3,6 +3,7 @@ import '../../features/exercise/models/exercise.dart';
 import '../../features/exercise/models/exercise_set.dart';
 import '../../features/sessions/models/workout_session.dart';
 import '../../features/home/models/routine.dart';
+import '../../features/home/models/routine_section_template.dart';
 import '../../features/statistics/models/progress_data.dart';
 import '../../common/enums/week_day_enum.dart';
 import '../../common/enums/muscle_group_enum.dart';
@@ -34,5 +35,8 @@ class HiveAdapters {
 
     // Enum adapters
     Hive.registerAdapter(MuscleGroupAdapter());
+
+    // Routine Section Template adapters
+    Hive.registerAdapter(RoutineSectionTemplateAdapter());
   }
 }

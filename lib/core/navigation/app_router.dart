@@ -8,6 +8,7 @@ import '../../features/exercise/pages/exercise_selection_page.dart';
 import '../../features/sessions/pages/session_page.dart';
 import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
+import '../../features/home/pages/section_templates_page.dart';
 
 class AppRouter {
   static const String home = '/';
@@ -18,6 +19,7 @@ class AppRouter {
   static const String session = '/session';
   static const String statistics = '/statistics';
   static const String settings = '/settings';
+  static const String sectionTemplates = '/section-templates';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -76,6 +78,11 @@ class AppRouter {
         path: settings,
         name: 'settings',
         builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: sectionTemplates,
+        name: 'sectionTemplates',
+        builder: (context, state) => const SectionTemplatesPage(),
       ),
     ],
     errorBuilder:

@@ -11,6 +11,7 @@ class DatabaseService extends _$DatabaseService {
   static const String _sessionsBox = 'sessions';
   static const String _progressBox = 'progress';
   static const String _settingsBox = 'settings';
+  static const String _routineSectionTemplatesBox = 'routine_section_templates';
 
   @override
   Future<void> build() async {
@@ -28,6 +29,7 @@ class DatabaseService extends _$DatabaseService {
       Hive.openBox(_sessionsBox),
       Hive.openBox(_progressBox),
       Hive.openBox(_settingsBox),
+      Hive.openBox(_routineSectionTemplatesBox),
     ]);
   }
 
@@ -36,6 +38,7 @@ class DatabaseService extends _$DatabaseService {
   Box get sessionsBox => Hive.box(_sessionsBox);
   Box get progressBox => Hive.box(_progressBox);
   Box get settingsBox => Hive.box(_settingsBox);
+  Box get routineSectionTemplatesBox => Hive.box(_routineSectionTemplatesBox);
 
   Future<void> clearAllData() async {
     await Future.wait([
@@ -44,6 +47,7 @@ class DatabaseService extends _$DatabaseService {
       sessionsBox.clear(),
       progressBox.clear(),
       settingsBox.clear(),
+      routineSectionTemplatesBox.clear(),
     ]);
   }
 
