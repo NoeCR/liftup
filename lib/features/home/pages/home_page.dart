@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
-import '../../sessions/notifiers/exercise_completion_notifier.dart';
-import '../../sessions/notifiers/exercise_state_notifier.dart';
 import '../../../common/widgets/section_header.dart';
-import '../../../common/widgets/exercise_card.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
+import '../widgets/exercise_card_wrapper.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 
@@ -179,42 +177,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                       );
 
-                      // Initialize exercise state if not exists
-                      ref
-                          .read(exerciseStateNotifierProvider.notifier)
-                          .initializeExercise(routineExercise);
-
-                      // Get current exercise state
-                      final currentExercise =
-                          ref.watch(
-                            exerciseStateNotifierProvider.select(
-                              (state) => state[routineExercise.id],
-                            ),
-                          ) ??
-                          routineExercise;
-
-                      return ExerciseCard(
-                        routineExercise: currentExercise,
+                      return ExerciseCardWrapper(
+                        routineExercise: routineExercise,
                         exercise: exercise,
-                        isCompleted: ref
-                            .watch(exerciseCompletionNotifierProvider)
-                            .contains(routineExercise.id),
                         onTap: () => context.push('/exercise/${exercise.id}'),
-                        onToggleCompleted: () {
-                          ref
-                              .read(exerciseCompletionNotifierProvider.notifier)
-                              .toggleExerciseCompletion(routineExercise.id);
-                        },
-                        onWeightChanged: (weight) {
-                          ref
-                              .read(exerciseStateNotifierProvider.notifier)
-                              .updateExerciseWeight(routineExercise.id, weight);
-                        },
-                        onRepsChanged: (reps) {
-                          ref
-                              .read(exerciseStateNotifierProvider.notifier)
-                              .updateExerciseReps(routineExercise.id, reps);
-                        },
                       );
                     }).toList(),
               );
@@ -252,7 +218,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              context.push('/create-routine');
+              print('DEBUG: Navegando a crear rutina...');
+              try {
+                context.push('/create-routine');
+                print('DEBUG: Navegación exitosa');
+              } catch (e) {
+                print('DEBUG: Error en navegación: $e');
+              }
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),
@@ -287,7 +259,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: () {
-              // TODO: Navigate to create routine
+              print('DEBUG: Navegando a crear rutina...');
+              try {
+                context.push('/create-routine');
+                print('DEBUG: Navegación exitosa');
+              } catch (e) {
+                print('DEBUG: Error en navegación: $e');
+              }
             },
             icon: const Icon(Icons.add),
             label: const Text('Crear Rutina'),

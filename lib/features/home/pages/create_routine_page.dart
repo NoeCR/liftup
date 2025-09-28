@@ -26,6 +26,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('DEBUG: CreateRoutinePage build() llamado');
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -98,15 +99,19 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
                     if (_selectedDays.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Primero selecciona los días de la semana'),
+                          content: Text(
+                            'Primero selecciona los días de la semana',
+                          ),
                           backgroundColor: Colors.orange,
                         ),
                       );
                       return;
                     }
-                    
+
                     // Navigate to exercise selection
-                    context.push('/exercise-selection?title=Agregar Ejercicios&subtitle=Selecciona ejercicios para tu rutina');
+                    context.push(
+                      '/exercise-selection?title=Agregar Ejercicios&subtitle=Selecciona ejercicios para tu rutina',
+                    );
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Agregar Ejercicios'),
@@ -136,24 +141,24 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-       children:
-           days.map((day) {
-             return FilterChip(
-               label: Text(day),
-               selected: _selectedDays.contains(day),
-               onSelected: (selected) {
-                 setState(() {
-                   if (selected) {
-                     _selectedDays.add(day);
-                   } else {
-                     _selectedDays.remove(day);
-                   }
-                 });
-               },
-               selectedColor: colorScheme.primaryContainer,
-               checkmarkColor: colorScheme.onPrimaryContainer,
-             );
-           }).toList(),
+      children:
+          days.map((day) {
+            return FilterChip(
+              label: Text(day),
+              selected: _selectedDays.contains(day),
+              onSelected: (selected) {
+                setState(() {
+                  if (selected) {
+                    _selectedDays.add(day);
+                  } else {
+                    _selectedDays.remove(day);
+                  }
+                });
+              },
+              selectedColor: colorScheme.primaryContainer,
+              checkmarkColor: colorScheme.onPrimaryContainer,
+            );
+          }).toList(),
     );
   }
 
@@ -175,42 +180,43 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         id: routineId,
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
-        days: _selectedDays.map((day) {
-          final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
-          return RoutineDay(
-            id: dayId,
-            routineId: routineId,
-            dayOfWeek: _getWeekDayFromString(day),
-            name: day,
-            sections: [
-              RoutineSection(
-                id: 'warmup_${DateTime.now().millisecondsSinceEpoch}',
-                routineDayId: dayId,
-                name: 'Calentamiento',
-                exercises: [],
-                isCollapsed: false,
-                order: 0,
-              ),
-              RoutineSection(
-                id: 'main_${DateTime.now().millisecondsSinceEpoch}',
-                routineDayId: dayId,
-                name: 'Ejercicios Principales',
-                exercises: [],
-                isCollapsed: false,
-                order: 1,
-              ),
-              RoutineSection(
-                id: 'cooldown_${DateTime.now().millisecondsSinceEpoch}',
-                routineDayId: dayId,
-                name: 'Enfriamiento',
-                exercises: [],
-                isCollapsed: false,
-                order: 2,
-              ),
-            ],
-            isActive: true,
-          );
-        }).toList(),
+        days:
+            _selectedDays.map((day) {
+              final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
+              return RoutineDay(
+                id: dayId,
+                routineId: routineId,
+                dayOfWeek: _getWeekDayFromString(day),
+                name: day,
+                sections: [
+                  RoutineSection(
+                    id: 'warmup_${DateTime.now().millisecondsSinceEpoch}',
+                    routineDayId: dayId,
+                    name: 'Calentamiento',
+                    exercises: [],
+                    isCollapsed: false,
+                    order: 0,
+                  ),
+                  RoutineSection(
+                    id: 'main_${DateTime.now().millisecondsSinceEpoch}',
+                    routineDayId: dayId,
+                    name: 'Ejercicios Principales',
+                    exercises: [],
+                    isCollapsed: false,
+                    order: 1,
+                  ),
+                  RoutineSection(
+                    id: 'cooldown_${DateTime.now().millisecondsSinceEpoch}',
+                    routineDayId: dayId,
+                    name: 'Enfriamiento',
+                    exercises: [],
+                    isCollapsed: false,
+                    order: 2,
+                  ),
+                ],
+                isActive: true,
+              );
+            }).toList(),
         isActive: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),

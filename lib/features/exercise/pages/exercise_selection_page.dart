@@ -20,7 +20,8 @@ class ExerciseSelectionPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ExerciseSelectionPage> createState() => _ExerciseSelectionPageState();
+  ConsumerState<ExerciseSelectionPage> createState() =>
+      _ExerciseSelectionPageState();
 }
 
 class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
@@ -94,7 +95,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                     itemBuilder: (context, index) {
                       final category = _categories[index];
                       final isSelected = _selectedCategory == category;
-                      
+
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: FilterChip(
@@ -125,7 +126,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                 return exerciseAsync.when(
                   data: (exercises) {
                     final filteredExercises = _filterExercises(exercises);
-                    
+
                     if (filteredExercises.isEmpty) {
                       return _buildEmptyState();
                     }
@@ -135,20 +136,24 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                       itemCount: filteredExercises.length,
                       itemBuilder: (context, index) {
                         final exercise = filteredExercises[index];
-                        final isSelected = _selectedExercises.contains(exercise.id);
+                        final isSelected = _selectedExercises.contains(
+                          exercise.id,
+                        );
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: isSelected 
-                                  ? colorScheme.primaryContainer
-                                  : colorScheme.surfaceVariant,
+                              backgroundColor:
+                                  isSelected
+                                      ? colorScheme.primaryContainer
+                                      : colorScheme.surfaceVariant,
                               child: Icon(
                                 isSelected ? Icons.check : Icons.fitness_center,
-                                color: isSelected 
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurfaceVariant,
+                                color:
+                                    isSelected
+                                        ? colorScheme.onPrimaryContainer
+                                        : colorScheme.onSurfaceVariant,
                               ),
                             ),
                             title: Text(exercise.name),
@@ -169,10 +174,13 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                                 ),
                                 IconButton(
                                   icon: Icon(
-                                    isSelected ? Icons.remove_circle : Icons.add_circle,
-                                    color: isSelected 
-                                        ? colorScheme.error
-                                        : colorScheme.primary,
+                                    isSelected
+                                        ? Icons.remove_circle
+                                        : Icons.add_circle,
+                                    color:
+                                        isSelected
+                                            ? colorScheme.error
+                                            : colorScheme.primary,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -200,7 +208,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                       },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
                   error: (error, stack) => _buildErrorState(error.toString()),
                 );
               },
@@ -216,16 +225,27 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
     // Filter by category
     if (_selectedCategory != 'Todos') {
-      filtered = filtered.where((exercise) => 
-          _getCategoryDisplayName(exercise.category).toLowerCase() == _selectedCategory.toLowerCase()).toList();
+      filtered =
+          filtered
+              .where(
+                (exercise) =>
+                    _getCategoryDisplayName(exercise.category).toLowerCase() ==
+                    _selectedCategory.toLowerCase(),
+              )
+              .toList();
     }
 
     // Filter by search text
     final searchText = _searchController.text.toLowerCase();
     if (searchText.isNotEmpty) {
-      filtered = filtered.where((exercise) =>
-          exercise.name.toLowerCase().contains(searchText) ||
-          exercise.description.toLowerCase().contains(searchText)).toList();
+      filtered =
+          filtered
+              .where(
+                (exercise) =>
+                    exercise.name.toLowerCase().contains(searchText) ||
+                    exercise.description.toLowerCase().contains(searchText),
+              )
+              .toList();
     }
 
     return filtered;
@@ -239,11 +259,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.search_off,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(Icons.search_off, size: 64, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
           Text(
             'No se encontraron ejercicios',
@@ -269,11 +285,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: colorScheme.error,
-          ),
+          Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
           Text(
             'Error al cargar ejercicios',
@@ -306,19 +318,25 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     // Get selected exercises from the exercise notifier
     final exerciseAsync = ref.read(exerciseNotifierProvider);
     exerciseAsync.whenData((exercises) {
-      final selectedExercises = exercises.where((exercise) => 
-          _selectedExercises.contains(exercise.id)).toList();
+      final selectedExercises =
+          exercises
+              .where((exercise) => _selectedExercises.contains(exercise.id))
+              .toList();
 
       if (selectedExercises.isNotEmpty) {
         // Add exercises to the routine exercise notifier
         // For now, we'll add them to a default section
-        final sectionId = widget.sectionId ?? 'main_${DateTime.now().millisecondsSinceEpoch}';
-        ref.read(routineExerciseNotifierProvider.notifier)
+        final sectionId =
+            widget.sectionId ?? 'main_${DateTime.now().millisecondsSinceEpoch}';
+        ref
+            .read(routineExerciseNotifierProvider.notifier)
             .addExercisesToSection(sectionId, selectedExercises);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${selectedExercises.length} ejercicios agregados exitosamente'),
+            content: Text(
+              '${selectedExercises.length} ejercicios agregados exitosamente',
+            ),
             backgroundColor: Colors.green,
           ),
         );
