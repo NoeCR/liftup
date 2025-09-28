@@ -130,43 +130,96 @@ class RoutineNotifier extends _$RoutineNotifier {
     final routineId = _uuid.v4();
     final dayId = _uuid.v4();
 
-    // Get section templates
-    final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
-    
-    // Create sections based on templates
-    final sections = sectionTemplates.map((template) {
-      return RoutineSection(
-        id: _uuid.v4(),
-        routineDayId: dayId,
-        name: template.name,
-        exercises: [],
-        isCollapsed: false,
-        order: template.order,
-        sectionTemplateId: template.id,
-        iconName: template.iconName,
-        muscleGroup: template.muscleGroup,
+    try {
+      // Get section templates
+      final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
+      
+      // Create sections based on templates
+      final sections = sectionTemplates.map((template) {
+        return RoutineSection(
+          id: _uuid.v4(),
+          routineDayId: dayId,
+          name: template.name,
+          exercises: [],
+          isCollapsed: false,
+          order: template.order,
+          sectionTemplateId: template.id,
+          iconName: template.iconName,
+          muscleGroup: template.muscleGroup,
+        );
+      }).toList();
+
+      final initialRoutine = Routine(
+        id: routineId,
+        name: 'Rutina de Ejemplo',
+        description: 'Una rutina básica para comenzar tu entrenamiento',
+        days: [
+          RoutineDay(
+            id: dayId,
+            routineId: routineId,
+            dayOfWeek: WeekDay.monday,
+            name: 'Día de Pecho y Tríceps',
+            sections: sections,
+            isActive: true,
+          ),
+        ],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        isActive: true,
       );
-    }).toList();
 
-    final initialRoutine = Routine(
-      id: routineId,
-      name: 'Rutina de Ejemplo',
-      description: 'Una rutina básica para comenzar tu entrenamiento',
-      days: [
-        RoutineDay(
-          id: dayId,
-          routineId: routineId,
-          dayOfWeek: WeekDay.monday,
-          name: 'Día de Pecho y Tríceps',
-          sections: sections,
-          isActive: true,
-        ),
-      ],
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      isActive: true,
-    );
+      await _routineService.saveRoutine(initialRoutine);
+    } catch (e) {
+      print('Error loading initial routine: $e');
+      // Fallback: create a simple routine without templates
+      final fallbackRoutine = Routine(
+        id: routineId,
+        name: 'Rutina de Ejemplo',
+        description: 'Una rutina básica para comenzar tu entrenamiento',
+        days: [
+          RoutineDay(
+            id: dayId,
+            routineId: routineId,
+            dayOfWeek: WeekDay.monday,
+            name: 'Día de Pecho y Tríceps',
+            sections: [
+              RoutineSection(
+                id: _uuid.v4(),
+                routineDayId: dayId,
+                name: 'Calentamiento',
+                exercises: [],
+                isCollapsed: false,
+                order: 0,
+                muscleGroup: SectionMuscleGroup.warmup,
+              ),
+              RoutineSection(
+                id: _uuid.v4(),
+                routineDayId: dayId,
+                name: 'Ejercicios Principales',
+                exercises: [],
+                isCollapsed: false,
+                order: 1,
+                muscleGroup: SectionMuscleGroup.chest,
+              ),
+              RoutineSection(
+                id: _uuid.v4(),
+                routineDayId: dayId,
+                name: 'Enfriamiento',
+                exercises: [],
+                isCollapsed: false,
+                order: 2,
+                muscleGroup: SectionMuscleGroup.cooldown,
+              ),
+            ],
+            isActive: true,
+          ),
+        ],
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        isActive: true,
+      );
 
-    await _routineService.saveRoutine(initialRoutine);
+      await _routineService.saveRoutine(fallbackRoutine);
+    }
   }
 }

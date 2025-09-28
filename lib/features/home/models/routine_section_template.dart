@@ -189,7 +189,7 @@ class DefaultSectionTemplates {
     'spa',
     'air',
     'thermostat',
-    
+
     // Pecho y Torso
     'fitness_center',
     'sports_gymnastics',
@@ -210,14 +210,14 @@ class DefaultSectionTemplates {
     'sports_score',
     'sports_bar',
     'sports_cafe',
-    
+
     // Brazos (Bíceps y Tríceps)
     'sports_basketball',
-    
+
     // Piernas (Cuádriceps, Isquiotibiales, Gemelos)
     'directions_run',
     'sports_soccer',
-    
+
     // Cardio
     'pool',
   ];
