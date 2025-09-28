@@ -8,9 +8,19 @@ import 'core/database/database_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize database
+  // Initialize database with error handling
   final container = ProviderContainer();
-  await container.read(databaseServiceProvider.future);
+  try {
+    await container.read(databaseServiceProvider.future);
+  } catch (e) {
+    print('Error initializing database: $e');
+    // Force reset database if initialization fails
+    try {
+      await container.read(databaseServiceProvider.notifier).forceResetDatabase();
+    } catch (resetError) {
+      print('Error resetting database: $resetError');
+    }
+  }
 
   runApp(
     UncontrolledProviderScope(container: container, child: const LiftUpApp()),

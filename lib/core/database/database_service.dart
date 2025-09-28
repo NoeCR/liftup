@@ -22,15 +22,55 @@ class DatabaseService extends _$DatabaseService {
     await Hive.initFlutter();
     HiveAdapters.registerAdapters();
 
-    // Open all boxes
-    await Future.wait([
-      Hive.openBox(_exercisesBox),
-      Hive.openBox(_routinesBox),
-      Hive.openBox(_sessionsBox),
-      Hive.openBox(_progressBox),
-      Hive.openBox(_settingsBox),
-      Hive.openBox(_routineSectionTemplatesBox),
-    ]);
+    try {
+      // Open all boxes
+      await Future.wait([
+        Hive.openBox(_exercisesBox),
+        Hive.openBox(_routinesBox),
+        Hive.openBox(_sessionsBox),
+        Hive.openBox(_progressBox),
+        Hive.openBox(_settingsBox),
+        Hive.openBox(_routineSectionTemplatesBox),
+      ]);
+    } catch (e) {
+      print('Error opening boxes: $e');
+      // If there's an error, clear all data and try again
+      await _clearAllBoxes();
+      await Future.wait([
+        Hive.openBox(_exercisesBox),
+        Hive.openBox(_routinesBox),
+        Hive.openBox(_sessionsBox),
+        Hive.openBox(_progressBox),
+        Hive.openBox(_settingsBox),
+        Hive.openBox(_routineSectionTemplatesBox),
+      ]);
+    }
+  }
+
+  Future<void> _clearAllBoxes() async {
+    try {
+      // Try to clear each box if it exists
+      final boxes = [
+        _exercisesBox,
+        _routinesBox,
+        _sessionsBox,
+        _progressBox,
+        _settingsBox,
+        _routineSectionTemplatesBox,
+      ];
+      
+      for (final boxName in boxes) {
+        try {
+          if (Hive.isBoxOpen(boxName)) {
+            await Hive.box(boxName).clear();
+          }
+        } catch (e) {
+          print('Error clearing box $boxName: $e');
+        }
+      }
+    } catch (e) {
+      print('Error clearing boxes: $e');
+    }
   }
 
   Box get exercisesBox => Hive.box(_exercisesBox);
@@ -49,6 +89,37 @@ class DatabaseService extends _$DatabaseService {
       settingsBox.clear(),
       routineSectionTemplatesBox.clear(),
     ]);
+  }
+
+  Future<void> forceResetDatabase() async {
+    try {
+      // Close all boxes
+      await Hive.close();
+      
+      // Delete all box files
+      final boxes = [
+        _exercisesBox,
+        _routinesBox,
+        _sessionsBox,
+        _progressBox,
+        _settingsBox,
+        _routineSectionTemplatesBox,
+      ];
+      
+      for (final boxName in boxes) {
+        try {
+          final boxFile = await Hive.openBox(boxName);
+          await boxFile.deleteFromDisk();
+        } catch (e) {
+          print('Error deleting box $boxName: $e');
+        }
+      }
+      
+      // Reinitialize
+      await _initializeHive();
+    } catch (e) {
+      print('Error resetting database: $e');
+    }
   }
 
   Future<void> close() async {

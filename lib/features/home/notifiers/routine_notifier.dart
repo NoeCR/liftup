@@ -132,22 +132,25 @@ class RoutineNotifier extends _$RoutineNotifier {
 
     try {
       // Get section templates
-      final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
-      
+      final sectionTemplates = await ref.read(
+        routineSectionTemplateNotifierProvider.future,
+      );
+
       // Create sections based on templates
-      final sections = sectionTemplates.map((template) {
-        return RoutineSection(
-          id: _uuid.v4(),
-          routineDayId: dayId,
-          name: template.name,
-          exercises: [],
-          isCollapsed: false,
-          order: template.order,
-          sectionTemplateId: template.id,
-          iconName: template.iconName,
-          muscleGroup: template.muscleGroup,
-        );
-      }).toList();
+      final sections =
+          sectionTemplates.map((template) {
+            return RoutineSection(
+              id: _uuid.v4(),
+              routineDayId: dayId,
+              name: template.name,
+              exercises: [],
+              isCollapsed: false,
+              order: template.order,
+              sectionTemplateId: template.id,
+              iconName: template.iconName,
+              muscleGroup: template.muscleGroup,
+            );
+          }).toList();
 
       final initialRoutine = Routine(
         id: routineId,
