@@ -34,10 +34,16 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crear Rutina'),
+        title: const Text('Crear Nueva Rutina'),
         backgroundColor: colorScheme.surface,
         actions: [
-          TextButton(onPressed: _saveRoutine, child: const Text('Guardar')),
+          TextButton(
+            onPressed: () {
+              // Just save and go back to home
+              _saveRoutineOnly();
+            },
+            child: const Text('Guardar'),
+          ),
         ],
       ),
       body: Padding(
@@ -93,10 +99,41 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               _buildDaysSelection(),
               const SizedBox(height: 24),
 
-              // Add Exercise Button
+              // Instructions
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.outline.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Después de crear la rutina, podrás añadir secciones personalizadas (Pecho, Espalda, Cardio, etc.) y luego ejercicios específicos a cada sección.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Add Sections Button
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
+                child: FilledButton.icon(
                   onPressed: () {
                     if (_selectedDays.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,13 +147,11 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
                       return;
                     }
 
-                    // Navigate to exercise selection with routine context
-                    context.push(
-                      '/exercise-selection?title=Agregar Ejercicios&subtitle=Selecciona ejercicios para tu rutina&routineId=$_routineId',
-                    );
+                    // Save routine first, then navigate to section selection
+                    _saveRoutineAndNavigateToSections();
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('Agregar Ejercicios'),
+                  label: const Text('Crear Rutina y Añadir Secciones'),
                 ),
               ),
             ],
@@ -156,7 +191,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     );
   }
 
-  void _saveRoutine() {
+  void _saveRoutineAndNavigateToSections() {
     if (_formKey.currentState!.validate()) {
       if (_selectedDays.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -169,31 +204,12 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       }
 
       // Create routine with selected days
-      final routine = Routine(
-        id: _routineId,
-        name: _nameController.text.trim(),
-        description: _descriptionController.text.trim(),
-        days:
-            _selectedDays.map((day) {
-              final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
-              return RoutineDay(
-                id: dayId,
-                routineId: _routineId,
-                dayOfWeek: WeekDayExtension.fromString(day),
-                name: day,
-                sections: [], // No crear secciones automáticamente
-                isActive: true,
-              );
-            }).toList(),
-        isActive: true,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+      final routine = _createRoutine();
 
       // Save routine using the notifier
       ref.read(routineNotifierProvider.notifier).addRoutine(routine);
 
-      // Show success message and navigate back
+      // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Rutina "${routine.name}" creada exitosamente'),
@@ -214,4 +230,56 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     }
   }
 
+  void _saveRoutineOnly() {
+    if (_formKey.currentState!.validate()) {
+      if (_selectedDays.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Por favor selecciona al menos un día de la semana'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Create routine with selected days
+      final routine = _createRoutine();
+
+      // Save routine using the notifier
+      ref.read(routineNotifierProvider.notifier).addRoutine(routine);
+
+      // Show success message and navigate back
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Rutina "${routine.name}" creada exitosamente'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Navigate back to home
+      Navigator.of(context).pop();
+    }
+  }
+
+  Routine _createRoutine() {
+    return Routine(
+      id: _routineId,
+      name: _nameController.text.trim(),
+      description: _descriptionController.text.trim(),
+      days: _selectedDays.map((day) {
+        final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
+        return RoutineDay(
+          id: dayId,
+          routineId: _routineId,
+          dayOfWeek: WeekDayExtension.fromString(day),
+          name: day,
+          sections: [], // No crear secciones automáticamente
+          isActive: true,
+        );
+      }).toList(),
+      isActive: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
 }
