@@ -16,6 +16,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final Set<String> _selectedDays = <String>{};
+  final String _routineId = DateTime.now().millisecondsSinceEpoch.toString();
 
   @override
   void dispose() {
@@ -108,9 +109,9 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
                       return;
                     }
 
-                    // Navigate to exercise selection
+                    // Navigate to exercise selection with routine context
                     context.push(
-                      '/exercise-selection?title=Agregar Ejercicios&subtitle=Selecciona ejercicios para tu rutina',
+                      '/exercise-selection?title=Agregar Ejercicios&subtitle=Selecciona ejercicios para tu rutina&routineId=$_routineId',
                     );
                   },
                   icon: const Icon(Icons.add),
@@ -175,9 +176,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       }
 
       // Create routine with selected days
-      final routineId = DateTime.now().millisecondsSinceEpoch.toString();
       final routine = Routine(
-        id: routineId,
+        id: _routineId,
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         days:
@@ -185,7 +185,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
               return RoutineDay(
                 id: dayId,
-                routineId: routineId,
+                routineId: _routineId,
                 dayOfWeek: _getWeekDayFromString(day),
                 name: day,
                 sections: [

@@ -325,12 +325,18 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
       if (selectedExercises.isNotEmpty) {
         // Add exercises to the routine exercise notifier
-        // For now, we'll add them to a default section
         final sectionId =
             widget.sectionId ?? 'main_${DateTime.now().millisecondsSinceEpoch}';
         ref
             .read(routineExerciseNotifierProvider.notifier)
             .addExercisesToSection(sectionId, selectedExercises);
+
+        // If we have a routineId, we should also update the routine in the database
+        if (widget.routineId != null) {
+          // TODO: Update routine with selected exercises
+          // This will be implemented when we connect the routine exercise notifier
+          // with the actual routine saving
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

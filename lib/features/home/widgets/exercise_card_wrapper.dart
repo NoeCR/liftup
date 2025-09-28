@@ -25,11 +25,13 @@ class ExerciseCardWrapper extends ConsumerWidget {
         .initializeExercise(routineExercise);
 
     // Get current exercise state
-    final currentExercise = ref.watch(
-      exerciseStateNotifierProvider.select(
-        (state) => state[routineExercise.id],
-      ),
-    ) ?? routineExercise;
+    final currentExercise =
+        ref.watch(
+          exerciseStateNotifierProvider.select(
+            (state) => state[routineExercise.id],
+          ),
+        ) ??
+        routineExercise;
 
     final isCompleted = ref.watch(
       exerciseCompletionNotifierProvider.select(
