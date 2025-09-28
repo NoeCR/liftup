@@ -45,7 +45,8 @@ class ExerciseService extends _$ExerciseService {
       return exercise.name.toLowerCase().contains(lowercaseQuery) ||
           exercise.description.toLowerCase().contains(lowercaseQuery) ||
           exercise.muscleGroups.any(
-            (muscle) => muscle.displayName.toLowerCase().contains(lowercaseQuery),
+            (muscle) =>
+                muscle.displayName.toLowerCase().contains(lowercaseQuery),
           );
     }).toList();
   }

@@ -55,7 +55,6 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
   }
 
   Widget _buildSearchAndFilter() {
-
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -202,7 +201,10 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
               children:
                   exercise.muscleGroups.map((muscle) {
                     return Chip(
-                      label: Text(muscle.displayName, style: theme.textTheme.bodySmall),
+                      label: Text(
+                        muscle.displayName,
+                        style: theme.textTheme.bodySmall,
+                      ),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     );
                   }).toList(),
