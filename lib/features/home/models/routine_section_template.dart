@@ -77,16 +77,16 @@ class RoutineSectionTemplate extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        iconName,
-        order,
-        isDefault,
-        createdAt,
-        updatedAt,
-        muscleGroup,
-      ];
+    id,
+    name,
+    description,
+    iconName,
+    order,
+    isDefault,
+    createdAt,
+    updatedAt,
+    muscleGroup,
+  ];
 }
 
 // Secciones predefinidas por defecto
@@ -183,20 +183,21 @@ class DefaultSectionTemplates {
   ];
 
   static const List<String> availableIcons = [
+    // Calentamiento y Enfriamiento
     'warm_up',
-    'fitness_center',
     'self_improvement',
+    'spa',
+    'air',
+    'thermostat',
+    
+    // Pecho y Torso
+    'fitness_center',
     'sports_gymnastics',
-    'pool',
-    'directions_run',
     'sports_martial_arts',
     'sports_tennis',
-    'sports_basketball',
-    'sports_soccer',
     'sports_volleyball',
     'sports_handball',
     'sports_kabaddi',
-    'sports_motorsports',
     'sports_mma',
     'sports_rugby',
     'sports_cricket',
@@ -209,19 +210,15 @@ class DefaultSectionTemplates {
     'sports_score',
     'sports_bar',
     'sports_cafe',
-    'sports_kabaddi',
-    'sports_motorsports',
-    'sports_mma',
-    'sports_rugby',
-    'sports_cricket',
-    'sports_golf',
-    'sports_hockey',
-    'sports_baseball',
-    'sports_football',
-    'sports_esports',
-    'sports',
-    'sports_score',
-    'sports_bar',
-    'sports_cafe',
+    
+    // Brazos (Bíceps y Tríceps)
+    'sports_basketball',
+    
+    // Piernas (Cuádriceps, Isquiotibiales, Gemelos)
+    'directions_run',
+    'sports_soccer',
+    
+    // Cardio
+    'pool',
   ];
 }

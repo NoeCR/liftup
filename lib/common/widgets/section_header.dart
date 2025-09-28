@@ -73,34 +73,33 @@ class SectionHeader extends StatelessWidget {
 
   IconData _getIconData(String iconName) {
     switch (iconName) {
+      // Calentamiento y Enfriamiento
       case 'warm_up':
         return Icons.whatshot;
-      case 'fitness_center':
-        return Icons.fitness_center;
       case 'self_improvement':
         return Icons.self_improvement;
+      case 'spa':
+        return Icons.spa;
+      case 'air':
+        return Icons.air;
+      case 'thermostat':
+        return Icons.thermostat;
+      
+      // Pecho y Torso
+      case 'fitness_center':
+        return Icons.fitness_center;
       case 'sports_gymnastics':
         return Icons.sports_gymnastics;
-      case 'pool':
-        return Icons.pool;
-      case 'directions_run':
-        return Icons.directions_run;
       case 'sports_martial_arts':
         return Icons.sports_martial_arts;
       case 'sports_tennis':
         return Icons.sports_tennis;
-      case 'sports_basketball':
-        return Icons.sports_basketball;
-      case 'sports_soccer':
-        return Icons.sports_soccer;
       case 'sports_volleyball':
         return Icons.sports_volleyball;
       case 'sports_handball':
         return Icons.sports_handball;
       case 'sports_kabaddi':
         return Icons.sports_kabaddi;
-      case 'sports_motorsports':
-        return Icons.sports_motorsports;
       case 'sports_mma':
         return Icons.sports_mma;
       case 'sports_rugby':
@@ -125,6 +124,21 @@ class SectionHeader extends StatelessWidget {
         return Icons.sports_bar;
       case 'sports_cafe':
         return Icons.local_cafe;
+      
+      // Brazos
+      case 'sports_basketball':
+        return Icons.sports_basketball;
+      
+      // Piernas
+      case 'directions_run':
+        return Icons.directions_run;
+      case 'sports_soccer':
+        return Icons.sports_soccer;
+      
+      // Cardio
+      case 'pool':
+        return Icons.pool;
+      
       default:
         return Icons.fitness_center;
     }

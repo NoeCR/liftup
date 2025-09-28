@@ -305,40 +305,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    'warm_up',
-                    'fitness_center',
-                    'self_improvement',
-                    'sports_gymnastics',
-                    'pool',
-                    'directions_run',
-                    'sports_martial_arts',
-                    'sports_tennis',
-                    'sports_basketball',
-                    'sports_soccer',
-                  ].map((iconName) {
-                    return GestureDetector(
-                      onTap: () => setState(() => selectedIcon = iconName),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: selectedIcon == iconName
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.surfaceVariant,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          _getIconData(iconName),
-                          color: selectedIcon == iconName
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+                _buildIconSelector(context, setState, selectedIcon),
               ],
             ),
           ),
@@ -405,6 +372,71 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildIconSelector(BuildContext context, StateSetter setState, String selectedIcon) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
+    // Organizar íconos por categorías
+    final iconCategories = {
+      'Calentamiento/Enfriamiento': ['warm_up', 'self_improvement', 'spa', 'air', 'thermostat'],
+      'Pecho/Torso': ['fitness_center', 'sports_gymnastics', 'sports_martial_arts', 'sports_tennis', 'sports_volleyball'],
+      'Espalda/Hombros': ['sports_handball', 'sports_kabaddi', 'sports_mma', 'sports_rugby', 'sports_cricket'],
+      'Brazos': ['sports_basketball'],
+      'Piernas': ['directions_run', 'sports_soccer'],
+      'Core': ['sports_golf', 'sports_hockey', 'sports_baseball', 'sports_football'],
+      'Cardio': ['pool', 'sports_esports', 'sports', 'sports_score'],
+      'Otros': ['sports_bar', 'sports_cafe'],
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: iconCategories.entries.map((category) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              category.key,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: category.value.map((iconName) {
+                return GestureDetector(
+                  onTap: () => setState(() => selectedIcon = iconName),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: selectedIcon == iconName
+                          ? colorScheme.primary
+                          : colorScheme.surfaceVariant,
+                      borderRadius: BorderRadius.circular(8),
+                      border: selectedIcon == iconName
+                          ? Border.all(color: colorScheme.primary, width: 2)
+                          : null,
+                    ),
+                    child: Icon(
+                      _getIconData(iconName),
+                      color: selectedIcon == iconName
+                          ? colorScheme.onPrimary
+                          : colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+        );
+      }).toList(),
     );
   }
 }
