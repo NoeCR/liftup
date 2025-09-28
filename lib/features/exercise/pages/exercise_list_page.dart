@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
+import '../../../common/enums/muscle_group_enum.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 
 class ExerciseListPage extends ConsumerStatefulWidget {
@@ -54,7 +55,6 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
   }
 
   Widget _buildSearchAndFilter() {
-    final theme = Theme.of(context);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -202,7 +202,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
               children:
                   exercise.muscleGroups.map((muscle) {
                     return Chip(
-                      label: Text(muscle, style: theme.textTheme.bodySmall),
+                      label: Text(muscle.displayName, style: theme.textTheme.bodySmall),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     );
                   }).toList(),
@@ -283,7 +283,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
             return exercise.name.toLowerCase().contains(query) ||
                 exercise.description.toLowerCase().contains(query) ||
                 exercise.muscleGroups.any(
-                  (muscle) => muscle.toLowerCase().contains(query),
+                  (muscle) => muscle.displayName.toLowerCase().contains(query),
                 );
           }).toList();
     }
@@ -300,23 +300,6 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
   }
 
   String _getCategoryName(ExerciseCategory category) {
-    switch (category) {
-      case ExerciseCategory.chest:
-        return 'Pecho';
-      case ExerciseCategory.back:
-        return 'Espalda';
-      case ExerciseCategory.shoulders:
-        return 'Hombros';
-      case ExerciseCategory.arms:
-        return 'Brazos';
-      case ExerciseCategory.legs:
-        return 'Piernas';
-      case ExerciseCategory.core:
-        return 'Core';
-      case ExerciseCategory.cardio:
-        return 'Cardio';
-      case ExerciseCategory.fullBody:
-        return 'Cuerpo Completo';
-    }
+    return category.displayName;
   }
 }

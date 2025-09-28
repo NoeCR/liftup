@@ -229,5 +229,4 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       Navigator.of(context).pop();
     }
   }
-
 }

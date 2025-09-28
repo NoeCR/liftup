@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/routine.dart';
+import '../../../common/enums/week_day_enum.dart';
 import '../../../core/database/database_service.dart';
 
 part 'routine_service.g.dart';

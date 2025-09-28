@@ -31,10 +31,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   String _selectedCategory = 'Todos';
   final TextEditingController _searchController = TextEditingController();
 
-    final List<String> _categories = [
-      'Todos',
-      ...ExerciseCategory.values.map((category) => category.displayName),
-    ];
+  final List<String> _categories = [
+    'Todos',
+    ...ExerciseCategory.values.map((category) => category.displayName),
+  ];
 
   @override
   void dispose() {
@@ -350,7 +350,6 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     // Navigate back
     Navigator.of(context).pop();
   }
-
 
   void _updateRoutineWithExercises(
     String routineId,

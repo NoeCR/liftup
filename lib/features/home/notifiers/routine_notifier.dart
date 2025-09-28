@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
+import '../../../common/enums/week_day_enum.dart';
 
 part 'routine_notifier.g.dart';
 

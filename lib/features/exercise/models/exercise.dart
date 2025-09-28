@@ -69,7 +69,7 @@ class Exercise extends Equatable {
     String? description,
     String? imageUrl,
     String? videoUrl,
-    List<String>? muscleGroups,
+    List<MuscleGroup>? muscleGroups,
     List<String>? tips,
     List<String>? commonMistakes,
     ExerciseCategory? category,

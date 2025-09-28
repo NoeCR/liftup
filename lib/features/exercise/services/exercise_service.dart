@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/exercise.dart';
+import '../../../common/enums/muscle_group_enum.dart';
 import '../../../core/database/database_service.dart';
 
 part 'exercise_service.g.dart';
@@ -44,7 +45,7 @@ class ExerciseService extends _$ExerciseService {
       return exercise.name.toLowerCase().contains(lowercaseQuery) ||
           exercise.description.toLowerCase().contains(lowercaseQuery) ||
           exercise.muscleGroups.any(
-            (muscle) => muscle.toLowerCase().contains(lowercaseQuery),
+            (muscle) => muscle.displayName.toLowerCase().contains(lowercaseQuery),
           );
     }).toList();
   }
