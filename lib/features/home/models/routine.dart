@@ -166,6 +166,12 @@ class RoutineSection extends Equatable {
   @HiveField(5)
   final int order;
 
+  @HiveField(6)
+  final String? sectionTemplateId;
+
+  @HiveField(7)
+  final String? iconName;
+
   const RoutineSection({
     required this.id,
     required this.routineDayId,
@@ -173,6 +179,8 @@ class RoutineSection extends Equatable {
     required this.exercises,
     required this.isCollapsed,
     required this.order,
+    this.sectionTemplateId,
+    this.iconName,
   });
 
   factory RoutineSection.fromJson(Map<String, dynamic> json) =>
@@ -186,6 +194,8 @@ class RoutineSection extends Equatable {
     List<RoutineExercise>? exercises,
     bool? isCollapsed,
     int? order,
+    String? sectionTemplateId,
+    String? iconName,
   }) {
     return RoutineSection(
       id: id ?? this.id,
@@ -194,6 +204,8 @@ class RoutineSection extends Equatable {
       exercises: exercises ?? this.exercises,
       isCollapsed: isCollapsed ?? this.isCollapsed,
       order: order ?? this.order,
+      sectionTemplateId: sectionTemplateId ?? this.sectionTemplateId,
+      iconName: iconName ?? this.iconName,
     );
   }
 
@@ -205,6 +217,8 @@ class RoutineSection extends Equatable {
     exercises,
     isCollapsed,
     order,
+    sectionTemplateId,
+    iconName,
   ];
 }
 

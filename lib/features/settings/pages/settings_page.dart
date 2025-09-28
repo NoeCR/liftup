@@ -20,79 +20,67 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildSettingsSection(
-            context,
-            'Rutinas',
-            [
-              _buildSettingsTile(
-                context,
-                icon: Icons.settings_suggest,
-                title: 'Configurar Secciones',
-                subtitle: 'Personalizar secciones de entrenamiento',
-                onTap: () => context.push(AppRouter.sectionTemplates),
-              ),
-            ],
-          ),
+          _buildSettingsSection(context, 'Rutinas', [
+            _buildSettingsTile(
+              context,
+              icon: Icons.settings_suggest,
+              title: 'Configurar Secciones',
+              subtitle: 'Personalizar secciones de entrenamiento',
+              onTap: () => context.push(AppRouter.sectionTemplates),
+            ),
+          ]),
           const SizedBox(height: 24),
-          _buildSettingsSection(
-            context,
-            'Aplicación',
-            [
-              _buildSettingsTile(
-                context,
-                icon: Icons.palette,
-                title: 'Tema',
-                subtitle: 'Cambiar tema claro/oscuro',
-                onTap: () {
-                  // TODO: Implementar cambio de tema
-                },
-              ),
-              _buildSettingsTile(
-                context,
-                icon: Icons.language,
-                title: 'Idioma',
-                subtitle: 'Cambiar idioma de la aplicación',
-                onTap: () {
-                  // TODO: Implementar cambio de idioma
-                },
-              ),
-            ],
-          ),
+          _buildSettingsSection(context, 'Aplicación', [
+            _buildSettingsTile(
+              context,
+              icon: Icons.palette,
+              title: 'Tema',
+              subtitle: 'Cambiar tema claro/oscuro',
+              onTap: () {
+                // TODO: Implementar cambio de tema
+              },
+            ),
+            _buildSettingsTile(
+              context,
+              icon: Icons.language,
+              title: 'Idioma',
+              subtitle: 'Cambiar idioma de la aplicación',
+              onTap: () {
+                // TODO: Implementar cambio de idioma
+              },
+            ),
+          ]),
           const SizedBox(height: 24),
-          _buildSettingsSection(
-            context,
-            'Datos',
-            [
-              _buildSettingsTile(
-                context,
-                icon: Icons.backup,
-                title: 'Exportar Datos',
-                subtitle: 'Exportar rutinas y progreso',
-                onTap: () {
-                  // TODO: Implementar exportación
-                },
-              ),
-              _buildSettingsTile(
-                context,
-                icon: Icons.restore,
-                title: 'Importar Datos',
-                subtitle: 'Importar rutinas y progreso',
-                onTap: () {
-                  // TODO: Implementar importación
-                },
-              ),
-              _buildSettingsTile(
-                context,
-                icon: Icons.delete_forever,
-                title: 'Eliminar Todos los Datos',
-                subtitle: 'Eliminar todas las rutinas y progreso',
-                onTap: () {
-                  // TODO: Implementar eliminación de datos
-                },
-                isDestructive: true,
-              ),
-            ],
-          ),
+          _buildSettingsSection(context, 'Datos', [
+            _buildSettingsTile(
+              context,
+              icon: Icons.backup,
+              title: 'Exportar Datos',
+              subtitle: 'Exportar rutinas y progreso',
+              onTap: () {
+                // TODO: Implementar exportación
+              },
+            ),
+            _buildSettingsTile(
+              context,
+              icon: Icons.restore,
+              title: 'Importar Datos',
+              subtitle: 'Importar rutinas y progreso',
+              onTap: () {
+                // TODO: Implementar importación
+              },
+            ),
+            _buildSettingsTile(
+              context,
+              icon: Icons.delete_forever,
+              title: 'Eliminar Todos los Datos',
+              subtitle: 'Eliminar todas las rutinas y progreso',
+              onTap: () {
+                // TODO: Implementar eliminación de datos
+              },
+              isDestructive: true,
+            ),
+          ]),
         ],
       ),
       bottomNavigationBar: const CustomBottomNavigation(currentIndex: 4),
@@ -120,9 +108,7 @@ class SettingsPage extends ConsumerWidget {
             ),
           ),
         ),
-        Card(
-          child: Column(children: children),
-        ),
+        Card(child: Column(children: children)),
       ],
     );
   }
@@ -145,9 +131,7 @@ class SettingsPage extends ConsumerWidget {
       ),
       title: Text(
         title,
-        style: TextStyle(
-          color: isDestructive ? colorScheme.error : null,
-        ),
+        style: TextStyle(color: isDestructive ? colorScheme.error : null),
       ),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.chevron_right),

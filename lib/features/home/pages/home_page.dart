@@ -211,6 +211,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         SectionHeader(
           title: section.name,
           isCollapsed: section.isCollapsed,
+          iconName: section.iconName,
           onToggleCollapsed: () {
             ref
                 .read(routineNotifierProvider.notifier)

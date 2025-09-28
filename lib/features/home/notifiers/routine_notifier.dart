@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
 import '../../../common/enums/week_day_enum.dart';
+import 'routine_section_template_notifier.dart';
 
 part 'routine_notifier.g.dart';
 
@@ -127,7 +128,23 @@ class RoutineNotifier extends _$RoutineNotifier {
   Future<void> _loadInitialRoutine() async {
     final routineId = _uuid.v4();
     final dayId = _uuid.v4();
-    final sectionId = _uuid.v4();
+
+    // Get section templates
+    final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
+    
+    // Create sections based on templates
+    final sections = sectionTemplates.map((template) {
+      return RoutineSection(
+        id: _uuid.v4(),
+        routineDayId: dayId,
+        name: template.name,
+        exercises: [],
+        isCollapsed: false,
+        order: template.order,
+        sectionTemplateId: template.id,
+        iconName: template.iconName,
+      );
+    }).toList();
 
     final initialRoutine = Routine(
       id: routineId,
@@ -139,32 +156,7 @@ class RoutineNotifier extends _$RoutineNotifier {
           routineId: routineId,
           dayOfWeek: WeekDay.monday,
           name: 'Día de Pecho y Tríceps',
-          sections: [
-            RoutineSection(
-              id: sectionId,
-              routineDayId: dayId,
-              name: 'Calentamiento',
-              exercises: [],
-              isCollapsed: false,
-              order: 0,
-            ),
-            RoutineSection(
-              id: _uuid.v4(),
-              routineDayId: dayId,
-              name: 'Ejercicios Principales',
-              exercises: [],
-              isCollapsed: false,
-              order: 1,
-            ),
-            RoutineSection(
-              id: _uuid.v4(),
-              routineDayId: dayId,
-              name: 'Enfriamiento',
-              exercises: [],
-              isCollapsed: false,
-              order: 2,
-            ),
-          ],
+          sections: sections,
           isActive: true,
         ),
       ],
