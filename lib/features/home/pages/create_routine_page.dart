@@ -6,6 +6,7 @@ import '../notifiers/routine_section_template_notifier.dart';
 import '../models/routine.dart';
 import '../../../common/enums/week_day_enum.dart';
 import '../../../common/enums/section_muscle_group_enum.dart';
+import '../../../core/navigation/app_router.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
   const CreateRoutinePage({super.key});
@@ -203,8 +204,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       );
 
       // Navigate to section selection page for the first day
-      if (routineDays.isNotEmpty) {
-        final firstDay = routineDays.first;
+      if (routine.days.isNotEmpty) {
+        final firstDay = routine.days.first;
         context.push(
           '${AppRouter.sectionSelection}?routineId=${_routineId}&dayId=${firstDay.id}',
         );

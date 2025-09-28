@@ -131,7 +131,11 @@ class RoutineNotifier extends _$RoutineNotifier {
     // Esto permite mayor flexibilidad y personalización
   }
 
-  Future<void> addSectionsToDay(String routineId, String dayId, List<String> sectionTemplateIds) async {
+  Future<void> addSectionsToDay(
+    String routineId,
+    String dayId,
+    List<String> sectionTemplateIds,
+  ) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) return;
 
@@ -142,38 +146,41 @@ class RoutineNotifier extends _$RoutineNotifier {
       );
 
       // Create sections based on selected templates
-      final newSections = sectionTemplateIds.map((templateId) {
-        final template = sectionTemplates.firstWhere(
-          (t) => t.id == templateId,
-          orElse: () => sectionTemplates.first,
-        );
-        
-        return RoutineSection(
-          id: _uuid.v4(),
-          routineDayId: dayId,
-          name: template.name,
-          exercises: [],
-          isCollapsed: false,
-          order: template.order,
-          sectionTemplateId: template.id,
-          iconName: template.iconName,
-          muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
-        );
-      }).toList();
+      final newSections =
+          sectionTemplateIds.map((templateId) {
+            final template = sectionTemplates.firstWhere(
+              (t) => t.id == templateId,
+              orElse: () => sectionTemplates.first,
+            );
 
-      final updatedRoutines = currentRoutines.map((routine) {
-        if (routine.id == routineId) {
-          final updatedDays = routine.days.map((day) {
-            if (day.id == dayId) {
-              final updatedSections = [...day.sections, ...newSections];
-              return day.copyWith(sections: updatedSections);
-            }
-            return day;
+            return RoutineSection(
+              id: _uuid.v4(),
+              routineDayId: dayId,
+              name: template.name,
+              exercises: [],
+              isCollapsed: false,
+              order: template.order,
+              sectionTemplateId: template.id,
+              iconName: template.iconName,
+              muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
+            );
           }).toList();
-          return routine.copyWith(days: updatedDays);
-        }
-        return routine;
-      }).toList();
+
+      final updatedRoutines =
+          currentRoutines.map((routine) {
+            if (routine.id == routineId) {
+              final updatedDays =
+                  routine.days.map((day) {
+                    if (day.id == dayId) {
+                      final updatedSections = [...day.sections, ...newSections];
+                      return day.copyWith(sections: updatedSections);
+                    }
+                    return day;
+                  }).toList();
+              return routine.copyWith(days: updatedDays);
+            }
+            return routine;
+          }).toList();
 
       for (final routine in updatedRoutines) {
         await _routineService.saveRoutine(routine);
