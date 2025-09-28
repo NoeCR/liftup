@@ -202,8 +202,16 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         ),
       );
 
-      // Navigate back to home
-      Navigator.of(context).pop();
+      // Navigate to section selection page for the first day
+      if (routineDays.isNotEmpty) {
+        final firstDay = routineDays.first;
+        context.push(
+          '${AppRouter.sectionSelection}?routineId=${_routineId}&dayId=${firstDay.id}',
+        );
+      } else {
+        // Navigate back to home
+        Navigator.of(context).pop();
+      }
     }
   }
 

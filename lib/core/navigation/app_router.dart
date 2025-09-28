@@ -9,6 +9,7 @@ import '../../features/sessions/pages/session_page.dart';
 import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 import '../../features/home/pages/section_templates_page.dart';
+import '../../features/home/pages/section_selection_page.dart';
 
 class AppRouter {
   static const String home = '/';
@@ -20,6 +21,7 @@ class AppRouter {
   static const String statistics = '/statistics';
   static const String settings = '/settings';
   static const String sectionTemplates = '/section-templates';
+  static const String sectionSelection = '/section-selection';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -83,6 +85,18 @@ class AppRouter {
         path: sectionTemplates,
         name: 'sectionTemplates',
         builder: (context, state) => const SectionTemplatesPage(),
+      ),
+      GoRoute(
+        path: sectionSelection,
+        name: 'sectionSelection',
+        builder: (context, state) {
+          final routineId = state.uri.queryParameters['routineId'] ?? '';
+          final dayId = state.uri.queryParameters['dayId'] ?? '';
+          return SectionSelectionPage(
+            routineId: routineId,
+            dayId: dayId,
+          );
+        },
       ),
     ],
     errorBuilder:

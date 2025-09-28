@@ -127,8 +127,13 @@ class RoutineNotifier extends _$RoutineNotifier {
   }
 
   Future<void> _loadInitialRoutine() async {
-    final routineId = _uuid.v4();
-    final dayId = _uuid.v4();
+    // No crear rutinas automáticamente - el usuario las creará manualmente
+    // Esto permite mayor flexibilidad y personalización
+  }
+
+  Future<void> addSectionsToDay(String routineId, String dayId, List<String> sectionTemplateIds) async {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return;
 
     try {
       // Get section templates
@@ -136,93 +141,46 @@ class RoutineNotifier extends _$RoutineNotifier {
         routineSectionTemplateNotifierProvider.future,
       );
 
-      // Create sections based on templates
-      final sections =
-          sectionTemplates.map((template) {
-            return RoutineSection(
-              id: _uuid.v4(),
-              routineDayId: dayId,
-              name: template.name,
-              exercises: [],
-              isCollapsed: false,
-              order: template.order,
-              sectionTemplateId: template.id,
-              iconName: template.iconName,
-              muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
-            );
+      // Create sections based on selected templates
+      final newSections = sectionTemplateIds.map((templateId) {
+        final template = sectionTemplates.firstWhere(
+          (t) => t.id == templateId,
+          orElse: () => sectionTemplates.first,
+        );
+        
+        return RoutineSection(
+          id: _uuid.v4(),
+          routineDayId: dayId,
+          name: template.name,
+          exercises: [],
+          isCollapsed: false,
+          order: template.order,
+          sectionTemplateId: template.id,
+          iconName: template.iconName,
+          muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
+        );
+      }).toList();
+
+      final updatedRoutines = currentRoutines.map((routine) {
+        if (routine.id == routineId) {
+          final updatedDays = routine.days.map((day) {
+            if (day.id == dayId) {
+              final updatedSections = [...day.sections, ...newSections];
+              return day.copyWith(sections: updatedSections);
+            }
+            return day;
           }).toList();
+          return routine.copyWith(days: updatedDays);
+        }
+        return routine;
+      }).toList();
 
-      final initialRoutine = Routine(
-        id: routineId,
-        name: 'Rutina de Ejemplo',
-        description: 'Una rutina básica para comenzar tu entrenamiento',
-        days: [
-          RoutineDay(
-            id: dayId,
-            routineId: routineId,
-            dayOfWeek: WeekDay.monday,
-            name: 'Día de Pecho y Tríceps',
-            sections: sections,
-            isActive: true,
-          ),
-        ],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        isActive: true,
-      );
-
-      await _routineService.saveRoutine(initialRoutine);
+      for (final routine in updatedRoutines) {
+        await _routineService.saveRoutine(routine);
+      }
+      state = AsyncValue.data(updatedRoutines);
     } catch (e) {
-      print('Error loading initial routine: $e');
-      // Fallback: create a simple routine without templates
-      final fallbackRoutine = Routine(
-        id: routineId,
-        name: 'Rutina de Ejemplo',
-        description: 'Una rutina básica para comenzar tu entrenamiento',
-        days: [
-          RoutineDay(
-            id: dayId,
-            routineId: routineId,
-            dayOfWeek: WeekDay.monday,
-            name: 'Día de Pecho y Tríceps',
-            sections: [
-              RoutineSection(
-                id: _uuid.v4(),
-                routineDayId: dayId,
-                name: 'Calentamiento',
-                exercises: [],
-                isCollapsed: false,
-                order: 0,
-                muscleGroup: SectionMuscleGroup.warmup,
-              ),
-              RoutineSection(
-                id: _uuid.v4(),
-                routineDayId: dayId,
-                name: 'Ejercicios Principales',
-                exercises: [],
-                isCollapsed: false,
-                order: 1,
-                muscleGroup: SectionMuscleGroup.chest,
-              ),
-              RoutineSection(
-                id: _uuid.v4(),
-                routineDayId: dayId,
-                name: 'Enfriamiento',
-                exercises: [],
-                isCollapsed: false,
-                order: 2,
-                muscleGroup: SectionMuscleGroup.cooldown,
-              ),
-            ],
-            isActive: true,
-          ),
-        ],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        isActive: true,
-      );
-
-      await _routineService.saveRoutine(fallbackRoutine);
+      print('Error adding sections to day: $e');
     }
   }
 }

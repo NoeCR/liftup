@@ -9,6 +9,7 @@ import '../widgets/exercise_card_wrapper.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../../common/enums/week_day_enum.dart';
+import '../../../core/navigation/app_router.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -218,12 +219,23 @@ class _HomePageState extends ConsumerState<HomePage> {
                 .read(routineNotifierProvider.notifier)
                 .toggleSectionCollapsed(section.id);
           },
+          trailing: section.isCollapsed
+              ? null
+              : IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    context.push(
+                      '${AppRouter.exerciseSelection}?routineId=${section.routineDayId}&sectionId=${section.id}&title=${section.name}&subtitle=',
+                    );
+                  },
+                  tooltip: 'Añadir ejercicio',
+                ),
         ),
         if (!section.isCollapsed) ...[
           exerciseAsync.when(
             data: (exercises) {
               if (section.exercises.isEmpty) {
-                return _buildEmptySection();
+                return _buildEmptySection(section.name);
               }
 
               return Column(
@@ -333,7 +345,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildEmptySection() {
+  Widget _buildEmptySection(String sectionName) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -357,7 +369,7 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Agregar ejercicios',
+            'Agregar ejercicios a $sectionName',
             style: theme.textTheme.titleMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
