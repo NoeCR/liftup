@@ -47,9 +47,10 @@ class AppRouter {
         builder: (context, state) {
           final routineId = state.uri.queryParameters['routineId'];
           final sectionId = state.uri.queryParameters['sectionId'];
-          final title = state.uri.queryParameters['title'] ?? 'Seleccionar Ejercicios';
+          final title =
+              state.uri.queryParameters['title'] ?? 'Seleccionar Ejercicios';
           final subtitle = state.uri.queryParameters['subtitle'];
-          
+
           return ExerciseSelectionPage(
             routineId: routineId,
             sectionId: sectionId,
@@ -91,11 +92,7 @@ class AppRouter {
         name: 'sectionSelection',
         builder: (context, state) {
           final routineId = state.uri.queryParameters['routineId'] ?? '';
-          final dayId = state.uri.queryParameters['dayId'] ?? '';
-          return SectionSelectionPage(
-            routineId: routineId,
-            dayId: dayId,
-          );
+          return SectionSelectionPage(routineId: routineId);
         },
       ),
     ],

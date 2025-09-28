@@ -383,24 +383,18 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
               .toList();
 
       // Update the routine with new exercises
-      final updatedRoutine = routine.copyWith(
-        days:
-            routine.days.map((day) {
-              return day.copyWith(
-                sections:
-                    day.sections.map((section) {
-                      if (section.id == sectionId) {
-                        return section.copyWith(
-                          exercises: [
-                            ...section.exercises,
-                            ...routineExercises,
-                          ],
-                        );
-                      }
-                      return section;
-                    }).toList(),
+      final updatedSections =
+          routine.sections.map((section) {
+            if (section.id == sectionId) {
+              return section.copyWith(
+                exercises: [...section.exercises, ...routineExercises],
               );
-            }).toList(),
+            }
+            return section;
+          }).toList();
+
+      final updatedRoutine = routine.copyWith(
+        sections: updatedSections,
         updatedAt: DateTime.now(),
       );
 

@@ -36,17 +36,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       appBar: AppBar(
         title: const Text('Crear Nueva Rutina'),
         backgroundColor: colorScheme.surface,
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Just save and go back to home
-              _saveRoutineOnly();
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
@@ -217,47 +208,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         ),
       );
 
-      // Navigate to section selection page for the first day
-      if (routine.days.isNotEmpty) {
-        final firstDay = routine.days.first;
-        context.push(
-          '${AppRouter.sectionSelection}?routineId=${_routineId}&dayId=${firstDay.id}',
-        );
-      } else {
-        // Navigate back to home
-        Navigator.of(context).pop();
-      }
-    }
-  }
-
-  void _saveRoutineOnly() {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedDays.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor selecciona al menos un día de la semana'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      // Create routine with selected days
-      final routine = _createRoutine();
-
-      // Save routine using the notifier
-      ref.read(routineNotifierProvider.notifier).addRoutine(routine);
-
-      // Show success message and navigate back
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Rutina "${routine.name}" creada exitosamente'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // Navigate back to home
-      Navigator.of(context).pop();
+      // Navigate to section selection page
+      context.push('${AppRouter.sectionSelection}?routineId=${_routineId}');
     }
   }
 
@@ -267,18 +219,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
       days:
-          _selectedDays.map((day) {
-            final dayId = '${day}_${DateTime.now().millisecondsSinceEpoch}';
-            return RoutineDay(
-              id: dayId,
-              routineId: _routineId,
-              dayOfWeek: WeekDayExtension.fromString(day),
-              name: day,
-              sections: [], // No crear secciones automáticamente
-              isActive: true,
-            );
-          }).toList(),
-      isActive: true,
+          _selectedDays.map((day) => WeekDayExtension.fromString(day)).toList(),
+      sections: [], // No crear secciones automáticamente
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );

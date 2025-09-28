@@ -9,16 +9,12 @@ import '../../../common/widgets/custom_bottom_navigation.dart';
 
 class SectionSelectionPage extends ConsumerStatefulWidget {
   final String routineId;
-  final String dayId;
 
-  const SectionSelectionPage({
-    super.key,
-    required this.routineId,
-    required this.dayId,
-  });
+  const SectionSelectionPage({super.key, required this.routineId});
 
   @override
-  ConsumerState<SectionSelectionPage> createState() => _SectionSelectionPageState();
+  ConsumerState<SectionSelectionPage> createState() =>
+      _SectionSelectionPageState();
 }
 
 class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
@@ -29,45 +25,52 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final sectionTemplatesAsync = ref.watch(routineSectionTemplateNotifierProvider);
+    final sectionTemplatesAsync = ref.watch(
+      routineSectionTemplateNotifierProvider,
+    );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Seleccionar Secciones'),
-        backgroundColor: colorScheme.surface,
-        actions: [
-          if (_selectedSectionIds.isNotEmpty)
-            TextButton(
-              onPressed: _saveSections,
-              child: Text(
-                'Guardar (${_selectedSectionIds.length})',
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-        ],
-      ),
-      body: sectionTemplatesAsync.when(
-        data: (sectionTemplates) {
-          if (sectionTemplates.isEmpty) {
-            return _buildEmptyState();
-          }
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevenir navegación hacia atrás
+        _showExitDialog();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Seleccionar Secciones'),
+          backgroundColor: colorScheme.surface,
+          automaticallyImplyLeading: false, // Eliminar botón de retroceso
+        ),
+        body: sectionTemplatesAsync.when(
+          data: (sectionTemplates) {
+            if (sectionTemplates.isEmpty) {
+              return _buildEmptyState();
+            }
 
-          return Column(
-            children: [
-              _buildInstructions(),
-              Expanded(
-                child: _buildSectionTemplatesList(sectionTemplates),
-              ),
-            ],
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => _buildErrorState(err),
+            return Column(
+              children: [
+                _buildInstructions(),
+                Expanded(child: _buildSectionTemplatesList(sectionTemplates)),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, stack) => _buildErrorState(err),
+        ),
+        floatingActionButton:
+            _selectedSectionIds.isNotEmpty
+                ? FloatingActionButton.extended(
+                  onPressed: _finalizeRoutine,
+                  icon: const Icon(Icons.check),
+                  label: Text(
+                    'Finalizar Rutina (${_selectedSectionIds.length})',
+                  ),
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                )
+                : null,
+        bottomNavigationBar: const CustomBottomNavigation(currentIndex: 0),
       ),
-      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 0),
     );
   }
 
@@ -84,10 +87,7 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: colorScheme.onPrimaryContainer,
-          ),
+          Icon(Icons.info_outline, color: colorScheme.onPrimaryContainer),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -102,10 +102,12 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
     );
   }
 
-  Widget _buildSectionTemplatesList(List<RoutineSectionTemplate> sectionTemplates) {
+  Widget _buildSectionTemplatesList(
+    List<RoutineSectionTemplate> sectionTemplates,
+  ) {
     // Agrupar por categorías
     final groupedTemplates = <String, List<RoutineSectionTemplate>>{};
-    
+
     for (final template in sectionTemplates) {
       final category = _getCategoryName(template.muscleGroup);
       groupedTemplates.putIfAbsent(category, () => []).add(template);
@@ -123,7 +125,10 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
     );
   }
 
-  Widget _buildCategorySection(String category, List<RoutineSectionTemplate> templates) {
+  Widget _buildCategorySection(
+    String category,
+    List<RoutineSectionTemplate> templates,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -170,17 +175,19 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: template.description != null
-            ? Text(
-                template.description!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              )
-            : null,
+        subtitle:
+            template.description != null
+                ? Text(
+                  template.description!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                )
+                : null,
         secondary: Icon(
           _getIconData(template.iconName),
-          color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          color:
+              isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
         ),
         activeColor: colorScheme.primary,
         checkColor: colorScheme.onPrimary,
@@ -236,11 +243,7 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 80,
-            color: colorScheme.error,
-          ),
+          Icon(Icons.error_outline, size: 80, color: colorScheme.error),
           const SizedBox(height: 16),
           Text(
             'Error al cargar secciones',
@@ -269,7 +272,7 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
 
   String _getCategoryName(SectionMuscleGroup? muscleGroup) {
     if (muscleGroup == null) return 'Otros';
-    
+
     switch (muscleGroup) {
       case SectionMuscleGroup.warmup:
       case SectionMuscleGroup.cooldown:
@@ -356,31 +359,138 @@ class _SectionSelectionPageState extends ConsumerState<SectionSelectionPage> {
     }
   }
 
-  void _saveSections() {
+  void _finalizeRoutine() async {
     if (_selectedSectionIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona al menos una sección'),
-        ),
+        const SnackBar(content: Text('Selecciona al menos una sección')),
       );
       return;
     }
 
-    // Guardar secciones seleccionadas
-    ref.read(routineNotifierProvider.notifier).addSectionsToDay(
-      widget.routineId,
-      widget.dayId,
-      _selectedSectionIds.toList(),
-    );
+    try {
+      // Mostrar indicador de carga
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
 
-    // Navegar de vuelta
-    context.pop();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_selectedSectionIds.length} secciones añadidas a la rutina'),
-        backgroundColor: Colors.green,
-      ),
+      // Guardar secciones seleccionadas
+      await ref
+          .read(routineNotifierProvider.notifier)
+          .addSectionsToRoutine(widget.routineId, _selectedSectionIds.toList());
+
+      // Invalidar el estado para forzar la actualización
+      ref.invalidate(routineNotifierProvider);
+
+      // Cerrar indicador de carga
+      if (mounted) Navigator.of(context).pop();
+
+      // Mostrar mensaje de éxito
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Rutina creada exitosamente con ${_selectedSectionIds.length} secciones',
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        // Navegar directamente al home después de un breve delay
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          // Navegar al home y limpiar el stack de navegación
+          context.go('/');
+        }
+      }
+    } catch (e) {
+      // Cerrar indicador de carga si está abierto
+      if (mounted) Navigator.of(context).pop();
+
+      // Mostrar error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al crear rutina: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showExitDialog() {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('⚠️ Rutina Incompleta'),
+            content: const Text(
+              'Si sales ahora, la rutina se creará sin secciones.\n\n'
+              '¿Estás seguro de que quieres continuar?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // Crear rutina sin secciones y volver al home
+                  _createRoutineWithoutSections();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Salir Sin Secciones'),
+              ),
+            ],
+          ),
     );
+  }
+
+  void _createRoutineWithoutSections() async {
+    try {
+      // Mostrar indicador de carga
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Invalidar el estado para forzar la actualización
+      ref.invalidate(routineNotifierProvider);
+
+      // Cerrar indicador de carga
+      if (mounted) Navigator.of(context).pop();
+
+      // Mostrar mensaje
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Rutina creada sin secciones'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Navegar al home
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          context.go('/');
+        }
+      }
+    } catch (e) {
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 }

@@ -16,7 +16,14 @@ class RoutineService extends _$RoutineService {
   Box get _box => ref.read(databaseServiceProvider.notifier).routinesBox;
 
   Future<void> saveRoutine(Routine routine) async {
+    print(
+      'RoutineService: Saving routine "${routine.name}" with ${routine.sections.length} sections',
+    );
+    for (final section in routine.sections) {
+      print('  - Section: ${section.name}');
+    }
     await _box.put(routine.id, routine);
+    print('RoutineService: Routine saved successfully');
   }
 
   Future<Routine?> getRoutineById(String id) async {
@@ -24,38 +31,47 @@ class RoutineService extends _$RoutineService {
   }
 
   Future<List<Routine>> getAllRoutines() async {
-    return _box.values.cast<Routine>().toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final routines =
+        _box.values.cast<Routine>().toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    print('RoutineService: Loading ${routines.length} routines from database');
+    for (final routine in routines) {
+      print(
+        'RoutineService: Routine "${routine.name}" has ${routine.sections.length} sections',
+      );
+      for (final section in routine.sections) {
+        print('  - Section: ${section.name}');
+      }
+    }
+
+    return routines;
   }
 
   Future<List<Routine>> getActiveRoutines() async {
-    final allRoutines = await getAllRoutines();
-    return allRoutines.where((routine) => routine.isActive).toList();
+    // Todas las rutinas están activas por defecto
+    return await getAllRoutines();
   }
 
-  Future<RoutineDay?> getRoutineForDay(WeekDay day) async {
-    final activeRoutines = await getActiveRoutines();
+  Future<Routine?> getRoutineForDay(WeekDay day) async {
+    final allRoutines = await getAllRoutines();
 
-    for (final routine in activeRoutines) {
-      for (final routineDay in routine.days) {
-        if (routineDay.dayOfWeek == day && routineDay.isActive) {
-          return routineDay;
-        }
+    for (final routine in allRoutines) {
+      if (routine.days.contains(day)) {
+        return routine;
       }
     }
 
     return null;
   }
 
-  Future<List<RoutineDay>> getRoutinesForDay(WeekDay day) async {
-    final activeRoutines = await getActiveRoutines();
-    final List<RoutineDay> dayRoutines = [];
+  Future<List<Routine>> getRoutinesForDay(WeekDay day) async {
+    final allRoutines = await getAllRoutines();
+    final List<Routine> dayRoutines = [];
 
-    for (final routine in activeRoutines) {
-      for (final routineDay in routine.days) {
-        if (routineDay.dayOfWeek == day && routineDay.isActive) {
-          dayRoutines.add(routineDay);
-        }
+    for (final routine in allRoutines) {
+      if (routine.days.contains(day)) {
+        dayRoutines.add(routine);
       }
     }
 
@@ -78,5 +94,21 @@ class RoutineService extends _$RoutineService {
       return routine.name.toLowerCase().contains(lowercaseQuery) ||
           routine.description.toLowerCase().contains(lowercaseQuery);
     }).toList();
+  }
+
+  // Test method to verify persistence
+  Future<void> testPersistence() async {
+    print('RoutineService: Testing persistence...');
+    final routines = await getAllRoutines();
+    print('RoutineService: Found ${routines.length} routines in database');
+
+    for (final routine in routines) {
+      print(
+        'RoutineService: Routine "${routine.name}" has ${routine.sections.length} sections',
+      );
+      for (final section in routine.sections) {
+        print('  - Section: ${section.name} (ID: ${section.id})');
+      }
+    }
   }
 }

@@ -8,20 +8,17 @@ import 'core/database/database_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize database with error handling
+  // Initialize database normally
   final container = ProviderContainer();
   try {
     await container.read(databaseServiceProvider.future);
+    print('Database initialized successfully');
   } catch (e) {
     print('Error initializing database: $e');
-    // Force reset database if initialization fails
-    try {
-      await container
-          .read(databaseServiceProvider.notifier)
-          .forceResetDatabase();
-    } catch (resetError) {
-      print('Error resetting database: $resetError');
-    }
+    // If initialization fails, show error but don't auto-reset
+    print(
+      'Database initialization failed. User can manually reset from settings if needed.',
+    );
   }
 
   runApp(

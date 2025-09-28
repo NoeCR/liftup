@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'hive_adapters.dart';
 
@@ -58,7 +60,7 @@ class DatabaseService extends _$DatabaseService {
         _settingsBox,
         _routineSectionTemplatesBox,
       ];
-      
+
       for (final boxName in boxes) {
         try {
           if (Hive.isBoxOpen(boxName)) {
@@ -93,10 +95,14 @@ class DatabaseService extends _$DatabaseService {
 
   Future<void> forceResetDatabase() async {
     try {
-      // Close all boxes
-      await Hive.close();
-      
-      // Delete all box files
+      // Close all boxes if they exist
+      try {
+        await Hive.close();
+      } catch (e) {
+        print('Error closing Hive: $e');
+      }
+
+      // Delete all box files directly from disk
       final boxes = [
         _exercisesBox,
         _routinesBox,
@@ -105,20 +111,40 @@ class DatabaseService extends _$DatabaseService {
         _settingsBox,
         _routineSectionTemplatesBox,
       ];
-      
+
+      final directory = await getApplicationDocumentsDirectory();
+
       for (final boxName in boxes) {
         try {
-          final boxFile = await Hive.openBox(boxName);
-          await boxFile.deleteFromDisk();
+          final boxFile = File('${directory.path}/$boxName.hive');
+          final lockFile = File('${directory.path}/$boxName.lock');
+
+          if (await boxFile.exists()) {
+            await boxFile.delete();
+            print('Deleted box file: $boxName.hive');
+          }
+          if (await lockFile.exists()) {
+            await lockFile.delete();
+            print('Deleted lock file: $boxName.lock');
+          }
         } catch (e) {
           print('Error deleting box $boxName: $e');
         }
       }
-      
-      // Reinitialize
+
+      // Reinitialize Hive
       await _initializeHive();
+      print('Database reset and initialized successfully');
     } catch (e) {
       print('Error resetting database: $e');
+      // Try to initialize normally as fallback
+      try {
+        await _initializeHive();
+        print('Fallback initialization successful');
+      } catch (fallbackError) {
+        print('Fallback initialization failed: $fallbackError');
+        rethrow;
+      }
     }
   }
 

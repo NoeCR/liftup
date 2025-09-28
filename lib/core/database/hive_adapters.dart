@@ -25,7 +25,6 @@ class HiveAdapters {
 
     // Routine adapters
     Hive.registerAdapter(RoutineAdapter());
-    Hive.registerAdapter(RoutineDayAdapter());
     Hive.registerAdapter(RoutineSectionAdapter());
     Hive.registerAdapter(RoutineExerciseAdapter());
     Hive.registerAdapter(WeekDayAdapter());

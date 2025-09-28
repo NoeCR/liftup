@@ -8,8 +8,7 @@ import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../widgets/exercise_card_wrapper.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
-import '../../../common/enums/week_day_enum.dart';
-import '../../../core/navigation/app_router.dart';
+import '../../../core/database/database_service.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -18,9 +17,28 @@ class HomePage extends ConsumerStatefulWidget {
   ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> with RouteAware {
   int _currentIndex = 0;
-  String _selectedMenuOption = 'Hoy';
+  String _selectedMenuOption = ''; // Will be set to first active routine
+
+  @override
+  void didPopNext() {
+    // Se ejecuta cuando se vuelve a esta página desde otra
+    super.didPopNext();
+    print('HomePage: Volviendo a la página, refrescando estado...');
+    // Invalidar el estado para forzar la recarga
+    ref.invalidate(routineNotifierProvider);
+    ref.invalidate(exerciseNotifierProvider);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Refrescar estado al inicializar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(routineNotifierProvider);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +51,14 @@ class _HomePageState extends ConsumerState<HomePage> {
         backgroundColor: colorScheme.surface,
         actions: [
           IconButton(
+            onPressed: () => context.push('/create-routine'),
+            icon: const Icon(Icons.add),
+            tooltip: 'Crear nueva rutina',
+          ),
+          IconButton(
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.settings),
+            tooltip: 'Configuración',
           ),
         ],
       ),
@@ -60,20 +84,44 @@ class _HomePageState extends ConsumerState<HomePage> {
       builder: (context, ref, child) {
         final routineAsync = ref.watch(routineNotifierProvider);
 
+        print(
+          'HomePage: Rebuilding with ${routineAsync.value?.length ?? 0} routines',
+        );
+
         return routineAsync.when(
           data: (routines) {
-            // Build menu options from routines
-            final menuOptions = <String>['Hoy'];
+            // Build menu options from all routines
+            final menuOptions = <String>[];
 
-            // Add routine names to menu
+            // Add all routine names to menu
             for (final routine in routines) {
-              if (routine.isActive) {
-                menuOptions.add(routine.name);
+              menuOptions.add(routine.name);
+            }
+
+            // Auto-select first routine if none selected or if selected routine no longer exists
+            if (_selectedMenuOption.isEmpty ||
+                !menuOptions.contains(_selectedMenuOption)) {
+              if (menuOptions.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  setState(() {
+                    _selectedMenuOption = menuOptions.first;
+                  });
+                });
               }
             }
 
-            // Add day options
-            menuOptions.addAll(WeekDayExtension.allDisplayNames);
+            // Always select the first routine (most recent) when routines change
+            if (menuOptions.isNotEmpty &&
+                _selectedMenuOption != menuOptions.first) {
+              print(
+                'HomePage: Auto-selecting first routine: ${menuOptions.first} (was: $_selectedMenuOption)',
+              );
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  _selectedMenuOption = menuOptions.first;
+                });
+              });
+            }
 
             return _buildMenuOptions(menuOptions, theme, colorScheme);
           },
@@ -126,34 +174,39 @@ class _HomePageState extends ConsumerState<HomePage> {
         final routineAsync = ref.watch(routineNotifierProvider);
         final exerciseAsync = ref.watch(exerciseNotifierProvider);
 
+        print(
+          'HomePage MainContent: Rebuilding with ${routineAsync.value?.length ?? 0} routines',
+        );
+
         return routineAsync.when(
           data: (routines) {
             if (routines.isEmpty) {
               return _buildEmptyState();
             }
 
-            // Get selected routine or today's routine
+            // Get selected routine by name
             Routine? selectedRoutine;
 
-            if (_selectedMenuOption == 'Hoy') {
-              selectedRoutine = _getTodayRoutine(routines);
-              if (selectedRoutine == null) {
-                return _buildNoRoutineForToday();
+            if (_selectedMenuOption.isNotEmpty) {
+              try {
+                selectedRoutine = routines.firstWhere(
+                  (routine) => routine.name == _selectedMenuOption,
+                );
+              } catch (e) {
+                // If selected routine not found, use first routine
+                if (routines.isNotEmpty) {
+                  selectedRoutine = routines.first;
+                }
               }
-            } else if (_isDayOfWeek(_selectedMenuOption)) {
-              // Get routine for selected day
-              final selectedDay = WeekDayExtension.fromString(_selectedMenuOption);
-              selectedRoutine = routines.firstWhere(
-                (routine) =>
-                    routine.days.any((day) => day.dayOfWeek == selectedDay),
-                orElse: () => routines.first,
-              );
             } else {
-              // Get routine by name
-              selectedRoutine = routines.firstWhere(
-                (routine) => routine.name == _selectedMenuOption,
-                orElse: () => routines.first,
-              );
+              // No menu option selected, use first routine
+              if (routines.isNotEmpty) {
+                selectedRoutine = routines.first;
+              }
+            }
+
+            if (selectedRoutine == null) {
+              return _buildEmptyState();
             }
 
             return _buildRoutineContent(selectedRoutine, exerciseAsync);
@@ -169,35 +222,19 @@ class _HomePageState extends ConsumerState<HomePage> {
     Routine routine,
     AsyncValue<List<Exercise>> exerciseAsync,
   ) {
-    // Get the appropriate day from the routine
-    RoutineDay? routineDay;
+    print('HomePage: Building content for routine: ${routine.name}');
+    print('HomePage: Total sections: ${routine.sections.length}');
 
-    if (_selectedMenuOption == 'Hoy') {
-      final today = DateTime.now().weekday;
-      final weekDay = WeekDayExtension.fromInt(today);
-      routineDay = routine.days.firstWhere(
-        (day) => day.dayOfWeek == weekDay && day.isActive,
-        orElse: () => routine.days.first,
-      );
-    } else if (_isDayOfWeek(_selectedMenuOption)) {
-      final selectedDay = WeekDayExtension.fromString(_selectedMenuOption);
-      routineDay = routine.days.firstWhere(
-        (day) => day.dayOfWeek == selectedDay && day.isActive,
-        orElse: () => routine.days.first,
-      );
-    } else {
-      // For routine name selection, show the first day
-      if (routine.days.isEmpty) {
-        return _buildNoRoutineForToday();
-      }
-      routineDay = routine.days.first;
+    // Show all sections of the routine
+    if (routine.sections.isEmpty) {
+      return _buildNoSectionsYet();
     }
 
-    final selectedDay = routineDay;
     return ListView.builder(
-      itemCount: selectedDay.sections.length,
+      padding: const EdgeInsets.all(16),
+      itemCount: routine.sections.length,
       itemBuilder: (context, index) {
-        final section = selectedDay.sections[index];
+        final section = routine.sections[index];
         return _buildRoutineSection(section, exerciseAsync);
       },
     );
@@ -219,17 +256,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 .read(routineNotifierProvider.notifier)
                 .toggleSectionCollapsed(section.id);
           },
-          trailing: section.isCollapsed
-              ? null
-              : IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    context.push(
-                      '${AppRouter.exerciseSelection}?routineId=${section.routineDayId}&sectionId=${section.id}&title=${section.name}&subtitle=',
-                    );
-                  },
-                  tooltip: 'Añadir ejercicio',
-                ),
         ),
         if (!section.isCollapsed) ...[
           exerciseAsync.when(
@@ -310,7 +336,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildNoRoutineForToday() {
+  Widget _buildNoSectionsYet() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -319,31 +345,28 @@ class _HomePageState extends ConsumerState<HomePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.calendar_today_outlined,
+            Icons.category_outlined,
             size: 64,
             color: colorScheme.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
-          Text('No hay rutina para hoy', style: theme.textTheme.headlineSmall),
+          Text(
+            'No hay secciones configuradas',
+            style: theme.textTheme.headlineSmall,
+          ),
           const SizedBox(height: 8),
           Text(
-            'Disfruta de un día de descanso o crea una rutina',
+            'Añade secciones a tu rutina para empezar a entrenar',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () {
-              context.push('/create-routine');
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('Crear Rutina'),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
+
 
   Widget _buildEmptySection(String sectionName) {
     final theme = Theme.of(context);
@@ -360,28 +383,35 @@ class _HomePageState extends ConsumerState<HomePage> {
           style: BorderStyle.solid,
         ),
       ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.add_circle_outline,
-            size: 48,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Agregar ejercicios a $sectionName',
-            style: theme.textTheme.titleMedium?.copyWith(
+      child: InkWell(
+        onTap: () {
+          // TODO: Implement add exercise functionality
+          print('Add exercise to $sectionName');
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Column(
+          children: [
+            Icon(
+              Icons.add_circle_outline,
+              size: 48,
               color: colorScheme.onSurfaceVariant,
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Toca para agregar ejercicios a esta sección',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+            const SizedBox(height: 12),
+            Text(
+              'Agregar ejercicios a $sectionName',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              'Toca para agregar ejercicios a esta sección',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -409,13 +439,27 @@ class _HomePageState extends ConsumerState<HomePage> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () {
-              ref.invalidate(routineNotifierProvider);
-              ref.invalidate(exerciseNotifierProvider);
-            },
-            icon: const Icon(Icons.refresh),
-            label: const Text('Reintentar'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FilledButton.icon(
+                onPressed: () {
+                  ref.invalidate(routineNotifierProvider);
+                  ref.invalidate(exerciseNotifierProvider);
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Reintentar'),
+              ),
+              const SizedBox(width: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  // Resetear base de datos si hay problemas persistentes
+                  _showResetDatabaseDialog();
+                },
+                icon: const Icon(Icons.restore),
+                label: const Text('Resetear'),
+              ),
+            ],
           ),
         ],
       ),
@@ -434,24 +478,83 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Routine? _getTodayRoutine(List<Routine> routines) {
-    final today = DateTime.now().weekday;
-    final weekDay = WeekDayExtension.fromInt(today);
-
-    for (final routine in routines) {
-      if (!routine.isActive) continue;
-
-      for (final day in routine.days) {
-        if (day.dayOfWeek == weekDay && day.isActive) {
-          return routine;
-        }
-      }
-    }
-
-    return null;
+  void _showResetDatabaseDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('🔄 Resetear Base de Datos'),
+        content: const Text(
+          'Esto eliminará todos los datos y reiniciará la aplicación.\n\n'
+          '¿Estás seguro de que quieres continuar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await _resetDatabase();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Resetear'),
+          ),
+        ],
+      ),
+    );
   }
 
-  bool _isDayOfWeek(String option) {
-    return WeekDayExtension.allDisplayNames.contains(option);
+  Future<void> _resetDatabase() async {
+    try {
+      // Mostrar indicador de progreso
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Reseteando base de datos...'),
+            ],
+          ),
+        ),
+      );
+
+      final databaseService = ref.read(databaseServiceProvider.notifier);
+      await databaseService.forceResetDatabase();
+      
+      // Invalidar todos los providers
+      ref.invalidate(databaseServiceProvider);
+      ref.invalidate(routineNotifierProvider);
+      ref.invalidate(exerciseNotifierProvider);
+      
+      // Cerrar indicador de progreso
+      if (mounted) Navigator.of(context).pop();
+      
+      // Mostrar mensaje de éxito
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Base de datos reseteada exitosamente'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error al resetear: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
