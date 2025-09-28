@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
 import '../models/routine.dart';
+import '../../../common/enums/week_day_enum.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
   const CreateRoutinePage({super.key});
@@ -128,15 +129,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final days = [
-      'Lunes',
-      'Martes',
-      'Miércoles',
-      'Jueves',
-      'Viernes',
-      'Sábado',
-      'Domingo',
-    ];
+    final days = WeekDayExtension.allDisplayNames;
 
     return Wrap(
       spacing: 8,
@@ -185,7 +178,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               return RoutineDay(
                 id: dayId,
                 routineId: _routineId,
-                dayOfWeek: _getWeekDayFromString(day),
+                dayOfWeek: WeekDayExtension.fromString(day),
                 name: day,
                 sections: [
                   RoutineSection(
@@ -237,24 +230,4 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     }
   }
 
-  WeekDay _getWeekDayFromString(String day) {
-    switch (day.toLowerCase()) {
-      case 'lunes':
-        return WeekDay.monday;
-      case 'martes':
-        return WeekDay.tuesday;
-      case 'miércoles':
-        return WeekDay.wednesday;
-      case 'jueves':
-        return WeekDay.thursday;
-      case 'viernes':
-        return WeekDay.friday;
-      case 'sábado':
-        return WeekDay.saturday;
-      case 'domingo':
-        return WeekDay.sunday;
-      default:
-        return WeekDay.monday;
-    }
-  }
 }

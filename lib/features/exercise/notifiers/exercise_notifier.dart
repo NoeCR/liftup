@@ -2,6 +2,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/exercise.dart';
 import '../services/exercise_service.dart';
+import '../../../common/enums/muscle_group_enum.dart';
 
 part 'exercise_notifier.g.dart';
 
@@ -71,7 +72,11 @@ class ExerciseNotifier extends _$ExerciseNotifier {
             'Ejercicio fundamental para el desarrollo del pecho, hombros y tríceps.',
         imageUrl: 'assets/images/bench_press.png',
         videoUrl: 'https://example.com/bench_press.mp4',
-        muscleGroups: ['Pecho', 'Hombros', 'Tríceps'],
+        muscleGroups: [
+          MuscleGroup.pectoralMajor,
+          MuscleGroup.anteriorDeltoid,
+          MuscleGroup.tricepsLateralHead,
+        ],
         tips: [
           'Mantén los pies firmes en el suelo',
           'Contrae el core durante todo el movimiento',
@@ -94,7 +99,11 @@ class ExerciseNotifier extends _$ExerciseNotifier {
             'Ejercicio compuesto que trabaja principalmente las piernas y glúteos.',
         imageUrl: 'assets/images/squats.png',
         videoUrl: 'https://example.com/squats.mp4',
-        muscleGroups: ['Cuádriceps', 'Glúteos', 'Isquiotibiales'],
+        muscleGroups: [
+          MuscleGroup.rectusFemoris,
+          MuscleGroup.gluteusMaximus,
+          MuscleGroup.bicepsFemoris,
+        ],
         tips: [
           'Mantén el pecho erguido',
           'Baja hasta que los muslos estén paralelos al suelo',
@@ -105,7 +114,7 @@ class ExerciseNotifier extends _$ExerciseNotifier {
           'No bajar lo suficiente',
           'Inclinar el torso demasiado hacia adelante',
         ],
-        category: ExerciseCategory.legs,
+        category: ExerciseCategory.quadriceps,
         difficulty: ExerciseDifficulty.beginner,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -117,7 +126,11 @@ class ExerciseNotifier extends _$ExerciseNotifier {
             'Ejercicio de tracción que desarrolla la espalda y bíceps.',
         imageUrl: 'assets/images/pull_ups.png',
         videoUrl: 'https://example.com/pull_ups.mp4',
-        muscleGroups: ['Dorsales', 'Bíceps', 'Romboides'],
+        muscleGroups: [
+          MuscleGroup.latissimusDorsi,
+          MuscleGroup.bicepsLongHead,
+          MuscleGroup.rhomboids,
+        ],
         tips: [
           'Mantén el core activado',
           'Tira con los codos hacia abajo',

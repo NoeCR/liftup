@@ -31,16 +31,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   String _selectedCategory = 'Todos';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> _categories = [
-    'Todos',
-    'Pecho',
-    'Espalda',
-    'Piernas',
-    'Hombros',
-    'Brazos',
-    'Core',
-    'Cardio',
-  ];
+    final List<String> _categories = [
+      'Todos',
+      ...ExerciseCategory.values.map((category) => category.displayName),
+    ];
 
   @override
   void dispose() {
@@ -160,7 +154,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                             ),
                             title: Text(exercise.name),
                             subtitle: Text(
-                              _getCategoryDisplayName(exercise.category),
+                              exercise.category.displayName,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: colorScheme.onSurfaceVariant,
                               ),
@@ -231,7 +225,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           filtered
               .where(
                 (exercise) =>
-                    _getCategoryDisplayName(exercise.category).toLowerCase() ==
+                    exercise.category.displayName.toLowerCase() ==
                     _selectedCategory.toLowerCase(),
               )
               .toList();
@@ -335,7 +329,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
         // If we have a routineId, we should also update the routine in the database
         if (widget.routineId != null) {
-          _updateRoutineWithExercises(widget.routineId!, sectionId, selectedExercises);
+          _updateRoutineWithExercises(
+            widget.routineId!,
+            sectionId,
+            selectedExercises,
+          );
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -353,28 +351,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     Navigator.of(context).pop();
   }
 
-  String _getCategoryDisplayName(ExerciseCategory category) {
-    switch (category) {
-      case ExerciseCategory.chest:
-        return 'Pecho';
-      case ExerciseCategory.back:
-        return 'Espalda';
-      case ExerciseCategory.shoulders:
-        return 'Hombros';
-      case ExerciseCategory.arms:
-        return 'Brazos';
-      case ExerciseCategory.legs:
-        return 'Piernas';
-      case ExerciseCategory.core:
-        return 'Core';
-      case ExerciseCategory.cardio:
-        return 'Cardio';
-      case ExerciseCategory.fullBody:
-        return 'Cuerpo Completo';
-    }
-  }
 
-  void _updateRoutineWithExercises(String routineId, String sectionId, List<Exercise> exercises) {
+  void _updateRoutineWithExercises(
+    String routineId,
+    String sectionId,
+    List<Exercise> exercises,
+  ) {
     // Get current routine
     final routineAsync = ref.read(routineNotifierProvider);
     routineAsync.whenData((routines) {
@@ -384,32 +366,42 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       );
 
       // Create RoutineExercise objects
-      final routineExercises = exercises.map((exercise) => RoutineExercise(
-        id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
-        routineSectionId: sectionId,
-        exerciseId: exercise.id,
-        sets: 3,
-        reps: 10,
-        weight: 0.0,
-        restTimeSeconds: 60,
-        notes: '',
-        order: 0,
-      )).toList();
+      final routineExercises =
+          exercises
+              .map(
+                (exercise) => RoutineExercise(
+                  id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
+                  routineSectionId: sectionId,
+                  exerciseId: exercise.id,
+                  sets: 3,
+                  reps: 10,
+                  weight: 0.0,
+                  restTimeSeconds: 60,
+                  notes: '',
+                  order: 0,
+                ),
+              )
+              .toList();
 
       // Update the routine with new exercises
       final updatedRoutine = routine.copyWith(
-        days: routine.days.map((day) {
-          return day.copyWith(
-            sections: day.sections.map((section) {
-              if (section.id == sectionId) {
-                return section.copyWith(
-                  exercises: [...section.exercises, ...routineExercises],
-                );
-              }
-              return section;
+        days:
+            routine.days.map((day) {
+              return day.copyWith(
+                sections:
+                    day.sections.map((section) {
+                      if (section.id == sectionId) {
+                        return section.copyWith(
+                          exercises: [
+                            ...section.exercises,
+                            ...routineExercises,
+                          ],
+                        );
+                      }
+                      return section;
+                    }).toList(),
+              );
             }).toList(),
-          );
-        }).toList(),
         updatedAt: DateTime.now(),
       );
 

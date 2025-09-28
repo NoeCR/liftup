@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../../common/enums/week_day_enum.dart';
 
 part 'routine.g.dart';
 
@@ -291,20 +292,3 @@ class RoutineExercise extends Equatable {
   ];
 }
 
-@HiveType(typeId: 10)
-enum WeekDay {
-  @HiveField(0)
-  monday,
-  @HiveField(1)
-  tuesday,
-  @HiveField(2)
-  wednesday,
-  @HiveField(3)
-  thursday,
-  @HiveField(4)
-  friday,
-  @HiveField(5)
-  saturday,
-  @HiveField(6)
-  sunday,
-}

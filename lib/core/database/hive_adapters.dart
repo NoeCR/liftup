@@ -4,6 +4,8 @@ import '../../features/exercise/models/exercise_set.dart';
 import '../../features/sessions/models/workout_session.dart';
 import '../../features/home/models/routine.dart';
 import '../../features/statistics/models/progress_data.dart';
+import '../../common/enums/week_day_enum.dart';
+import '../../common/enums/muscle_group_enum.dart';
 
 class HiveAdapters {
   static void registerAdapters() {
@@ -29,5 +31,8 @@ class HiveAdapters {
     // Progress Data adapters
     Hive.registerAdapter(ProgressDataAdapter());
     Hive.registerAdapter(WorkoutStatisticsAdapter());
+
+    // Enum adapters
+    Hive.registerAdapter(MuscleGroupAdapter());
   }
 }

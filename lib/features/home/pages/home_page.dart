@@ -8,6 +8,7 @@ import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../widgets/exercise_card_wrapper.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
+import '../../../common/enums/week_day_enum.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -71,15 +72,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             }
 
             // Add day options
-            menuOptions.addAll([
-              'Lunes',
-              'Martes',
-              'Miércoles',
-              'Jueves',
-              'Viernes',
-              'Sábado',
-              'Domingo',
-            ]);
+            menuOptions.addAll(WeekDayExtension.allDisplayNames);
 
             return _buildMenuOptions(menuOptions, theme, colorScheme);
           },
@@ -148,7 +141,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               }
             } else if (_isDayOfWeek(_selectedMenuOption)) {
               // Get routine for selected day
-              final selectedDay = _getWeekDayFromString(_selectedMenuOption);
+              final selectedDay = WeekDayExtension.fromString(_selectedMenuOption);
               selectedRoutine = routines.firstWhere(
                 (routine) =>
                     routine.days.any((day) => day.dayOfWeek == selectedDay),
@@ -180,13 +173,13 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     if (_selectedMenuOption == 'Hoy') {
       final today = DateTime.now().weekday;
-      final weekDay = _getWeekDayFromInt(today);
+      final weekDay = WeekDayExtension.fromInt(today);
       routineDay = routine.days.firstWhere(
         (day) => day.dayOfWeek == weekDay && day.isActive,
         orElse: () => routine.days.first,
       );
     } else if (_isDayOfWeek(_selectedMenuOption)) {
-      final selectedDay = _getWeekDayFromString(_selectedMenuOption);
+      final selectedDay = WeekDayExtension.fromString(_selectedMenuOption);
       routineDay = routine.days.firstWhere(
         (day) => day.dayOfWeek == selectedDay && day.isActive,
         orElse: () => routine.days.first,
@@ -429,7 +422,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Routine? _getTodayRoutine(List<Routine> routines) {
     final today = DateTime.now().weekday;
-    final weekDay = _getWeekDayFromInt(today);
+    final weekDay = WeekDayExtension.fromInt(today);
 
     for (final routine in routines) {
       if (!routine.isActive) continue;
@@ -444,58 +437,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return null;
   }
 
-  WeekDay _getWeekDayFromInt(int weekday) {
-    switch (weekday) {
-      case 1:
-        return WeekDay.monday;
-      case 2:
-        return WeekDay.tuesday;
-      case 3:
-        return WeekDay.wednesday;
-      case 4:
-        return WeekDay.thursday;
-      case 5:
-        return WeekDay.friday;
-      case 6:
-        return WeekDay.saturday;
-      case 7:
-        return WeekDay.sunday;
-      default:
-        return WeekDay.monday;
-    }
-  }
-
-  WeekDay _getWeekDayFromString(String day) {
-    switch (day.toLowerCase()) {
-      case 'lunes':
-        return WeekDay.monday;
-      case 'martes':
-        return WeekDay.tuesday;
-      case 'miércoles':
-        return WeekDay.wednesday;
-      case 'jueves':
-        return WeekDay.thursday;
-      case 'viernes':
-        return WeekDay.friday;
-      case 'sábado':
-        return WeekDay.saturday;
-      case 'domingo':
-        return WeekDay.sunday;
-      default:
-        return WeekDay.monday;
-    }
-  }
-
   bool _isDayOfWeek(String option) {
-    const daysOfWeek = [
-      'Lunes',
-      'Martes',
-      'Miércoles',
-      'Jueves',
-      'Viernes',
-      'Sábado',
-      'Domingo',
-    ];
-    return daysOfWeek.contains(option);
+    return WeekDayExtension.allDisplayNames.contains(option);
   }
 }
