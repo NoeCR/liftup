@@ -44,9 +44,6 @@ class _SessionPageState extends ConsumerState<SessionPage> {
   }
 
   Widget _buildActiveSession(session) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Column(
       children: [
         // Session Timer
@@ -98,9 +95,6 @@ class _SessionPageState extends ConsumerState<SessionPage> {
   }
 
   Widget _buildSessionControls(session) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(

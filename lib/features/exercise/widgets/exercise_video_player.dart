@@ -31,7 +31,11 @@ class _ExerciseVideoPlayerState extends State<ExerciseVideoPlayer> {
     } catch (e) {
       _error = e.toString();
     } finally {
-      if (mounted) setState(() { _loading = false; _started = true; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+          _started = true;
+        });
     }
   }
 
@@ -44,46 +48,61 @@ class _ExerciseVideoPlayerState extends State<ExerciseVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 24),
+        child: SizedBox(
+          height: 200,
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
     if (_error != null) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: Icon(Icons.error_outline)),
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 24),
+        child: SizedBox(
+          height: 200,
+          child: Center(child: Icon(Icons.error_outline)),
+        ),
       );
     }
 
     if (!_started) {
       // Placeholder con botón de reproducir para iniciar la carga
-      return AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(color: Theme.of(context).colorScheme.surfaceVariant),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: _setup,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text('Reproducir'),
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(color: Theme.of(context).colorScheme.surfaceVariant),
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _setup,
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('Reproducir'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     if (_adapter == null || !_adapter!.isInitialized) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 24),
+        child: SizedBox(
+          height: 200,
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
 
-    return _adapter!.buildView(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: _adapter!.buildView(context),
+    );
   }
 }
 

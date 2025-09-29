@@ -157,20 +157,25 @@ class ExerciseCard extends StatelessWidget {
   Widget _buildSetsCounter(BuildContext context, ColorScheme colorScheme) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: colorScheme.surfaceVariant,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.remove, size: 18),
+            icon: const Icon(Icons.remove, size: 16),
             onPressed: () => onRepsChanged?.call(performedSets - 1),
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
               backgroundColor: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              minimumSize: const Size(28, 28),
+              padding: EdgeInsets.zero,
             ),
           ),
           const SizedBox(width: 4),
@@ -182,11 +187,16 @@ class ExerciseCard extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           IconButton(
-            icon: const Icon(Icons.add, size: 18),
+            icon: const Icon(Icons.add, size: 16),
             onPressed: () => onRepsChanged?.call(performedSets + 1),
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
               backgroundColor: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              minimumSize: const Size(28, 28),
+              padding: EdgeInsets.zero,
             ),
           ),
         ],
@@ -207,6 +217,8 @@ class ExerciseCard extends StatelessWidget {
       return Image.asset(
         path,
         fit: BoxFit.cover,
+        width: double.infinity,
+        height: 120,
         errorBuilder:
             (context, error, stackTrace) => Icon(
               Icons.fitness_center,
@@ -220,6 +232,8 @@ class ExerciseCard extends StatelessWidget {
       return Image.network(
         path,
         fit: BoxFit.cover,
+        width: double.infinity,
+        height: 120,
         errorBuilder:
             (context, error, stackTrace) => Icon(
               Icons.fitness_center,
@@ -234,6 +248,8 @@ class ExerciseCard extends StatelessWidget {
     return Image.file(
       File(filePath),
       fit: BoxFit.cover,
+      width: double.infinity,
+      height: 120,
       errorBuilder:
           (context, error, stackTrace) => Icon(
             Icons.fitness_center,
