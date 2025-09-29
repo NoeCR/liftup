@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/exercise_video_player.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
@@ -26,10 +28,11 @@ class ExerciseDetailPage extends ConsumerWidget {
 
               return exerciseAsync.when(
                 data: (exercises) {
-                  final exercise = exercises.firstWhere(
-                    (e) => e.id == exerciseId,
-                    orElse: () => throw Exception('Ejercicio no encontrado'),
-                  );
+                  final matches = exercises.where((e) => e.id == exerciseId);
+                  if (matches.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  final exercise = matches.first;
 
                   return PopupMenuButton<String>(
                     onSelected:
@@ -76,11 +79,14 @@ class ExerciseDetailPage extends ConsumerWidget {
 
           return exerciseAsync.when(
             data: (exercises) {
-              final exercise = exercises.firstWhere(
-                (e) => e.id == exerciseId,
-                orElse: () => throw Exception('Ejercicio no encontrado'),
-              );
-
+              final matches = exercises.where((e) => e.id == exerciseId);
+              if (matches.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildEmptyForCreation(context),
+                );
+              }
+              final exercise = matches.first;
               return _buildExerciseDetail(exercise, context);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -112,8 +118,14 @@ class ExerciseDetailPage extends ConsumerWidget {
           // Common Mistakes
           _buildCommonMistakes(exercise, context),
 
-          // Video Section
-          if (exercise.videoUrl != null) _buildVideoSection(exercise, context),
+          // Video Section / CTA añadir
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child:
+                (exercise.videoUrl != null && exercise.videoUrl!.isNotEmpty)
+                    ? ExerciseVideoPlayer(url: exercise.videoUrl!)
+                    : _buildAddVideoCta(context, exercise),
+          ),
         ],
       ),
     );
@@ -123,28 +135,108 @@ class ExerciseDetailPage extends ConsumerWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      height: 250,
-      width: double.infinity,
-      color: colorScheme.surfaceVariant,
-      child:
-          exercise.imageUrl.isNotEmpty
-              ? Image.asset(
-                exercise.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.fitness_center,
-                    size: 64,
-                    color: colorScheme.onSurfaceVariant,
-                  );
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Container(
+        width: double.infinity,
+        color: colorScheme.surfaceVariant,
+        child: _buildAdaptiveImage(exercise.imageUrl, colorScheme),
+      ),
+    );
+  }
+
+  Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
+    if (path.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 64,
+        color: colorScheme.onSurfaceVariant,
+      );
+    }
+
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => Icon(
+              Icons.fitness_center,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
+      );
+    }
+
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => Icon(
+              Icons.fitness_center,
+              size: 64,
+              color: colorScheme.onSurfaceVariant,
+            ),
+      );
+    }
+
+    final String filePath =
+        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    return Image.file(
+      File(filePath),
+      fit: BoxFit.cover,
+      errorBuilder:
+          (context, error, stackTrace) => Icon(
+            Icons.fitness_center,
+            size: 64,
+            color: colorScheme.onSurfaceVariant,
+          ),
+    );
+  }
+
+  Widget _buildAddVideoCta(BuildContext context, Exercise exercise) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () => _showAddVideoSheet(context),
+          icon: const Icon(Icons.video_call),
+          label: const Text('Añadir video'),
+        ),
+      ],
+    );
+  }
+
+  void _showAddVideoSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.link),
+                title: const Text('Pegar URL de YouTube o .mp4'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/exercise/edit/$exerciseId');
                 },
-              )
-              : Icon(
-                Icons.fitness_center,
-                size: 64,
-                color: colorScheme.onSurfaceVariant,
               ),
+              ListTile(
+                leading: const Icon(Icons.folder_open),
+                title: const Text('Seleccionar archivo local'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  context.push('/exercise/edit/$exerciseId');
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -309,59 +401,6 @@ class ExerciseDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildVideoSection(Exercise exercise, BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Video de Demostración',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.play_circle_outline,
-                  size: 64,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Video no disponible',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'URL: ${exercise.videoUrl}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildInfoChip(String label, IconData icon, BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -412,6 +451,33 @@ class ExerciseDetailPage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEmptyForCreation(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceVariant,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            'Aún no hay datos para este ejercicio. Completa la información para crearlo.',
+            style: theme.textTheme.bodyMedium,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton.icon(
+          onPressed: () => context.push('/exercise/create'),
+          icon: const Icon(Icons.add),
+          label: const Text('Crear ejercicio'),
+        ),
+      ],
     );
   }
 

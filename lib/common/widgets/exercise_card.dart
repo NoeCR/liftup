@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../features/exercise/models/exercise.dart';
 import '../../features/home/models/routine.dart';
@@ -56,24 +57,10 @@ class ExerciseCard extends StatelessWidget {
                     height: 120,
                     width: double.infinity,
                     color: colorScheme.surfaceVariant,
-                    child:
-                        exercise?.imageUrl != null
-                            ? Image.asset(
-                              exercise!.imageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(
-                                  Icons.fitness_center,
-                                  size: 48,
-                                  color: colorScheme.onSurfaceVariant,
-                                );
-                              },
-                            )
-                            : Icon(
-                              Icons.fitness_center,
-                              size: 48,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                    child: _buildAdaptiveImage(
+                      exercise?.imageUrl ?? '',
+                      colorScheme,
+                    ),
                   ),
                 ),
 
@@ -204,6 +191,55 @@ class ExerciseCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
+    if (path.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 48,
+        color: colorScheme.onSurfaceVariant,
+      );
+    }
+
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => Icon(
+              Icons.fitness_center,
+              size: 48,
+              color: colorScheme.onSurfaceVariant,
+            ),
+      );
+    }
+
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => Icon(
+              Icons.fitness_center,
+              size: 48,
+              color: colorScheme.onSurfaceVariant,
+            ),
+      );
+    }
+
+    final String filePath =
+        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    return Image.file(
+      File(filePath),
+      fit: BoxFit.cover,
+      errorBuilder:
+          (context, error, stackTrace) => Icon(
+            Icons.fitness_center,
+            size: 48,
+            color: colorScheme.onSurfaceVariant,
+          ),
     );
   }
 }

@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:extended_image/extended_image.dart' as ext_img;
+import 'package:extended_image_library/extended_image_library.dart';
+import 'package:image/image.dart' as image;
+// import 'package:image_cropper/image_cropper.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+import 'package:file_picker/file_picker.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
 import '../models/exercise.dart';
@@ -30,6 +40,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _videoUrlController = TextEditingController();
+  final _imageUrlController = TextEditingController();
   final _tipsController = TextEditingController();
   final _commonMistakesController = TextEditingController();
 
@@ -61,10 +72,59 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _selectedDifficulty = exercise.difficulty;
     _selectedMuscleGroups = List.from(exercise.muscleGroups);
     _imagePath = exercise.imageUrl;
-    // Valores por defecto de entrenamiento (si viniera con contexto se podrían hidratar)
-    _formSets = 3;
-    _formReps = 10;
-    _formWeight = 0.0;
+    // Hidratar parámetros de entrenamiento desde el contexto de rutina/sección si está disponible
+    int sets = 3;
+    int reps = 10;
+    double weight = 0.0;
+
+    final routines = ref.read(routineNotifierProvider).valueOrNull;
+    if (routines != null) {
+      if (widget.routineId != null && widget.sectionId != null) {
+        final routine = routines.firstWhere(
+          (r) => r.id == widget.routineId,
+          orElse: () => routines.first,
+        );
+        final section = routine.sections.firstWhere(
+          (s) => s.id == widget.sectionId,
+          orElse:
+              () =>
+                  routine.sections.isNotEmpty
+                      ? routine.sections.first
+                      : routine.sections.first,
+        );
+        final re = section.exercises.firstWhere(
+          (e) => e.exerciseId == exercise.id || e.id == exercise.id,
+          orElse:
+              () =>
+                  section.exercises.isNotEmpty
+                      ? section.exercises.first
+                      : section.exercises.first,
+        );
+        sets = re.sets;
+        reps = re.reps;
+        weight = re.weight;
+      } else {
+        // Sin contexto: intenta recuperar la primera ocurrencia del ejercicio en cualquier rutina
+        for (final routine in routines) {
+          for (final section in routine.sections) {
+            final match = section.exercises.where(
+              (re) => re.exerciseId == exercise.id,
+            );
+            if (match.isNotEmpty) {
+              final re = match.first;
+              sets = re.sets;
+              reps = re.reps;
+              weight = re.weight;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    _formSets = sets;
+    _formReps = reps;
+    _formWeight = weight;
   }
 
   @override
@@ -72,6 +132,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _nameController.dispose();
     _descriptionController.dispose();
     _videoUrlController.dispose();
+    _imageUrlController.dispose();
     _tipsController.dispose();
     _commonMistakesController.dispose();
     super.dispose();
@@ -182,28 +243,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                   style: BorderStyle.solid,
                 ),
               ),
-              child:
-                  _imagePath.isNotEmpty
-                      ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child:
-                            _imagePath.startsWith('assets/')
-                                ? Image.asset(
-                                  _imagePath,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return _buildImagePlaceholder();
-                                  },
-                                )
-                                : Image.network(
-                                  _imagePath,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return _buildImagePlaceholder();
-                                  },
-                                ),
-                      )
-                      : _buildImagePlaceholder(),
+              child: _buildPreviewImage(),
             ),
           ),
         ),
@@ -215,6 +255,30 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             label: Text(
               _imagePath.isEmpty ? 'Seleccionar Imagen' : 'Cambiar Imagen',
             ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextFormField(
+          controller: _imageUrlController,
+          decoration: const InputDecoration(
+            labelText: 'URL de imagen (opcional)',
+            hintText: 'https://…/imagen.jpg o file:///…/imagen.jpg',
+            border: OutlineInputBorder(),
+            helperText: 'Tiene prioridad sobre la imagen local',
+          ),
+          keyboardType: TextInputType.url,
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              // Fuerza refresco del preview para probar la imagen
+              setState(() {});
+            },
+            icon: const Icon(Icons.image_search),
+            label: const Text('Probar imagen'),
           ),
         ),
       ],
@@ -242,6 +306,54 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         ),
       ],
     );
+  }
+
+  Widget _buildPreviewImage() {
+    final url = _imageUrlController.text.trim();
+    if (url.isNotEmpty) {
+      if (url.startsWith('http')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+          ),
+        );
+      }
+      if (url.startsWith('file:') || url.startsWith('/')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(
+            File(url.replaceFirst('file://', '')),
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+          ),
+        );
+      }
+      return _buildImagePlaceholder();
+    }
+    if (_imagePath.isNotEmpty) {
+      if (_imagePath.startsWith('assets/')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.asset(
+            _imagePath,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+          ),
+        );
+      }
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.file(
+          File(_imagePath),
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
+        ),
+      );
+    }
+    return _buildImagePlaceholder();
   }
 
   Widget _buildBasicInfoSection() {
@@ -478,15 +590,48 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           ),
         ),
         const SizedBox(height: 12),
-        TextFormField(
-          controller: _videoUrlController,
-          decoration: const InputDecoration(
-            labelText: 'URL del Video',
-            hintText: 'https://example.com/video.mp4',
-            border: OutlineInputBorder(),
-            helperText: 'Opcional: URL de un video demostrativo',
-          ),
-          keyboardType: TextInputType.url,
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _videoUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'URL del Video',
+                  hintText: 'https://youtu.be/… o https://…/video.mp4',
+                  border: OutlineInputBorder(),
+                  helperText: 'Pega un enlace de YouTube o URL directa',
+                ),
+                keyboardType: TextInputType.url,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed: _pickVideoFile,
+                    icon: const Icon(Icons.folder_open),
+                    label: const Text('Archivo'),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 40,
+                  child: Text(
+                    _isYouTubeUrl(_videoUrlController.text)
+                        ? 'YouTube'
+                        : _isLocalPath(_videoUrlController.text)
+                        ? 'Local'
+                        : _videoUrlController.text.isNotEmpty
+                        ? 'URL'
+                        : '',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -645,10 +790,118 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     final XFile? image = await picker.pickImage(source: source);
 
     if (image != null) {
+      final cropped = await _openCropperDialog(image.path);
       setState(() {
-        _imagePath = image.path;
+        _imagePath = cropped ?? image.path;
       });
     }
+  }
+
+  Future<String?> _openCropperDialog(String path) async {
+    final editorKey = GlobalKey<ext_img.ExtendedImageEditorState>();
+    return await showDialog<String>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: SizedBox(
+            width: MediaQuery.of(ctx).size.width * 0.9,
+            height: MediaQuery.of(ctx).size.height * 0.6,
+            child: ext_img.ExtendedImage.file(
+              File(path),
+              fit: BoxFit.contain,
+              mode: ext_img.ExtendedImageMode.editor,
+              extendedImageEditorKey: editorKey,
+              cacheRawData: true,
+              initEditorConfigHandler: (state) {
+                // Ajustar relación de aspecto al espacio de la tarjeta principal (~banner)
+                final screenWidth = MediaQuery.of(ctx).size.width;
+                final bannerRatio = ((screenWidth - 32) / 120).clamp(1.5, 3.5);
+                return ext_img.EditorConfig(
+                  maxScale: 8.0,
+                  cropRectPadding: const EdgeInsets.all(16),
+                  hitTestSize: 20.0,
+                  cornerColor: Theme.of(ctx).colorScheme.primary,
+                  lineColor: Theme.of(ctx).colorScheme.primary,
+                  // Bloquear a relación de aspecto aproximada al contenedor de la tarjeta
+                  cropAspectRatio: bannerRatio.toDouble(),
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(null),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final state = editorKey.currentState;
+                if (state == null) {
+                  Navigator.of(ctx).pop(null);
+                  return;
+                }
+                // Recorte manual con paquete image
+                Uint8List croppedBytes;
+                final raw = await state.rawImageData;
+                final rect = state.getCropRect();
+                final img = image.decodeImage(raw);
+                if (img != null && rect != null) {
+                  final crop = image.copyCrop(
+                    img,
+                    x: rect.left.round().clamp(0, img.width - 1),
+                    y: rect.top.round().clamp(0, img.height - 1),
+                    width: rect.width.round().clamp(1, img.width),
+                    height: rect.height.round().clamp(1, img.height),
+                  );
+                  croppedBytes = Uint8List.fromList(
+                    image.encodeJpg(crop, quality: 92),
+                  );
+                } else {
+                  croppedBytes = raw;
+                }
+                // Guardar a AppDocuments/images
+                final dir = await getApplicationDocumentsDirectory();
+                final imagesDir = Directory('${dir.path}/images');
+                if (!await imagesDir.exists())
+                  await imagesDir.create(recursive: true);
+                final filename =
+                    'img_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                final file = File('${imagesDir.path}/$filename');
+                await file.writeAsBytes(croppedBytes, flush: true);
+                if (ctx.mounted) Navigator.of(ctx).pop(file.path);
+              },
+              child: const Text('Recortar y guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _pickVideoFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+      allowMultiple: false,
+    );
+    if (result != null && result.files.isNotEmpty) {
+      final path = result.files.single.path;
+      if (path != null && mounted) {
+        setState(() {
+          _videoUrlController.text = path;
+        });
+      }
+    }
+  }
+
+  bool _isYouTubeUrl(String url) {
+    final u = url.toLowerCase();
+    return u.contains('youtube.com') || u.contains('youtu.be');
+  }
+
+  bool _isLocalPath(String url) {
+    return url.startsWith('/') || url.startsWith('file:');
   }
 
   String _getDifficultyName(ExerciseDifficulty difficulty) {
@@ -696,14 +949,14 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               .map((mistake) => mistake.trim())
               .toList();
 
+      // Resolver imagen persistente
+      final resolvedImagePath = await _resolveAndPersistImagePath();
+
       final exercise = Exercise(
         id: widget.exerciseToEdit?.id ?? '',
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
-        imageUrl:
-            _imagePath.isNotEmpty
-                ? _imagePath
-                : 'assets/images/default_exercise.png',
+        imageUrl: resolvedImagePath,
         videoUrl:
             _videoUrlController.text.trim().isNotEmpty
                 ? _videoUrlController.text.trim()
@@ -743,8 +996,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
       // Si viene con contexto de rutina/sección, aplicar series/reps/peso como defaults en esa sección
       if (widget.routineId != null && widget.sectionId != null) {
-        final routineAsync = ref.read(routineNotifierProvider);
-        await routineAsync.whenData((routines) async {
+        final routines = ref.read(routineNotifierProvider).valueOrNull;
+        if (routines != null) {
           final routine = routines.firstWhere(
             (r) => r.id == widget.routineId,
             orElse: () => throw Exception('Rutina no encontrada'),
@@ -775,11 +1028,11 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           await ref
               .read(routineNotifierProvider.notifier)
               .updateRoutine(updatedRoutine);
-        });
+        }
       } else {
         // Sin contexto: actualizar todas las ocurrencias del ejercicio en todas las rutinas
-        final routineAsync = ref.read(routineNotifierProvider);
-        await routineAsync.whenData((routines) async {
+        final routines = ref.read(routineNotifierProvider).valueOrNull;
+        if (routines != null) {
           for (final routine in routines) {
             bool changed = false;
             final updatedSections =
@@ -809,7 +1062,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                   .updateRoutine(updatedRoutine);
             }
           }
-        });
+        }
       }
 
       if (mounted) {
@@ -839,5 +1092,57 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         });
       }
     }
+  }
+
+  Future<String> _resolveAndPersistImagePath() async {
+    try {
+      final remote = _imageUrlController.text.trim();
+      // Caso 1: URL remota → descargar a app dir
+      if (remote.isNotEmpty && remote.startsWith('http')) {
+        final bytes = await http.readBytes(Uri.parse(remote));
+        final dir = await getApplicationDocumentsDirectory();
+        final imagesDir = Directory('${dir.path}/images');
+        if (!await imagesDir.exists()) await imagesDir.create(recursive: true);
+        // Guardar temporalmente y ofrecer recorte
+        final tempName = 'tmp_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final tempFile = File('${imagesDir.path}/$tempName');
+        await tempFile.writeAsBytes(bytes, flush: true);
+        final croppedPath = await _openCropperDialog(tempFile.path);
+        return croppedPath ?? tempFile.path;
+      }
+      // Caso 2: imagen local seleccionada → copiar a app dir si no está dentro
+      if (_imagePath.isNotEmpty) {
+        if (_imagePath.startsWith('assets/')) return _imagePath;
+        final src = File(
+          _imagePath.startsWith('file:')
+              ? _imagePath.replaceFirst('file://', '')
+              : _imagePath,
+        );
+        if (!await src.exists()) return 'assets/images/default_exercise.png';
+        final dir = await getApplicationDocumentsDirectory();
+        final imagesDir = Directory('${dir.path}/images');
+        if (!await imagesDir.exists()) await imagesDir.create(recursive: true);
+        final filename =
+            'img_${DateTime.now().millisecondsSinceEpoch}${p.extension(src.path)}';
+        final dst = File('${imagesDir.path}/$filename');
+        await dst.writeAsBytes(await src.readAsBytes(), flush: true);
+        return dst.path;
+      }
+      // Caso 3: ruta local en campo URL (file:///)
+      if (remote.isNotEmpty &&
+          (remote.startsWith('file:') || remote.startsWith('/'))) {
+        final src = File(remote.replaceFirst('file://', ''));
+        if (!await src.exists()) return 'assets/images/default_exercise.png';
+        final dir = await getApplicationDocumentsDirectory();
+        final imagesDir = Directory('${dir.path}/images');
+        if (!await imagesDir.exists()) await imagesDir.create(recursive: true);
+        final filename =
+            'img_${DateTime.now().millisecondsSinceEpoch}${p.extension(src.path)}';
+        final dst = File('${imagesDir.path}/$filename');
+        await dst.writeAsBytes(await src.readAsBytes(), flush: true);
+        return dst.path;
+      }
+    } catch (_) {}
+    return 'assets/images/default_exercise.png';
   }
 }

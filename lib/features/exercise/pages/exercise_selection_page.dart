@@ -52,27 +52,6 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         title: Text(widget.title),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(
-            onPressed: () {
-              // Navigate to create exercise with context
-              final queryParams = <String, String>{};
-              if (widget.routineId != null) {
-                queryParams['routineId'] = widget.routineId!;
-              }
-              if (widget.sectionId != null) {
-                queryParams['sectionId'] = widget.sectionId!;
-              }
-              queryParams['returnTo'] = 'selection';
-
-              final uri = Uri(
-                path: '/exercise/create',
-                queryParameters: queryParams,
-              );
-              context.push(uri.toString());
-            },
-            icon: const Icon(Icons.add),
-            tooltip: 'Crear nuevo ejercicio',
-          ),
           if (_selectedExercises.isNotEmpty)
             TextButton(
               onPressed: _addSelectedExercises,
@@ -150,9 +129,14 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
                     return ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredExercises.length,
+                      itemCount: filteredExercises.length + 1,
                       itemBuilder: (context, index) {
-                        final exercise = filteredExercises[index];
+                        // Primer ítem: crear nuevo ejercicio
+                        if (index == 0) {
+                          return _buildCreateExerciseItem(context, colorScheme);
+                        }
+
+                        final exercise = filteredExercises[index - 1];
                         final isSelected = _selectedExercises.contains(
                           exercise.id,
                         );
@@ -329,6 +313,41 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     );
   }
 
+  Widget _buildCreateExerciseItem(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8, top: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.primaryContainer,
+          child: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
+        ),
+        title: const Text('Crear nuevo ejercicio'),
+        subtitle: const Text('Añade un ejercicio y vuelve a esta selección'),
+        // sin icono para mantenerlo limpio
+        trailing: null,
+        onTap: () {
+          final queryParams = <String, String>{};
+          if (widget.routineId != null) {
+            queryParams['routineId'] = widget.routineId!;
+          }
+          if (widget.sectionId != null) {
+            queryParams['sectionId'] = widget.sectionId!;
+          }
+          queryParams['returnTo'] = 'selection';
+
+          final uri = Uri(
+            path: '/exercise/create',
+            queryParameters: queryParams,
+          );
+          context.push(uri.toString());
+        },
+      ),
+    );
+  }
+
   void _addSelectedExercises() {
     if (_selectedExercises.isEmpty) return;
 
@@ -368,8 +387,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       }
     });
 
-    // Navigate back
-    Navigator.of(context).pop();
+    // Navegación segura: volver si se puede, si no, ir a Home
+    if (Navigator.canPop(context)) {
+      if (context.mounted) context.pop();
+    } else {
+      if (context.mounted) context.go('/');
+    }
   }
 
   void _updateRoutineWithExercises(

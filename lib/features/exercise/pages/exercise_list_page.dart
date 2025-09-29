@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -193,22 +194,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
             width: 60,
             height: 60,
             color: colorScheme.surfaceVariant,
-            child:
-                exercise.imageUrl.isNotEmpty
-                    ? Image.asset(
-                      exercise.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.fitness_center,
-                          color: colorScheme.onSurfaceVariant,
-                        );
-                      },
-                    )
-                    : Icon(
-                      Icons.fitness_center,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+            child: _buildAdaptiveImage(exercise.imageUrl, colorScheme),
           ),
         ),
         title: Text(
@@ -556,5 +542,41 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
       case ExerciseDifficulty.advanced:
         return 'Avanzado';
     }
+  }
+
+  Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
+    if (path.isEmpty) {
+      return Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant);
+    }
+
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) =>
+                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+      );
+    }
+
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) =>
+                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+      );
+    }
+
+    final String filePath =
+        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    return Image.file(
+      File(filePath),
+      fit: BoxFit.cover,
+      errorBuilder:
+          (context, error, stackTrace) =>
+              Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+    );
   }
 }

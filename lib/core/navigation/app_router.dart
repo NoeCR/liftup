@@ -119,14 +119,7 @@ class AppRouter {
           );
         },
       ),
-      GoRoute(
-        path: exerciseDetail,
-        name: 'exerciseDetail',
-        builder: (context, state) {
-          final exerciseId = state.pathParameters['id']!;
-          return ExerciseDetailPage(exerciseId: exerciseId);
-        },
-      ),
+      // IMPORTANT: Specific routes must come BEFORE the generic '/exercise/:id'
       GoRoute(
         path: exerciseCreate,
         name: 'exerciseCreate',
@@ -187,6 +180,14 @@ class AppRouter {
               );
             },
           );
+        },
+      ),
+      GoRoute(
+        path: exerciseDetail,
+        name: 'exerciseDetail',
+        builder: (context, state) {
+          final exerciseId = state.pathParameters['id']!;
+          return ExerciseDetailPage(exerciseId: exerciseId);
         },
       ),
       GoRoute(
