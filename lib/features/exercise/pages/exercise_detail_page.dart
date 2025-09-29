@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
+import '../../../common/enums/muscle_group_enum.dart';
 
 class ExerciseDetailPage extends ConsumerWidget {
   final String exerciseId;
@@ -155,7 +156,7 @@ class ExerciseDetailPage extends ConsumerWidget {
             children:
                 exercise.muscleGroups.map((muscle) {
                   return Chip(
-                    label: Text(muscle),
+                    label: Text(muscle.displayName),
                     backgroundColor: colorScheme.primaryContainer,
                     labelStyle: TextStyle(
                       color: colorScheme.onPrimaryContainer,
@@ -353,24 +354,7 @@ class ExerciseDetailPage extends ConsumerWidget {
   }
 
   String _getCategoryName(ExerciseCategory category) {
-    switch (category) {
-      case ExerciseCategory.chest:
-        return 'Pecho';
-      case ExerciseCategory.back:
-        return 'Espalda';
-      case ExerciseCategory.shoulders:
-        return 'Hombros';
-      case ExerciseCategory.arms:
-        return 'Brazos';
-      case ExerciseCategory.legs:
-        return 'Piernas';
-      case ExerciseCategory.core:
-        return 'Core';
-      case ExerciseCategory.cardio:
-        return 'Cardio';
-      case ExerciseCategory.fullBody:
-        return 'Cuerpo Completo';
-    }
+    return category.displayName;
   }
 
   String _getDifficultyName(ExerciseDifficulty difficulty) {

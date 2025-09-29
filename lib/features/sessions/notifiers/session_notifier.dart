@@ -8,22 +8,21 @@ part 'session_notifier.g.dart';
 
 @riverpod
 class SessionNotifier extends _$SessionNotifier {
-  late final SessionService _sessionService;
-  late final Uuid _uuid;
-
   @override
   Future<List<WorkoutSession>> build() async {
-    _sessionService = ref.read(sessionServiceProvider);
-    _uuid = const Uuid();
-    return await _sessionService.getAllSessions();
+    final sessionService = ref.read(sessionServiceProvider);
+    return await sessionService.getAllSessions();
   }
 
   Future<WorkoutSession> startSession({
     String? routineId,
     required String name,
   }) async {
+    final sessionService = ref.read(sessionServiceProvider);
+    final uuid = const Uuid();
+
     final session = WorkoutSession(
-      id: _uuid.v4(),
+      id: uuid.v4(),
       routineId: routineId,
       name: name,
       startTime: DateTime.now(),
@@ -31,8 +30,8 @@ class SessionNotifier extends _$SessionNotifier {
       status: SessionStatus.active,
     );
 
-    await _sessionService.saveSession(session);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    await sessionService.saveSession(session);
+    state = AsyncValue.data(await sessionService.getAllSessions());
     return session;
   }
 
@@ -47,8 +46,9 @@ class SessionNotifier extends _$SessionNotifier {
       totalReps: _calculateTotalReps(updatedSets),
     );
 
-    await _sessionService.saveSession(updatedSession);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(updatedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
   Future<void> updateExerciseSet(ExerciseSet exerciseSet) async {
@@ -66,8 +66,9 @@ class SessionNotifier extends _$SessionNotifier {
       totalReps: _calculateTotalReps(updatedSets),
     );
 
-    await _sessionService.saveSession(updatedSession);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(updatedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
   Future<void> completeSession({String? notes}) async {
@@ -80,8 +81,9 @@ class SessionNotifier extends _$SessionNotifier {
       notes: notes,
     );
 
-    await _sessionService.saveSession(completedSession);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(completedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
   Future<void> pauseSession() async {
@@ -90,8 +92,9 @@ class SessionNotifier extends _$SessionNotifier {
 
     final pausedSession = currentSession.copyWith(status: SessionStatus.paused);
 
-    await _sessionService.saveSession(pausedSession);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(pausedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
   Future<void> resumeSession() async {
@@ -102,12 +105,14 @@ class SessionNotifier extends _$SessionNotifier {
       status: SessionStatus.active,
     );
 
-    await _sessionService.saveSession(resumedSession);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(resumedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
   Future<WorkoutSession?> getCurrentActiveSession() async {
-    final sessions = await _sessionService.getAllSessions();
+    final sessionService = ref.read(sessionServiceProvider);
+    final sessions = await sessionService.getAllSessions();
     try {
       return sessions.firstWhere((session) => session.isActive);
     } catch (e) {
@@ -119,16 +124,19 @@ class SessionNotifier extends _$SessionNotifier {
     DateTime startDate,
     DateTime endDate,
   ) async {
-    return await _sessionService.getSessionsByDateRange(startDate, endDate);
+    final sessionService = ref.read(sessionServiceProvider);
+    return await sessionService.getSessionsByDateRange(startDate, endDate);
   }
 
   Future<List<WorkoutSession>> getRecentSessions({int limit = 10}) async {
-    return await _sessionService.getRecentSessions(limit: limit);
+    final sessionService = ref.read(sessionServiceProvider);
+    return await sessionService.getRecentSessions(limit: limit);
   }
 
   Future<void> deleteSession(String sessionId) async {
-    await _sessionService.deleteSession(sessionId);
-    state = AsyncValue.data(await _sessionService.getAllSessions());
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.deleteSession(sessionId);
+    state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
   double _calculateTotalWeight(List<ExerciseSet> sets) {

@@ -1,6 +1,8 @@
 import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../../common/enums/week_day_enum.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
 
 part 'routine.g.dart';
 
@@ -17,16 +19,16 @@ class Routine extends Equatable {
   final String description;
 
   @HiveField(3)
-  final List<RoutineDay> days;
+  final List<WeekDay> days; // Solo los días de la semana, sin secciones
 
   @HiveField(4)
-  final DateTime createdAt;
+  final List<RoutineSection> sections; // Las secciones están en la rutina
 
   @HiveField(5)
-  final DateTime updatedAt;
+  final DateTime createdAt;
 
   @HiveField(6)
-  final bool isActive;
+  final DateTime updatedAt;
 
   @HiveField(7)
   final String? imageUrl;
@@ -36,9 +38,9 @@ class Routine extends Equatable {
     required this.name,
     required this.description,
     required this.days,
+    required this.sections,
     required this.createdAt,
     required this.updatedAt,
-    required this.isActive,
     this.imageUrl,
   });
 
@@ -50,10 +52,10 @@ class Routine extends Equatable {
     String? id,
     String? name,
     String? description,
-    List<RoutineDay>? days,
+    List<WeekDay>? days,
+    List<RoutineSection>? sections,
     DateTime? createdAt,
     DateTime? updatedAt,
-    bool? isActive,
     String? imageUrl,
   }) {
     return Routine(
@@ -61,9 +63,9 @@ class Routine extends Equatable {
       name: name ?? this.name,
       description: description ?? this.description,
       days: days ?? this.days,
+      sections: sections ?? this.sections,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      isActive: isActive ?? this.isActive,
       imageUrl: imageUrl ?? this.imageUrl,
     );
   }
@@ -74,84 +76,21 @@ class Routine extends Equatable {
     name,
     description,
     days,
+    sections,
     createdAt,
     updatedAt,
-    isActive,
     imageUrl,
   ];
 }
 
 @HiveType(typeId: 7)
 @JsonSerializable()
-class RoutineDay extends Equatable {
-  @HiveField(0)
-  final String id;
-
-  @HiveField(1)
-  final String routineId;
-
-  @HiveField(2)
-  final WeekDay dayOfWeek;
-
-  @HiveField(3)
-  final String name;
-
-  @HiveField(4)
-  final List<RoutineSection> sections;
-
-  @HiveField(5)
-  final bool isActive;
-
-  const RoutineDay({
-    required this.id,
-    required this.routineId,
-    required this.dayOfWeek,
-    required this.name,
-    required this.sections,
-    required this.isActive,
-  });
-
-  factory RoutineDay.fromJson(Map<String, dynamic> json) =>
-      _$RoutineDayFromJson(json);
-  Map<String, dynamic> toJson() => _$RoutineDayToJson(this);
-
-  RoutineDay copyWith({
-    String? id,
-    String? routineId,
-    WeekDay? dayOfWeek,
-    String? name,
-    List<RoutineSection>? sections,
-    bool? isActive,
-  }) {
-    return RoutineDay(
-      id: id ?? this.id,
-      routineId: routineId ?? this.routineId,
-      dayOfWeek: dayOfWeek ?? this.dayOfWeek,
-      name: name ?? this.name,
-      sections: sections ?? this.sections,
-      isActive: isActive ?? this.isActive,
-    );
-  }
-
-  @override
-  List<Object?> get props => [
-    id,
-    routineId,
-    dayOfWeek,
-    name,
-    sections,
-    isActive,
-  ];
-}
-
-@HiveType(typeId: 8)
-@JsonSerializable()
 class RoutineSection extends Equatable {
   @HiveField(0)
   final String id;
 
   @HiveField(1)
-  final String routineDayId;
+  final String routineId;
 
   @HiveField(2)
   final String name;
@@ -165,13 +104,25 @@ class RoutineSection extends Equatable {
   @HiveField(5)
   final int order;
 
+  @HiveField(6)
+  final String? sectionTemplateId;
+
+  @HiveField(7)
+  final String? iconName;
+
+  @HiveField(8)
+  final SectionMuscleGroup? muscleGroup;
+
   const RoutineSection({
     required this.id,
-    required this.routineDayId,
+    required this.routineId,
     required this.name,
     required this.exercises,
     required this.isCollapsed,
     required this.order,
+    this.sectionTemplateId,
+    this.iconName,
+    this.muscleGroup,
   });
 
   factory RoutineSection.fromJson(Map<String, dynamic> json) =>
@@ -180,34 +131,43 @@ class RoutineSection extends Equatable {
 
   RoutineSection copyWith({
     String? id,
-    String? routineDayId,
+    String? routineId,
     String? name,
     List<RoutineExercise>? exercises,
     bool? isCollapsed,
     int? order,
+    String? sectionTemplateId,
+    String? iconName,
+    SectionMuscleGroup? muscleGroup,
   }) {
     return RoutineSection(
       id: id ?? this.id,
-      routineDayId: routineDayId ?? this.routineDayId,
+      routineId: routineId ?? this.routineId,
       name: name ?? this.name,
       exercises: exercises ?? this.exercises,
       isCollapsed: isCollapsed ?? this.isCollapsed,
       order: order ?? this.order,
+      sectionTemplateId: sectionTemplateId ?? this.sectionTemplateId,
+      iconName: iconName ?? this.iconName,
+      muscleGroup: muscleGroup ?? this.muscleGroup,
     );
   }
 
   @override
   List<Object?> get props => [
     id,
-    routineDayId,
+    routineId,
     name,
     exercises,
     isCollapsed,
     order,
+    sectionTemplateId,
+    iconName,
+    muscleGroup,
   ];
 }
 
-@HiveType(typeId: 9)
+@HiveType(typeId: 8)
 @JsonSerializable()
 class RoutineExercise extends Equatable {
   @HiveField(0)
@@ -289,22 +249,4 @@ class RoutineExercise extends Equatable {
     notes,
     order,
   ];
-}
-
-@HiveType(typeId: 10)
-enum WeekDay {
-  @HiveField(0)
-  monday,
-  @HiveField(1)
-  tuesday,
-  @HiveField(2)
-  wednesday,
-  @HiveField(3)
-  thursday,
-  @HiveField(4)
-  friday,
-  @HiveField(5)
-  saturday,
-  @HiveField(6)
-  sunday,
 }

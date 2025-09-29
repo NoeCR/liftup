@@ -2,101 +2,91 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
+import '../../../common/enums/week_day_enum.dart';
+import '../../../common/enums/section_muscle_group_enum.dart';
+import 'routine_section_template_notifier.dart';
 
 part 'routine_notifier.g.dart';
 
 @riverpod
 class RoutineNotifier extends _$RoutineNotifier {
-  late final RoutineService _routineService;
-  late final Uuid _uuid;
-
   @override
   Future<List<Routine>> build() async {
-    _routineService = ref.read(routineServiceProvider);
-    _uuid = const Uuid();
+    final routineService = ref.read(routineServiceProvider);
 
     // Load initial data if empty
-    final routines = await _routineService.getAllRoutines();
+    final routines = await routineService.getAllRoutines();
+
     if (routines.isEmpty) {
       await _loadInitialRoutine();
-      return await _routineService.getAllRoutines();
+      final newRoutines = await routineService.getAllRoutines();
+      return newRoutines;
     }
 
     return routines;
   }
 
   Future<void> addRoutine(Routine routine) async {
+    final routineService = ref.read(routineServiceProvider);
     final newRoutine = routine.copyWith(
-      id: _uuid.v4(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    await _routineService.saveRoutine(newRoutine);
-    state = AsyncValue.data(await _routineService.getAllRoutines());
+    await routineService.saveRoutine(newRoutine);
+    state = AsyncValue.data(await routineService.getAllRoutines());
   }
 
   Future<void> updateRoutine(Routine routine) async {
+    final routineService = ref.read(routineServiceProvider);
     final updatedRoutine = routine.copyWith(updatedAt: DateTime.now());
 
-    await _routineService.saveRoutine(updatedRoutine);
-    state = AsyncValue.data(await _routineService.getAllRoutines());
+    await routineService.saveRoutine(updatedRoutine);
+    state = AsyncValue.data(await routineService.getAllRoutines());
   }
 
   Future<void> deleteRoutine(String routineId) async {
-    await _routineService.deleteRoutine(routineId);
-    state = AsyncValue.data(await _routineService.getAllRoutines());
+    final routineService = ref.read(routineServiceProvider);
+    await routineService.deleteRoutine(routineId);
+    state = AsyncValue.data(await routineService.getAllRoutines());
   }
 
   Future<Routine?> getRoutineById(String id) async {
-    return await _routineService.getRoutineById(id);
+    final routineService = ref.read(routineServiceProvider);
+    return await routineService.getRoutineById(id);
   }
 
-  Future<RoutineDay?> getRoutineForToday() async {
+  Future<Routine?> getRoutineForToday() async {
+    final routineService = ref.read(routineServiceProvider);
     final today = DateTime.now().weekday;
     final weekDay = _getWeekDayFromInt(today);
-    return await _routineService.getRoutineForDay(weekDay);
+    return await routineService.getRoutineForDay(weekDay);
   }
 
-  Future<List<RoutineDay>> getRoutinesForDay(WeekDay day) async {
-    return await _routineService.getRoutinesForDay(day);
-  }
-
-  Future<void> toggleRoutineActive(String routineId) async {
-    final routine = await getRoutineById(routineId);
-    if (routine == null) return;
-
-    final updatedRoutine = routine.copyWith(isActive: !routine.isActive);
-
-    await updateRoutine(updatedRoutine);
+  Future<List<Routine>> getRoutinesForDay(WeekDay day) async {
+    final routineService = ref.read(routineServiceProvider);
+    return await routineService.getRoutinesForDay(day);
   }
 
   Future<void> toggleSectionCollapsed(String sectionId) async {
-    final routines = await _routineService.getAllRoutines();
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return;
 
-    for (final routine in routines) {
-      for (final day in routine.days) {
-        for (final section in day.sections) {
-          if (section.id == sectionId) {
-            final updatedSection = section.copyWith(
-              isCollapsed: !section.isCollapsed,
-            );
+    for (final routine in currentRoutines) {
+      for (final section in routine.sections) {
+        if (section.id == sectionId) {
+          final updatedSection = section.copyWith(
+            isCollapsed: !section.isCollapsed,
+          );
 
-            final updatedSections =
-                day.sections.map((s) {
-                  return s.id == sectionId ? updatedSection : s;
-                }).toList();
+          final updatedSections =
+              routine.sections.map((s) {
+                return s.id == sectionId ? updatedSection : s;
+              }).toList();
 
-            final updatedDay = day.copyWith(sections: updatedSections);
-            final updatedDays =
-                routine.days.map((d) {
-                  return d.id == day.id ? updatedDay : d;
-                }).toList();
-
-            final updatedRoutine = routine.copyWith(days: updatedDays);
-            await updateRoutine(updatedRoutine);
-            return;
-          }
+          final updatedRoutine = routine.copyWith(sections: updatedSections);
+          await updateRoutine(updatedRoutine);
+          return;
         }
       }
     }
@@ -124,54 +114,69 @@ class RoutineNotifier extends _$RoutineNotifier {
   }
 
   Future<void> _loadInitialRoutine() async {
-    final routineId = _uuid.v4();
-    final dayId = _uuid.v4();
-    final sectionId = _uuid.v4();
+    // No crear rutinas automáticamente - el usuario las creará manualmente
+    // Esto permite mayor flexibilidad y personalización
+  }
 
-    final initialRoutine = Routine(
-      id: routineId,
-      name: 'Rutina de Ejemplo',
-      description: 'Una rutina básica para comenzar tu entrenamiento',
-      days: [
-        RoutineDay(
-          id: dayId,
-          routineId: routineId,
-          dayOfWeek: WeekDay.monday,
-          name: 'Día de Pecho y Tríceps',
-          sections: [
-            RoutineSection(
-              id: sectionId,
-              routineDayId: dayId,
-              name: 'Calentamiento',
-              exercises: [],
-              isCollapsed: false,
-              order: 0,
-            ),
-            RoutineSection(
-              id: _uuid.v4(),
-              routineDayId: dayId,
-              name: 'Ejercicios Principales',
-              exercises: [],
-              isCollapsed: false,
-              order: 1,
-            ),
-            RoutineSection(
-              id: _uuid.v4(),
-              routineDayId: dayId,
-              name: 'Enfriamiento',
-              exercises: [],
-              isCollapsed: false,
-              order: 2,
-            ),
-          ],
-          isActive: true,
-        ),
-      ],
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      isActive: true,
-    );
+  Future<void> addSectionsToRoutine(
+    String routineId,
+    List<String> sectionTemplateIds,
+  ) async {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) {
+      return;
+    }
 
-    await _routineService.saveRoutine(initialRoutine);
+    try {
+      // Find the specific routine
+      final routineIndex = currentRoutines.indexWhere((r) => r.id == routineId);
+      if (routineIndex == -1) {
+        return;
+      }
+
+      final routine = currentRoutines[routineIndex];
+
+      // Get section templates
+      final sectionTemplates = await ref.read(
+        routineSectionTemplateNotifierProvider.future,
+      );
+
+      // Create sections based on selected templates
+      final newSections =
+          sectionTemplateIds.map((templateId) {
+            final template = sectionTemplates.firstWhere(
+              (t) => t.id == templateId,
+              orElse: () => sectionTemplates.first,
+            );
+
+            final uuid = const Uuid();
+            return RoutineSection(
+              id: uuid.v4(),
+              routineId: routineId,
+              name: template.name,
+              exercises: [],
+              isCollapsed: false,
+              order: template.order,
+              sectionTemplateId: template.id,
+              iconName: template.iconName,
+              muscleGroup: template.muscleGroup ?? SectionMuscleGroup.chest,
+            );
+          }).toList();
+
+      // Update the routine with new sections
+      final updatedSections = [...routine.sections, ...newSections];
+      final updatedRoutine = routine.copyWith(sections: updatedSections);
+
+      // Save the updated routine
+      final routineService = ref.read(routineServiceProvider);
+      await routineService.saveRoutine(updatedRoutine);
+
+      // Update the state with the updated routine
+      final updatedRoutines = List<Routine>.from(currentRoutines);
+      updatedRoutines[routineIndex] = updatedRoutine;
+      state = AsyncValue.data(updatedRoutines);
+    } catch (e) {
+      rethrow; // Re-throw to handle in UI
+    }
   }
 }

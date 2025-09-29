@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'core/navigation/app_router.dart';
 import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
+import 'core/database/hive_adapters.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize database
-  final container = ProviderContainer();
-  await container.read(databaseServiceProvider.future);
+  // Initialize Hive and register adapters once
+  await Hive.initFlutter();
+  HiveAdapters.registerAdapters();
 
-  runApp(
-    UncontrolledProviderScope(container: container, child: const LiftUpApp()),
-  );
+  // Initialize database singleton before running the app
+  try {
+    await DatabaseService.getInstance().initialize();
+    print('Database initialized successfully');
+  } catch (e) {
+    print('Error initializing database: $e');
+    // If initialization fails, show error but don't auto-reset
+    print(
+      'Database initialization failed. User can manually reset from settings if needed.',
+    );
+  }
+
+  runApp(const ProviderScope(child: LiftUpApp()));
 }
 
 class LiftUpApp extends StatelessWidget {

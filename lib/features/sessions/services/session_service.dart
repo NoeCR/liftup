@@ -12,18 +12,23 @@ class SessionService extends _$SessionService {
     return this;
   }
 
-  Box get _box => ref.read(databaseServiceProvider.notifier).sessionsBox;
+  Box get _box {
+    return DatabaseService.getInstance().sessionsBox;
+  }
 
   Future<void> saveSession(WorkoutSession session) async {
-    await _box.put(session.id, session);
+    final box = _box;
+    await box.put(session.id, session);
   }
 
   Future<WorkoutSession?> getSessionById(String id) async {
-    return _box.get(id);
+    final box = _box;
+    return box.get(id);
   }
 
   Future<List<WorkoutSession>> getAllSessions() async {
-    return _box.values.cast<WorkoutSession>().toList()
+    final box = _box;
+    return box.values.cast<WorkoutSession>().toList()
       ..sort((a, b) => b.startTime.compareTo(a.startTime));
   }
 
@@ -54,11 +59,13 @@ class SessionService extends _$SessionService {
   }
 
   Future<void> deleteSession(String id) async {
-    await _box.delete(id);
+    final box = await _box;
+    await box.delete(id);
   }
 
   Future<int> getSessionCount() async {
-    return _box.length;
+    final box = await _box;
+    return box.length;
   }
 
   Future<Duration> getTotalWorkoutTime() async {

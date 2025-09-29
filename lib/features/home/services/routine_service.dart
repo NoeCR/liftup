@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/routine.dart';
+import '../../../common/enums/week_day_enum.dart';
 import '../../../core/database/database_service.dart';
 
 part 'routine_service.g.dart';
@@ -12,49 +13,53 @@ class RoutineService extends _$RoutineService {
     return this;
   }
 
-  Box get _box => ref.read(databaseServiceProvider.notifier).routinesBox;
+  Box get _box {
+    return DatabaseService.getInstance().routinesBox;
+  }
 
   Future<void> saveRoutine(Routine routine) async {
-    await _box.put(routine.id, routine);
+    final box = _box;
+    await box.put(routine.id, routine);
   }
 
   Future<Routine?> getRoutineById(String id) async {
-    return _box.get(id);
+    final box = _box;
+    return box.get(id);
   }
 
   Future<List<Routine>> getAllRoutines() async {
-    return _box.values.cast<Routine>().toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final box = _box;
+    final routines =
+        box.values.cast<Routine>().toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+    return routines;
   }
 
   Future<List<Routine>> getActiveRoutines() async {
-    final allRoutines = await getAllRoutines();
-    return allRoutines.where((routine) => routine.isActive).toList();
+    // Todas las rutinas están activas por defecto
+    return await getAllRoutines();
   }
 
-  Future<RoutineDay?> getRoutineForDay(WeekDay day) async {
-    final activeRoutines = await getActiveRoutines();
+  Future<Routine?> getRoutineForDay(WeekDay day) async {
+    final allRoutines = await getAllRoutines();
 
-    for (final routine in activeRoutines) {
-      for (final routineDay in routine.days) {
-        if (routineDay.dayOfWeek == day && routineDay.isActive) {
-          return routineDay;
-        }
+    for (final routine in allRoutines) {
+      if (routine.days.contains(day)) {
+        return routine;
       }
     }
 
     return null;
   }
 
-  Future<List<RoutineDay>> getRoutinesForDay(WeekDay day) async {
-    final activeRoutines = await getActiveRoutines();
-    final List<RoutineDay> dayRoutines = [];
+  Future<List<Routine>> getRoutinesForDay(WeekDay day) async {
+    final allRoutines = await getAllRoutines();
+    final List<Routine> dayRoutines = [];
 
-    for (final routine in activeRoutines) {
-      for (final routineDay in routine.days) {
-        if (routineDay.dayOfWeek == day && routineDay.isActive) {
-          dayRoutines.add(routineDay);
-        }
+    for (final routine in allRoutines) {
+      if (routine.days.contains(day)) {
+        dayRoutines.add(routine);
       }
     }
 
@@ -62,11 +67,13 @@ class RoutineService extends _$RoutineService {
   }
 
   Future<void> deleteRoutine(String id) async {
-    await _box.delete(id);
+    final box = await _box;
+    await box.delete(id);
   }
 
   Future<int> getRoutineCount() async {
-    return _box.length;
+    final box = await _box;
+    return box.length;
   }
 
   Future<List<Routine>> searchRoutines(String query) async {

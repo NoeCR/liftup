@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../../common/enums/muscle_group_enum.dart';
 
 part 'exercise.g.dart';
 
@@ -23,7 +24,7 @@ class Exercise extends Equatable {
   final String? videoUrl;
 
   @HiveField(5)
-  final List<String> muscleGroups;
+  final List<MuscleGroup> muscleGroups;
 
   @HiveField(6)
   final List<String> tips;
@@ -68,7 +69,7 @@ class Exercise extends Equatable {
     String? description,
     String? imageUrl,
     String? videoUrl,
-    List<String>? muscleGroups,
+    List<MuscleGroup>? muscleGroups,
     List<String>? tips,
     List<String>? commonMistakes,
     ExerciseCategory? category,
@@ -118,15 +119,58 @@ enum ExerciseCategory {
   @HiveField(2)
   shoulders,
   @HiveField(3)
-  arms,
+  biceps,
   @HiveField(4)
-  legs,
+  triceps,
   @HiveField(5)
-  core,
+  forearms,
   @HiveField(6)
-  cardio,
+  quadriceps,
   @HiveField(7)
+  hamstrings,
+  @HiveField(8)
+  glutes,
+  @HiveField(9)
+  calves,
+  @HiveField(10)
+  core,
+  @HiveField(11)
+  cardio,
+  @HiveField(12)
   fullBody,
+}
+
+extension ExerciseCategoryExtension on ExerciseCategory {
+  String get displayName {
+    switch (this) {
+      case ExerciseCategory.chest:
+        return 'Pecho';
+      case ExerciseCategory.back:
+        return 'Espalda';
+      case ExerciseCategory.shoulders:
+        return 'Hombros';
+      case ExerciseCategory.biceps:
+        return 'Bíceps';
+      case ExerciseCategory.triceps:
+        return 'Tríceps';
+      case ExerciseCategory.forearms:
+        return 'Antebrazos';
+      case ExerciseCategory.quadriceps:
+        return 'Cuádriceps';
+      case ExerciseCategory.hamstrings:
+        return 'Isquiotibiales';
+      case ExerciseCategory.glutes:
+        return 'Glúteos';
+      case ExerciseCategory.calves:
+        return 'Pantorrillas';
+      case ExerciseCategory.core:
+        return 'Core';
+      case ExerciseCategory.cardio:
+        return 'Cardio';
+      case ExerciseCategory.fullBody:
+        return 'Cuerpo Completo';
+    }
+  }
 }
 
 @HiveType(typeId: 2)
