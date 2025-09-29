@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
 import '../../../common/enums/muscle_group_enum.dart';
+import '../../home/notifiers/routine_notifier.dart';
 
 class ExerciseDetailPage extends ConsumerWidget {
   final String exerciseId;
@@ -14,8 +15,7 @@ class ExerciseDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -132,8 +132,7 @@ class ExerciseDetailPage extends ConsumerWidget {
   }
 
   Widget _buildExerciseImage(Exercise exercise, BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return AspectRatio(
       aspectRatio: 16 / 9,
@@ -195,8 +194,7 @@ class ExerciseDetailPage extends ConsumerWidget {
   }
 
   Widget _buildAddVideoCta(BuildContext context, Exercise exercise) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -273,15 +271,55 @@ class ExerciseDetailPage extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Parámetros de entrenamiento (solo visual)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _buildInfoChip('Series: 3', Icons.repeat, context),
-              _buildInfoChip('Reps: 10', Icons.fitness_center, context),
-              _buildInfoChip('Peso: 0.0 kg', Icons.scale, context),
-            ],
+          // Parámetros de entrenamiento (leer desde RoutineExercise)
+          Consumer(
+            builder: (context, ref, _) {
+              final routineAsync = ref.watch(routineNotifierProvider);
+              int sets = 3;
+              int reps = 10;
+              double weight = 0.0;
+              routineAsync.whenData((routines) {
+                for (final r in routines) {
+                  for (final s in r.sections) {
+                    final match = s.exercises.where(
+                      (re) => re.exerciseId == exercise.id,
+                    );
+                    if (match.isNotEmpty) {
+                      final re = match.first;
+                      sets = re.sets;
+                      reps = re.reps;
+                      weight = re.weight;
+                      return; // break out once found
+                    }
+                  }
+                }
+              });
+
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _buildInfoChip(
+                      'Series: ' + sets.toString(),
+                      Icons.repeat,
+                      context,
+                    ),
+                    _buildInfoChip(
+                      'Reps: ' + reps.toString(),
+                      Icons.fitness_center,
+                      context,
+                    ),
+                    _buildInfoChip(
+                      'Peso: ' + weight.toStringAsFixed(1) + ' kg',
+                      Icons.scale,
+                      context,
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

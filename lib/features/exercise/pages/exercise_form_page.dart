@@ -43,6 +43,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   final _imageUrlController = TextEditingController();
   final _tipsController = TextEditingController();
   final _commonMistakesController = TextEditingController();
+  final _setsController = TextEditingController();
+  final _repsController = TextEditingController();
+  final _weightController = TextEditingController();
 
   ExerciseCategory _selectedCategory = ExerciseCategory.chest;
   ExerciseDifficulty _selectedDifficulty = ExerciseDifficulty.beginner;
@@ -56,6 +59,12 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   @override
   void initState() {
     super.initState();
+
+    // Inicializar controladores con valores por defecto
+    _setsController.text = _formSets.toString();
+    _repsController.text = _formReps.toString();
+    _weightController.text = _formWeight.toStringAsFixed(1);
+
     if (widget.exerciseToEdit != null) {
       _populateForm();
     }
@@ -72,6 +81,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _selectedDifficulty = exercise.difficulty;
     _selectedMuscleGroups = List.from(exercise.muscleGroups);
     _imagePath = exercise.imageUrl;
+
     // Hidratar parámetros de entrenamiento desde el contexto de rutina/sección si está disponible
     int sets = 3;
     int reps = 10;
@@ -125,6 +135,11 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _formSets = sets;
     _formReps = reps;
     _formWeight = weight;
+
+    // Actualizar controladores con los valores de RoutineExercise
+    _setsController.text = sets.toString();
+    _repsController.text = reps.toString();
+    _weightController.text = weight.toStringAsFixed(1);
   }
 
   @override
@@ -135,6 +150,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _imageUrlController.dispose();
     _tipsController.dispose();
     _commonMistakesController.dispose();
+    _setsController.dispose();
+    _repsController.dispose();
+    _weightController.dispose();
     super.dispose();
   }
 
@@ -654,7 +672,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           children: [
             Expanded(
               child: TextFormField(
-                initialValue: _formSets.toString(),
+                controller: _setsController,
                 decoration: const InputDecoration(
                   labelText: 'Series',
                   border: OutlineInputBorder(),
@@ -671,7 +689,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             const SizedBox(width: 16),
             Expanded(
               child: TextFormField(
-                initialValue: _formReps.toString(),
+                controller: _repsController,
                 decoration: const InputDecoration(
                   labelText: 'Repeticiones',
                   border: OutlineInputBorder(),
@@ -688,7 +706,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             const SizedBox(width: 16),
             Expanded(
               child: TextFormField(
-                initialValue: _formWeight.toStringAsFixed(1),
+                controller: _weightController,
                 decoration: const InputDecoration(
                   labelText: 'Peso (kg)',
                   border: OutlineInputBorder(),
@@ -815,17 +833,14 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               extendedImageEditorKey: editorKey,
               cacheRawData: true,
               initEditorConfigHandler: (state) {
-                // Ajustar relación de aspecto al espacio de la tarjeta principal (~banner)
-                final screenWidth = MediaQuery.of(ctx).size.width;
-                final bannerRatio = ((screenWidth - 32) / 120).clamp(1.5, 3.5);
                 return ext_img.EditorConfig(
                   maxScale: 8.0,
                   cropRectPadding: const EdgeInsets.all(16),
                   hitTestSize: 20.0,
                   cornerColor: Theme.of(ctx).colorScheme.primary,
                   lineColor: Theme.of(ctx).colorScheme.primary,
-                  // Bloquear a relación de aspecto aproximada al contenedor de la tarjeta
-                  cropAspectRatio: bannerRatio.toDouble(),
+                  // Aspect ratio 4:3
+                  cropAspectRatio: 4 / 3,
                 );
               },
             ),
@@ -970,10 +985,12 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         updatedAt: DateTime.now(),
       );
 
+      Exercise saved = exercise;
       if (widget.exerciseToEdit != null) {
         await ref
             .read(exerciseNotifierProvider.notifier)
             .updateExercise(exercise);
+        saved = exercise;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -983,7 +1000,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           );
         }
       } else {
-        await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);
+        saved = await ref
+            .read(exerciseNotifierProvider.notifier)
+            .addExercise(exercise);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -1008,8 +1027,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 if (s.id != widget.sectionId) return s;
                 final updatedExercises =
                     s.exercises.map((re) {
-                      if (re.exerciseId == exercise.id ||
-                          re.id == exercise.id) {
+                      if (re.exerciseId == saved.id || re.id == saved.id) {
                         return re.copyWith(
                           sets: _formSets,
                           reps: _formReps,
@@ -1039,7 +1057,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 routine.sections.map((s) {
                   final updatedExercises =
                       s.exercises.map((re) {
-                        if (re.exerciseId == exercise.id) {
+                        if (re.exerciseId == saved.id) {
                           changed = true;
                           return re.copyWith(
                             sets: _formSets,

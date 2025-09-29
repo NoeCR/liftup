@@ -21,7 +21,7 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     return exercises;
   }
 
-  Future<void> addExercise(Exercise exercise) async {
+  Future<Exercise> addExercise(Exercise exercise) async {
     final exerciseService = ref.read(exerciseServiceProvider);
     final uuid = const Uuid();
 
@@ -36,6 +36,8 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     // Force refresh the state
     ref.invalidateSelf();
     state = AsyncValue.data(await exerciseService.getAllExercises());
+
+    return newExercise;
   }
 
   Future<void> updateExercise(Exercise exercise) async {
