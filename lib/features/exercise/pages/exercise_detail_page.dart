@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
 import '../../../common/enums/muscle_group_enum.dart';
@@ -18,6 +19,56 @@ class ExerciseDetailPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Detalle del Ejercicio'),
         backgroundColor: colorScheme.surface,
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final exerciseAsync = ref.watch(exerciseNotifierProvider);
+
+              return exerciseAsync.when(
+                data: (exercises) {
+                  final exercise = exercises.firstWhere(
+                    (e) => e.id == exerciseId,
+                    orElse: () => throw Exception('Ejercicio no encontrado'),
+                  );
+
+                  return PopupMenuButton<String>(
+                    onSelected:
+                        (value) =>
+                            _handleMenuAction(value, context, ref, exercise),
+                    itemBuilder:
+                        (context) => [
+                          const PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit),
+                                SizedBox(width: 8),
+                                Text('Editar'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Eliminar',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (error, stack) => const SizedBox.shrink(),
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer(
         builder: (context, ref, child) {
@@ -127,6 +178,17 @@ class ExerciseDetailPage extends ConsumerWidget {
                 Icons.trending_up,
                 context,
               ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          // Parámetros de entrenamiento (solo visual)
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildInfoChip('Series: 3', Icons.repeat, context),
+              _buildInfoChip('Reps: 10', Icons.fitness_center, context),
+              _buildInfoChip('Peso: 0.0 kg', Icons.scale, context),
             ],
           ),
         ],
@@ -365,6 +427,84 @@ class ExerciseDetailPage extends ConsumerWidget {
         return 'Intermedio';
       case ExerciseDifficulty.advanced:
         return 'Avanzado';
+    }
+  }
+
+  void _handleMenuAction(
+    String action,
+    BuildContext context,
+    WidgetRef ref,
+    Exercise exercise,
+  ) {
+    switch (action) {
+      case 'edit':
+        context.push('/exercise/edit/${exercise.id}');
+        break;
+      case 'delete':
+        _showDeleteConfirmation(context, ref, exercise);
+        break;
+    }
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    Exercise exercise,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Eliminar Ejercicio'),
+            content: Text(
+              '¿Estás seguro de que quieres eliminar "${exercise.name}"? Esta acción no se puede deshacer.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await _deleteExercise(context, ref, exercise);
+                },
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                child: const Text('Eliminar'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _deleteExercise(
+    BuildContext context,
+    WidgetRef ref,
+    Exercise exercise,
+  ) async {
+    try {
+      await ref
+          .read(exerciseNotifierProvider.notifier)
+          .deleteExercise(exercise.id);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${exercise.name} eliminado correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al eliminar: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 }

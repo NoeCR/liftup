@@ -52,6 +52,27 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         title: Text(widget.title),
         backgroundColor: colorScheme.surface,
         actions: [
+          IconButton(
+            onPressed: () {
+              // Navigate to create exercise with context
+              final queryParams = <String, String>{};
+              if (widget.routineId != null) {
+                queryParams['routineId'] = widget.routineId!;
+              }
+              if (widget.sectionId != null) {
+                queryParams['sectionId'] = widget.sectionId!;
+              }
+              queryParams['returnTo'] = 'selection';
+
+              final uri = Uri(
+                path: '/exercise/create',
+                queryParameters: queryParams,
+              );
+              context.push(uri.toString());
+            },
+            icon: const Icon(Icons.add),
+            tooltip: 'Crear nuevo ejercicio',
+          ),
           if (_selectedExercises.isNotEmpty)
             TextButton(
               onPressed: _addSelectedExercises,

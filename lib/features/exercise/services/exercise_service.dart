@@ -57,12 +57,12 @@ class ExerciseService extends _$ExerciseService {
   }
 
   Future<void> deleteExercise(String id) async {
-    final box = await _box;
+    final box = _box;
     await box.delete(id);
   }
 
   Future<int> getExerciseCount() async {
-    final box = await _box;
+    final box = _box;
     return box.length;
   }
 

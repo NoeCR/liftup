@@ -33,11 +33,41 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         title: const Text('Ejercicios'),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(
-            onPressed: () {
-              // TODO: Navigate to add exercise
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'create':
+                  context.push('/exercise/create');
+                  break;
+                case 'quick_add':
+                  _showQuickAddDialog(context);
+                  break;
+              }
             },
-            icon: const Icon(Icons.add),
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'create',
+                    child: Row(
+                      children: [
+                        Icon(Icons.add),
+                        SizedBox(width: 8),
+                        Text('Nuevo Ejercicio'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'quick_add',
+                    child: Row(
+                      children: [
+                        Icon(Icons.flash_on),
+                        SizedBox(width: 8),
+                        Text('Agregar Rápido'),
+                      ],
+                    ),
+                  ),
+                ],
+            child: const Icon(Icons.add),
           ),
         ],
       ),
@@ -303,5 +333,228 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
 
   String _getCategoryName(ExerciseCategory category) {
     return category.displayName;
+  }
+
+  void _showQuickAddDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+    ExerciseCategory selectedCategory = ExerciseCategory.chest;
+    ExerciseDifficulty selectedDifficulty = ExerciseDifficulty.beginner;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: const Text('Agregar Ejercicio Rápido'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Nombre',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: descriptionController,
+                          decoration: const InputDecoration(
+                            labelText: 'Descripción',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<ExerciseCategory>(
+                                value: selectedCategory,
+                                decoration: const InputDecoration(
+                                  labelText: 'Categoría',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items:
+                                    ExerciseCategory.values.map((category) {
+                                      return DropdownMenuItem(
+                                        value: category,
+                                        child: Text(category.displayName),
+                                      );
+                                    }).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      selectedCategory = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child:
+                                  DropdownButtonFormField<ExerciseDifficulty>(
+                                    value: selectedDifficulty,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Dificultad',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    items:
+                                        ExerciseDifficulty.values.map((
+                                          difficulty,
+                                        ) {
+                                          return DropdownMenuItem(
+                                            value: difficulty,
+                                            child: Text(
+                                              _getDifficultyName(difficulty),
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          selectedDifficulty = value;
+                                        });
+                                      }
+                                    },
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (nameController.text.trim().isEmpty ||
+                            descriptionController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Por favor completa todos los campos',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.of(context).pop();
+                        await _createQuickExercise(
+                          context,
+                          nameController.text.trim(),
+                          descriptionController.text.trim(),
+                          selectedCategory,
+                          selectedDifficulty,
+                        );
+                      },
+                      child: const Text('Crear'),
+                    ),
+                  ],
+                ),
+          ),
+    );
+  }
+
+  Future<void> _createQuickExercise(
+    BuildContext context,
+    String name,
+    String description,
+    ExerciseCategory category,
+    ExerciseDifficulty difficulty,
+  ) async {
+    try {
+      final exercise = Exercise(
+        id: '',
+        name: name,
+        description: description,
+        imageUrl: 'assets/images/default_exercise.png',
+        videoUrl: null,
+        muscleGroups: _getDefaultMuscleGroups(category),
+        tips: ['Mantén la forma correcta durante todo el ejercicio'],
+        commonMistakes: ['No mantener la postura adecuada'],
+        category: category,
+        difficulty: difficulty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$name creado correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al crear ejercicio: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  List<MuscleGroup> _getDefaultMuscleGroups(ExerciseCategory category) {
+    switch (category) {
+      case ExerciseCategory.chest:
+        return [MuscleGroup.pectoralMajor, MuscleGroup.anteriorDeltoid];
+      case ExerciseCategory.back:
+        return [MuscleGroup.latissimusDorsi, MuscleGroup.rhomboids];
+      case ExerciseCategory.shoulders:
+        return [MuscleGroup.medialDeltoid, MuscleGroup.anteriorDeltoid];
+      case ExerciseCategory.biceps:
+        return [MuscleGroup.bicepsLongHead, MuscleGroup.bicepsShortHead];
+      case ExerciseCategory.triceps:
+        return [MuscleGroup.tricepsLateralHead, MuscleGroup.tricepsLongHead];
+      case ExerciseCategory.quadriceps:
+        return [MuscleGroup.rectusFemoris, MuscleGroup.vastusLateralis];
+      case ExerciseCategory.hamstrings:
+        return [MuscleGroup.bicepsFemoris, MuscleGroup.semitendinosus];
+      case ExerciseCategory.glutes:
+        return [MuscleGroup.gluteusMaximus, MuscleGroup.gluteusMedius];
+      case ExerciseCategory.calves:
+        return [MuscleGroup.gastrocnemius, MuscleGroup.soleus];
+      case ExerciseCategory.core:
+        return [MuscleGroup.rectusAbdominis, MuscleGroup.externalObliques];
+      case ExerciseCategory.forearms:
+        return [MuscleGroup.forearmFlexors, MuscleGroup.forearmExtensors];
+      case ExerciseCategory.cardio:
+        return [MuscleGroup.rectusFemoris, MuscleGroup.gluteusMaximus];
+      case ExerciseCategory.fullBody:
+        return [
+          MuscleGroup.pectoralMajor,
+          MuscleGroup.latissimusDorsi,
+          MuscleGroup.rectusFemoris,
+          MuscleGroup.gluteusMaximus,
+        ];
+    }
+  }
+
+  String _getDifficultyName(ExerciseDifficulty difficulty) {
+    switch (difficulty) {
+      case ExerciseDifficulty.beginner:
+        return 'Principiante';
+      case ExerciseDifficulty.intermediate:
+        return 'Intermedio';
+      case ExerciseDifficulty.advanced:
+        return 'Avanzado';
+    }
   }
 }
