@@ -13,18 +13,23 @@ class ExerciseService extends _$ExerciseService {
     return this;
   }
 
-  Box get _box => ref.read(databaseServiceProvider.notifier).exercisesBox;
+  Box get _box {
+    return DatabaseService.getInstance().exercisesBox;
+  }
 
   Future<void> saveExercise(Exercise exercise) async {
-    await _box.put(exercise.id, exercise);
+    final box = _box;
+    await box.put(exercise.id, exercise);
   }
 
   Future<Exercise?> getExerciseById(String id) async {
-    return _box.get(id);
+    final box = _box;
+    return box.get(id);
   }
 
   Future<List<Exercise>> getAllExercises() async {
-    return _box.values.cast<Exercise>().toList()
+    final box = _box;
+    return box.values.cast<Exercise>().toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
 
@@ -52,11 +57,13 @@ class ExerciseService extends _$ExerciseService {
   }
 
   Future<void> deleteExercise(String id) async {
-    await _box.delete(id);
+    final box = await _box;
+    await box.delete(id);
   }
 
   Future<int> getExerciseCount() async {
-    return _box.length;
+    final box = await _box;
+    return box.length;
   }
 
   Future<List<Exercise>> getRecentExercises({int limit = 10}) async {

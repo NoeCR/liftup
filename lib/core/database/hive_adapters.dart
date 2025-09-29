@@ -10,36 +10,65 @@ import '../../common/enums/muscle_group_enum.dart';
 import '../../common/enums/section_muscle_group_enum.dart';
 
 class HiveAdapters {
+  static bool _adaptersRegistered = false;
+
   static void registerAdapters() {
-    // Exercise adapters
-    Hive.registerAdapter(ExerciseAdapter());
-    Hive.registerAdapter(ExerciseCategoryAdapter());
-    Hive.registerAdapter(ExerciseDifficultyAdapter());
+    if (_adaptersRegistered) {
+      return;
+    }
 
-    // Exercise Set adapters
-    Hive.registerAdapter(ExerciseSetAdapter());
+    try {
+      // Exercise adapters
+      _registerAdapterSafely<Exercise>(ExerciseAdapter());
+      _registerAdapterSafely<ExerciseCategory>(ExerciseCategoryAdapter());
+      _registerAdapterSafely<ExerciseDifficulty>(ExerciseDifficultyAdapter());
 
-    // Workout Session adapters
-    Hive.registerAdapter(WorkoutSessionAdapter());
-    Hive.registerAdapter(SessionStatusAdapter());
+      // Exercise Set adapters
+      _registerAdapterSafely<ExerciseSet>(ExerciseSetAdapter());
 
-    // Routine adapters
-    Hive.registerAdapter(RoutineAdapter());
-    Hive.registerAdapter(RoutineSectionAdapter());
-    Hive.registerAdapter(RoutineExerciseAdapter());
-    Hive.registerAdapter(WeekDayAdapter());
+      // Workout Session adapters
+      _registerAdapterSafely<WorkoutSession>(WorkoutSessionAdapter());
+      _registerAdapterSafely<SessionStatus>(SessionStatusAdapter());
 
-    // Progress Data adapters
-    Hive.registerAdapter(ProgressDataAdapter());
-    Hive.registerAdapter(WorkoutStatisticsAdapter());
+      // Routine adapters
+      _registerAdapterSafely<Routine>(RoutineAdapter());
+      _registerAdapterSafely<RoutineSection>(RoutineSectionAdapter());
+      _registerAdapterSafely<RoutineExercise>(RoutineExerciseAdapter());
+      _registerAdapterSafely<WeekDay>(WeekDayAdapter());
 
-    // Enum adapters
-    Hive.registerAdapter(MuscleGroupAdapter());
+      // Progress Data adapters
+      _registerAdapterSafely<ProgressData>(ProgressDataAdapter());
+      _registerAdapterSafely<WorkoutStatistics>(WorkoutStatisticsAdapter());
 
-    // Routine Section Template adapters
-    Hive.registerAdapter(RoutineSectionTemplateAdapter());
+      // Enum adapters
+      _registerAdapterSafely<MuscleGroup>(MuscleGroupAdapter());
 
-    // Section Muscle Group adapters
-    Hive.registerAdapter(SectionMuscleGroupAdapter());
+      // Routine Section Template adapters
+      _registerAdapterSafely<RoutineSectionTemplate>(
+        RoutineSectionTemplateAdapter(),
+      );
+
+      // Section Muscle Group adapters
+      _registerAdapterSafely<SectionMuscleGroup>(SectionMuscleGroupAdapter());
+
+      _adaptersRegistered = true;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static void _registerAdapterSafely<T>(TypeAdapter<T> adapter) {
+    try {
+      Hive.registerAdapter<T>(adapter);
+    } catch (e) {
+      // If adapter is already registered, that's fine
+      if (!e.toString().contains('already registered')) {
+        rethrow;
+      }
+    }
+  }
+
+  static void resetRegistration() {
+    _adaptersRegistered = false;
   }
 }

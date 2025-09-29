@@ -8,65 +8,71 @@ part 'exercise_notifier.g.dart';
 
 @riverpod
 class ExerciseNotifier extends _$ExerciseNotifier {
-  late final ExerciseService _exerciseService;
-  late final Uuid _uuid;
-
   @override
   Future<List<Exercise>> build() async {
-    _exerciseService = ref.read(exerciseServiceProvider);
-    _uuid = const Uuid();
-
     // Load initial data if empty
-    final exercises = await _exerciseService.getAllExercises();
+    final exerciseService = ref.read(exerciseServiceProvider);
+    final exercises = await exerciseService.getAllExercises();
     if (exercises.isEmpty) {
       await _loadInitialExercises();
-      return await _exerciseService.getAllExercises();
+      return await exerciseService.getAllExercises();
     }
 
     return exercises;
   }
 
   Future<void> addExercise(Exercise exercise) async {
+    final exerciseService = ref.read(exerciseServiceProvider);
+    final uuid = const Uuid();
+
     final newExercise = exercise.copyWith(
-      id: _uuid.v4(),
+      id: uuid.v4(),
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    await _exerciseService.saveExercise(newExercise);
-    state = AsyncValue.data(await _exerciseService.getAllExercises());
+    await exerciseService.saveExercise(newExercise);
+    state = AsyncValue.data(await exerciseService.getAllExercises());
   }
 
   Future<void> updateExercise(Exercise exercise) async {
+    final exerciseService = ref.read(exerciseServiceProvider);
     final updatedExercise = exercise.copyWith(updatedAt: DateTime.now());
 
-    await _exerciseService.saveExercise(updatedExercise);
-    state = AsyncValue.data(await _exerciseService.getAllExercises());
+    await exerciseService.saveExercise(updatedExercise);
+    state = AsyncValue.data(await exerciseService.getAllExercises());
   }
 
   Future<void> deleteExercise(String exerciseId) async {
-    await _exerciseService.deleteExercise(exerciseId);
-    state = AsyncValue.data(await _exerciseService.getAllExercises());
+    final exerciseService = ref.read(exerciseServiceProvider);
+    await exerciseService.deleteExercise(exerciseId);
+    state = AsyncValue.data(await exerciseService.getAllExercises());
   }
 
   Future<Exercise?> getExerciseById(String id) async {
-    return await _exerciseService.getExerciseById(id);
+    final exerciseService = ref.read(exerciseServiceProvider);
+    return await exerciseService.getExerciseById(id);
   }
 
   Future<List<Exercise>> getExercisesByCategory(
     ExerciseCategory category,
   ) async {
-    return await _exerciseService.getExercisesByCategory(category);
+    final exerciseService = ref.read(exerciseServiceProvider);
+    return await exerciseService.getExercisesByCategory(category);
   }
 
   Future<List<Exercise>> searchExercises(String query) async {
-    return await _exerciseService.searchExercises(query);
+    final exerciseService = ref.read(exerciseServiceProvider);
+    return await exerciseService.searchExercises(query);
   }
 
   Future<void> _loadInitialExercises() async {
+    final exerciseService = ref.read(exerciseServiceProvider);
+    final uuid = const Uuid();
+
     final initialExercises = [
       Exercise(
-        id: _uuid.v4(),
+        id: uuid.v4(),
         name: 'Press de Banca',
         description:
             'Ejercicio fundamental para el desarrollo del pecho, hombros y tríceps.',
@@ -93,7 +99,7 @@ class ExerciseNotifier extends _$ExerciseNotifier {
         updatedAt: DateTime.now(),
       ),
       Exercise(
-        id: _uuid.v4(),
+        id: uuid.v4(),
         name: 'Sentadillas',
         description:
             'Ejercicio compuesto que trabaja principalmente las piernas y glúteos.',
@@ -120,7 +126,7 @@ class ExerciseNotifier extends _$ExerciseNotifier {
         updatedAt: DateTime.now(),
       ),
       Exercise(
-        id: _uuid.v4(),
+        id: uuid.v4(),
         name: 'Dominadas',
         description:
             'Ejercicio de tracción que desarrolla la espalda y bíceps.',
@@ -149,7 +155,7 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     ];
 
     for (final exercise in initialExercises) {
-      await _exerciseService.saveExercise(exercise);
+      await exerciseService.saveExercise(exercise);
     }
   }
 }

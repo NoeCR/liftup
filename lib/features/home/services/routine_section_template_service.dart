@@ -8,23 +8,20 @@ part 'routine_section_template_service.g.dart';
 class RoutineSectionTemplateService extends _$RoutineSectionTemplateService {
   @override
   Future<List<RoutineSectionTemplate>> build() async {
-    final box =
-        ref.read(databaseServiceProvider.notifier).routineSectionTemplatesBox;
+    final box = DatabaseService.getInstance().routineSectionTemplatesBox;
     final templates = box.values.cast<RoutineSectionTemplate>().toList();
     templates.sort((a, b) => a.order.compareTo(b.order));
     return templates;
   }
 
   Future<void> saveSectionTemplate(RoutineSectionTemplate template) async {
-    final box =
-        ref.read(databaseServiceProvider.notifier).routineSectionTemplatesBox;
+    final box = DatabaseService.getInstance().routineSectionTemplatesBox;
     await box.put(template.id, template);
     ref.invalidateSelf();
   }
 
   Future<void> deleteSectionTemplate(String id) async {
-    final box =
-        ref.read(databaseServiceProvider.notifier).routineSectionTemplatesBox;
+    final box = DatabaseService.getInstance().routineSectionTemplatesBox;
     await box.delete(id);
     ref.invalidateSelf();
   }
@@ -32,8 +29,7 @@ class RoutineSectionTemplateService extends _$RoutineSectionTemplateService {
   Future<void> reorderSectionTemplates(
     List<RoutineSectionTemplate> templates,
   ) async {
-    final box =
-        ref.read(databaseServiceProvider.notifier).routineSectionTemplatesBox;
+    final box = DatabaseService.getInstance().routineSectionTemplatesBox;
 
     for (int i = 0; i < templates.length; i++) {
       final template = templates[i].copyWith(
@@ -47,14 +43,17 @@ class RoutineSectionTemplateService extends _$RoutineSectionTemplateService {
   }
 
   Future<void> initializeDefaultTemplates() async {
-    final box =
-        ref.read(databaseServiceProvider.notifier).routineSectionTemplatesBox;
+    final box = DatabaseService.getInstance().routineSectionTemplatesBox;
 
-    // Limpiar plantillas existentes y cargar las nuevas
-    await box.clear();
+    // Solo agregar templates por defecto si no existen
+    final existingTemplates =
+        box.values.cast<RoutineSectionTemplate>().toList();
+    final existingIds = existingTemplates.map((t) => t.id).toSet();
 
     for (final template in DefaultSectionTemplates.templates) {
-      await box.put(template.id, template);
+      if (!existingIds.contains(template.id)) {
+        await box.put(template.id, template);
+      }
     }
     ref.invalidateSelf();
   }

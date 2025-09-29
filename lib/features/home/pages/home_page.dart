@@ -25,7 +25,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
   void didPopNext() {
     // Se ejecuta cuando se vuelve a esta página desde otra
     super.didPopNext();
-    print('HomePage: Volviendo a la página, refrescando estado...');
     // Invalidar el estado para forzar la recarga
     ref.invalidate(routineNotifierProvider);
     ref.invalidate(exerciseNotifierProvider);
@@ -50,11 +49,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         title: const Text('LiftUp'),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(
-            onPressed: () => context.push('/create-routine'),
-            icon: const Icon(Icons.add),
-            tooltip: 'Crear nueva rutina',
-          ),
           IconButton(
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.settings),
@@ -84,10 +78,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       builder: (context, ref, child) {
         final routineAsync = ref.watch(routineNotifierProvider);
 
-        print(
-          'HomePage: Rebuilding with ${routineAsync.value?.length ?? 0} routines',
-        );
-
         return routineAsync.when(
           data: (routines) {
             // Build menu options from all routines
@@ -98,7 +88,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
               menuOptions.add(routine.name);
             }
 
-            // Auto-select first routine if none selected or if selected routine no longer exists
+            // Auto-select first routine only if none selected or if selected routine no longer exists
             if (_selectedMenuOption.isEmpty ||
                 !menuOptions.contains(_selectedMenuOption)) {
               if (menuOptions.isNotEmpty) {
@@ -108,19 +98,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                   });
                 });
               }
-            }
-
-            // Always select the first routine (most recent) when routines change
-            if (menuOptions.isNotEmpty &&
-                _selectedMenuOption != menuOptions.first) {
-              print(
-                'HomePage: Auto-selecting first routine: ${menuOptions.first} (was: $_selectedMenuOption)',
-              );
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                setState(() {
-                  _selectedMenuOption = menuOptions.first;
-                });
-              });
             }
 
             return _buildMenuOptions(menuOptions, theme, colorScheme);
@@ -174,10 +151,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         final routineAsync = ref.watch(routineNotifierProvider);
         final exerciseAsync = ref.watch(exerciseNotifierProvider);
 
-        print(
-          'HomePage MainContent: Rebuilding with ${routineAsync.value?.length ?? 0} routines',
-        );
-
         return routineAsync.when(
           data: (routines) {
             if (routines.isEmpty) {
@@ -222,9 +195,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     Routine routine,
     AsyncValue<List<Exercise>> exerciseAsync,
   ) {
-    print('HomePage: Building content for routine: ${routine.name}');
-    print('HomePage: Total sections: ${routine.sections.length}');
-
     // Show all sections of the routine
     if (routine.sections.isEmpty) {
       return _buildNoSectionsYet();
@@ -367,7 +337,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     );
   }
 
-
   Widget _buildEmptySection(String sectionName) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -385,8 +354,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Implement add exercise functionality
-          print('Add exercise to $sectionName');
+          // Navigate to exercise selection
         },
         borderRadius: BorderRadius.circular(12),
         child: Column(
@@ -481,29 +449,30 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
   void _showResetDatabaseDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('🔄 Resetear Base de Datos'),
-        content: const Text(
-          'Esto eliminará todos los datos y reiniciará la aplicación.\n\n'
-          '¿Estás seguro de que quieres continuar?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _resetDatabase();
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('🔄 Resetear Base de Datos'),
+            content: const Text(
+              'Esto eliminará todos los datos y reiniciará la aplicación.\n\n'
+              '¿Estás seguro de que quieres continuar?',
             ),
-            child: const Text('Resetear'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await _resetDatabase();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Resetear'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -513,28 +482,28 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Reseteando base de datos...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text('Reseteando base de datos...'),
+                ],
+              ),
+            ),
       );
 
-      final databaseService = ref.read(databaseServiceProvider.notifier);
+      final databaseService = DatabaseService.getInstance();
       await databaseService.forceResetDatabase();
-      
+
       // Invalidar todos los providers
-      ref.invalidate(databaseServiceProvider);
       ref.invalidate(routineNotifierProvider);
       ref.invalidate(exerciseNotifierProvider);
-      
+
       // Cerrar indicador de progreso
       if (mounted) Navigator.of(context).pop();
-      
+
       // Mostrar mensaje de éxito
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

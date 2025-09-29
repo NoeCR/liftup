@@ -1,13 +1,9 @@
 import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'hive_adapters.dart';
 
-part 'database_service.g.dart';
-
-@riverpod
-class DatabaseService extends _$DatabaseService {
+class DatabaseService {
+  static DatabaseService? _instance;
   static const String _exercisesBox = 'exercises';
   static const String _routinesBox = 'routines';
   static const String _sessionsBox = 'sessions';
@@ -15,17 +11,30 @@ class DatabaseService extends _$DatabaseService {
   static const String _settingsBox = 'settings';
   static const String _routineSectionTemplatesBox = 'routine_section_templates';
 
-  @override
-  Future<void> build() async {
-    await _initializeHive();
+  bool _isInitialized = false;
+
+  // Private constructor to prevent instantiation
+  DatabaseService._();
+
+  // Static method to get the singleton instance
+  static DatabaseService getInstance() {
+    if (_instance == null) {
+      _instance = DatabaseService._();
+    }
+    return _instance!;
+  }
+
+  // Initialize the database service
+  Future<void> initialize() async {
+    if (!_isInitialized) {
+      await _initializeHive();
+      _isInitialized = true;
+    }
   }
 
   Future<void> _initializeHive() async {
-    await Hive.initFlutter();
-    HiveAdapters.registerAdapters();
-
     try {
-      // Open all boxes
+      // Open all boxes (Hive and adapters already initialized in main.dart)
       await Future.wait([
         Hive.openBox(_exercisesBox),
         Hive.openBox(_routinesBox),
@@ -34,6 +43,9 @@ class DatabaseService extends _$DatabaseService {
         Hive.openBox(_settingsBox),
         Hive.openBox(_routineSectionTemplatesBox),
       ]);
+
+      // Verify all boxes are open and accessible
+      print('DatabaseService: All boxes initialized successfully');
     } catch (e) {
       print('Error opening boxes: $e');
       // If there's an error, clear all data and try again
@@ -67,7 +79,7 @@ class DatabaseService extends _$DatabaseService {
             await Hive.box(boxName).clear();
           }
         } catch (e) {
-          print('Error clearing box $boxName: $e');
+          // Box might not exist, continue with others
         }
       }
     } catch (e) {
@@ -75,12 +87,47 @@ class DatabaseService extends _$DatabaseService {
     }
   }
 
-  Box get exercisesBox => Hive.box(_exercisesBox);
-  Box get routinesBox => Hive.box(_routinesBox);
-  Box get sessionsBox => Hive.box(_sessionsBox);
-  Box get progressBox => Hive.box(_progressBox);
-  Box get settingsBox => Hive.box(_settingsBox);
-  Box get routineSectionTemplatesBox => Hive.box(_routineSectionTemplatesBox);
+  Box get exercisesBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_exercisesBox);
+  }
+
+  Box get routinesBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_routinesBox);
+  }
+
+  Box get sessionsBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_sessionsBox);
+  }
+
+  Box get progressBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_progressBox);
+  }
+
+  Box get settingsBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_settingsBox);
+  }
+
+  Box get routineSectionTemplatesBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_routineSectionTemplatesBox);
+  }
 
   Future<void> clearAllData() async {
     await Future.wait([
@@ -102,6 +149,8 @@ class DatabaseService extends _$DatabaseService {
         print('Error closing Hive: $e');
       }
 
+      // Note: Adapters are registered once in main.dart, no need to reset
+
       // Delete all box files directly from disk
       final boxes = [
         _exercisesBox,
@@ -121,14 +170,12 @@ class DatabaseService extends _$DatabaseService {
 
           if (await boxFile.exists()) {
             await boxFile.delete();
-            print('Deleted box file: $boxName.hive');
           }
           if (await lockFile.exists()) {
             await lockFile.delete();
-            print('Deleted lock file: $boxName.lock');
           }
         } catch (e) {
-          print('Error deleting box $boxName: $e');
+          // Continue with other boxes if one fails
         }
       }
 

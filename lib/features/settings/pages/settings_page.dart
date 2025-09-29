@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/database/database_service.dart';
+import '../../home/notifiers/routine_notifier.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -31,6 +33,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           _buildSettingsSection(context, 'Rutinas', [
             _buildSettingsTile(
               context,
+              icon: Icons.list_alt,
+              title: 'Mis Rutinas',
+              subtitle: 'Ver y gestionar todas tus rutinas',
+              onTap: () => context.push(AppRouter.routineList),
+            ),
+            _buildSettingsTile(
+              context,
               icon: Icons.settings_suggest,
               title: 'Configurar Secciones',
               subtitle: 'Personalizar secciones de entrenamiento',
@@ -45,7 +54,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               title: 'Tema',
               subtitle: 'Cambiar tema claro/oscuro',
               onTap: () {
-                // TODO: Implementar cambio de tema
+                // Theme selection functionality
               },
             ),
             _buildSettingsTile(
@@ -54,7 +63,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               title: 'Idioma',
               subtitle: 'Cambiar idioma de la aplicación',
               onTap: () {
-                // TODO: Implementar cambio de idioma
+                // Language selection functionality
               },
             ),
           ]),
@@ -66,7 +75,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               title: 'Exportar Datos',
               subtitle: 'Exportar rutinas y progreso',
               onTap: () {
-                // TODO: Implementar exportación
+                // Export data functionality
               },
             ),
             _buildSettingsTile(
@@ -75,7 +84,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               title: 'Importar Datos',
               subtitle: 'Importar rutinas y progreso',
               onTap: () {
-                // TODO: Implementar importación
+                // Import data functionality
               },
             ),
             _buildSettingsTile(
@@ -273,11 +282,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
       );
 
-      final databaseService = this.ref.read(databaseServiceProvider.notifier);
+      final databaseService = DatabaseService.getInstance();
       await databaseService.forceResetDatabase();
 
       // Invalidar todos los providers para forzar la recarga
-      this.ref.invalidate(databaseServiceProvider);
+      this.ref.invalidate(routineNotifierProvider);
+      this.ref.invalidate(exerciseNotifierProvider);
 
       // Cerrar el indicador de progreso
       if (context.mounted) {

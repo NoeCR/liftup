@@ -13,37 +13,25 @@ class RoutineService extends _$RoutineService {
     return this;
   }
 
-  Box get _box => ref.read(databaseServiceProvider.notifier).routinesBox;
+  Box get _box {
+    return DatabaseService.getInstance().routinesBox;
+  }
 
   Future<void> saveRoutine(Routine routine) async {
-    print(
-      'RoutineService: Saving routine "${routine.name}" with ${routine.sections.length} sections',
-    );
-    for (final section in routine.sections) {
-      print('  - Section: ${section.name}');
-    }
-    await _box.put(routine.id, routine);
-    print('RoutineService: Routine saved successfully');
+    final box = _box;
+    await box.put(routine.id, routine);
   }
 
   Future<Routine?> getRoutineById(String id) async {
-    return _box.get(id);
+    final box = _box;
+    return box.get(id);
   }
 
   Future<List<Routine>> getAllRoutines() async {
+    final box = _box;
     final routines =
-        _box.values.cast<Routine>().toList()
+        box.values.cast<Routine>().toList()
           ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-
-    print('RoutineService: Loading ${routines.length} routines from database');
-    for (final routine in routines) {
-      print(
-        'RoutineService: Routine "${routine.name}" has ${routine.sections.length} sections',
-      );
-      for (final section in routine.sections) {
-        print('  - Section: ${section.name}');
-      }
-    }
 
     return routines;
   }
@@ -79,11 +67,13 @@ class RoutineService extends _$RoutineService {
   }
 
   Future<void> deleteRoutine(String id) async {
-    await _box.delete(id);
+    final box = await _box;
+    await box.delete(id);
   }
 
   Future<int> getRoutineCount() async {
-    return _box.length;
+    final box = await _box;
+    return box.length;
   }
 
   Future<List<Routine>> searchRoutines(String query) async {
@@ -94,21 +84,5 @@ class RoutineService extends _$RoutineService {
       return routine.name.toLowerCase().contains(lowercaseQuery) ||
           routine.description.toLowerCase().contains(lowercaseQuery);
     }).toList();
-  }
-
-  // Test method to verify persistence
-  Future<void> testPersistence() async {
-    print('RoutineService: Testing persistence...');
-    final routines = await getAllRoutines();
-    print('RoutineService: Found ${routines.length} routines in database');
-
-    for (final routine in routines) {
-      print(
-        'RoutineService: Routine "${routine.name}" has ${routine.sections.length} sections',
-      );
-      for (final section in routine.sections) {
-        print('  - Section: ${section.name} (ID: ${section.id})');
-      }
-    }
   }
 }
