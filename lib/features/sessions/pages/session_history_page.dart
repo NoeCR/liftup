@@ -28,11 +28,16 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
           ..sort((a, b) => (b.startTime).compareTo(a.startTime));
 
         // Aplicar filtros
-        final filtered = sorted.where((s) {
-          final inRoutine = _routineFilterId == null || s.routineId == _routineFilterId;
-          final inRange = _range == null || (s.startTime.isAfter(_range!.start) && s.startTime.isBefore(_range!.end));
-          return inRoutine && inRange;
-        }).toList();
+        final filtered =
+            sorted.where((s) {
+              final inRoutine =
+                  _routineFilterId == null || s.routineId == _routineFilterId;
+              final inRange =
+                  _range == null ||
+                  (s.startTime.isAfter(_range!.start) &&
+                      s.startTime.isBefore(_range!.end));
+              return inRoutine && inRange;
+            }).toList();
 
         return Scaffold(
           appBar: AppBar(title: const Text('Historial de sesiones')),
@@ -44,43 +49,69 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
                   children: [
                     Expanded(child: _buildRoutineFilter(routinesAsync)),
                     const SizedBox(width: 8),
-                    _buildDateFilterButton(),
+                    Flexible(child: _buildDateFilterButton()),
                   ],
                 ),
               ),
               const Divider(height: 1),
               Expanded(
-                child: filtered.isEmpty
-                    ? const Center(child: Text('No hay sesiones para los filtros seleccionados'))
-                    : ListView.separated(
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final s = filtered[index];
-                          final isActive = s.status == SessionStatus.active || s.status == SessionStatus.paused;
-                          final subtitle = isActive
-                              ? 'En curso'
-                              : s.endTime != null
-                                  ? _formatDuration(s.endTime!.difference(s.startTime))
-                                  : 'Sin finalizar';
-                          return ListTile(
-                            leading: Icon(
-                              isActive ? Icons.play_circle : Icons.check_circle,
-                              color: isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary,
-                            ),
-                            title: Text(s.name.isNotEmpty ? s.name : 'Sesión'),
-                            subtitle: Text('${s.startTime.toLocal()} · $subtitle'),
-                            trailing: const Icon(Icons.chevron_right),
-                            onTap: () => context.push('/session-summary?sessionId=${s.id}'),
-                          );
-                        },
-                      ),
+                child:
+                    filtered.isEmpty
+                        ? const Center(
+                          child: Text(
+                            'No hay sesiones para los filtros seleccionados',
+                          ),
+                        )
+                        : ListView.separated(
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final s = filtered[index];
+                            final isActive =
+                                s.status == SessionStatus.active ||
+                                s.status == SessionStatus.paused;
+                            final subtitle =
+                                isActive
+                                    ? 'En curso'
+                                    : s.endTime != null
+                                    ? _formatDuration(
+                                      s.endTime!.difference(s.startTime),
+                                    )
+                                    : 'Sin finalizar';
+                            return ListTile(
+                              leading: Icon(
+                                isActive
+                                    ? Icons.play_circle
+                                    : Icons.check_circle,
+                                color:
+                                    isActive
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                          context,
+                                        ).colorScheme.secondary,
+                              ),
+                              title: Text(
+                                s.name.isNotEmpty ? s.name : 'Sesión',
+                              ),
+                              subtitle: Text(
+                                '${s.startTime.toLocal()} · $subtitle',
+                              ),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap:
+                                  () => context.push(
+                                    '/session-summary?sessionId=${s.id}',
+                                  ),
+                            );
+                          },
+                        ),
               ),
             ],
           ),
         );
       },
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading:
+          () =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }
@@ -89,18 +120,29 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
     return routinesAsync.when(
       data: (routines) {
         final items = [
-          const DropdownMenuItem<String?>(value: null, child: Text('Todas las rutinas')),
-          ...routines.map((r) => DropdownMenuItem<String?>(value: r.id, child: Text(r.name))),
+          const DropdownMenuItem<String?>(
+            value: null,
+            child: Text('Todas las rutinas', overflow: TextOverflow.ellipsis),
+          ),
+          ...routines.map(
+            (r) => DropdownMenuItem<String?>(
+              value: r.id,
+              child: Text(r.name, overflow: TextOverflow.ellipsis),
+            ),
+          ),
         ];
         return DropdownButtonFormField<String?>(
           value: _routineFilterId,
           items: items,
           onChanged: (value) => setState(() => _routineFilterId = value),
+          isDense: true,
           decoration: const InputDecoration(
             labelText: 'Rutina',
             border: OutlineInputBorder(),
             isDense: true,
+            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           ),
+          menuMaxHeight: 320,
         );
       },
       loading: () => const SizedBox.shrink(),
@@ -109,9 +151,10 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
   }
 
   Widget _buildDateFilterButton() {
-    final label = _range == null
-        ? 'Rango de fechas'
-        : '${_range!.start.toLocal().toString().split(' ').first} → ${_range!.end.toLocal().toString().split(' ').first}';
+    final label =
+        _range == null
+            ? 'Rango de fechas'
+            : '${_range!.start.toLocal().toString().split(' ').first} → ${_range!.end.toLocal().toString().split(' ').first}';
     return OutlinedButton.icon(
       onPressed: () async {
         final now = DateTime.now();
@@ -121,7 +164,12 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
           context: context,
           firstDate: firstDate,
           lastDate: lastDate,
-          initialDateRange: _range ?? DateTimeRange(start: now.subtract(const Duration(days: 30)), end: now),
+          initialDateRange:
+              _range ??
+              DateTimeRange(
+                start: now.subtract(const Duration(days: 30)),
+                end: now,
+              ),
         );
         if (picked != null) {
           setState(() => _range = picked);
