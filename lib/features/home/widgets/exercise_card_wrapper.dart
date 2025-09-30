@@ -143,7 +143,9 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           exercise: widget.exercise,
           isCompleted: isCompleted,
           performedSets: performedSets,
-          onTap: widget.onTap,
+          showSetsControls: false,
+          onTap: null,
+          onLongPress: widget.onTap,
           onToggleCompleted: null,
           onWeightChanged: null,
           onRepsChanged: (newValue) {

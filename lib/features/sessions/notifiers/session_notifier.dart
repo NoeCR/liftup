@@ -15,6 +15,7 @@ class SessionNotifier extends _$SessionNotifier {
   // Tags simples en notes para persistir datos entre vistas
   static const String _tagPaused = 'pausedElapsed=';
   static const String _tagResumeAt = 'lastResumeAt=';
+  static const String _tagRestPrefix = 'rest_'; // rest_<exerciseId>=ISO8601
   @override
   Future<List<WorkoutSession>> build() async {
     final sessionService = ref.read(sessionServiceProvider);
@@ -82,10 +83,16 @@ class SessionNotifier extends _$SessionNotifier {
     final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
+    // Calcular totales al finalizar
+    final totalWeight = _calculateTotalWeight(currentSession.exerciseSets);
+    final totalReps = _calculateTotalReps(currentSession.exerciseSets);
+
     final completedSession = currentSession.copyWith(
       endTime: DateTime.now(),
       status: SessionStatus.completed,
       notes: notes,
+      totalWeight: totalWeight,
+      totalReps: totalReps,
     );
 
     final sessionService = ref.read(sessionServiceProvider);
@@ -163,6 +170,40 @@ class SessionNotifier extends _$SessionNotifier {
     final sessionService = ref.read(sessionServiceProvider);
     await sessionService.saveSession(resumedSession);
     state = AsyncValue.data(await sessionService.getAllSessions());
+  }
+
+  // --- Rest timers per exercise ---
+  Future<void> setExerciseRestEnd({
+    required String exerciseId,
+    required DateTime? restEndsAt,
+  }) async {
+    final currentSession = await getCurrentOngoingSession();
+    if (currentSession == null) return;
+
+    final tag = '$_tagRestPrefix$exerciseId=';
+    final updatedNotes = _setNoteValue(
+      currentSession.notes,
+      tag,
+      restEndsAt?.toIso8601String(),
+    );
+
+    final updatedSession = currentSession.copyWith(notes: updatedNotes);
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(updatedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
+  }
+
+  DateTime? readExerciseRestEnd(String? notes, String exerciseId) {
+    if (notes == null) return null;
+    final tag = '$_tagRestPrefix$exerciseId=';
+    for (final line in notes.split('\n')) {
+      final l = line.trim();
+      if (l.startsWith(tag)) {
+        final v = l.substring(tag.length);
+        return DateTime.tryParse(v);
+      }
+    }
+    return null;
   }
 
   Future<WorkoutSession?> getCurrentOngoingSession() async {

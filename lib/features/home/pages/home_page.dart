@@ -3,12 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../notifiers/selected_routine_provider.dart';
+import '../../sessions/notifiers/session_notifier.dart';
 import '../../../common/widgets/section_header.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../widgets/exercise_card_wrapper.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../../core/database/database_service.dart';
+import '../../sessions/models/workout_session.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -96,6 +99,11 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                   setState(() {
                     _selectedMenuOption = menuOptions.first;
                   });
+                  final routines =
+                      ref.read(routineNotifierProvider).value ?? [];
+                  final routine = routines.isNotEmpty ? routines.first : null;
+                  ref.read(selectedRoutineIdProvider.notifier).state =
+                      routine?.id;
                 });
               }
             }
@@ -115,6 +123,20 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     ThemeData theme,
     ColorScheme colorScheme,
   ) {
+    final hasActiveSession =
+        ref
+            .watch(sessionNotifierProvider)
+            .maybeWhen(
+              data:
+                  (sessions) => sessions.any(
+                    (s) =>
+                        (s.status == SessionStatus.active ||
+                            s.status == SessionStatus.paused) &&
+                        s.endTime == null,
+                  ),
+              orElse: () => false,
+            ) ==
+        true;
     return Container(
       height: 60,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -131,11 +153,23 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             child: FilterChip(
               label: Text(option),
               selected: isSelected,
-              onSelected: (selected) {
-                setState(() {
-                  _selectedMenuOption = option;
-                });
-              },
+              onSelected:
+                  hasActiveSession
+                      ? null
+                      : (selected) {
+                        setState(() {
+                          _selectedMenuOption = option;
+                        });
+                        // sync to provider
+                        final routines =
+                            ref.read(routineNotifierProvider).value;
+                        final routine = routines?.firstWhere(
+                          (r) => r.name == option,
+                          orElse: () => routines.first,
+                        );
+                        ref.read(selectedRoutineIdProvider.notifier).state =
+                            routine?.id;
+                      },
               selectedColor: colorScheme.primaryContainer,
               checkmarkColor: colorScheme.onPrimaryContainer,
             ),
@@ -379,47 +413,71 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           style: BorderStyle.solid,
         ),
       ),
-      child: InkWell(
-        onTap: () {
-          // Navigate to exercise selection with context
-          context.push(
-            '/exercise-selection?routineId=${routine.id}&sectionId=${section.id}&title=Agregar Ejercicios&subtitle=$sectionName',
+      child: Consumer(
+        builder: (context, ref, _) {
+          final hasActiveSession =
+              ref
+                  .watch(sessionNotifierProvider)
+                  .maybeWhen(
+                    data:
+                        (sessions) => sessions.any(
+                          (s) =>
+                              (s.status == SessionStatus.active ||
+                                  s.status == SessionStatus.paused) &&
+                              s.endTime == null,
+                        ),
+                    orElse: () => false,
+                  ) ==
+              true;
+          return InkWell(
+            onTap:
+                hasActiveSession
+                    ? null
+                    : () {
+                      context.push(
+                        '/exercise-selection?routineId=${routine.id}&sectionId=${section.id}&title=Agregar Ejercicios&subtitle=$sectionName',
+                      );
+                    },
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 220,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_circle_outline,
+                      size: 48,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant
+                          .withOpacity(hasActiveSession ? 0.4 : 1),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      hasActiveSession
+                          ? 'Edición bloqueada durante la sesión'
+                          : 'Agregar ejercicios a $sectionName',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    if (!hasActiveSession)
+                      Text(
+                        'Toca para agregar ejercicios a esta sección',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           );
         },
-        borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          height: 220,
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.add_circle_outline,
-                  size: 48,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Agregar ejercicios a $sectionName',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Toca para agregar ejercicios a esta sección',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
