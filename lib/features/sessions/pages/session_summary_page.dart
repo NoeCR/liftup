@@ -27,15 +27,18 @@ class SessionSummaryPage extends ConsumerWidget {
             session = null;
           }
         }
-        session ??= (() {
-          final completed = sessions
-              .where((s) => s.status == SessionStatus.completed)
-              .toList()
-            ..sort(
-              (a, b) => b.endTime?.compareTo(a.endTime ?? DateTime(0)) ?? 0,
-            );
-          return completed.isNotEmpty ? completed.first : null;
-        })();
+        session ??=
+            (() {
+              final completed =
+                  sessions
+                      .where((s) => s.status == SessionStatus.completed)
+                      .toList()
+                    ..sort(
+                      (a, b) =>
+                          b.endTime?.compareTo(a.endTime ?? DateTime(0)) ?? 0,
+                    );
+              return completed.isNotEmpty ? completed.first : null;
+            })();
 
         return Scaffold(
           appBar: AppBar(title: const Text('Resumen de Sesión')),
@@ -44,9 +47,9 @@ class SessionSummaryPage extends ConsumerWidget {
                   ? const Center(child: Text('No hay sesión completada'))
                   : Padding(
                     padding: const EdgeInsets.all(16),
-                   child: Consumer(
+                    child: Consumer(
                       builder: (context, ref, _) {
-                       final s = session!;
+                        final s = session!;
                         final routinesAsync = ref.watch(
                           routineNotifierProvider,
                         );
@@ -56,13 +59,10 @@ class SessionSummaryPage extends ConsumerWidget {
 
                         return routinesAsync.when(
                           data: (routines) {
-                           final routine =
-                               s.routineId == null
+                            final routine =
+                                s.routineId == null
                                     ? null
-                                    : _findRoutine(
-                                      routines,
-                                      s.routineId!,
-                                    );
+                                    : _findRoutine(routines, s.routineId!);
                             return exercisesAsync.when(
                               data: (exercises) {
                                 final exerciseMap = {
@@ -76,7 +76,7 @@ class SessionSummaryPage extends ConsumerWidget {
                                   setsByExercise
                                       .putIfAbsent(
                                         set.exerciseId,
-                                        () => <ExerciseSet>[]
+                                        () => <ExerciseSet>[],
                                       )
                                       .add(set);
                                 }
@@ -94,10 +94,7 @@ class SessionSummaryPage extends ConsumerWidget {
                                     const SizedBox(height: 8),
                                     _SummaryTile(
                                       title: 'Fecha',
-                                      value:
-                                          s.startTime
-                                              .toLocal()
-                                              .toString(),
+                                      value: s.startTime.toLocal().toString(),
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
