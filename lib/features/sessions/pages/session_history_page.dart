@@ -94,7 +94,7 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
                                 s.name.isNotEmpty ? s.name : 'Sesión',
                               ),
                               subtitle: Text(
-                                '${s.startTime.toLocal()} · $subtitle',
+                                '${_formatDate(s.startTime)} · $subtitle',
                               ),
                               trailing: const Icon(Icons.chevron_right),
                               onTap:
@@ -154,7 +154,7 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
     final label =
         _range == null
             ? 'Rango de fechas'
-            : '${_range!.start.toLocal().toString().split(' ').first} → ${_range!.end.toLocal().toString().split(' ').first}';
+            : '${_formatDate(_range!.start)} → ${_formatDate(_range!.end)}';
     return OutlinedButton.icon(
       onPressed: () async {
         final now = DateTime.now();
@@ -183,5 +183,10 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
   String _formatDuration(Duration d) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${two(d.inHours)}:${two(d.inMinutes % 60)}:${two(d.inSeconds % 60)}';
+  }
+
+  String _formatDate(DateTime date) {
+    final local = date.toLocal();
+    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
   }
 }
