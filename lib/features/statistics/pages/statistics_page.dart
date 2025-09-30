@@ -54,13 +54,16 @@ class StatisticsPage extends ConsumerWidget {
                           const SizedBox(height: 12),
                           _SessionsDurationChart(),
                           const SizedBox(height: 24),
-                          _SectionTitle('Comparación por rutina (sets totales)'),
+                          _SectionTitle(
+                            'Comparación por rutina (sets totales)',
+                          ),
                           const SizedBox(height: 12),
                           _RoutineComparisonChart(),
                         ],
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading:
+                        () => const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Center(child: Text('Error: $e')),
                   );
                 },
@@ -80,28 +83,31 @@ class StatisticsPage extends ConsumerWidget {
   void _showSeedDialog(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Cargar datos de muestra'),
-        content: const Text('Esto creará sesiones de prueba en distintos días y rutinas.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Cargar datos de muestra'),
+            content: const Text(
+              'Esto creará sesiones de prueba en distintos días y rutinas.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await _seedSampleData(ref);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Datos de muestra creados')),
+                    );
+                  }
+                },
+                child: const Text('Crear'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _seedSampleData(ref);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Datos de muestra creados')),
-                );
-              }
-            },
-            child: const Text('Crear'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -109,30 +115,36 @@ class StatisticsPage extends ConsumerWidget {
     // Crea 2 rutinas si no existen suficientes
     final routineNotifier = ref.read(routineNotifierProvider.notifier);
     final routines = await ref.read(routineNotifierProvider.future);
-    Routine routineA = routines.isNotEmpty ? routines.first : Routine(
-      id: const Uuid().v4(),
-      name: 'Fuerza A',
-      description: 'Pecho/Espalda',
-      days: const [],
-      sections: const [],
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      imageUrl: null,
-    );
+    Routine routineA =
+        routines.isNotEmpty
+            ? routines.first
+            : Routine(
+              id: const Uuid().v4(),
+              name: 'Fuerza A',
+              description: 'Pecho/Espalda',
+              days: const [],
+              sections: const [],
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+              imageUrl: null,
+            );
     if (routines.isEmpty) {
       await routineNotifier.addRoutine(routineA);
     }
 
-    Routine routineB = routines.length > 1 ? routines[1] : Routine(
-      id: const Uuid().v4(),
-      name: 'Fuerza B',
-      description: 'Pierna/Hombro',
-      days: const [],
-      sections: const [],
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      imageUrl: null,
-    );
+    Routine routineB =
+        routines.length > 1
+            ? routines[1]
+            : Routine(
+              id: const Uuid().v4(),
+              name: 'Fuerza B',
+              description: 'Pierna/Hombro',
+              days: const [],
+              sections: const [],
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+              imageUrl: null,
+            );
     if (routines.length < 2) {
       await routineNotifier.addRoutine(routineB);
     }
@@ -147,7 +159,10 @@ class StatisticsPage extends ConsumerWidget {
     for (int i = 1; i <= 14; i++) {
       final day = now.subtract(Duration(days: i));
       final routineId = routineIds[i % routineIds.length];
-      final session = await sessionNotifier.startSession(name: 'Sesión $i', routineId: routineId);
+      final session = await sessionNotifier.startSession(
+        name: 'Sesión $i',
+        routineId: routineId,
+      );
       // Simular duración: pausa + reanudar para setear elapsed
       await Future.delayed(const Duration(milliseconds: 5));
       // Añadir algunos sets
@@ -202,8 +217,9 @@ class _SessionsDurationChart extends ConsumerWidget {
       height: 220,
       child: sessionsAsync.when(
         data: (sessions) {
-          final completed = sessions.where((s) => s.endTime != null).toList()
-            ..sort((a, b) => a.startTime.compareTo(b.startTime));
+          final completed =
+              sessions.where((s) => s.endTime != null).toList()
+                ..sort((a, b) => a.startTime.compareTo(b.startTime));
           if (completed.isEmpty) {
             return const Center(child: Text('Sin datos'));
           }
@@ -224,7 +240,9 @@ class _SessionsDurationChart extends ConsumerWidget {
                   dotData: const FlDotData(show: false),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.2),
                   ),
                 ),
               ],
@@ -238,7 +256,6 @@ class _SessionsDurationChart extends ConsumerWidget {
   }
 }
 
-
 class _RoutineComparisonChart extends ConsumerWidget {
   const _RoutineComparisonChart();
   @override
@@ -251,7 +268,8 @@ class _RoutineComparisonChart extends ConsumerWidget {
           final setsByRoutine = <String, int>{};
           for (final s in sessions) {
             final rid = s.routineId ?? 'Sin rutina';
-            setsByRoutine[rid] = (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
+            setsByRoutine[rid] =
+                (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
           }
           if (setsByRoutine.isEmpty) {
             return const Center(child: Text('Sin datos'));
@@ -264,12 +282,20 @@ class _RoutineComparisonChart extends ConsumerWidget {
               PieChartSectionData(
                 value: e.value.toDouble(),
                 title: '${pct.toStringAsFixed(0)}%',
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3 + (pie.length * 0.1).clamp(0, 0.6)),
+                color: Theme.of(context).colorScheme.primary.withOpacity(
+                  0.3 + (pie.length * 0.1).clamp(0, 0.6),
+                ),
                 radius: 60,
               ),
             );
           });
-          return PieChart(PieChartData(sections: pie, sectionsSpace: 2, centerSpaceRadius: 34));
+          return PieChart(
+            PieChartData(
+              sections: pie,
+              sectionsSpace: 2,
+              centerSpaceRadius: 34,
+            ),
+          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -285,9 +311,19 @@ class _ExerciseProgressChart extends ConsumerStatefulWidget {
 }
 
 class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> {
+  static const String allExercisesId = '__all__';
   String? _selectedExerciseId;
   DateTime? _from;
   DateTime? _to;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _to = now;
+    _from = now.subtract(const Duration(days: 28));
+    _selectedExerciseId = allExercisesId; // Default: Todos los ejercicios
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +339,10 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
           value: _selectedExerciseId,
           decoration: const InputDecoration(labelText: 'Ejercicio'),
           items: exercisesAsync.when(
-            data: (exercises) => exercises.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+            data: (exercises) => [
+              const DropdownMenuItem(value: allExercisesId, child: Text('Todos')),
+              ...exercises.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
+            ],
             loading: () => const [],
             error: (_, __) => const [],
           ),
@@ -352,13 +391,15 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
           height: 220,
           child: sessionsAsync.when(
             data: (sessions) {
-              if (_selectedExerciseId == null) {
-                return const Center(child: Text('Selecciona un ejercicio'));
-              }
+              // Filtrar por fechas
               final filtered = sessions.where((s) {
                 if (_from != null && s.startTime.isBefore(_from!)) return false;
                 if (_to != null && s.startTime.isAfter(_to!)) return false;
-                return s.exerciseSets.any((set) => set.exerciseId == _selectedExerciseId);
+                // Si se selecciona ejercicio específico, exige que la sesión lo tenga
+                if (_selectedExerciseId != null && _selectedExerciseId != allExercisesId) {
+                  return s.exerciseSets.any((set) => set.exerciseId == _selectedExerciseId);
+                }
+                return true;
               }).toList();
               if (filtered.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
@@ -367,11 +408,16 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
               final spots = <FlSpot>[];
               for (var i = 0; i < filtered.length; i++) {
                 final s = filtered[i];
-                final sets = s.exerciseSets.where((set) => set.exerciseId == _selectedExerciseId).toList();
+                final sets = (_selectedExerciseId == allExercisesId)
+                    ? s.exerciseSets
+                    : s.exerciseSets.where((set) => set.exerciseId == _selectedExerciseId).toList();
                 if (sets.isEmpty) continue;
                 final total = sets.fold<double>(0, (a, b) => a + (b.reps * b.weight));
                 final avg = total / sets.length;
                 spots.add(FlSpot(i.toDouble(), avg));
+              }
+              if (spots.isEmpty) {
+                return const Center(child: Text('Sin datos en el rango'));
               }
               return LineChart(
                 LineChartData(
