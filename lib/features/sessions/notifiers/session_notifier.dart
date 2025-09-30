@@ -8,6 +8,13 @@ part 'session_notifier.g.dart';
 
 @riverpod
 class SessionNotifier extends _$SessionNotifier {
+  // Estado auxiliar en memoria para tiempos pausados y última reanudación
+  final Map<String, int> _pausedElapsedBySession = {};
+  final Map<String, DateTime> _lastResumeAtBySession = {};
+
+  // Tags simples en notes para persistir datos entre vistas
+  static const String _tagPaused = 'pausedElapsed=';
+  static const String _tagResumeAt = 'lastResumeAt=';
   @override
   Future<List<WorkoutSession>> build() async {
     final sessionService = ref.read(sessionServiceProvider);
@@ -36,7 +43,7 @@ class SessionNotifier extends _$SessionNotifier {
   }
 
   Future<void> addExerciseSet(ExerciseSet exerciseSet) async {
-    final currentSession = await getCurrentActiveSession();
+    final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
     final updatedSets = [...currentSession.exerciseSets, exerciseSet];
@@ -52,7 +59,7 @@ class SessionNotifier extends _$SessionNotifier {
   }
 
   Future<void> updateExerciseSet(ExerciseSet exerciseSet) async {
-    final currentSession = await getCurrentActiveSession();
+    final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
     final updatedSets =
@@ -72,7 +79,7 @@ class SessionNotifier extends _$SessionNotifier {
   }
 
   Future<void> completeSession({String? notes}) async {
-    final currentSession = await getCurrentActiveSession();
+    final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
     final completedSession = currentSession.copyWith(
@@ -84,13 +91,47 @@ class SessionNotifier extends _$SessionNotifier {
     final sessionService = ref.read(sessionServiceProvider);
     await sessionService.saveSession(completedSession);
     state = AsyncValue.data(await sessionService.getAllSessions());
+    _pausedElapsedBySession.remove(currentSession.id);
+    _lastResumeAtBySession.remove(currentSession.id);
   }
 
   Future<void> pauseSession() async {
-    final currentSession = await getCurrentActiveSession();
+    final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
+    if (currentSession.status == SessionStatus.paused) {
+      // Ya está pausada
+      state = state;
+      return;
+    }
 
-    final pausedSession = currentSession.copyWith(status: SessionStatus.paused);
+    // Guardar tiempo transcurrido acumulado al pausar (soporta múltiples pausas)
+    final now = DateTime.now();
+    final previousPaused =
+        _pausedElapsedBySession[currentSession.id] ??
+        readPausedFromNotes(currentSession.notes);
+    final lastResumeAt =
+        _lastResumeAtBySession[currentSession.id] ??
+        readResumeAtFromNotes(currentSession.notes);
+    int elapsedAtPause;
+    if (previousPaused != null && lastResumeAt != null) {
+      elapsedAtPause = previousPaused + now.difference(lastResumeAt).inSeconds;
+    } else {
+      elapsedAtPause = now.difference(currentSession.startTime).inSeconds;
+    }
+    if (elapsedAtPause < 0) elapsedAtPause = 0;
+    _pausedElapsedBySession[currentSession.id] = elapsedAtPause;
+
+    // Persistir en notes
+    final updatedNotes = _setNoteValue(
+      _setNoteValue(currentSession.notes, _tagPaused, '$elapsedAtPause'),
+      _tagResumeAt,
+      null,
+    );
+
+    final pausedSession = currentSession.copyWith(
+      status: SessionStatus.paused,
+      notes: updatedNotes,
+    );
 
     final sessionService = ref.read(sessionServiceProvider);
     await sessionService.saveSession(pausedSession);
@@ -98,23 +139,42 @@ class SessionNotifier extends _$SessionNotifier {
   }
 
   Future<void> resumeSession() async {
-    final currentSession = await getCurrentActiveSession();
+    final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
     final resumedSession = currentSession.copyWith(
       status: SessionStatus.active,
+      notes: _setNoteValue(
+        currentSession.notes,
+        _tagResumeAt,
+        DateTime.now().toIso8601String(),
+      ),
     );
+
+    // Registrar última reanudación
+    final now = DateTime.now();
+    _lastResumeAtBySession[resumedSession.id] = now;
+    // Sembrar pausedElapsed en memoria si venimos de notes
+    _pausedElapsedBySession[resumedSession.id] =
+        _pausedElapsedBySession[resumedSession.id] ??
+        readPausedFromNotes(currentSession.notes) ??
+        0;
 
     final sessionService = ref.read(sessionServiceProvider);
     await sessionService.saveSession(resumedSession);
     state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
-  Future<WorkoutSession?> getCurrentActiveSession() async {
+  Future<WorkoutSession?> getCurrentOngoingSession() async {
     final sessionService = ref.read(sessionServiceProvider);
     final sessions = await sessionService.getAllSessions();
     try {
-      return sessions.firstWhere((session) => session.isActive);
+      return sessions.firstWhere(
+        (session) =>
+            (session.status == SessionStatus.active ||
+                session.status == SessionStatus.paused) &&
+            session.endTime == null,
+      );
     } catch (e) {
       return null;
     }
@@ -145,5 +205,47 @@ class SessionNotifier extends _$SessionNotifier {
 
   int _calculateTotalReps(List<ExerciseSet> sets) {
     return sets.fold(0, (sum, set) => sum + set.reps);
+  }
+
+  // Exponer datos auxiliares para UI
+  int? getPausedElapsedSeconds(String sessionId) =>
+      _pausedElapsedBySession[sessionId];
+  DateTime? getLastResumeAt(String sessionId) =>
+      _lastResumeAtBySession[sessionId];
+
+  // Helpers para notes
+  String? _setNoteValue(String? notes, String tag, String? value) {
+    final lines = (notes ?? '').split('\n');
+    final filtered = lines.where((l) => !l.trim().startsWith(tag)).toList();
+    if (value != null) {
+      filtered.add('$tag$value');
+    }
+    final result = filtered.join('\n').trim();
+    return result.isEmpty ? null : result;
+  }
+
+  static int? readPausedFromNotes(String? notes) {
+    if (notes == null) return null;
+    for (final line in notes.split('\n')) {
+      final l = line.trim();
+      if (l.startsWith(_tagPaused)) {
+        final v = l.substring(_tagPaused.length);
+        final n = int.tryParse(v);
+        return n;
+      }
+    }
+    return null;
+  }
+
+  static DateTime? readResumeAtFromNotes(String? notes) {
+    if (notes == null) return null;
+    for (final line in notes.split('\n')) {
+      final l = line.trim();
+      if (l.startsWith(_tagResumeAt)) {
+        final v = l.substring(_tagResumeAt.length);
+        return DateTime.tryParse(v);
+      }
+    }
+    return null;
   }
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/session_notifier.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
+import '../../sessions/models/workout_session.dart';
+import 'dart:async';
 
 class SessionPage extends ConsumerStatefulWidget {
   const SessionPage({super.key});
@@ -11,6 +13,37 @@ class SessionPage extends ConsumerStatefulWidget {
 }
 
 class _SessionPageState extends ConsumerState<SessionPage> {
+  Timer? _ticker;
+  int _elapsedSeconds = 0;
+  bool _isManuallyPaused = false;
+  bool _sessionJustCompleted = false;
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  void _startTicker() {
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _elapsedSeconds += 1;
+      });
+    });
+  }
+
+  void _stopTicker() {
+    _ticker?.cancel();
+    _ticker = null;
+  }
+
+  String _formatHms(int seconds) {
+    final d = Duration(seconds: seconds);
+    final two = (int n) => n.toString().padLeft(2, '0');
+    return '${two(d.inHours)}:${two(d.inMinutes % 60)}:${two(d.inSeconds % 60)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -27,10 +60,74 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
           return sessionAsync.when(
             data: (sessions) {
-              final activeSession = sessions.firstWhere(
-                (session) => session.isActive,
-                orElse: () => throw Exception('No hay sesión activa'),
-              );
+              if (_sessionJustCompleted) {
+                // Mostrar estado sin sesión inmediatamente tras finalizar
+                _stopTicker();
+                _elapsedSeconds = 0;
+                _isManuallyPaused = false;
+                // Limpiar bandera una vez renderizado
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) setState(() => _sessionJustCompleted = false);
+                });
+                return _buildNoActiveSession();
+              }
+              WorkoutSession? activeSession;
+              try {
+                activeSession = sessions.firstWhere(
+                  (s) =>
+                      (s.status == SessionStatus.active ||
+                          s.status == SessionStatus.paused) &&
+                      s.endTime == null,
+                );
+              } catch (_) {
+                activeSession = null;
+              }
+
+              if (activeSession == null) {
+                _stopTicker();
+                _elapsedSeconds = 0;
+                _isManuallyPaused = false;
+                return _buildNoActiveSession();
+              }
+
+              // Si está activo y no hay ticker, arrancar desde base persistente o resume
+              if (_ticker == null &&
+                  activeSession.status == SessionStatus.active &&
+                  !_isManuallyPaused) {
+                final notifier = ref.read(sessionNotifierProvider.notifier);
+                final pausedElapsed =
+                    notifier.getPausedElapsedSeconds(activeSession.id) ??
+                    SessionNotifier.readPausedFromNotes(activeSession.notes);
+                final lastResumeAt =
+                    notifier.getLastResumeAt(activeSession.id) ??
+                    SessionNotifier.readResumeAtFromNotes(activeSession.notes);
+                int base;
+                if (pausedElapsed != null && lastResumeAt != null) {
+                  // Continuar desde el tiempo pausado + delta desde reanudación
+                  base =
+                      pausedElapsed +
+                      DateTime.now().difference(lastResumeAt).inSeconds;
+                } else {
+                  base =
+                      DateTime.now()
+                          .difference(activeSession.startTime)
+                          .inSeconds;
+                }
+                _elapsedSeconds = base < 0 ? 0 : base;
+                _startTicker();
+              }
+              // Si está pausado, detener el ticker y conservar _elapsedSeconds mostrado
+              if (activeSession.status == SessionStatus.paused) {
+                _stopTicker();
+                final pausedElapsed =
+                    ref
+                        .read(sessionNotifierProvider.notifier)
+                        .getPausedElapsedSeconds(activeSession.id) ??
+                    SessionNotifier.readPausedFromNotes(activeSession.notes);
+                if (pausedElapsed != null) {
+                  _elapsedSeconds = pausedElapsed;
+                }
+              }
 
               return _buildActiveSession(activeSession);
             },
@@ -43,7 +140,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     );
   }
 
-  Widget _buildActiveSession(session) {
+  Widget _buildActiveSession(WorkoutSession session) {
     return Column(
       children: [
         // Session Timer
@@ -58,7 +155,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     );
   }
 
-  Widget _buildSessionTimer(session) {
+  Widget _buildSessionTimer(WorkoutSession session) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -79,7 +176,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '00:00:00', // TODO: Implement timer
+            _formatHms(_elapsedSeconds),
             style: theme.textTheme.headlineLarge?.copyWith(
               color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
@@ -90,29 +187,81 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     );
   }
 
-  Widget _buildSessionContent(session) {
+  Widget _buildSessionContent(WorkoutSession session) {
     return const Center(child: Text('Contenido de la sesión - En desarrollo'));
   }
 
-  Widget _buildSessionControls(session) {
+  Widget _buildSessionControls(WorkoutSession session) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {
-                // TODO: Implement pause session
+              onPressed: () async {
+                final isPaused =
+                    _isManuallyPaused || session.status == SessionStatus.paused;
+                if (!isPaused) {
+                  // Pausar
+                  _isManuallyPaused = true;
+                  _stopTicker();
+                  await ref
+                      .read(sessionNotifierProvider.notifier)
+                      .pauseSession();
+                  ref.invalidate(sessionNotifierProvider);
+                } else {
+                  // Reanudar inmediatamente
+                  _isManuallyPaused = false;
+                  // Recalcular base y arrancar ticker ya
+                  await ref
+                      .read(sessionNotifierProvider.notifier)
+                      .resumeSession();
+                  // Base desde pausa + delta
+                  final notifier = ref.read(sessionNotifierProvider.notifier);
+                  final pausedElapsed =
+                      notifier.getPausedElapsedSeconds(session.id) ??
+                      _elapsedSeconds;
+                  final lastResumeAt =
+                      notifier.getLastResumeAt(session.id) ?? DateTime.now();
+                  _elapsedSeconds =
+                      pausedElapsed +
+                      DateTime.now().difference(lastResumeAt).inSeconds;
+                  if (_elapsedSeconds < 0) _elapsedSeconds = 0;
+                  _startTicker();
+                  ref.invalidate(sessionNotifierProvider);
+                }
               },
-              icon: const Icon(Icons.pause),
-              label: const Text('Pausar'),
+              icon: Icon(
+                (_isManuallyPaused || session.status == SessionStatus.paused)
+                    ? Icons.play_arrow
+                    : Icons.pause,
+              ),
+              label: Text(
+                (_isManuallyPaused || session.status == SessionStatus.paused)
+                    ? 'Reanudar'
+                    : 'Pausar',
+              ),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: FilledButton.icon(
-              onPressed: () {
-                // TODO: Implement complete session
+              onPressed: () async {
+                _stopTicker();
+                await ref
+                    .read(sessionNotifierProvider.notifier)
+                    .completeSession();
+                if (!mounted) return;
+                setState(() {
+                  _isManuallyPaused = false;
+                  _elapsedSeconds = 0;
+                  _sessionJustCompleted = true;
+                });
+                // Forzar recarga de sesiones para ocultar controles
+                ref.invalidate(sessionNotifierProvider);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sesión finalizada')),
+                );
               },
               icon: const Icon(Icons.check),
               label: const Text('Finalizar'),
@@ -147,8 +296,11 @@ class _SessionPageState extends ConsumerState<SessionPage> {
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
-            onPressed: () {
-              // TODO: Start new session
+            onPressed: () async {
+              await ref
+                  .read(sessionNotifierProvider.notifier)
+                  .startSession(name: 'Sesión');
+              if (mounted) setState(() {});
             },
             icon: const Icon(Icons.play_arrow),
             label: const Text('Iniciar Sesión'),
