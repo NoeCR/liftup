@@ -8,6 +8,11 @@ part 'exercise_service.g.dart';
 
 @riverpod
 class ExerciseService extends _$ExerciseService {
+  // Cache para mejorar rendimiento
+  List<Exercise>? _cachedExercises;
+  DateTime? _lastCacheUpdate;
+  static const Duration _cacheValidityDuration = Duration(seconds: 30);
+
   @override
   ExerciseService build() {
     return this;
@@ -20,6 +25,8 @@ class ExerciseService extends _$ExerciseService {
   Future<void> saveExercise(Exercise exercise) async {
     final box = _box;
     await box.put(exercise.id, exercise);
+    // Invalidar cache después de guardar
+    _invalidateCache();
   }
 
   Future<Exercise?> getExerciseById(String id) async {
@@ -28,9 +35,24 @@ class ExerciseService extends _$ExerciseService {
   }
 
   Future<List<Exercise>> getAllExercises() async {
+    final now = DateTime.now();
+
+    // Verificar si el cache es válido
+    if (_cachedExercises != null &&
+        _lastCacheUpdate != null &&
+        now.difference(_lastCacheUpdate!).compareTo(_cacheValidityDuration) <
+            0) {
+      return _cachedExercises!;
+    }
+
+    // Actualizar cache
     final box = _box;
-    return box.values.cast<Exercise>().toList()
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    _cachedExercises =
+        box.values.cast<Exercise>().toList()
+          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    _lastCacheUpdate = now;
+
+    return _cachedExercises!;
   }
 
   Future<List<Exercise>> getExercisesByCategory(
@@ -43,31 +65,54 @@ class ExerciseService extends _$ExerciseService {
   }
 
   Future<List<Exercise>> searchExercises(String query) async {
-    final allExercises = await getAllExercises();
-    final lowercaseQuery = query.toLowerCase();
+    if (query.trim().isEmpty) return await getAllExercises();
 
+    final allExercises = await getAllExercises();
+    final lowercaseQuery = query.toLowerCase().trim();
+
+    // Búsqueda optimizada con early return
     return allExercises.where((exercise) {
-      return exercise.name.toLowerCase().contains(lowercaseQuery) ||
-          exercise.description.toLowerCase().contains(lowercaseQuery) ||
-          exercise.muscleGroups.any(
-            (muscle) =>
-                muscle.displayName.toLowerCase().contains(lowercaseQuery),
-          );
+      // Verificar nombre primero (más común)
+      if (exercise.name.toLowerCase().contains(lowercaseQuery)) {
+        return true;
+      }
+
+      // Verificar descripción
+      if (exercise.description.toLowerCase().contains(lowercaseQuery)) {
+        return true;
+      }
+
+      // Verificar músculos trabajados
+      for (final muscle in exercise.muscleGroups) {
+        if (muscle.displayName.toLowerCase().contains(lowercaseQuery)) {
+          return true;
+        }
+      }
+
+      return false;
     }).toList();
   }
 
   Future<void> deleteExercise(String id) async {
-    final box = await _box;
+    final box = _box;
     await box.delete(id);
+    // Invalidar cache después de eliminar
+    _invalidateCache();
   }
 
   Future<int> getExerciseCount() async {
-    final box = await _box;
+    final box = _box;
     return box.length;
   }
 
   Future<List<Exercise>> getRecentExercises({int limit = 10}) async {
     final allExercises = await getAllExercises();
     return allExercises.take(limit).toList();
+  }
+
+  /// Invalida el cache cuando se modifican los datos
+  void _invalidateCache() {
+    _cachedExercises = null;
+    _lastCacheUpdate = null;
   }
 }

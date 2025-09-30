@@ -21,7 +21,7 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     return exercises;
   }
 
-  Future<void> addExercise(Exercise exercise) async {
+  Future<Exercise> addExercise(Exercise exercise) async {
     final exerciseService = ref.read(exerciseServiceProvider);
     final uuid = const Uuid();
 
@@ -32,7 +32,12 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     );
 
     await exerciseService.saveExercise(newExercise);
+
+    // Force refresh the state
+    ref.invalidateSelf();
     state = AsyncValue.data(await exerciseService.getAllExercises());
+
+    return newExercise;
   }
 
   Future<void> updateExercise(Exercise exercise) async {
@@ -40,12 +45,18 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     final updatedExercise = exercise.copyWith(updatedAt: DateTime.now());
 
     await exerciseService.saveExercise(updatedExercise);
+
+    // Force refresh the state
+    ref.invalidateSelf();
     state = AsyncValue.data(await exerciseService.getAllExercises());
   }
 
   Future<void> deleteExercise(String exerciseId) async {
     final exerciseService = ref.read(exerciseServiceProvider);
     await exerciseService.deleteExercise(exerciseId);
+
+    // Force refresh the state
+    ref.invalidateSelf();
     state = AsyncValue.data(await exerciseService.getAllExercises());
   }
 

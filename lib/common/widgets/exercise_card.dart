@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../features/exercise/models/exercise.dart';
 import '../../features/home/models/routine.dart';
@@ -10,6 +11,7 @@ class ExerciseCard extends StatelessWidget {
   final VoidCallback? onToggleCompleted;
   final Function(double)? onWeightChanged;
   final Function(int)? onRepsChanged;
+  final int performedSets;
 
   const ExerciseCard({
     super.key,
@@ -20,6 +22,7 @@ class ExerciseCard extends StatelessWidget {
     this.onToggleCompleted,
     this.onWeightChanged,
     this.onRepsChanged,
+    this.performedSets = 0,
   });
 
   @override
@@ -40,111 +43,83 @@ class ExerciseCard extends StatelessWidget {
                     ? colorScheme.primaryContainer.withOpacity(0.3)
                     : null,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Exercise Image
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 240, maxHeight: 280),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Exercise Image
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
+                  ),
+                  child: Container(
+                    height: 120,
+                    width: double.infinity,
+                    color: colorScheme.surfaceVariant,
+                    child: _buildAdaptiveImage(
+                      exercise?.imageUrl ?? '',
+                      colorScheme,
+                    ),
+                  ),
                 ),
-                child: Container(
-                  height: 120,
-                  width: double.infinity,
-                  color: colorScheme.surfaceVariant,
-                  child:
-                      exercise?.imageUrl != null
-                          ? Image.asset(
-                            exercise!.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.fitness_center,
-                                size: 48,
-                                color: colorScheme.onSurfaceVariant,
-                              );
-                            },
-                          )
-                          : Icon(
-                            Icons.fitness_center,
-                            size: 48,
-                            color: colorScheme.onSurfaceVariant,
+
+                // Exercise Info
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Exercise Name
+                        Text(
+                          exercise?.name ?? 'Ejercicio',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
-                ),
-              ),
-
-              // Exercise Info
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Exercise Name
-                    Text(
-                      exercise?.name ?? 'Ejercicio',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Sets and Reps
-                    Row(
-                      children: [
-                        _buildInfoChip(
-                          context,
-                          '${routineExercise.sets} series',
-                          Icons.repeat,
                         ),
-                        const SizedBox(width: 8),
-                        _buildInfoChip(
-                          context,
-                          '${routineExercise.reps} reps',
-                          Icons.fitness_center,
+                        const SizedBox(height: 8),
+
+                        // Línea de info: series, reps, peso y categoría
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              _buildInfoChip(
+                                context,
+                                '${routineExercise.sets} series',
+                                Icons.repeat,
+                              ),
+                              _buildInfoChip(
+                                context,
+                                '${routineExercise.reps} reps',
+                                Icons.fitness_center,
+                              ),
+                              _buildInfoChip(
+                                context,
+                                '${routineExercise.weight.toStringAsFixed(1)} kg',
+                                Icons.scale,
+                              ),
+                              if (exercise != null)
+                                _buildInfoChip(
+                                  context,
+                                  exercise!.category.displayName,
+                                  Icons.category,
+                                ),
+                            ],
+                          ),
                         ),
+                        const Spacer(),
                       ],
                     ),
-                    const SizedBox(height: 12),
-
-                    // Weight and Controls
-                    Row(
-                      children: [
-                        Expanded(child: _buildWeightControl(context)),
-                        const SizedBox(width: 12),
-                        _buildRepsControl(context),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Complete Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: onToggleCompleted,
-                        icon: Icon(
-                          isCompleted
-                              ? Icons.check_circle
-                              : Icons.radio_button_unchecked,
-                        ),
-                        label: Text(
-                          isCompleted ? 'Completado' : 'Marcar como completado',
-                        ),
-                        style: FilledButton.styleFrom(
-                          backgroundColor:
-                              isCompleted
-                                  ? colorScheme.primary
-                                  : colorScheme.surfaceVariant,
-                          foregroundColor:
-                              isCompleted
-                                  ? colorScheme.onPrimary
-                                  : colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Center(child: _buildSetsCounter(context, colorScheme)),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
       ),
@@ -177,95 +152,110 @@ class ExerciseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildWeightControl(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  // Controles eliminados de la tarjeta principal según nueva UX
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Peso (kg)',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
+  Widget _buildSetsCounter(BuildContext context, ColorScheme colorScheme) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.remove, size: 16),
+            onPressed: () => onRepsChanged?.call(performedSets - 1),
+            style: IconButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              minimumSize: const Size(28, 28),
+              padding: EdgeInsets.zero,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            IconButton(
-              onPressed:
-                  () => onWeightChanged?.call(routineExercise.weight - 2.5),
-              icon: const Icon(Icons.remove),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceVariant,
-              ),
+          const SizedBox(width: 4),
+          Text(
+            '${performedSets}/${routineExercise.sets} series',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
             ),
-            Expanded(
-              child: Text(
-                '${routineExercise.weight.toStringAsFixed(1)}',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.add, size: 16),
+            onPressed: () => onRepsChanged?.call(performedSets + 1),
+            style: IconButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              backgroundColor: colorScheme.surfaceContainerHighest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
+              minimumSize: const Size(28, 28),
+              padding: EdgeInsets.zero,
             ),
-            IconButton(
-              onPressed:
-                  () => onWeightChanged?.call(routineExercise.weight + 2.5),
-              icon: const Icon(Icons.add),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildRepsControl(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
+    if (path.isEmpty) {
+      return Icon(
+        Icons.fitness_center,
+        size: 48,
+        color: colorScheme.onSurfaceVariant,
+      );
+    }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Reps',
-          style: theme.textTheme.bodySmall?.copyWith(
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 120,
+        errorBuilder:
+            (context, error, stackTrace) => Icon(
+              Icons.fitness_center,
+              size: 48,
+              color: colorScheme.onSurfaceVariant,
+            ),
+      );
+    }
+
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: 120,
+        errorBuilder:
+            (context, error, stackTrace) => Icon(
+              Icons.fitness_center,
+              size: 48,
+              color: colorScheme.onSurfaceVariant,
+            ),
+      );
+    }
+
+    final String filePath =
+        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    return Image.file(
+      File(filePath),
+      fit: BoxFit.cover,
+      width: double.infinity,
+      height: 120,
+      errorBuilder:
+          (context, error, stackTrace) => Icon(
+            Icons.fitness_center,
+            size: 48,
             color: colorScheme.onSurfaceVariant,
           ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: [
-            IconButton(
-              onPressed: () => onRepsChanged?.call(routineExercise.reps - 1),
-              icon: const Icon(Icons.remove),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceVariant,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                '${routineExercise.reps}',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            IconButton(
-              onPressed: () => onRepsChanged?.call(routineExercise.reps + 1),
-              icon: const Icon(Icons.add),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

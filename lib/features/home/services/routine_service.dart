@@ -67,12 +67,12 @@ class RoutineService extends _$RoutineService {
   }
 
   Future<void> deleteRoutine(String id) async {
-    final box = await _box;
+    final box = _box;
     await box.delete(id);
   }
 
   Future<int> getRoutineCount() async {
-    final box = await _box;
+    final box = _box;
     return box.length;
   }
 

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,11 +34,41 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         title: const Text('Ejercicios'),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(
-            onPressed: () {
-              // TODO: Navigate to add exercise
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'create':
+                  context.push('/exercise/create');
+                  break;
+                case 'quick_add':
+                  _showQuickAddDialog(context);
+                  break;
+              }
             },
-            icon: const Icon(Icons.add),
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'create',
+                    child: Row(
+                      children: [
+                        Icon(Icons.add),
+                        SizedBox(width: 8),
+                        Text('Nuevo Ejercicio'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'quick_add',
+                    child: Row(
+                      children: [
+                        Icon(Icons.flash_on),
+                        SizedBox(width: 8),
+                        Text('Agregar Rápido'),
+                      ],
+                    ),
+                  ),
+                ],
+            child: const Icon(Icons.add),
           ),
         ],
       ),
@@ -163,22 +194,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
             width: 60,
             height: 60,
             color: colorScheme.surfaceVariant,
-            child:
-                exercise.imageUrl.isNotEmpty
-                    ? Image.asset(
-                      exercise.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Icons.fitness_center,
-                          color: colorScheme.onSurfaceVariant,
-                        );
-                      },
-                    )
-                    : Icon(
-                      Icons.fitness_center,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+            child: _buildAdaptiveImage(exercise.imageUrl, colorScheme),
           ),
         ),
         title: Text(
@@ -225,24 +241,85 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Determinar el contexto del estado vacío
+    final bool isSearching = _searchController.text.isNotEmpty;
+    final bool isFiltering = _selectedCategory != null;
+
+    String title;
+    String subtitle;
+    IconData icon;
+    List<Widget> actions = [];
+
+    if (isSearching) {
+      title = 'No se encontraron ejercicios';
+      subtitle = 'Intenta con otros términos de búsqueda';
+      icon = Icons.search_off;
+    } else if (isFiltering) {
+      title = 'No hay ejercicios en esta categoría';
+      subtitle =
+          'No se encontraron ejercicios para ${_getCategoryName(_selectedCategory!)}';
+      icon = Icons.category_outlined;
+      actions = [
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: () => context.push('/exercise/create'),
+          icon: const Icon(Icons.add),
+          label: const Text('Agregar Ejercicio'),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _selectedCategory = null;
+            });
+          },
+          child: const Text('Ver todos los ejercicios'),
+        ),
+      ];
+    } else {
+      title = 'No tienes ejercicios aún';
+      subtitle = 'Comienza agregando tu primer ejercicio';
+      icon = Icons.fitness_center_outlined;
+      actions = [
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: () => context.push('/exercise/create'),
+          icon: const Icon(Icons.add),
+          label: const Text('Crear Primer Ejercicio'),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => _showQuickAddDialog(context),
+          icon: const Icon(Icons.flash_on),
+          label: const Text('Agregar Rápido'),
+        ),
+      ];
+    }
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            'No se encontraron ejercicios',
-            style: theme.textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Intenta con otros términos de búsqueda',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 64, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            ...actions,
+          ],
+        ),
       ),
     );
   }
@@ -303,5 +380,264 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
 
   String _getCategoryName(ExerciseCategory category) {
     return category.displayName;
+  }
+
+  void _showQuickAddDialog(BuildContext context) {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+    ExerciseCategory selectedCategory = ExerciseCategory.chest;
+    ExerciseDifficulty selectedDifficulty = ExerciseDifficulty.beginner;
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: const Text('Agregar Ejercicio Rápido'),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Nombre',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: descriptionController,
+                          decoration: const InputDecoration(
+                            labelText: 'Descripción',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: DropdownButtonFormField<ExerciseCategory>(
+                                value: selectedCategory,
+                                decoration: const InputDecoration(
+                                  labelText: 'Categoría',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items:
+                                    ExerciseCategory.values.map((category) {
+                                      return DropdownMenuItem(
+                                        value: category,
+                                        child: Text(category.displayName),
+                                      );
+                                    }).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      selectedCategory = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child:
+                                  DropdownButtonFormField<ExerciseDifficulty>(
+                                    value: selectedDifficulty,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Dificultad',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    items:
+                                        ExerciseDifficulty.values.map((
+                                          difficulty,
+                                        ) {
+                                          return DropdownMenuItem(
+                                            value: difficulty,
+                                            child: Text(
+                                              _getDifficultyName(difficulty),
+                                            ),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      if (value != null) {
+                                        setState(() {
+                                          selectedDifficulty = value;
+                                        });
+                                      }
+                                    },
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (nameController.text.trim().isEmpty ||
+                            descriptionController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Por favor completa todos los campos',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.of(context).pop();
+                        await _createQuickExercise(
+                          context,
+                          nameController.text.trim(),
+                          descriptionController.text.trim(),
+                          selectedCategory,
+                          selectedDifficulty,
+                        );
+                      },
+                      child: const Text('Crear'),
+                    ),
+                  ],
+                ),
+          ),
+    );
+  }
+
+  Future<void> _createQuickExercise(
+    BuildContext context,
+    String name,
+    String description,
+    ExerciseCategory category,
+    ExerciseDifficulty difficulty,
+  ) async {
+    try {
+      final exercise = Exercise(
+        id: '',
+        name: name,
+        description: description,
+        imageUrl: 'assets/images/default_exercise.png',
+        videoUrl: null,
+        muscleGroups: _getDefaultMuscleGroups(category),
+        tips: ['Mantén la forma correcta durante todo el ejercicio'],
+        commonMistakes: ['No mantener la postura adecuada'],
+        category: category,
+        difficulty: difficulty,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$name creado correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al crear ejercicio: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  List<MuscleGroup> _getDefaultMuscleGroups(ExerciseCategory category) {
+    switch (category) {
+      case ExerciseCategory.chest:
+        return [MuscleGroup.pectoralMajor, MuscleGroup.anteriorDeltoid];
+      case ExerciseCategory.back:
+        return [MuscleGroup.latissimusDorsi, MuscleGroup.rhomboids];
+      case ExerciseCategory.shoulders:
+        return [MuscleGroup.medialDeltoid, MuscleGroup.anteriorDeltoid];
+      case ExerciseCategory.biceps:
+        return [MuscleGroup.bicepsLongHead, MuscleGroup.bicepsShortHead];
+      case ExerciseCategory.triceps:
+        return [MuscleGroup.tricepsLateralHead, MuscleGroup.tricepsLongHead];
+      case ExerciseCategory.quadriceps:
+        return [MuscleGroup.rectusFemoris, MuscleGroup.vastusLateralis];
+      case ExerciseCategory.hamstrings:
+        return [MuscleGroup.bicepsFemoris, MuscleGroup.semitendinosus];
+      case ExerciseCategory.glutes:
+        return [MuscleGroup.gluteusMaximus, MuscleGroup.gluteusMedius];
+      case ExerciseCategory.calves:
+        return [MuscleGroup.gastrocnemius, MuscleGroup.soleus];
+      case ExerciseCategory.core:
+        return [MuscleGroup.rectusAbdominis, MuscleGroup.externalObliques];
+      case ExerciseCategory.forearms:
+        return [MuscleGroup.forearmFlexors, MuscleGroup.forearmExtensors];
+      case ExerciseCategory.cardio:
+        return [MuscleGroup.rectusFemoris, MuscleGroup.gluteusMaximus];
+      case ExerciseCategory.fullBody:
+        return [
+          MuscleGroup.pectoralMajor,
+          MuscleGroup.latissimusDorsi,
+          MuscleGroup.rectusFemoris,
+          MuscleGroup.gluteusMaximus,
+        ];
+    }
+  }
+
+  String _getDifficultyName(ExerciseDifficulty difficulty) {
+    switch (difficulty) {
+      case ExerciseDifficulty.beginner:
+        return 'Principiante';
+      case ExerciseDifficulty.intermediate:
+        return 'Intermedio';
+      case ExerciseDifficulty.advanced:
+        return 'Avanzado';
+    }
+  }
+
+  Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
+    if (path.isEmpty) {
+      return Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant);
+    }
+
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) =>
+                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+      );
+    }
+
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) =>
+                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+      );
+    }
+
+    final String filePath =
+        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    return Image.file(
+      File(filePath),
+      fit: BoxFit.cover,
+      errorBuilder:
+          (context, error, stackTrace) =>
+              Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+    );
   }
 }

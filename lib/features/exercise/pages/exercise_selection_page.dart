@@ -31,6 +31,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   String _selectedCategory = 'Todos';
   final TextEditingController _searchController = TextEditingController();
 
+  // Valores por defecto para nuevas asignaciones en rutina
+  int _defaultSets = 3;
+  int _defaultReps = 10;
+  double _defaultWeight = 0.0;
+  int _defaultRestSeconds = 60;
+
   final List<String> _categories = [
     'Todos',
     ...ExerciseCategory.values.map((category) => category.displayName),
@@ -129,9 +135,14 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
                     return ListView.builder(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: filteredExercises.length,
+                      itemCount: filteredExercises.length + 1,
                       itemBuilder: (context, index) {
-                        final exercise = filteredExercises[index];
+                        // Primer ítem: crear nuevo ejercicio
+                        if (index == 0) {
+                          return _buildCreateExerciseItem(context, colorScheme);
+                        }
+
+                        final exercise = filteredExercises[index - 1];
                         final isSelected = _selectedExercises.contains(
                           exercise.id,
                         );
@@ -251,24 +262,92 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    final bool isSearching = _searchController.text.isNotEmpty;
+    final bool isFiltering = _selectedCategory != 'Todos';
+
+    String title;
+    String subtitle;
+    IconData icon;
+
+    if (isSearching) {
+      title = 'No se encontraron ejercicios';
+      subtitle = 'Intenta con otros términos de búsqueda';
+      icon = Icons.search_off;
+    } else if (isFiltering) {
+      title = 'No hay ejercicios en esta categoría';
+      subtitle = 'No se encontraron ejercicios para $_selectedCategory';
+      icon = Icons.category_outlined;
+    } else {
+      title = 'No tienes ejercicios aún';
+      subtitle = 'Comienza agregando tu primer ejercicio';
+      icon = Icons.fitness_center_outlined;
+    }
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            'No se encontraron ejercicios',
-            style: theme.textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Intenta con otros términos de búsqueda',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 64, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            // Acción: Crear nuevo ejercicio
+            FilledButton.icon(
+              onPressed: () {
+                final queryParams = <String, String>{};
+                if (widget.routineId != null) {
+                  queryParams['routineId'] = widget.routineId!;
+                }
+                if (widget.sectionId != null) {
+                  queryParams['sectionId'] = widget.sectionId!;
+                }
+                queryParams['returnTo'] = 'selection';
+
+                final uri = Uri(
+                  path: '/exercise/create',
+                  queryParameters: queryParams,
+                );
+                context.push(uri.toString());
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Agregar ejercicio'),
+            ),
+            const SizedBox(height: 12),
+            // Acciones secundarias según contexto
+            if (isSearching)
+              OutlinedButton.icon(
+                onPressed: () {
+                  _searchController.clear();
+                  setState(() {});
+                },
+                icon: const Icon(Icons.clear),
+                label: const Text('Limpiar búsqueda'),
+              ),
+            if (isFiltering)
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedCategory = 'Todos';
+                  });
+                },
+                child: const Text('Ver todos los ejercicios'),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -308,8 +387,158 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     );
   }
 
+  Widget _buildCreateExerciseItem(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8, top: 8),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: colorScheme.primaryContainer,
+          child: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
+        ),
+        title: const Text('Crear nuevo ejercicio'),
+        subtitle: const Text('Añade un ejercicio y vuelve a esta selección'),
+        // sin icono para mantenerlo limpio
+        trailing: null,
+        onTap: () {
+          final queryParams = <String, String>{};
+          if (widget.routineId != null) {
+            queryParams['routineId'] = widget.routineId!;
+          }
+          if (widget.sectionId != null) {
+            queryParams['sectionId'] = widget.sectionId!;
+          }
+          queryParams['returnTo'] = 'selection';
+
+          final uri = Uri(
+            path: '/exercise/create',
+            queryParameters: queryParams,
+          );
+          context.push(uri.toString());
+        },
+      ),
+    );
+  }
+
   void _addSelectedExercises() {
     if (_selectedExercises.isEmpty) return;
+    _confirmDefaultsAndAdd();
+  }
+
+  Future<void> _confirmDefaultsAndAdd() async {
+    // Prefill con valores previamente usados si hay un único ejercicio seleccionado
+    if (_selectedExercises.length == 1) {
+      final exerciseId = _selectedExercises.first;
+      final params = _findLastUsedParamsForExercise(exerciseId);
+      if (params != null) {
+        _defaultSets = params['sets'] as int;
+        _defaultReps = params['reps'] as int;
+        _defaultWeight = params['weight'] as double;
+        _defaultRestSeconds = params['rest'] as int;
+      }
+    }
+
+    final setsController = TextEditingController(text: _defaultSets.toString());
+    final repsController = TextEditingController(text: _defaultReps.toString());
+    final weightController = TextEditingController(
+      text: _defaultWeight.toStringAsFixed(1),
+    );
+    final restController = TextEditingController(
+      text: _defaultRestSeconds.toString(),
+    );
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Configurar sets/reps/peso'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: setsController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Series',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: repsController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Repeticiones',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: weightController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Peso (kg)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: restController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Descanso (s)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final parsedSets = int.tryParse(setsController.text.trim()) ?? _defaultSets;
+    final parsedReps = int.tryParse(repsController.text.trim()) ?? _defaultReps;
+    final parsedWeight =
+        double.tryParse(weightController.text.trim()) ?? _defaultWeight;
+    final parsedRest =
+        int.tryParse(restController.text.trim()) ?? _defaultRestSeconds;
+
+    _defaultSets = parsedSets;
+    _defaultReps = parsedReps;
+    _defaultWeight = parsedWeight;
+    _defaultRestSeconds = parsedRest;
 
     // Get selected exercises from the exercise notifier
     final exerciseAsync = ref.read(exerciseNotifierProvider);
@@ -333,6 +562,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
             widget.routineId!,
             sectionId,
             selectedExercises,
+            sets: parsedSets,
+            reps: parsedReps,
+            weight: parsedWeight,
+            restTime: parsedRest,
           );
         }
 
@@ -347,15 +580,23 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       }
     });
 
-    // Navigate back
-    Navigator.of(context).pop();
+    // Navegación segura: volver si se puede, si no, ir a Home
+    if (Navigator.canPop(context)) {
+      if (context.mounted) context.pop();
+    } else {
+      if (context.mounted) context.go('/');
+    }
   }
 
   void _updateRoutineWithExercises(
     String routineId,
     String sectionId,
-    List<Exercise> exercises,
-  ) {
+    List<Exercise> exercises, {
+    required int sets,
+    required int reps,
+    required double weight,
+    required int restTime,
+  }) {
     // Get current routine
     final routineAsync = ref.read(routineNotifierProvider);
     routineAsync.whenData((routines) {
@@ -372,10 +613,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                   id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
                   routineSectionId: sectionId,
                   exerciseId: exercise.id,
-                  sets: 3,
-                  reps: 10,
-                  weight: 0.0,
-                  restTimeSeconds: 60,
+                  sets: sets,
+                  reps: reps,
+                  weight: weight,
+                  restTimeSeconds: restTime,
                   notes: '',
                   order: 0,
                 ),
@@ -401,5 +642,27 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       // Save the updated routine
       ref.read(routineNotifierProvider.notifier).updateRoutine(updatedRoutine);
     });
+  }
+
+  /// Busca los últimos parámetros usados para un ejercicio en cualquier rutina
+  Map<String, Object>? _findLastUsedParamsForExercise(String exerciseId) {
+    final routines = ref.read(routineNotifierProvider).valueOrNull;
+    if (routines == null) return null;
+
+    for (final routine in routines) {
+      for (final section in routine.sections) {
+        for (final re in section.exercises) {
+          if (re.exerciseId == exerciseId) {
+            return <String, Object>{
+              'sets': re.sets,
+              'reps': re.reps,
+              'weight': re.weight,
+              'rest': re.restTimeSeconds ?? _defaultRestSeconds,
+            };
+          }
+        }
+      }
+    }
+    return null;
   }
 }

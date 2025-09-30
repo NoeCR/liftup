@@ -205,7 +205,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       itemCount: routine.sections.length,
       itemBuilder: (context, index) {
         final section = routine.sections[index];
-        return _buildRoutineSection(section, exerciseAsync);
+        return _buildRoutineSection(section, exerciseAsync, routine);
       },
     );
   }
@@ -213,6 +213,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
   Widget _buildRoutineSection(
     RoutineSection section,
     AsyncValue<List<Exercise>> exerciseAsync,
+    Routine routine,
   ) {
     return Column(
       children: [
@@ -231,36 +232,58 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           exerciseAsync.when(
             data: (exercises) {
               if (section.exercises.isEmpty) {
-                return _buildEmptySection(section.name);
+                return _buildEmptySection(section.name, routine, section);
               }
 
-              return Column(
-                children:
-                    section.exercises.map((routineExercise) {
-                      final exercise = exercises.firstWhere(
-                        (e) => e.id == routineExercise.exerciseId,
-                        orElse:
-                            () => Exercise(
-                              id: '',
-                              name: 'Ejercicio no encontrado',
-                              description: '',
-                              imageUrl: '',
-                              muscleGroups: [],
-                              tips: [],
-                              commonMistakes: [],
-                              category: ExerciseCategory.fullBody,
-                              difficulty: ExerciseDifficulty.beginner,
-                              createdAt: DateTime.now(),
-                              updatedAt: DateTime.now(),
-                            ),
-                      );
+              final exerciseCards =
+                  section.exercises.map((routineExercise) {
+                    final exercise = exercises.firstWhere(
+                      (e) => e.id == routineExercise.exerciseId,
+                      orElse:
+                          () => Exercise(
+                            id: '',
+                            name: 'Ejercicio no encontrado',
+                            description: '',
+                            imageUrl: '',
+                            muscleGroups: [],
+                            tips: [],
+                            commonMistakes: [],
+                            category: ExerciseCategory.fullBody,
+                            difficulty: ExerciseDifficulty.beginner,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
+                    );
 
-                      return ExerciseCardWrapper(
-                        routineExercise: routineExercise,
-                        exercise: exercise,
-                        onTap: () => context.push('/exercise/${exercise.id}'),
+                    return ExerciseCardWrapper(
+                      routineExercise: routineExercise,
+                      exercise: exercise,
+                      onTap: () => context.push('/exercise/${exercise.id}'),
+                    );
+                  }).toList();
+
+              // Carrusel horizontal de ejercicios
+              return SizedBox(
+                height: 300,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  itemCount: exerciseCards.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == exerciseCards.length) {
+                      // Último elemento: tarjeta para agregar ejercicios
+                      return SizedBox(
+                        width: 320,
+                        child: _buildEmptySection(
+                          section.name,
+                          routine,
+                          section,
+                        ),
                       );
-                    }).toList(),
+                    }
+                    return SizedBox(width: 320, child: exerciseCards[index]);
+                  },
+                ),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -337,7 +360,11 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     );
   }
 
-  Widget _buildEmptySection(String sectionName) {
+  Widget _buildEmptySection(
+    String sectionName,
+    Routine routine,
+    RoutineSection section,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -354,35 +381,50 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       ),
       child: InkWell(
         onTap: () {
-          // Navigate to exercise selection
+          // Navigate to exercise selection with context
+          context.push(
+            '/exercise-selection?routineId=${routine.id}&sectionId=${section.id}&title=Agregar Ejercicios&subtitle=$sectionName',
+          );
         },
         borderRadius: BorderRadius.circular(12),
-        child: Column(
-          children: [
-            Icon(
-              Icons.add_circle_outline,
-              size: 48,
-              color: colorScheme.onSurfaceVariant,
+        child: SizedBox(
+          height: 220,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  size: 48,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Agregar ejercicios a $sectionName',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Toca para agregar ejercicios a esta sección',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Agregar ejercicios a $sectionName',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Toca para agregar ejercicios a esta sección',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
+
+  // Tile persistente eliminado según la nueva UX de carrusel + tarjeta vacía
 
   Widget _buildErrorState(String error) {
     final theme = Theme.of(context);

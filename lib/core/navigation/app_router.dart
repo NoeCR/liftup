@@ -6,11 +6,13 @@ import '../../features/home/pages/routine_list_page.dart';
 import '../../features/exercise/pages/exercise_detail_page.dart';
 import '../../features/exercise/pages/exercise_list_page.dart';
 import '../../features/exercise/pages/exercise_selection_page.dart';
+import '../../features/exercise/pages/exercise_form_page.dart';
 import '../../features/sessions/pages/session_page.dart';
 import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 import '../../features/home/pages/section_templates_page.dart';
 import '../../features/home/notifiers/routine_notifier.dart';
+import '../../features/exercise/notifiers/exercise_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppRouter {
@@ -20,6 +22,8 @@ class AppRouter {
   static const String exerciseList = '/exercises';
   static const String exerciseSelection = '/exercise-selection';
   static const String exerciseDetail = '/exercise/:id';
+  static const String exerciseCreate = '/exercise/create';
+  static const String exerciseEdit = '/exercise/edit/:id';
   static const String session = '/session';
   static const String statistics = '/statistics';
   static const String settings = '/settings';
@@ -112,6 +116,69 @@ class AppRouter {
             sectionId: sectionId,
             title: title,
             subtitle: subtitle,
+          );
+        },
+      ),
+      // IMPORTANT: Specific routes must come BEFORE the generic '/exercise/:id'
+      GoRoute(
+        path: exerciseCreate,
+        name: 'exerciseCreate',
+        builder: (context, state) {
+          final routineId = state.uri.queryParameters['routineId'];
+          final sectionId = state.uri.queryParameters['sectionId'];
+          final returnTo = state.uri.queryParameters['returnTo'];
+
+          return ExerciseFormPage(
+            routineId: routineId,
+            sectionId: sectionId,
+            returnTo: returnTo,
+          );
+        },
+      ),
+      GoRoute(
+        path: exerciseEdit,
+        name: 'exerciseEdit',
+        builder: (context, state) {
+          final exerciseId = state.pathParameters['id']!;
+          return Consumer(
+            builder: (context, ref, child) {
+              final exerciseAsync = ref.watch(exerciseNotifierProvider);
+              return exerciseAsync.when(
+                data: (exercises) {
+                  final exercise = exercises.firstWhere(
+                    (e) => e.id == exerciseId,
+                    orElse: () => throw Exception('Ejercicio no encontrado'),
+                  );
+                  return ExerciseFormPage(exerciseToEdit: exercise);
+                },
+                loading:
+                    () => const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    ),
+                error:
+                    (error, stack) => Scaffold(
+                      body: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: Colors.red,
+                            ),
+                            const SizedBox(height: 16),
+                            Text('Error: $error'),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () => context.go(exerciseList),
+                              child: const Text('Volver a ejercicios'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+              );
+            },
           );
         },
       ),

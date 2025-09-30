@@ -38,13 +38,16 @@ class SectionHeader extends StatelessWidget {
               children: [
                 if (iconName != null || muscleGroup != null) ...[
                   Icon(
-                    _getIconData(iconName ?? muscleGroup?.iconName ?? 'fitness_center'),
+                    _getIconData(
+                      iconName ?? muscleGroup?.iconName ?? 'fitness_center',
+                    ),
                     color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
                 ],
-                Expanded(
+                Flexible(
+                  fit: FlexFit.loose,
                   child: Text(
                     title,
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -84,7 +87,7 @@ class SectionHeader extends StatelessWidget {
         return Icons.air;
       case 'thermostat':
         return Icons.thermostat;
-      
+
       // Pecho y Torso
       case 'fitness_center':
         return Icons.fitness_center;
@@ -124,21 +127,21 @@ class SectionHeader extends StatelessWidget {
         return Icons.sports_bar;
       case 'sports_cafe':
         return Icons.local_cafe;
-      
+
       // Brazos
       case 'sports_basketball':
         return Icons.sports_basketball;
-      
+
       // Piernas
       case 'directions_run':
         return Icons.directions_run;
       case 'sports_soccer':
         return Icons.sports_soccer;
-      
+
       // Cardio
       case 'pool':
         return Icons.pool;
-      
+
       default:
         return Icons.fitness_center;
     }
