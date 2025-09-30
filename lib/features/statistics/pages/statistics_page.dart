@@ -202,12 +202,12 @@ class StatisticsPage extends ConsumerWidget {
 
   Future<void> _loadMockData(WidgetRef ref) async {
     final mockSessions = SessionMockGenerator.generateLast4WeeksSessions();
-    
+
     // Cargar sesiones mock
     for (final session in mockSessions) {
       await ref.read(sessionServiceProvider).saveSession(session);
     }
-    
+
     // Refrescar providers
     ref.invalidate(sessionNotifierProvider);
   }
@@ -378,7 +378,7 @@ class _ExerciseProgressChartState
           height: 220,
           child: sessionsAsync.when(
             data: (sessions) {
-              // Filtrar por fechas
+              // Filtrar por fechas y ordenar cronológicamente
               final filtered =
                   sessions.where((s) {
                     if (_from != null && s.startTime.isBefore(_from!))
@@ -392,7 +392,8 @@ class _ExerciseProgressChartState
                       );
                     }
                     return true;
-                  }).toList();
+                  }).toList()
+                    ..sort((a, b) => a.startTime.compareTo(b.startTime));
               if (filtered.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
               }
