@@ -50,10 +50,6 @@ class StatisticsPage extends ConsumerWidget {
                           const SizedBox(height: 12),
                           _ExerciseProgressChart(),
                           const SizedBox(height: 24),
-                          _SectionTitle('Evolución de sesiones (duración)'),
-                          const SizedBox(height: 12),
-                          _SessionsDurationChart(),
-                          const SizedBox(height: 24),
                           _SectionTitle(
                             'Comparación por rutina (sets totales)',
                           ),
@@ -208,54 +204,6 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
-class _SessionsDurationChart extends ConsumerWidget {
-  const _SessionsDurationChart();
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final sessionsAsync = ref.watch(sessionNotifierProvider);
-    return SizedBox(
-      height: 220,
-      child: sessionsAsync.when(
-        data: (sessions) {
-          final completed =
-              sessions.where((s) => s.endTime != null).toList()
-                ..sort((a, b) => a.startTime.compareTo(b.startTime));
-          if (completed.isEmpty) {
-            return const Center(child: Text('Sin datos'));
-          }
-          final spots = <FlSpot>[];
-          for (var i = 0; i < completed.length; i++) {
-            final d = completed[i].duration?.inMinutes.toDouble() ?? 0;
-            spots.add(FlSpot(i.toDouble(), d));
-          }
-          return LineChart(
-            LineChartData(
-              borderData: FlBorderData(show: false),
-              titlesData: const FlTitlesData(show: false),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: spots,
-                  isCurved: true,
-                  color: Theme.of(context).colorScheme.primary,
-                  dotData: const FlDotData(show: false),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.2),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-      ),
-    );
-  }
-}
-
 class _RoutineComparisonChart extends ConsumerWidget {
   const _RoutineComparisonChart();
   @override
@@ -307,10 +255,12 @@ class _RoutineComparisonChart extends ConsumerWidget {
 class _ExerciseProgressChart extends ConsumerStatefulWidget {
   const _ExerciseProgressChart();
   @override
-  ConsumerState<_ExerciseProgressChart> createState() => _ExerciseProgressChartState();
+  ConsumerState<_ExerciseProgressChart> createState() =>
+      _ExerciseProgressChartState();
 }
 
-class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> {
+class _ExerciseProgressChartState
+    extends ConsumerState<_ExerciseProgressChart> {
   static const String allExercisesId = '__all__';
   String? _selectedExerciseId;
   DateTime? _from;
@@ -339,10 +289,19 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
           value: _selectedExerciseId,
           decoration: const InputDecoration(labelText: 'Ejercicio'),
           items: exercisesAsync.when(
-            data: (exercises) => [
-              const DropdownMenuItem(value: allExercisesId, child: Text('Todos')),
-              ...exercises.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
-            ],
+            data:
+                (exercises) => [
+                  const DropdownMenuItem(
+                    value: allExercisesId,
+                    child: Text('Todos'),
+                  ),
+                  ...exercises
+                      .map(
+                        (e) =>
+                            DropdownMenuItem(value: e.id, child: Text(e.name)),
+                      )
+                      .toList(),
+                ],
             loading: () => const [],
             error: (_, __) => const [],
           ),
@@ -357,14 +316,20 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                 onPressed: () async {
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: _from ?? DateTime.now().subtract(const Duration(days: 30)),
+                    initialDate:
+                        _from ??
+                        DateTime.now().subtract(const Duration(days: 30)),
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),
                   );
                   if (picked != null) setState(() => _from = picked);
                 },
                 icon: const Icon(Icons.calendar_today),
-                label: Text(_from == null ? 'Desde' : '${_from!.day}/${_from!.month}/${_from!.year}'),
+                label: Text(
+                  _from == null
+                      ? 'Desde'
+                      : '${_from!.day}/${_from!.month}/${_from!.year}',
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -380,7 +345,11 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                   if (picked != null) setState(() => _to = picked);
                 },
                 icon: const Icon(Icons.calendar_today),
-                label: Text(_to == null ? 'Hasta' : '${_to!.day}/${_to!.month}/${_to!.year}'),
+                label: Text(
+                  _to == null
+                      ? 'Hasta'
+                      : '${_to!.day}/${_to!.month}/${_to!.year}',
+                ),
               ),
             ),
           ],
@@ -392,15 +361,20 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
           child: sessionsAsync.when(
             data: (sessions) {
               // Filtrar por fechas
-              final filtered = sessions.where((s) {
-                if (_from != null && s.startTime.isBefore(_from!)) return false;
-                if (_to != null && s.startTime.isAfter(_to!)) return false;
-                // Si se selecciona ejercicio específico, exige que la sesión lo tenga
-                if (_selectedExerciseId != null && _selectedExerciseId != allExercisesId) {
-                  return s.exerciseSets.any((set) => set.exerciseId == _selectedExerciseId);
-                }
-                return true;
-              }).toList();
+              final filtered =
+                  sessions.where((s) {
+                    if (_from != null && s.startTime.isBefore(_from!))
+                      return false;
+                    if (_to != null && s.startTime.isAfter(_to!)) return false;
+                    // Si se selecciona ejercicio específico, exige que la sesión lo tenga
+                    if (_selectedExerciseId != null &&
+                        _selectedExerciseId != allExercisesId) {
+                      return s.exerciseSets.any(
+                        (set) => set.exerciseId == _selectedExerciseId,
+                      );
+                    }
+                    return true;
+                  }).toList();
               if (filtered.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
               }
@@ -408,11 +382,19 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
               final spots = <FlSpot>[];
               for (var i = 0; i < filtered.length; i++) {
                 final s = filtered[i];
-                final sets = (_selectedExerciseId == allExercisesId)
-                    ? s.exerciseSets
-                    : s.exerciseSets.where((set) => set.exerciseId == _selectedExerciseId).toList();
+                final sets =
+                    (_selectedExerciseId == allExercisesId)
+                        ? s.exerciseSets
+                        : s.exerciseSets
+                            .where(
+                              (set) => set.exerciseId == _selectedExerciseId,
+                            )
+                            .toList();
                 if (sets.isEmpty) continue;
-                final total = sets.fold<double>(0, (a, b) => a + (b.reps * b.weight));
+                final total = sets.fold<double>(
+                  0,
+                  (a, b) => a + (b.reps * b.weight),
+                );
                 final avg = total / sets.length;
                 spots.add(FlSpot(i.toDouble(), avg));
               }
