@@ -496,19 +496,11 @@ class _ExerciseProgressChartState
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
-                      curveSmoothness: 0.3, // Más suave
+                      curveSmoothness: 0.1, // Menos suave para evitar picos artificiales
                       color: theme.colorScheme.primary,
                       barWidth: 3,
                       dotData: FlDotData(
-                        show: true,
-                        getDotPainter: (spot, percent, barData, index) {
-                          return FlDotCirclePainter(
-                            radius: 3,
-                            color: theme.colorScheme.primary,
-                            strokeWidth: 2,
-                            strokeColor: theme.colorScheme.surface,
-                          );
-                        },
+                        show: false, // Ocultar puntos para aspecto más limpio
                       ),
                       belowBarData: BarAreaData(
                         show: true,
