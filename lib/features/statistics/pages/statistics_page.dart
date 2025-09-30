@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:math';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
@@ -399,7 +400,7 @@ class _ExerciseProgressChartState
                 return const Center(child: Text('Sin datos en el rango'));
               }
               // Calcular media ponderada (reps * peso) por sesión
-              final spots = <FlSpot>[];
+              final rawSpots = <FlSpot>[];
               for (var i = 0; i < filtered.length; i++) {
                 final s = filtered[i];
                 final sets =
@@ -416,8 +417,11 @@ class _ExerciseProgressChartState
                   (a, b) => a + (b.reps * b.weight),
                 );
                 final avg = total / sets.length;
-                spots.add(FlSpot(i.toDouble(), avg));
+                rawSpots.add(FlSpot(i.toDouble(), avg));
               }
+              
+              // Aplicar suavizado personalizado
+              final spots = _smoothLine(rawSpots);
               if (spots.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
               }
@@ -495,8 +499,7 @@ class _ExerciseProgressChartState
                   lineBarsData: [
                     LineChartBarData(
                       spots: spots,
-                      isCurved: true,
-                      curveSmoothness: 0.1, // Menos suave para evitar picos artificiales
+                      isCurved: false, // Desactivar curva nativa, usar nuestro suavizado
                       color: theme.colorScheme.primary,
                       barWidth: 3,
                       dotData: FlDotData(
@@ -537,5 +540,61 @@ class _ExerciseProgressChartState
     if (yRange <= 200) return 50.0;
     if (yRange <= 500) return 100.0;
     return (yRange / 5).ceilToDouble();
+  }
+
+  /// Algoritmo de suavizado personalizado usando interpolación cúbica
+  List<FlSpot> _smoothLine(List<FlSpot> rawSpots) {
+    if (rawSpots.length < 3) return rawSpots;
+    
+    final smoothedSpots = <FlSpot>[];
+    final interpolationFactor = 3; // Generar 3 puntos entre cada par de puntos originales
+    
+    for (int i = 0; i < rawSpots.length - 1; i++) {
+      final current = rawSpots[i];
+      final next = rawSpots[i + 1];
+      
+      // Añadir punto original
+      smoothedSpots.add(current);
+      
+      // Interpolación cúbica entre puntos
+      for (int j = 1; j < interpolationFactor; j++) {
+        final t = j / interpolationFactor;
+        final x = current.x + (next.x - current.x) * t;
+        
+        // Suavizado usando función seno para aspecto más natural
+        final y = _cubicInterpolation(
+          current.y,
+          next.y,
+          i > 0 ? rawSpots[i - 1].y : current.y,
+          i < rawSpots.length - 2 ? rawSpots[i + 2].y : next.y,
+          t,
+        );
+        
+        smoothedSpots.add(FlSpot(x, y));
+      }
+    }
+    
+    // Añadir último punto
+    smoothedSpots.add(rawSpots.last);
+    
+    return smoothedSpots;
+  }
+
+  /// Interpolación cúbica con suavizado senocoidal
+  double _cubicInterpolation(double y0, double y1, double yMinus1, double y2, double t) {
+    // Aplicar suavizado senocoidal para transiciones más naturales
+    final smoothT = (1 - cos(t * pi)) / 2;
+    
+    // Interpolación cúbica de Hermite
+    final h00 = 2 * smoothT * smoothT * smoothT - 3 * smoothT * smoothT + 1;
+    final h10 = smoothT * smoothT * smoothT - 2 * smoothT * smoothT + smoothT;
+    final h01 = -2 * smoothT * smoothT * smoothT + 3 * smoothT * smoothT;
+    final h11 = smoothT * smoothT * smoothT - smoothT * smoothT;
+    
+    // Calcular tangentes
+    final m0 = (y1 - yMinus1) / 2;
+    final m1 = (y2 - y0) / 2;
+    
+    return h00 * y0 + h10 * m0 + h01 * y1 + h11 * m1;
   }
 }
