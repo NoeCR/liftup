@@ -59,12 +59,12 @@ class SessionService extends _$SessionService {
   }
 
   Future<void> deleteSession(String id) async {
-    final box = await _box;
+    final box = _box;
     await box.delete(id);
   }
 
   Future<int> getSessionCount() async {
-    final box = await _box;
+    final box = _box;
     return box.length;
   }
 

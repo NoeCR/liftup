@@ -194,7 +194,6 @@ class ExerciseDetailPage extends ConsumerWidget {
   }
 
   Widget _buildAddVideoCta(BuildContext context, Exercise exercise) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

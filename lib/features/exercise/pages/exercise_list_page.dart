@@ -241,24 +241,85 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Determinar el contexto del estado vacío
+    final bool isSearching = _searchController.text.isNotEmpty;
+    final bool isFiltering = _selectedCategory != null;
+
+    String title;
+    String subtitle;
+    IconData icon;
+    List<Widget> actions = [];
+
+    if (isSearching) {
+      title = 'No se encontraron ejercicios';
+      subtitle = 'Intenta con otros términos de búsqueda';
+      icon = Icons.search_off;
+    } else if (isFiltering) {
+      title = 'No hay ejercicios en esta categoría';
+      subtitle =
+          'No se encontraron ejercicios para ${_getCategoryName(_selectedCategory!)}';
+      icon = Icons.category_outlined;
+      actions = [
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: () => context.push('/exercise/create'),
+          icon: const Icon(Icons.add),
+          label: const Text('Agregar Ejercicio'),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _selectedCategory = null;
+            });
+          },
+          child: const Text('Ver todos los ejercicios'),
+        ),
+      ];
+    } else {
+      title = 'No tienes ejercicios aún';
+      subtitle = 'Comienza agregando tu primer ejercicio';
+      icon = Icons.fitness_center_outlined;
+      actions = [
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: () => context.push('/exercise/create'),
+          icon: const Icon(Icons.add),
+          label: const Text('Crear Primer Ejercicio'),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => _showQuickAddDialog(context),
+          icon: const Icon(Icons.flash_on),
+          label: const Text('Agregar Rápido'),
+        ),
+      ];
+    }
+
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.search_off, size: 64, color: colorScheme.onSurfaceVariant),
-          const SizedBox(height: 16),
-          Text(
-            'No se encontraron ejercicios',
-            style: theme.textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Intenta con otros términos de búsqueda',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 64, color: colorScheme.onSurfaceVariant),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            ...actions,
+          ],
+        ),
       ),
     );
   }

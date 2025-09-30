@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/database/database_service.dart';
+import '../notifiers/rest_prefs.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../../home/notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 
@@ -68,6 +70,90 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
           ]),
           const SizedBox(height: 24),
+          _buildSettingsSection(context, 'Entrenamiento', [
+            SwitchListTile(
+              value: ref.watch(restSoundEnabledProvider),
+              onChanged:
+                  (v) => ref.read(restSoundEnabledProvider.notifier).state = v,
+              title: const Text('Sonido al finalizar descanso'),
+              subtitle: const Text(
+                'Reproducir aviso sonoro al terminar el contador',
+              ),
+              secondary: const Icon(Icons.volume_up),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  const Icon(Icons.music_note),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: DropdownButtonFormField<RestSoundType>(
+                      value: ref.watch(restSoundTypeProvider),
+                      decoration: const InputDecoration(
+                        labelText: 'Tipo de sonido',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: RestSoundType.notification,
+                          child: Text('Notificación'),
+                        ),
+                        DropdownMenuItem(
+                          value: RestSoundType.alarm,
+                          child: Text('Alarma (mayor prioridad)'),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) {
+                          ref.read(restSoundTypeProvider.notifier).state = v;
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SwitchListTile(
+              value: ref.watch(restVibrationEnabledProvider),
+              onChanged:
+                  (v) =>
+                      ref.read(restVibrationEnabledProvider.notifier).state = v,
+              title: const Text('Vibración al finalizar descanso'),
+              subtitle: const Text('Activar vibración al terminar el contador'),
+              secondary: const Icon(Icons.vibration),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    final soundEnabled = ref.read(restSoundEnabledProvider);
+                    if (!soundEnabled) return;
+                    final soundType = ref.read(restSoundTypeProvider);
+                    final androidSound =
+                        soundType == RestSoundType.alarm
+                            ? AndroidSounds.alarm
+                            : AndroidSounds.notification;
+                    final iosSound =
+                        soundType == RestSoundType.alarm
+                            ? IosSounds.alarm
+                            : IosSounds.triTone;
+                    FlutterRingtonePlayer().play(
+                      android: androidSound,
+                      ios: iosSound,
+                      looping: false,
+                      volume: 1.0,
+                      asAlarm: soundType == RestSoundType.alarm,
+                    );
+                  },
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('Probar sonido de descanso'),
+                ),
+              ),
+            ),
+          ]),
           _buildSettingsSection(context, 'Datos', [
             _buildSettingsTile(
               context,
