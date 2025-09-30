@@ -381,18 +381,19 @@ class _ExerciseProgressChartState
               // Filtrar por fechas y ordenar cronológicamente
               final filtered =
                   sessions.where((s) {
-                    if (_from != null && s.startTime.isBefore(_from!))
-                      return false;
-                    if (_to != null && s.startTime.isAfter(_to!)) return false;
-                    // Si se selecciona ejercicio específico, exige que la sesión lo tenga
-                    if (_selectedExerciseId != null &&
-                        _selectedExerciseId != allExercisesId) {
-                      return s.exerciseSets.any(
-                        (set) => set.exerciseId == _selectedExerciseId,
-                      );
-                    }
-                    return true;
-                  }).toList()
+                      if (_from != null && s.startTime.isBefore(_from!))
+                        return false;
+                      if (_to != null && s.startTime.isAfter(_to!))
+                        return false;
+                      // Si se selecciona ejercicio específico, exige que la sesión lo tenga
+                      if (_selectedExerciseId != null &&
+                          _selectedExerciseId != allExercisesId) {
+                        return s.exerciseSets.any(
+                          (set) => set.exerciseId == _selectedExerciseId,
+                        );
+                      }
+                      return true;
+                    }).toList()
                     ..sort((a, b) => a.startTime.compareTo(b.startTime));
               if (filtered.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
@@ -420,18 +421,41 @@ class _ExerciseProgressChartState
               if (spots.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
               }
+              // Calcular rango Y para evitar que se salga del marco
+              final yValues = spots.map((spot) => spot.y).toList();
+              final minY = yValues.reduce((a, b) => a < b ? a : b);
+              final maxY = yValues.reduce((a, b) => a > b ? a : b);
+              final yRange = maxY - minY;
+              final yPadding = yRange * 0.1; // 10% de padding
+              final yMin = (minY - yPadding).clamp(0, double.infinity);
+              final yMax = maxY + yPadding;
+
               return LineChart(
                 LineChartData(
                   borderData: FlBorderData(show: true),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: _calculateYInterval(yMax - yMin),
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: theme.colorScheme.outline.withOpacity(0.2),
+                        strokeWidth: 1,
+                      );
+                    },
+                  ),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 40,
+                        reservedSize: 50,
+                        interval: _calculateYInterval(yMax - yMin),
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toInt().toString(),
-                            style: theme.textTheme.bodySmall,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 10,
+                            ),
                           );
                         },
                       ),
@@ -450,7 +474,9 @@ class _ExerciseProgressChartState
                               angle: -0.5, // Rotación de ~30 grados
                               child: Text(
                                 '${date.day}/${date.month}',
-                                style: theme.textTheme.bodySmall,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             );
@@ -470,14 +496,28 @@ class _ExerciseProgressChartState
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
+                      curveSmoothness: 0.3, // Más suave
                       color: theme.colorScheme.primary,
-                      dotData: const FlDotData(show: false),
+                      barWidth: 3,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 3,
+                            color: theme.colorScheme.primary,
+                            strokeWidth: 2,
+                            strokeColor: theme.colorScheme.surface,
+                          );
+                        },
+                      ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: theme.colorScheme.primary.withOpacity(0.2),
+                        color: theme.colorScheme.primary.withOpacity(0.1),
                       ),
                     ),
                   ],
+                  minY: yMin.toDouble(),
+                  maxY: yMax.toDouble(),
                 ),
               );
             },
@@ -496,5 +536,14 @@ class _ExerciseProgressChartState
     if (totalSessions <= 21) return 3.0; // Cada 3 días
     if (totalSessions <= 28) return 4.0; // Cada 4 días
     return (totalSessions / 7).ceilToDouble(); // Máximo 7 etiquetas
+  }
+
+  /// Calcula el intervalo óptimo para el eje Y
+  double _calculateYInterval(double yRange) {
+    if (yRange <= 50) return 10.0;
+    if (yRange <= 100) return 20.0;
+    if (yRange <= 200) return 50.0;
+    if (yRange <= 500) return 100.0;
+    return (yRange / 5).ceilToDouble();
   }
 }
