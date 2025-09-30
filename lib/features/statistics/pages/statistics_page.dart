@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 import '../../exercise/models/exercise_set.dart';
 import '../../sessions/models/workout_session.dart';
 import '../../sessions/services/session_service.dart';
+import 'package:liftup/common/mocks/session_mock_generator.dart';
 
 class StatisticsPage extends ConsumerWidget {
   const StatisticsPage({super.key});
@@ -28,6 +29,11 @@ class StatisticsPage extends ConsumerWidget {
             tooltip: 'Cargar datos de muestra',
             onPressed: () => _showSeedDialog(context, ref),
             icon: const Icon(Icons.dataset),
+          ),
+          IconButton(
+            tooltip: 'Cargar datos mock (4 semanas)',
+            onPressed: () => _loadMockData(ref),
+            icon: const Icon(Icons.analytics),
           ),
         ],
       ),
@@ -192,6 +198,18 @@ class StatisticsPage extends ConsumerWidget {
     // Refrescar providers
     ref.invalidate(sessionNotifierProvider);
     ref.invalidate(routineNotifierProvider);
+  }
+
+  Future<void> _loadMockData(WidgetRef ref) async {
+    final mockSessions = SessionMockGenerator.generateLast4WeeksSessions();
+    
+    // Cargar sesiones mock
+    for (final session in mockSessions) {
+      await ref.read(sessionServiceProvider).saveSession(session);
+    }
+    
+    // Refrescar providers
+    ref.invalidate(sessionNotifierProvider);
   }
 }
 
@@ -420,22 +438,32 @@ class _ExerciseProgressChartState
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 30,
+                        reservedSize: 40,
+                        interval: _calculateDateInterval(filtered.length),
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= 0 && value.toInt() < filtered.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < filtered.length) {
                             final session = filtered[value.toInt()];
                             final date = session.startTime;
-                            return Text(
-                              '${date.day}/${date.month}',
-                              style: theme.textTheme.bodySmall,
+                            return Transform.rotate(
+                              angle: -0.5, // Rotación de ~30 grados
+                              child: Text(
+                                '${date.day}/${date.month}',
+                                style: theme.textTheme.bodySmall,
+                                textAlign: TextAlign.center,
+                              ),
                             );
                           }
                           return const Text('');
                         },
                       ),
                     ),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   lineBarsData: [
                     LineChartBarData(
@@ -458,5 +486,14 @@ class _ExerciseProgressChartState
         ),
       ],
     );
+  }
+
+  /// Calcula el intervalo óptimo para mostrar fechas sin solapamiento
+  double _calculateDateInterval(int totalSessions) {
+    if (totalSessions <= 7) return 1.0; // Mostrar todas si son pocas
+    if (totalSessions <= 14) return 2.0; // Cada 2 días
+    if (totalSessions <= 21) return 3.0; // Cada 3 días
+    if (totalSessions <= 28) return 4.0; // Cada 4 días
+    return (totalSessions / 7).ceilToDouble(); // Máximo 7 etiquetas
   }
 }
