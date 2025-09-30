@@ -90,43 +90,25 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 return _buildNoActiveSession();
               }
 
-              // Si está activo y no hay ticker, arrancar desde base persistente o resume
+              // Si está activo y no hay ticker, calcular base limpia y arrancar
               if (_ticker == null &&
                   activeSession.status == SessionStatus.active &&
                   !_isManuallyPaused) {
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                final pausedElapsed =
-                    notifier.getPausedElapsedSeconds(activeSession.id) ??
-                    SessionNotifier.readPausedFromNotes(activeSession.notes);
-                final lastResumeAt =
-                    notifier.getLastResumeAt(activeSession.id) ??
-                    SessionNotifier.readResumeAtFromNotes(activeSession.notes);
-                int base;
-                if (pausedElapsed != null && lastResumeAt != null) {
-                  // Continuar desde el tiempo pausado + delta desde reanudación
-                  base =
-                      pausedElapsed +
-                      DateTime.now().difference(lastResumeAt).inSeconds;
-                } else {
-                  base =
-                      DateTime.now()
-                          .difference(activeSession.startTime)
-                          .inSeconds;
-                }
-                _elapsedSeconds = base < 0 ? 0 : base;
+                _elapsedSeconds = notifier.calculateElapsedForUI(
+                  activeSession,
+                  now: DateTime.now(),
+                );
                 _startTicker();
               }
               // Si está pausado, detener el ticker y conservar _elapsedSeconds mostrado
               if (activeSession.status == SessionStatus.paused) {
                 _stopTicker();
-                final pausedElapsed =
-                    ref
-                        .read(sessionNotifierProvider.notifier)
-                        .getPausedElapsedSeconds(activeSession.id) ??
-                    SessionNotifier.readPausedFromNotes(activeSession.notes);
-                if (pausedElapsed != null) {
-                  _elapsedSeconds = pausedElapsed;
-                }
+                final notifier = ref.read(sessionNotifierProvider.notifier);
+                _elapsedSeconds = notifier.calculateElapsedForUI(
+                  activeSession,
+                  now: DateTime.now(),
+                );
               }
 
               return _buildActiveSession(activeSession);
@@ -212,21 +194,14 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 } else {
                   // Reanudar inmediatamente
                   _isManuallyPaused = false;
-                  // Recalcular base y arrancar ticker ya
                   await ref
                       .read(sessionNotifierProvider.notifier)
                       .resumeSession();
-                  // Base desde pausa + delta
                   final notifier = ref.read(sessionNotifierProvider.notifier);
-                  final pausedElapsed =
-                      notifier.getPausedElapsedSeconds(session.id) ??
-                      _elapsedSeconds;
-                  final lastResumeAt =
-                      notifier.getLastResumeAt(session.id) ?? DateTime.now();
-                  _elapsedSeconds =
-                      pausedElapsed +
-                      DateTime.now().difference(lastResumeAt).inSeconds;
-                  if (_elapsedSeconds < 0) _elapsedSeconds = 0;
+                  _elapsedSeconds = notifier.calculateElapsedForUI(
+                    session,
+                    now: DateTime.now(),
+                  );
                   _startTicker();
                   ref.invalidate(sessionNotifierProvider);
                 }

@@ -248,4 +248,37 @@ class SessionNotifier extends _$SessionNotifier {
     }
     return null;
   }
+
+  /// Devuelve el tiempo pausado consolidado tomando memoria o notes
+  int? resolvePausedElapsed(WorkoutSession session) {
+    return _pausedElapsedBySession[session.id] ??
+        readPausedFromNotes(session.notes);
+  }
+
+  /// Devuelve el instante de última reanudación desde memoria o notes
+  DateTime? resolveLastResumeAt(WorkoutSession session) {
+    return _lastResumeAtBySession[session.id] ??
+        readResumeAtFromNotes(session.notes);
+  }
+
+  /// Calcula los segundos transcurridos que debe mostrar la UI
+  int calculateElapsedForUI(WorkoutSession session, {required DateTime now}) {
+    if (session.status == SessionStatus.paused) {
+      final paused = resolvePausedElapsed(session);
+      if (paused != null) return paused;
+      final base = now.difference(session.startTime).inSeconds;
+      return base < 0 ? 0 : base;
+    }
+
+    // Active
+    final paused = resolvePausedElapsed(session);
+    final resumeAt = resolveLastResumeAt(session);
+    int base;
+    if (paused != null && resumeAt != null) {
+      base = paused + now.difference(resumeAt).inSeconds;
+    } else {
+      base = now.difference(session.startTime).inSeconds;
+    }
+    return base < 0 ? 0 : base;
+  }
 }
