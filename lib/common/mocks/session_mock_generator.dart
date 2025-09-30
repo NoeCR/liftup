@@ -14,7 +14,7 @@ class SessionMockGenerator {
     final sessions = <WorkoutSession>[];
     final now = DateTime.now();
 
-    // Generar sesiones para los últimos 28 días (desde la más antigua)
+    // Generar 1 sesión por día para los últimos 28 días (desde la más antigua)
     for (int i = 27; i >= 0; i--) {
       final day = now.subtract(Duration(days: i));
 
@@ -23,6 +23,7 @@ class SessionMockGenerator {
         if (i % 3 == 0) continue; // Saltar algunos fines de semana
       }
 
+      // Generar solo 1 sesión por día
       final session = _generateSessionForDay(day, i);
       sessions.add(session);
     }
