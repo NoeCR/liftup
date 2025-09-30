@@ -403,8 +403,40 @@ class _ExerciseProgressChartState
               }
               return LineChart(
                 LineChartData(
-                  borderData: FlBorderData(show: false),
-                  titlesData: const FlTitlesData(show: false),
+                  borderData: FlBorderData(show: true),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: theme.textTheme.bodySmall,
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, meta) {
+                          if (value.toInt() >= 0 && value.toInt() < filtered.length) {
+                            final session = filtered[value.toInt()];
+                            final date = session.startTime;
+                            return Text(
+                              '${date.day}/${date.month}',
+                              style: theme.textTheme.bodySmall,
+                            );
+                          }
+                          return const Text('');
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
                   lineBarsData: [
                     LineChartBarData(
                       spots: spots,
