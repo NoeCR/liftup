@@ -8,10 +8,12 @@ class ExerciseCard extends StatelessWidget {
   final Exercise? exercise;
   final bool isCompleted;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final VoidCallback? onToggleCompleted;
   final Function(double)? onWeightChanged;
   final Function(int)? onRepsChanged;
   final int performedSets;
+  final bool showSetsControls;
 
   const ExerciseCard({
     super.key,
@@ -19,10 +21,12 @@ class ExerciseCard extends StatelessWidget {
     this.exercise,
     this.isCompleted = false,
     this.onTap,
+    this.onLongPress,
     this.onToggleCompleted,
     this.onWeightChanged,
     this.onRepsChanged,
     this.performedSets = 0,
+    this.showSetsControls = false,
   });
 
   @override
@@ -34,6 +38,7 @@ class ExerciseCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           decoration: BoxDecoration(
@@ -115,9 +120,11 @@ class ExerciseCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Center(child: _buildSetsCounter(context, colorScheme)),
-                const SizedBox(height: 8),
+                if (showSetsControls) ...[
+                  const SizedBox(height: 8),
+                  Center(child: _buildSetsCounter(context, colorScheme)),
+                  const SizedBox(height: 8),
+                ],
               ],
             ),
           ),

@@ -8,6 +8,8 @@ import '../../features/exercise/pages/exercise_list_page.dart';
 import '../../features/exercise/pages/exercise_selection_page.dart';
 import '../../features/exercise/pages/exercise_form_page.dart';
 import '../../features/sessions/pages/session_page.dart';
+import '../../features/sessions/pages/session_summary_page.dart';
+import '../../features/sessions/pages/session_history_page.dart';
 import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 import '../../features/home/pages/section_templates_page.dart';
@@ -25,6 +27,8 @@ class AppRouter {
   static const String exerciseCreate = '/exercise/create';
   static const String exerciseEdit = '/exercise/edit/:id';
   static const String session = '/session';
+  static const String sessionSummary = '/session-summary';
+  static const String sessionHistory = '/session-history';
   static const String statistics = '/statistics';
   static const String settings = '/settings';
   static const String sectionTemplates = '/section-templates';
@@ -194,6 +198,19 @@ class AppRouter {
         path: session,
         name: 'session',
         builder: (context, state) => const SessionPage(),
+      ),
+      GoRoute(
+        path: sessionSummary,
+        name: 'sessionSummary',
+        builder: (context, state) {
+          final sessionId = state.uri.queryParameters['sessionId'];
+          return SessionSummaryPage(sessionId: sessionId);
+        },
+      ),
+      GoRoute(
+        path: sessionHistory,
+        name: 'sessionHistory',
+        builder: (context, state) => const SessionHistoryPage(),
       ),
       GoRoute(
         path: statistics,
