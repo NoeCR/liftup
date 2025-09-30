@@ -62,6 +62,13 @@ class _SessionPageState extends ConsumerState<SessionPage> {
       appBar: AppBar(
         title: const Text('Sesión de Entrenamiento'),
         backgroundColor: colorScheme.surface,
+        actions: [
+          IconButton(
+            tooltip: 'Historial',
+            onPressed: () => context.push('/session-history'),
+            icon: const Icon(Icons.list_alt),
+          ),
+        ],
       ),
       body: Consumer(
         builder: (context, ref, child) {

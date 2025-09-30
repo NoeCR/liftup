@@ -9,7 +9,8 @@ import '../../exercise/models/exercise.dart';
 import '../../exercise/models/exercise_set.dart';
 
 class SessionSummaryPage extends ConsumerWidget {
-  const SessionSummaryPage({super.key});
+  final String? sessionId;
+  const SessionSummaryPage({super.key, this.sessionId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -17,13 +18,24 @@ class SessionSummaryPage extends ConsumerWidget {
 
     return sessionsAsync.when(
       data: (sessions) {
-        // Tomar la última sesión completada
-        final completed =
-            sessions.where((s) => s.status == SessionStatus.completed).toList()
-              ..sort(
-                (a, b) => b.endTime?.compareTo(a.endTime ?? DateTime(0)) ?? 0,
-              );
-        final session = completed.isNotEmpty ? completed.first : null;
+        // Escoger sesión específica si sessionId viene; si no, tomar la última completada
+        WorkoutSession? session;
+        if (sessionId != null) {
+          try {
+            session = sessions.firstWhere((s) => s.id == sessionId);
+          } catch (_) {
+            session = null;
+          }
+        }
+        session ??= (() {
+          final completed = sessions
+              .where((s) => s.status == SessionStatus.completed)
+              .toList()
+            ..sort(
+              (a, b) => b.endTime?.compareTo(a.endTime ?? DateTime(0)) ?? 0,
+            );
+          return completed.isNotEmpty ? completed.first : null;
+        })();
 
         return Scaffold(
           appBar: AppBar(title: const Text('Resumen de Sesión')),
@@ -32,8 +44,9 @@ class SessionSummaryPage extends ConsumerWidget {
                   ? const Center(child: Text('No hay sesión completada'))
                   : Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Consumer(
+                   child: Consumer(
                       builder: (context, ref, _) {
+                       final s = session!;
                         final routinesAsync = ref.watch(
                           routineNotifierProvider,
                         );
@@ -43,12 +56,12 @@ class SessionSummaryPage extends ConsumerWidget {
 
                         return routinesAsync.when(
                           data: (routines) {
-                            final routine =
-                                session.routineId == null
+                           final routine =
+                               s.routineId == null
                                     ? null
                                     : _findRoutine(
                                       routines,
-                                      session.routineId!,
+                                      s.routineId!,
                                     );
                             return exercisesAsync.when(
                               data: (exercises) {
@@ -59,13 +72,13 @@ class SessionSummaryPage extends ConsumerWidget {
                                 // Agrupar sets por ejercicio
                                 final setsByExercise =
                                     <String, List<ExerciseSet>>{};
-                                for (final s in session.exerciseSets) {
+                                for (final set in s.exerciseSets) {
                                   setsByExercise
                                       .putIfAbsent(
-                                        s.exerciseId,
-                                        () => <ExerciseSet>[],
+                                        set.exerciseId,
+                                        () => <ExerciseSet>[]
                                       )
-                                      .add(s);
+                                      .add(set);
                                 }
 
                                 // Construir breakdown por sección si hay rutina
@@ -82,7 +95,7 @@ class SessionSummaryPage extends ConsumerWidget {
                                     _SummaryTile(
                                       title: 'Fecha',
                                       value:
-                                          session.startTime
+                                          s.startTime
                                               .toLocal()
                                               .toString(),
                                     ),
@@ -90,19 +103,19 @@ class SessionSummaryPage extends ConsumerWidget {
                                     _SummaryTile(
                                       title: 'Duración',
                                       value: _formatDuration(
-                                        (session.endTime ?? DateTime.now())
-                                            .difference(session.startTime),
+                                        (s.endTime ?? DateTime.now())
+                                            .difference(s.startTime),
                                       ),
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
                                       title: 'Total reps',
-                                      value: '${session.totalReps ?? 0}',
+                                      value: '${s.totalReps ?? 0}',
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
                                       title: 'Peso total (kg)',
-                                      value: (session.totalWeight ?? 0)
+                                      value: (s.totalWeight ?? 0)
                                           .toStringAsFixed(1),
                                     ),
                                     const SizedBox(height: 16),
