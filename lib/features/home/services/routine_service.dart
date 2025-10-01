@@ -29,9 +29,20 @@ class RoutineService extends _$RoutineService {
 
   Future<List<Routine>> getAllRoutines() async {
     final box = _box;
-    final routines =
-        box.values.cast<Routine>().toList()
-          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final routines = box.values.cast<Routine>().toList();
+
+    // Ordenar por orden manual (order) y luego por fecha de creación como fallback
+    routines.sort((a, b) {
+      // Si ambas tienen order definido, usar order
+      if (a.order != null && b.order != null) {
+        return a.order!.compareTo(b.order!);
+      }
+      // Si solo una tiene order, la que tiene order va primero
+      if (a.order != null && b.order == null) return -1;
+      if (a.order == null && b.order != null) return 1;
+      // Si ninguna tiene order, usar fecha de creación (más antiguo primero)
+      return a.createdAt.compareTo(b.createdAt);
+    });
 
     return routines;
   }

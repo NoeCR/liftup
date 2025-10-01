@@ -53,6 +53,11 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         backgroundColor: colorScheme.surface,
         actions: [
           IconButton(
+            tooltip: 'Gestionar rutinas',
+            onPressed: () => _showRoutineManagement(context, ref),
+            icon: const Icon(Icons.reorder),
+          ),
+          IconButton(
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.settings),
             tooltip: 'Configuración',
@@ -625,5 +630,25 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         );
       }
     }
+  }
+
+  void _showRoutineManagement(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Gestionar Rutinas'),
+            content: const Text(
+              'Aquí podrás reordenar tus rutinas manualmente. '
+              'Por ahora, las rutinas mantienen su orden fijo y no se reordenan automáticamente al interactuar con ellas.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Entendido'),
+              ),
+            ],
+          ),
+    );
   }
 }
