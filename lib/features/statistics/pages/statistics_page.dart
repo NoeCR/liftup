@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:math';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
@@ -35,6 +34,11 @@ class StatisticsPage extends ConsumerWidget {
             tooltip: 'Cargar datos mock (4 semanas)',
             onPressed: () => _loadMockData(ref),
             icon: const Icon(Icons.analytics),
+          ),
+          IconButton(
+            tooltip: 'Cargar datos con saltos (prueba suavizado)',
+            onPressed: () => _loadJumpData(ref),
+            icon: const Icon(Icons.show_chart),
           ),
         ],
       ),
@@ -206,6 +210,18 @@ class StatisticsPage extends ConsumerWidget {
 
     // Cargar sesiones mock
     for (final session in mockSessions) {
+      await ref.read(sessionServiceProvider).saveSession(session);
+    }
+
+    // Refrescar providers
+    ref.invalidate(sessionNotifierProvider);
+  }
+
+  Future<void> _loadJumpData(WidgetRef ref) async {
+    final jumpSessions = SessionMockGenerator.generateSessionsWithJumps();
+
+    // Cargar sesiones con saltos bruscos
+    for (final session in jumpSessions) {
       await ref.read(sessionServiceProvider).saveSession(session);
     }
 
@@ -419,9 +435,9 @@ class _ExerciseProgressChartState
                 final avg = total / sets.length;
                 rawSpots.add(FlSpot(i.toDouble(), avg));
               }
-              
-              // Aplicar suavizado personalizado
-              final spots = _smoothLine(rawSpots);
+
+              // Aplicar algoritmo de suavizado mejorado
+              final spots = _applyAdvancedSmoothing(rawSpots, filtered);
               if (spots.isEmpty) {
                 return const Center(child: Text('Sin datos en el rango'));
               }
@@ -499,20 +515,49 @@ class _ExerciseProgressChartState
                   lineBarsData: [
                     LineChartBarData(
                       spots: spots,
-                      isCurved: false, // Desactivar curva nativa, usar nuestro suavizado
-                      color: theme.colorScheme.primary,
-                      barWidth: 3,
-                      dotData: FlDotData(
-                        show: false, // Ocultar puntos para aspecto más limpio
+                      isCurved: true, // Usar curva nativa de fl_chart
+                      curveSmoothness: 0.5, // Suavizado moderado
+                      // Sample2-style stroke
+                      barWidth: 4,
+                      isStrokeCapRound: true,
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary.withOpacity(0.9),
+                          theme.colorScheme.tertiary.withOpacity(0.9),
+                        ],
                       ),
+                      dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: theme.colorScheme.primary.withOpacity(0.1),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            theme.colorScheme.primary.withOpacity(0.25),
+                            theme.colorScheme.tertiary.withOpacity(0.05),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                   minY: yMin.toDouble(),
                   maxY: yMax.toDouble(),
+                  // Touch/tooltip similar to sample
+                  lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipItems:
+                          (touchedSpots) =>
+                              touchedSpots
+                                  .map(
+                                    (ts) => LineTooltipItem(
+                                      ts.y.toStringAsFixed(0),
+                                      theme.textTheme.labelMedium!,
+                                    ),
+                                  )
+                                  .toList(),
+                    ),
+                  ),
                 ),
               );
             },
@@ -542,59 +587,164 @@ class _ExerciseProgressChartState
     return (yRange / 5).ceilToDouble();
   }
 
-  /// Algoritmo de suavizado personalizado usando interpolación cúbica
-  List<FlSpot> _smoothLine(List<FlSpot> rawSpots) {
-    if (rawSpots.length < 3) return rawSpots;
-    
-    final smoothedSpots = <FlSpot>[];
-    final interpolationFactor = 3; // Generar 3 puntos entre cada par de puntos originales
-    
-    for (int i = 0; i < rawSpots.length - 1; i++) {
-      final current = rawSpots[i];
-      final next = rawSpots[i + 1];
-      
-      // Añadir punto original
-      smoothedSpots.add(current);
-      
-      // Interpolación cúbica entre puntos
-      for (int j = 1; j < interpolationFactor; j++) {
-        final t = j / interpolationFactor;
-        final x = current.x + (next.x - current.x) * t;
-        
-        // Suavizado usando función seno para aspecto más natural
-        final y = _cubicInterpolation(
-          current.y,
-          next.y,
-          i > 0 ? rawSpots[i - 1].y : current.y,
-          i < rawSpots.length - 2 ? rawSpots[i + 2].y : next.y,
-          t,
-        );
-        
-        smoothedSpots.add(FlSpot(x, y));
+  /// Aplica algoritmo de suavizado avanzado para eliminar saltos y valores vacíos
+  List<FlSpot> _applyAdvancedSmoothing(
+    List<FlSpot> rawSpots,
+    List<WorkoutSession> sessions,
+  ) {
+    if (rawSpots.isEmpty) return rawSpots;
+
+    // Paso 1: Interpolación lineal para llenar huecos temporales
+    final interpolatedSpots = _interpolateMissingValues(rawSpots, sessions);
+
+    // Paso 2: Aplicar media móvil para suavizar la curva
+    final smoothedSpots = _applyMovingAverage(interpolatedSpots);
+
+    // Paso 3: Ajuste final para eliminar saltos bruscos
+    final finalSpots = _removeSharpJumps(smoothedSpots);
+
+    return finalSpots;
+  }
+
+  /// Interpola valores faltantes entre sesiones usando interpolación lineal
+  List<FlSpot> _interpolateMissingValues(
+    List<FlSpot> rawSpots,
+    List<WorkoutSession> sessions,
+  ) {
+    if (rawSpots.length < 2) return rawSpots;
+
+    final interpolatedSpots = <FlSpot>[];
+    final maxDays = sessions.length;
+
+    // Crear mapa de valores por día
+    final valuesByDay = <int, double>{};
+    for (int i = 0; i < rawSpots.length; i++) {
+      valuesByDay[i] = rawSpots[i].y;
+    }
+
+    // Interpolar valores faltantes
+    for (int day = 0; day < maxDays; day++) {
+      if (valuesByDay.containsKey(day)) {
+        // Valor existente
+        interpolatedSpots.add(FlSpot(day.toDouble(), valuesByDay[day]!));
+      } else {
+        // Buscar valores anteriores y posteriores para interpolación
+        final prevDay = _findPreviousValue(day, valuesByDay);
+        final nextDay = _findNextValue(day, valuesByDay);
+
+        if (prevDay != null && nextDay != null) {
+          // Interpolación lineal entre valores existentes
+          final interpolatedValue = _linearInterpolation(
+            prevDay.day,
+            prevDay.value,
+            nextDay.day,
+            nextDay.value,
+            day,
+          );
+          interpolatedSpots.add(FlSpot(day.toDouble(), interpolatedValue));
+        } else if (prevDay != null) {
+          // Usar valor anterior si no hay siguiente
+          interpolatedSpots.add(FlSpot(day.toDouble(), prevDay.value));
+        } else if (nextDay != null) {
+          // Usar valor siguiente si no hay anterior
+          interpolatedSpots.add(FlSpot(day.toDouble(), nextDay.value));
+        }
+        // Si no hay valores anteriores ni posteriores, omitir el día
       }
     }
-    
-    // Añadir último punto
-    smoothedSpots.add(rawSpots.last);
-    
+
+    return interpolatedSpots;
+  }
+
+  /// Encuentra el valor anterior más cercano
+  _ValueAtDay? _findPreviousValue(int day, Map<int, double> valuesByDay) {
+    for (int i = day - 1; i >= 0; i--) {
+      if (valuesByDay.containsKey(i)) {
+        return _ValueAtDay(i, valuesByDay[i]!);
+      }
+    }
+    return null;
+  }
+
+  /// Encuentra el valor siguiente más cercano
+  _ValueAtDay? _findNextValue(int day, Map<int, double> valuesByDay) {
+    final maxDay = valuesByDay.keys.reduce((a, b) => a > b ? a : b);
+    for (int i = day + 1; i <= maxDay; i++) {
+      if (valuesByDay.containsKey(i)) {
+        return _ValueAtDay(i, valuesByDay[i]!);
+      }
+    }
+    return null;
+  }
+
+  /// Interpolación lineal entre dos puntos
+  double _linearInterpolation(int x1, double y1, int x2, double y2, int x) {
+    if (x2 == x1) return y1;
+    return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
+  }
+
+  /// Aplica media móvil para suavizar la curva
+  List<FlSpot> _applyMovingAverage(List<FlSpot> spots) {
+    if (spots.length < 3) return spots;
+
+    final smoothedSpots = <FlSpot>[];
+    const windowSize = 3; // Ventana de 3 puntos
+
+    for (int i = 0; i < spots.length; i++) {
+      double sum = 0;
+      int count = 0;
+
+      // Calcular media en la ventana
+      for (int j = i - windowSize ~/ 2; j <= i + windowSize ~/ 2; j++) {
+        if (j >= 0 && j < spots.length) {
+          sum += spots[j].y;
+          count++;
+        }
+      }
+
+      final average = sum / count;
+      smoothedSpots.add(FlSpot(spots[i].x, average));
+    }
+
     return smoothedSpots;
   }
 
-  /// Interpolación cúbica con suavizado senocoidal
-  double _cubicInterpolation(double y0, double y1, double yMinus1, double y2, double t) {
-    // Aplicar suavizado senocoidal para transiciones más naturales
-    final smoothT = (1 - cos(t * pi)) / 2;
-    
-    // Interpolación cúbica de Hermite
-    final h00 = 2 * smoothT * smoothT * smoothT - 3 * smoothT * smoothT + 1;
-    final h10 = smoothT * smoothT * smoothT - 2 * smoothT * smoothT + smoothT;
-    final h01 = -2 * smoothT * smoothT * smoothT + 3 * smoothT * smoothT;
-    final h11 = smoothT * smoothT * smoothT - smoothT * smoothT;
-    
-    // Calcular tangentes
-    final m0 = (y1 - yMinus1) / 2;
-    final m1 = (y2 - y0) / 2;
-    
-    return h00 * y0 + h10 * m0 + h01 * y1 + h11 * m1;
+  /// Elimina saltos bruscos aplicando un filtro de suavizado adicional
+  List<FlSpot> _removeSharpJumps(List<FlSpot> spots) {
+    if (spots.length < 2) return spots;
+
+    final filteredSpots = <FlSpot>[];
+    const maxJumpRatio = 0.3; // Máximo 30% de cambio entre puntos consecutivos
+
+    // Mantener el primer punto
+    filteredSpots.add(spots.first);
+
+    for (int i = 1; i < spots.length; i++) {
+      final current = spots[i];
+      final previous = filteredSpots.last;
+
+      // Calcular el cambio porcentual
+      final change = (current.y - previous.y).abs();
+      final changeRatio = previous.y > 0 ? change / previous.y : 0;
+
+      if (changeRatio > maxJumpRatio) {
+        // Suavizar el salto brusco
+        final smoothedY = previous.y + (current.y - previous.y) * maxJumpRatio;
+        filteredSpots.add(FlSpot(current.x, smoothedY));
+      } else {
+        // Mantener el valor original
+        filteredSpots.add(current);
+      }
+    }
+
+    return filteredSpots;
   }
+}
+
+/// Clase auxiliar para almacenar valor y día
+class _ValueAtDay {
+  final int day;
+  final double value;
+
+  _ValueAtDay(this.day, this.value);
 }

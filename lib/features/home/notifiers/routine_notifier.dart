@@ -29,9 +29,21 @@ class RoutineNotifier extends _$RoutineNotifier {
 
   Future<void> addRoutine(Routine routine) async {
     final routineService = ref.read(routineServiceProvider);
+
+    // Obtener el siguiente orden disponible
+    final currentRoutines = await routineService.getAllRoutines();
+    final nextOrder =
+        currentRoutines.isEmpty
+            ? 0
+            : (currentRoutines
+                    .map((r) => r.order ?? 0)
+                    .reduce((a, b) => a > b ? a : b) +
+                1);
+
     final newRoutine = routine.copyWith(
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
+      order: nextOrder,
     );
 
     await routineService.saveRoutine(newRoutine);
@@ -117,6 +129,39 @@ class RoutineNotifier extends _$RoutineNotifier {
   Future<void> _loadInitialRoutine() async {
     // No crear rutinas automáticamente - el usuario las creará manualmente
     // Esto permite mayor flexibilidad y personalización
+  }
+
+  /// Reordena las rutinas manualmente
+  Future<void> reorderRoutines(List<String> routineIds) async {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return;
+
+    final routineService = ref.read(routineServiceProvider);
+
+    // Actualizar el orden de cada rutina
+    for (int i = 0; i < routineIds.length; i++) {
+      final routineId = routineIds[i];
+      final routine = currentRoutines.firstWhere((r) => r.id == routineId);
+      final updatedRoutine = routine.copyWith(order: i);
+      await routineService.saveRoutine(updatedRoutine);
+    }
+
+    // Actualizar el estado
+    state = AsyncValue.data(await routineService.getAllRoutines());
+  }
+
+  /// Mueve una rutina a una posición específica
+  Future<void> moveRoutineToPosition(String routineId, int newPosition) async {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return;
+
+    // Crear nueva lista de IDs con la rutina movida
+    final routineIds = currentRoutines.map((r) => r.id).toList();
+    routineIds.remove(routineId);
+    routineIds.insert(newPosition, routineId);
+
+    // Reordenar todas las rutinas
+    await reorderRoutines(routineIds);
   }
 
   Future<void> addSectionsToRoutine(

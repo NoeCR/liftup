@@ -33,6 +33,9 @@ class Routine extends Equatable {
   @HiveField(7)
   final String? imageUrl;
 
+  @HiveField(8)
+  final int? order; // Orden manual para controlar la posición en la lista
+
   const Routine({
     required this.id,
     required this.name,
@@ -42,6 +45,7 @@ class Routine extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.imageUrl,
+    this.order,
   });
 
   factory Routine.fromJson(Map<String, dynamic> json) =>
@@ -57,6 +61,7 @@ class Routine extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? imageUrl,
+    int? order,
   }) {
     return Routine(
       id: id ?? this.id,
@@ -67,6 +72,7 @@ class Routine extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       imageUrl: imageUrl ?? this.imageUrl,
+      order: order ?? this.order,
     );
   }
 
@@ -80,6 +86,7 @@ class Routine extends Equatable {
     createdAt,
     updatedAt,
     imageUrl,
+    order,
   ];
 }
 
