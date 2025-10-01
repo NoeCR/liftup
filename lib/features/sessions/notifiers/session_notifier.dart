@@ -79,6 +79,49 @@ class SessionNotifier extends _$SessionNotifier {
     state = AsyncValue.data(await sessionService.getAllSessions());
   }
 
+  /// Elimina las últimas [count] series completadas de un ejercicio concreto en la sesión en curso
+  Future<void> removeLastSetsForExercise({
+    required String exerciseId,
+    required int count,
+  }) async {
+    if (count <= 0) return;
+    final currentSession = await getCurrentOngoingSession();
+    if (currentSession == null) return;
+
+    // Filtrar sets del ejercicio y ordenarlos por completedAt descendente
+    final setsForExercise =
+        currentSession.exerciseSets
+            .where((s) => s.exerciseId == exerciseId)
+            .toList()
+          ..sort((a, b) {
+            final at =
+                (a.completedAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+                    .millisecondsSinceEpoch;
+            final bt =
+                (b.completedAt ?? DateTime.fromMillisecondsSinceEpoch(0))
+                    .millisecondsSinceEpoch;
+            return bt.compareTo(at);
+          });
+
+    final toRemove = setsForExercise.take(count).map((s) => s.id).toSet();
+    if (toRemove.isEmpty) return;
+
+    final updatedSets =
+        currentSession.exerciseSets
+            .where((s) => !toRemove.contains(s.id))
+            .toList();
+
+    final updatedSession = currentSession.copyWith(
+      exerciseSets: updatedSets,
+      totalWeight: _calculateTotalWeight(updatedSets),
+      totalReps: _calculateTotalReps(updatedSets),
+    );
+
+    final sessionService = ref.read(sessionServiceProvider);
+    await sessionService.saveSession(updatedSession);
+    state = AsyncValue.data(await sessionService.getAllSessions());
+  }
+
   Future<void> completeSession({String? notes}) async {
     final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;

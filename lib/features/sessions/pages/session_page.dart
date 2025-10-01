@@ -12,6 +12,7 @@ import '../../exercise/models/exercise.dart';
 import '../../../common/widgets/exercise_card.dart';
 // performedSets/exerciseCompletion se derivan desde session.exerciseSets para persistencia
 import '../../exercise/models/exercise_set.dart';
+import '../../training/services/progression_service.dart';
 import 'package:go_router/go_router.dart';
 
 class SessionPage extends ConsumerStatefulWidget {
@@ -235,7 +236,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                           )
                         else
                           SizedBox(
-                            height: 300,
+                            height: 320,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(
@@ -272,109 +273,216 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
                                 return SizedBox(
                                   width: 320,
-                                  child: ExerciseCard(
-                                    routineExercise: re,
-                                    exercise: ex.id.isEmpty ? null : ex,
-                                    isCompleted: isCompleted,
-                                    performedSets: performedSets,
-                                    showSetsControls: true,
-                                    onTap: null,
-                                    onLongPress: null,
-                                    onToggleCompleted: null,
-                                    onWeightChanged: null,
-                                    onRepsChanged: (newValue) async {
-                                      final clamped =
-                                          newValue.clamp(0, re.sets).toInt();
+                                  child: Stack(
+                                    children: [
+                                      // Tarjeta base
+                                      ExerciseCard(
+                                        routineExercise: re,
+                                        exercise: ex.id.isEmpty ? null : ex,
+                                        isCompleted: isCompleted,
+                                        performedSets: performedSets,
+                                        showSetsControls: true,
+                                        onTap: null,
+                                        onLongPress: null,
+                                        onToggleCompleted: null,
+                                        onWeightChanged: null,
+                                        onRepsChanged: (newValue) async {
+                                          final clamped =
+                                              newValue
+                                                  .clamp(0, re.sets)
+                                                  .toInt();
 
-                                      // No permitir decrementos ni cambios si ya está completado
-                                      if (clamped <= performedSets ||
-                                          performedSets >= re.sets) {
-                                        return;
-                                      }
+                                          // No permitir decrementos ni cambios si ya está completado
+                                          if (clamped <= performedSets ||
+                                              performedSets >= re.sets) {
+                                            return;
+                                          }
 
-                                      // Persistir tantos sets como incremento
-                                      final diff = clamped - performedSets;
-                                      for (int i = 0; i < diff; i++) {
-                                        final set = ExerciseSet(
-                                          id:
-                                              '${session.id}-${re.id}-${DateTime.now().microsecondsSinceEpoch}-$i',
-                                          exerciseId: re.exerciseId,
-                                          reps: re.reps,
-                                          weight: re.weight,
-                                          restTimeSeconds: re.restTimeSeconds,
-                                          notes: re.notes,
-                                          completedAt: DateTime.now(),
-                                          isCompleted: true,
-                                        );
-                                        await ref
-                                            .read(
-                                              sessionNotifierProvider.notifier,
-                                            )
-                                            .addExerciseSet(set);
-                                      }
-
-                                      // Iniciar descanso persistente si hay rest configurado y aún no completado
-                                      if (re.restTimeSeconds != null &&
-                                          clamped < re.sets) {
-                                        final endsAt = DateTime.now().add(
-                                          Duration(
-                                            seconds: re.restTimeSeconds!,
-                                          ),
-                                        );
-                                        await ref
-                                            .read(
-                                              sessionNotifierProvider.notifier,
-                                            )
-                                            .setExerciseRestEnd(
+                                          // Persistir tantos sets como incremento
+                                          final diff = clamped - performedSets;
+                                          for (int i = 0; i < diff; i++) {
+                                            final set = ExerciseSet(
+                                              id:
+                                                  '${session.id}-${re.id}-${DateTime.now().microsecondsSinceEpoch}-$i',
                                               exerciseId: re.exerciseId,
-                                              restEndsAt: endsAt,
+                                              reps: re.reps,
+                                              weight: re.weight,
+                                              restTimeSeconds:
+                                                  re.restTimeSeconds,
+                                              notes: re.notes,
+                                              completedAt: DateTime.now(),
+                                              isCompleted: true,
                                             );
-                                      } else {
-                                        // si ya completó, borrar rest
-                                        await ref
-                                            .read(
-                                              sessionNotifierProvider.notifier,
-                                            )
-                                            .setExerciseRestEnd(
-                                              exerciseId: re.exerciseId,
-                                              restEndsAt: null,
+                                            await ref
+                                                .read(
+                                                  sessionNotifierProvider
+                                                      .notifier,
+                                                )
+                                                .addExerciseSet(set);
+                                          }
+
+                                          // Sugerencia al completar todas las series
+                                          try {
+                                            final nowPerformed = clamped;
+                                            if (nowPerformed >= re.sets &&
+                                                context.mounted) {
+                                              final nextWeight =
+                                                  const ProgressionService()
+                                                      .suggestNextWeight(
+                                                        currentWeight:
+                                                            re.weight,
+                                                        targetReps: re.reps,
+                                                        achievedReps: re.reps,
+                                                      );
+                                              if (nextWeight > re.weight) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'Buen trabajo. Prueba ${nextWeight.toStringAsFixed(1)} kg la próxima vez.',
+                                                    ),
+                                                    duration: const Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
+                                              } else if (nextWeight <
+                                                  re.weight) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'Ajusta a ${nextWeight.toStringAsFixed(1)} kg la próxima vez para mantener técnica.',
+                                                    ),
+                                                    duration: const Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          } catch (_) {}
+
+                                          // Iniciar descanso persistente si hay rest configurado y aún no completado
+                                          if (re.restTimeSeconds != null &&
+                                              clamped < re.sets) {
+                                            final endsAt = DateTime.now().add(
+                                              Duration(
+                                                seconds: re.restTimeSeconds!,
+                                              ),
                                             );
-                                      }
-                                    },
+                                            await ref
+                                                .read(
+                                                  sessionNotifierProvider
+                                                      .notifier,
+                                                )
+                                                .setExerciseRestEnd(
+                                                  exerciseId: re.exerciseId,
+                                                  restEndsAt: endsAt,
+                                                );
+                                          } else {
+                                            // si ya completó, borrar rest
+                                            await ref
+                                                .read(
+                                                  sessionNotifierProvider
+                                                      .notifier,
+                                                )
+                                                .setExerciseRestEnd(
+                                                  exerciseId: re.exerciseId,
+                                                  restEndsAt: null,
+                                                );
+                                          }
+                                        },
+                                      ),
+                                      // Overlay descanso sobre la imagen
+                                      Positioned(
+                                        top: 12,
+                                        left: 12,
+                                        right: 12,
+                                        child: Consumer(
+                                          builder: (context, ref, _) {
+                                            final endsAt = ref
+                                                .read(
+                                                  sessionNotifierProvider
+                                                      .notifier,
+                                                )
+                                                .readExerciseRestEnd(
+                                                  session.notes,
+                                                  re.exerciseId,
+                                                );
+                                            if (endsAt == null) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            final remaining =
+                                                endsAt
+                                                    .difference(DateTime.now())
+                                                    .inSeconds;
+                                            if (remaining <= 0) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54,
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.timer,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    'Descanso: ${remaining}s',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      await ref
+                                                          .read(
+                                                            sessionNotifierProvider
+                                                                .notifier,
+                                                          )
+                                                          .setExerciseRestEnd(
+                                                            exerciseId:
+                                                                re.exerciseId,
+                                                            restEndsAt: null,
+                                                          );
+                                                    },
+                                                    style: TextButton.styleFrom(
+                                                      foregroundColor:
+                                                          Colors.white,
+                                                    ),
+                                                    child: const Text(
+                                                      'Detener',
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               },
                             ),
                           ),
-                        const SizedBox(height: 8),
-                        // Rest chip persistente si aplica
-                        Builder(
-                          builder: (context) {
-                            // Nota: este chip debe estar dentro del builder del item para capturar 're'
-                            return Consumer(
-                              builder: (context, ref, _) {
-                                final endsAt = ref
-                                    .read(sessionNotifierProvider.notifier)
-                                    .readExerciseRestEnd(
-                                      session.notes,
-                                      section.exercises[index].exerciseId,
-                                    );
-                                if (endsAt == null)
-                                  return const SizedBox.shrink();
-                                final remaining =
-                                    endsAt.difference(DateTime.now()).inSeconds;
-                                if (remaining <= 0)
-                                  return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Chip(
-                                    label: Text('Descanso: ${remaining}s'),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        // El chip de descanso ahora va dentro de cada item del carrusel
                       ],
                     );
                   },
