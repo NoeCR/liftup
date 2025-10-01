@@ -3,7 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'export_builder.dart';
+import '../builders/export_builder.dart';
 
 /// Exportador específico para formato PDF
 class PdfExporter extends ExportBuilder {
@@ -20,7 +20,8 @@ class PdfExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final fileName =
+        'liftup_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${directory.path}/$fileName');
 
     final pdf = pw.Document();
@@ -32,7 +33,7 @@ class PdfExporter extends ExportBuilder {
           final widgets = <pw.Widget>[
             // Header
             _buildHeader(),
-            
+
             pw.SizedBox(height: 20),
           ];
 
@@ -84,10 +85,7 @@ class PdfExporter extends ExportBuilder {
       level: 0,
       child: pw.Text(
         'Reporte de Progreso - LiftUp',
-        style: pw.TextStyle(
-          fontSize: 24,
-          fontWeight: pw.FontWeight.bold,
-        ),
+        style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
       ),
     );
   }
@@ -136,12 +134,14 @@ class PdfExporter extends ExportBuilder {
         style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
       ),
       pw.SizedBox(height: 10),
-      ...filteredSessions.take(10).map(
-        (session) => pw.Text(
-          '${session.name} - ${session.startTime.toString().split(' ')[0]} - '
-          'Peso total: ${session.totalWeight ?? 0}kg',
-        ),
-      ),
+      ...filteredSessions
+          .take(10)
+          .map(
+            (session) => pw.Text(
+              '${session.name} - ${session.startTime.toString().split(' ')[0]} - '
+              'Peso total: ${session.totalWeight ?? 0}kg',
+            ),
+          ),
       if (filteredSessions.length > 10)
         pw.Text('... y ${filteredSessions.length - 10} sesiones más'),
       pw.SizedBox(height: 20),
@@ -156,11 +156,13 @@ class PdfExporter extends ExportBuilder {
         style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
       ),
       pw.SizedBox(height: 10),
-      ...filteredExercises.take(10).map(
-        (exercise) => pw.Text(
-          '${exercise.name} - ${exercise.category.name} - ${exercise.difficulty.name}',
-        ),
-      ),
+      ...filteredExercises
+          .take(10)
+          .map(
+            (exercise) => pw.Text(
+              '${exercise.name} - ${exercise.category.name} - ${exercise.difficulty.name}',
+            ),
+          ),
       if (filteredExercises.length > 10)
         pw.Text('... y ${filteredExercises.length - 10} ejercicios más'),
       pw.SizedBox(height: 20),
@@ -175,12 +177,14 @@ class PdfExporter extends ExportBuilder {
         style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
       ),
       pw.SizedBox(height: 10),
-      ...filteredRoutines.take(10).map(
-        (routine) => pw.Text(
-          '${routine.name} - ${routine.days.length} días - '
-          'Creada: ${routine.createdAt.toString().split(' ')[0]}',
-        ),
-      ),
+      ...filteredRoutines
+          .take(10)
+          .map(
+            (routine) => pw.Text(
+              '${routine.name} - ${routine.days.length} días - '
+              'Creada: ${routine.createdAt.toString().split(' ')[0]}',
+            ),
+          ),
       if (filteredRoutines.length > 10)
         pw.Text('... y ${filteredRoutines.length - 10} rutinas más'),
       pw.SizedBox(height: 20),
@@ -195,13 +199,15 @@ class PdfExporter extends ExportBuilder {
         style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
       ),
       pw.SizedBox(height: 10),
-      ...filteredProgressData.take(10).map(
-        (progress) => pw.Text(
-          'Ejercicio: ${progress.exerciseId} - '
-          'Fecha: ${progress.date.toString().split(' ')[0]} - '
-          'Peso máximo: ${progress.maxWeight}kg',
-        ),
-      ),
+      ...filteredProgressData
+          .take(10)
+          .map(
+            (progress) => pw.Text(
+              'Ejercicio: ${progress.exerciseId} - '
+              'Fecha: ${progress.date.toString().split(' ')[0]} - '
+              'Peso máximo: ${progress.maxWeight}kg',
+            ),
+          ),
       if (filteredProgressData.length > 10)
         pw.Text('... y ${filteredProgressData.length - 10} registros más'),
     ];

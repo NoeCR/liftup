@@ -2,8 +2,10 @@ import 'dart:io';
 import 'dart:convert';
 import '../models/routine_sharing.dart';
 import '../models/export_config.dart';
-import '../builders/export_builder.dart';
-import '../builders/import_builder.dart';
+import '../models/export_type.dart';
+import '../exporters/export_factory.dart';
+import '../services/metadata_service.dart';
+import '../importers/import_builder.dart';
 import '../../../features/home/models/routine.dart';
 import '../../../features/exercise/models/exercise.dart';
 
@@ -51,21 +53,6 @@ class MockRoutineSharingService implements RoutineSharingService {
     required List<Exercise> exercises,
   }) async {
     try {
-      // Crear datos de exportación para la rutina
-      final exportBuilder = ExportBuilder.create(
-        sessions: [], // No incluir sesiones en rutinas compartidas
-        exercises: exercises,
-        routines: [routine],
-        progressData: [], // No incluir datos de progreso
-        userSettings: {},
-        metadata: ExportMetadata(
-          version: '1.0',
-          exportDate: DateTime.now(),
-          appVersion: '1.0.0',
-          deviceId: 'mock-device',
-        ),
-      );
-
       // Configurar exportación solo para rutinas y ejercicios
       final exportConfig = const ExportConfig(
         includeSessions: false,
@@ -76,8 +63,19 @@ class MockRoutineSharingService implements RoutineSharingService {
         includeMetadata: true,
       );
 
-      final configuredBuilder = exportBuilder.withConfig(exportConfig);
-      final filePath = await configuredBuilder.toJSON();
+      // Usar ExportFactory para crear el exportador JSON
+      final exporter = await ExportFactory.createExporter(
+        type: ExportType.json,
+        config: exportConfig,
+        routines: [routine],
+        exercises: exercises,
+        sessions: [],
+        progressData: [],
+        userSettings: {},
+        metadata: await MetadataService.instance.createExportMetadata(),
+      );
+      
+      final filePath = await exporter.export();
 
       // Crear rutina compartida
       final shareId = 'share_${DateTime.now().millisecondsSinceEpoch}';

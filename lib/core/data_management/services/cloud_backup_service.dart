@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:convert';
 import '../models/cloud_backup.dart';
 import '../models/export_config.dart';
-import '../builders/export_builder.dart';
+import '../models/export_type.dart';
+import '../exporters/export_factory.dart';
+import '../services/metadata_service.dart';
 import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
@@ -52,16 +54,6 @@ class MockCloudBackupService implements CloudBackupService {
     BackupConfig? config,
   }) async {
     try {
-      // Crear el backup usando el ExportBuilder
-      final exportBuilder = ExportBuilder.create(
-        sessions: sessions,
-        exercises: exercises,
-        routines: routines,
-        progressData: progressData,
-        userSettings: userSettings,
-        metadata: metadata,
-      );
-
       // Configurar exportación
       final exportConfig = ExportConfig(
         includeSessions: config?.includeDataTypes.contains('sessions') ?? true,
@@ -73,8 +65,19 @@ class MockCloudBackupService implements CloudBackupService {
         includeMetadata: true,
       );
 
-      final configuredBuilder = exportBuilder.withConfig(exportConfig);
-      final filePath = await configuredBuilder.toJSON();
+      // Usar ExportFactory para crear el exportador JSON
+      final exporter = await ExportFactory.createExporter(
+        type: ExportType.json,
+        config: exportConfig,
+        routines: routines,
+        exercises: exercises,
+        sessions: sessions,
+        progressData: progressData,
+        userSettings: {},
+        metadata: await MetadataService.instance.createExportMetadata(),
+      );
+      
+      final filePath = await exporter.export();
       final file = File(filePath);
       final sizeBytes = await file.length();
 

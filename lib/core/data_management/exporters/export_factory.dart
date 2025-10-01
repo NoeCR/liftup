@@ -1,4 +1,4 @@
-import 'export_builder.dart';
+import '../builders/export_builder.dart';
 import 'json_exporter.dart';
 import 'csv_exporter.dart';
 import 'pdf_exporter.dart';
@@ -33,7 +33,7 @@ class ExportFactory {
           userSettings: userSettings,
           metadata: metadata,
         );
-      
+
       case ExportType.csv:
         return CsvExporter(
           config: config,
@@ -44,7 +44,7 @@ class ExportFactory {
           userSettings: userSettings,
           metadata: metadata,
         );
-      
+
       case ExportType.pdf:
         return PdfExporter(
           config: config,

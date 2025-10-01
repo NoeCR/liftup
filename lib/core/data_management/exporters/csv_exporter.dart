@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'export_builder.dart';
+import '../builders/export_builder.dart';
 
 /// Exportador específico para formato CSV
 class CsvExporter extends ExportBuilder {
@@ -18,16 +18,19 @@ class CsvExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_export_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final fileName =
+        'liftup_export_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${directory.path}/$fileName');
 
     final csvContent = StringBuffer();
-    
+
     // Headers con metadatos
     if (config.includeMetadata) {
       csvContent.writeln('# LiftUp Export');
       csvContent.writeln('# Version: ${metadata.version}');
-      csvContent.writeln('# Export Date: ${metadata.exportDate.toIso8601String()}');
+      csvContent.writeln(
+        '# Export Date: ${metadata.exportDate.toIso8601String()}',
+      );
       csvContent.writeln('# App Version: ${metadata.appVersion}');
       csvContent.writeln('# Device ID: ${metadata.deviceId}');
       csvContent.writeln('');
@@ -36,7 +39,9 @@ class CsvExporter extends ExportBuilder {
     // Sessions
     if (config.includeSessions) {
       csvContent.writeln('Sessions,${filteredSessions.length}');
-      csvContent.writeln('ID,Name,StartTime,EndTime,TotalWeight,TotalReps,Status');
+      csvContent.writeln(
+        'ID,Name,StartTime,EndTime,TotalWeight,TotalReps,Status',
+      );
       for (final session in filteredSessions) {
         csvContent.writeln(
           '${session.id},${_escapeCsvField(session.name)},'

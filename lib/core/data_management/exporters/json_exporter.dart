@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'export_builder.dart';
+import '../builders/export_builder.dart';
 
 /// Exportador específico para formato JSON
 class JsonExporter extends ExportBuilder {
@@ -19,7 +19,8 @@ class JsonExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_export_${DateTime.now().millisecondsSinceEpoch}.json';
+    final fileName =
+        'liftup_export_${DateTime.now().millisecondsSinceEpoch}.json';
     final file = File('${directory.path}/$fileName');
 
     final data = <String, dynamic>{};
@@ -46,7 +47,8 @@ class JsonExporter extends ExportBuilder {
 
     // Agregar datos de progreso filtrados
     if (config.includeProgressData) {
-      data['progressData'] = filteredProgressData.map((p) => p.toJson()).toList();
+      data['progressData'] =
+          filteredProgressData.map((p) => p.toJson()).toList();
     }
 
     // Agregar configuración de usuario si está habilitada
@@ -56,12 +58,11 @@ class JsonExporter extends ExportBuilder {
 
     // Convertir a JSON con formato legible
     final jsonString = const JsonEncoder.withIndent('  ').convert(data);
-    
+
     // Comprimir si está habilitado
-    final finalContent = config.compressData 
-        ? _compressJson(jsonString)
-        : jsonString;
-    
+    final finalContent =
+        config.compressData ? _compressJson(jsonString) : jsonString;
+
     await file.writeAsString(finalContent);
     return file.path;
   }
