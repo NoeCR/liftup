@@ -8,6 +8,7 @@ import '../../sessions/notifiers/session_notifier.dart';
 import '../../../common/widgets/section_header.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../widgets/exercise_card_wrapper.dart';
+import '../widgets/auto_selection_info_card.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../../core/database/database_service.dart';
@@ -68,6 +69,9 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         children: [
           // Configurable Menu
           _buildConfigurableMenu(),
+
+          // Auto Selection Info
+          const AutoSelectionInfoCard(),
 
           // Main Content
           Expanded(child: _buildMainContent()),
