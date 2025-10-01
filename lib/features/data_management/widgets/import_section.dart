@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../../core/data_management/data_management.dart';
 
 class ImportSection extends ConsumerStatefulWidget {
   const ImportSection({super.key});
@@ -21,9 +22,9 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       children: [
         // Opciones de importación
         _buildImportOptions(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Botones de importación
         Row(
           children: [
@@ -86,15 +87,12 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
     required ValueChanged<bool?> onChanged,
   }) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Checkbox(
-            value: value,
-            onChanged: onChanged,
-          ),
+          Checkbox(value: value, onChanged: onChanged),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,60 +139,63 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Importando datos...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text('Importando datos...'),
+                ],
+              ),
+            ),
       );
 
-      // TODO: Implementar ImportBuilder con datos existentes
-      // final importConfig = ImportConfig(
-      //   mergeData: _mergeData,
-      //   overwriteExisting: _overwriteExisting,
-      //   validateData: _validateData,
-      //   createBackup: _createBackup,
-      //   allowedFormats: const ['json', 'csv'],
-      //   maxFileSize: 10 * 1024 * 1024, // 10MB
-      // );
-      // final importBuilder = ImportBuilder.create(
-      //   existingSessions: [],
-      //   existingExercises: [],
-      //   existingRoutines: [],
-      //   existingProgressData: [],
-      // );
+      // Configurar importación
+      final importConfig = ImportConfig(
+        mergeData: _mergeData,
+        overwriteExisting: _overwriteExisting,
+        validateData: _validateData,
+        createBackup: _createBackup,
+        allowedFormats: const ['json', 'csv'],
+        maxFileSize: 10 * 1024 * 1024, // 10MB
+      );
 
-      // final configuredBuilder = importBuilder.withConfig(importConfig);
-      
-      // ImportResult result;
-      // if (file.extension == 'json') {
-      //   result = await configuredBuilder.fromJSON(file.path!);
-      // } else if (file.extension == 'csv') {
-      //   result = await configuredBuilder.fromCSV(file.path!);
-      // } else {
-      //   throw Exception('Formato de archivo no soportado');
-      // }
+      // Realizar importación usando el servicio
+      final importResult = await ImportService.instance.importFromFile(
+        filePath: file.path!,
+        config: importConfig,
+      );
 
       // Cerrar indicador de progreso
       if (mounted) Navigator.of(context).pop();
 
       // Mostrar resultado
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Datos importados exitosamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (importResult.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '✅ Importación exitosa: ${importResult.importedCount} elementos importados',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '❌ Error en la importación: ${importResult.errorMessage}',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
       if (mounted) Navigator.of(context).pop();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -209,46 +210,49 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
   void _showImportHelp(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ayuda de Importación'),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Formatos Soportados:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Ayuda de Importación'),
+            content: const SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Formatos Soportados:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text('• JSON: Archivos de respaldo completos'),
+                  Text('• CSV: Datos tabulares para análisis'),
+                  SizedBox(height: 16),
+                  Text(
+                    'Recomendaciones:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text('• Siempre crea un respaldo antes de importar'),
+                  Text('• Valida los datos para evitar errores'),
+                  Text(
+                    '• Usa "Fusionar datos" para mantener información existente',
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Tamaño Máximo:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text('• 10MB por archivo'),
+                ],
               ),
-              SizedBox(height: 8),
-              Text('• JSON: Archivos de respaldo completos'),
-              Text('• CSV: Datos tabulares para análisis'),
-              SizedBox(height: 16),
-              Text(
-                'Recomendaciones:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Entendido'),
               ),
-              SizedBox(height: 8),
-              Text('• Siempre crea un respaldo antes de importar'),
-              Text('• Valida los datos para evitar errores'),
-              Text('• Usa "Fusionar datos" para mantener información existente'),
-              SizedBox(height: 16),
-              Text(
-                'Tamaño Máximo:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              Text('• 10MB por archivo'),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Entendido'),
-          ),
-        ],
-      ),
     );
   }
 }

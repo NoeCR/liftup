@@ -4,6 +4,7 @@ import '../../../core/data_management/data_management.dart';
 import '../../../features/sessions/notifiers/session_notifier.dart';
 import '../../../features/exercise/notifiers/exercise_notifier.dart';
 import '../../../features/home/notifiers/routine_notifier.dart';
+import '../../../features/statistics/notifiers/progress_notifier.dart';
 
 class ExportSection extends ConsumerStatefulWidget {
   const ExportSection({super.key});
@@ -164,23 +165,23 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final exercises = await ref.read(exerciseNotifierProvider.future);
       final routines = await ref.read(routineNotifierProvider.future);
 
-      final exportBuilder = ExportBuilder.create(
+      // Crear metadatos reales
+      final metadata = await MetadataService.instance.createExportMetadata();
+
+      // Crear exportador JSON
+      final exporter = ExportFactory.createExporter(
+        type: 'json',
+        config: exportConfig,
         sessions: sessions,
         exercises: exercises,
         routines: routines,
-        progressData: [], // TODO: Implementar ProgressData
+        progressData: await ref.read(progressNotifierProvider.future),
         userSettings: {},
-        metadata: ExportMetadata(
-          version: '1.0',
-          exportDate: DateTime.now(),
-          appVersion: '1.0.0',
-          deviceId: 'device-id',
-        ),
+        metadata: metadata,
       );
 
-      final configuredBuilder = exportBuilder.withConfig(exportConfig);
-      final filePath = await configuredBuilder.toJSON();
-      await configuredBuilder.share(filePath);
+      final filePath = await exporter.export();
+      await exporter.share(filePath);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -218,23 +219,23 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final exercises = await ref.read(exerciseNotifierProvider.future);
       final routines = await ref.read(routineNotifierProvider.future);
 
-      final exportBuilder = ExportBuilder.create(
+      // Crear metadatos reales
+      final metadata = await MetadataService.instance.createExportMetadata();
+
+      // Crear exportador CSV
+      final exporter = ExportFactory.createExporter(
+        type: 'csv',
+        config: exportConfig,
         sessions: sessions,
         exercises: exercises,
         routines: routines,
-        progressData: [], // TODO: Implementar ProgressData
+        progressData: await ref.read(progressNotifierProvider.future),
         userSettings: {},
-        metadata: ExportMetadata(
-          version: '1.0',
-          exportDate: DateTime.now(),
-          appVersion: '1.0.0',
-          deviceId: 'device-id',
-        ),
+        metadata: metadata,
       );
 
-      final configuredBuilder = exportBuilder.withConfig(exportConfig);
-      final filePath = await configuredBuilder.toCSV();
-      await configuredBuilder.share(filePath);
+      final filePath = await exporter.export();
+      await exporter.share(filePath);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -272,23 +273,23 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final exercises = await ref.read(exerciseNotifierProvider.future);
       final routines = await ref.read(routineNotifierProvider.future);
 
-      final exportBuilder = ExportBuilder.create(
+      // Crear metadatos reales
+      final metadata = await MetadataService.instance.createExportMetadata();
+
+      // Crear exportador PDF
+      final exporter = ExportFactory.createExporter(
+        type: 'pdf',
+        config: exportConfig,
         sessions: sessions,
         exercises: exercises,
         routines: routines,
-        progressData: [], // TODO: Implementar ProgressData
+        progressData: await ref.read(progressNotifierProvider.future),
         userSettings: {},
-        metadata: ExportMetadata(
-          version: '1.0',
-          exportDate: DateTime.now(),
-          appVersion: '1.0.0',
-          deviceId: 'device-id',
-        ),
+        metadata: metadata,
       );
 
-      final configuredBuilder = exportBuilder.withConfig(exportConfig);
-      final filePath = await configuredBuilder.toPDF();
-      await configuredBuilder.share(filePath);
+      final filePath = await exporter.export();
+      await exporter.share(filePath);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
