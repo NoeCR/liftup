@@ -7,7 +7,7 @@ export 'models/cloud_backup.dart';
 export 'models/routine_sharing.dart';
 
 // Exportar todos los exportadores
-export 'builders/export_builder.dart';
+export 'exporters/export_builder.dart';
 export 'exporters/export_factory.dart';
 export 'exporters/json_exporter.dart';
 export 'exporters/csv_exporter.dart';

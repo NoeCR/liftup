@@ -3,7 +3,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import '../builders/export_builder.dart';
+import 'export_builder.dart';
 
 /// Exportador específico para formato PDF
 class PdfExporter extends ExportBuilder {

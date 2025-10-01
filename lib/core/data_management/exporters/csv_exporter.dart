@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import '../builders/export_builder.dart';
+import 'export_builder.dart';
 
 /// Exportador específico para formato CSV
 class CsvExporter extends ExportBuilder {
