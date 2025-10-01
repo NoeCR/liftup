@@ -23,15 +23,25 @@ class AutoSelectionInfoCard extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  autoSelectionInfo.hasSelection ? Icons.auto_awesome : Icons.info_outline,
-                  color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                  autoSelectionInfo.hasSelection
+                      ? Icons.auto_awesome
+                      : Icons.info_outline,
+                  color:
+                      autoSelectionInfo.hasSelection
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  autoSelectionInfo.hasSelection ? 'Rutina Sugerida' : 'Información',
+                  autoSelectionInfo.hasSelection
+                      ? 'Rutina Sugerida'
+                      : 'Información',
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                    color:
+                        autoSelectionInfo.hasSelection
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -41,14 +51,15 @@ class AutoSelectionInfoCard extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              autoSelectionInfo.hasSelection 
-                ? autoSelectionInfo.description
-                : 'No hay rutinas específicas para ${autoSelectionInfo.currentDay.displayName}. Se muestra la primera rutina disponible.',
+              autoSelectionInfo.hasSelection
+                  ? autoSelectionInfo.description
+                  : 'No hay rutinas específicas para ${autoSelectionInfo.currentDay.displayName}. Se muestra la primera rutina disponible.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
-            if (autoSelectionInfo.hasSelection && autoSelectionInfo.availableRoutines.length > 1) ...[
+            if (autoSelectionInfo.hasSelection &&
+                autoSelectionInfo.availableRoutines.length > 1) ...[
               const SizedBox(height: 8),
               Text(
                 '${autoSelectionInfo.availableRoutines.length} rutinas disponibles para ${autoSelectionInfo.currentDay.displayName}',

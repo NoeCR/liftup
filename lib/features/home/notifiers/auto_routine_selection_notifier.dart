@@ -3,6 +3,7 @@ import '../models/routine.dart';
 import '../services/auto_routine_selection_service.dart';
 import 'routine_notifier.dart';
 import 'selected_routine_provider.dart';
+import '../../../common/enums/week_day_enum.dart';
 
 part 'auto_routine_selection_notifier.g.dart';
 
@@ -18,8 +19,9 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
       });
     });
 
-    // Obtener rutinas iniciales
+    // Obtener rutinas iniciales y actualizar selección automática
     final routines = ref.read(routineNotifierProvider).value ?? [];
+    _updateAutoSelection(routines);
     return _getAutoSelectionInfo(routines);
   }
 
@@ -30,15 +32,22 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
     
     final currentSelection = ref.read(selectedRoutineIdProvider);
     
+    print('AutoSelection: currentSelection=$currentSelection, hasSelection=${newInfo.hasSelection}');
+    print('AutoSelection: today=${newInfo.currentDay.displayName}, availableRoutines=${newInfo.availableRoutines.length}');
+    
     // Solo seleccionar automáticamente si no hay selección actual
     if (currentSelection == null) {
       if (newInfo.hasSelection) {
         // Si hay rutina para hoy, seleccionarla
+        print('AutoSelection: Selecting routine for today: ${newInfo.selectedRoutine!.name}');
         _selectAutoRoutine(newInfo.selectedRoutine!);
       } else if (routines.isNotEmpty) {
         // Si no hay rutina para hoy, seleccionar la primera disponible
+        print('AutoSelection: No routine for today, selecting first: ${routines.first.name}');
         _selectAutoRoutine(routines.first);
       }
+    } else {
+      print('AutoSelection: Already have selection, not changing');
     }
   }
 

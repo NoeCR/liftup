@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../notifiers/selected_routine_provider.dart';
+import '../notifiers/auto_routine_selection_notifier.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../../common/widgets/section_header.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
@@ -100,19 +101,30 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
               menuOptions.add(routine.name);
             }
 
-            // Auto-select first routine only if none selected or if selected routine no longer exists
+            // Auto-select routine based on day of week or first routine if none selected
             if (_selectedMenuOption.isEmpty ||
                 !menuOptions.contains(_selectedMenuOption)) {
               if (menuOptions.isNotEmpty) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() {
-                    _selectedMenuOption = menuOptions.first;
-                  });
-                  final routines =
-                      ref.read(routineNotifierProvider).value ?? [];
-                  final routine = routines.isNotEmpty ? routines.first : null;
-                  ref.read(selectedRoutineIdProvider.notifier).state =
-                      routine?.id;
+                  // Get auto-selected routine or fallback to first
+                  final autoSelectionInfo = ref.read(autoRoutineSelectionNotifierProvider);
+                  final routines = ref.read(routineNotifierProvider).value ?? [];
+                  
+                  Routine? routineToSelect;
+                  if (autoSelectionInfo.hasSelection) {
+                    // Use auto-selected routine for today
+                    routineToSelect = autoSelectionInfo.selectedRoutine;
+                  } else if (routines.isNotEmpty) {
+                    // Fallback to first routine
+                    routineToSelect = routines.first;
+                  }
+                  
+                  if (routineToSelect != null) {
+                    setState(() {
+                      _selectedMenuOption = routineToSelect!.name;
+                    });
+                    ref.read(selectedRoutineIdProvider.notifier).state = routineToSelect.id;
+                  }
                 });
               }
             }

@@ -6,7 +6,8 @@ import '../notifiers/routine_notifier.dart';
 /// Servicio para selección automática de rutinas basada en el día de la semana
 class AutoRoutineSelectionService {
   static AutoRoutineSelectionService? _instance;
-  static AutoRoutineSelectionService get instance => _instance ??= AutoRoutineSelectionService._();
+  static AutoRoutineSelectionService get instance =>
+      _instance ??= AutoRoutineSelectionService._();
 
   AutoRoutineSelectionService._();
 
@@ -20,14 +21,23 @@ class AutoRoutineSelectionService {
   /// Encuentra rutinas que coincidan con el día de la semana actual
   List<Routine> findRoutinesForToday(List<Routine> routines) {
     final today = getCurrentWeekDay();
-    return routines.where((routine) => routine.days.contains(today)).toList();
+    final todayRoutines = routines.where((routine) => routine.days.contains(today)).toList();
+    
+    print('AutoSelectionService: Today is ${today.displayName}');
+    print('AutoSelectionService: Total routines: ${routines.length}');
+    print('AutoSelectionService: Routines for today: ${todayRoutines.length}');
+    for (final routine in todayRoutines) {
+      print('AutoSelectionService: - ${routine.name} (days: ${routine.days.map((d) => d.displayName).join(', ')})');
+    }
+    
+    return todayRoutines;
   }
 
   /// Selecciona automáticamente la rutina para el día actual
   /// Prioriza rutinas con menor orden, luego por fecha de creación
   Routine? selectRoutineForToday(List<Routine> routines) {
     final todayRoutines = findRoutinesForToday(routines);
-    
+
     if (todayRoutines.isEmpty) {
       return null;
     }
@@ -81,19 +91,20 @@ class AutoSelectionInfo {
     if (!hasSelection) {
       return 'No hay rutinas configuradas para ${currentDay.displayName}';
     }
-    
+
     if (availableRoutines.length == 1) {
       return 'Rutina automática para ${currentDay.displayName}: ${selectedRoutine!.name}';
     }
-    
+
     return 'Rutina seleccionada para ${currentDay.displayName}: ${selectedRoutine!.name} (${availableRoutines.length} disponibles)';
   }
 }
 
 /// Provider para el servicio de selección automática
-final autoRoutineSelectionServiceProvider = Provider<AutoRoutineSelectionService>((ref) {
-  return AutoRoutineSelectionService.instance;
-});
+final autoRoutineSelectionServiceProvider =
+    Provider<AutoRoutineSelectionService>((ref) {
+      return AutoRoutineSelectionService.instance;
+    });
 
 /// Provider para obtener información de selección automática
 final autoSelectionInfoProvider = Provider<AutoSelectionInfo>((ref) {

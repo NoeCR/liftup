@@ -28,11 +28,7 @@ void main() async {
   }
 
   runApp(
-    const ProviderScope(
-      child: AutoRoutineInitializer(
-        child: LiftUpApp(),
-      ),
-    ),
+    const ProviderScope(child: AutoRoutineInitializer(child: LiftUpApp())),
   );
 }
 
