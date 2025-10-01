@@ -108,10 +108,7 @@ class MockRoutineSharingService implements RoutineSharingService {
       // Limpiar archivo temporal
       await File(filePath).delete();
 
-      return ShareResult.success(
-        shareId: shareId,
-        shareUrl: shareUrl,
-      );
+      return ShareResult.success(shareId: shareId, shareUrl: shareUrl);
     } catch (e) {
       return ShareResult.failure('Error al compartir rutina: $e');
     }
@@ -122,13 +119,13 @@ class MockRoutineSharingService implements RoutineSharingService {
     try {
       // Simular consulta a la nube
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       final sharedRoutine = _sharedRoutines[shareId];
       if (sharedRoutine != null) {
         // Incrementar contador de visualizaciones
         await incrementViewCount(shareId);
       }
-      
+
       return sharedRoutine;
     } catch (e) {
       return null;
@@ -140,7 +137,7 @@ class MockRoutineSharingService implements RoutineSharingService {
     try {
       // Simular consulta a la nube
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       return _sharedRoutines.values
           .where((routine) => routine.ownerId == userId)
           .toList()
@@ -155,7 +152,7 @@ class MockRoutineSharingService implements RoutineSharingService {
     try {
       // Simular actualización en la nube
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       final existingRoutine = _sharedRoutines[shareId];
       if (existingRoutine == null) return false;
 
@@ -184,10 +181,10 @@ class MockRoutineSharingService implements RoutineSharingService {
     try {
       // Simular eliminación en la nube
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       _sharedRoutines.remove(shareId);
       _sharedData.remove(shareId);
-      
+
       return true;
     } catch (e) {
       return false;
@@ -226,7 +223,7 @@ class MockRoutineSharingService implements RoutineSharingService {
     try {
       // Simular descarga desde la nube
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       return _sharedData[shareId];
     } catch (e) {
       return null;
@@ -238,9 +235,8 @@ class MockRoutineSharingService implements RoutineSharingService {
 class SharedRoutineImportService {
   final RoutineSharingService _sharingService;
 
-  SharedRoutineImportService({
-    required RoutineSharingService sharingService,
-  }) : _sharingService = sharingService;
+  SharedRoutineImportService({required RoutineSharingService sharingService})
+    : _sharingService = sharingService;
 
   /// Importa una rutina compartida
   Future<ImportResult> importSharedRoutine(String shareId) async {
@@ -264,7 +260,7 @@ class SharedRoutineImportService {
       }
 
       // Verificar si la rutina ha expirado
-      if (sharedRoutine.expiresAt != null && 
+      if (sharedRoutine.expiresAt != null &&
           DateTime.now().isAfter(sharedRoutine.expiresAt!)) {
         return ImportResult(
           success: false,
@@ -311,7 +307,9 @@ class SharedRoutineImportService {
         final routinesData = data['routines'] as List;
         for (final routineData in routinesData) {
           try {
-            final routine = Routine.fromJson(routineData as Map<String, dynamic>);
+            final routine = Routine.fromJson(
+              routineData as Map<String, dynamic>,
+            );
             importedRoutines.add(routine);
           } catch (e) {
             // Error al importar rutina específica
@@ -323,7 +321,9 @@ class SharedRoutineImportService {
         final exercisesData = data['exercises'] as List;
         for (final exerciseData in exercisesData) {
           try {
-            final exercise = Exercise.fromJson(exerciseData as Map<String, dynamic>);
+            final exercise = Exercise.fromJson(
+              exerciseData as Map<String, dynamic>,
+            );
             importedExercises.add(exercise);
           } catch (e) {
             // Error al importar ejercicio específico

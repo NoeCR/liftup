@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../widgets/export_section.dart';
 import '../widgets/import_section.dart';
 import '../widgets/backup_section.dart';
@@ -91,7 +90,6 @@ class DataManagementPage extends ConsumerWidget {
           const SizedBox(height: 32),
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 4),
     );
   }
 

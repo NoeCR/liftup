@@ -157,21 +157,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           _buildSettingsSection(context, 'Datos', [
             _buildSettingsTile(
               context,
-              icon: Icons.backup,
-              title: 'Exportar Datos',
-              subtitle: 'Exportar rutinas y progreso',
-              onTap: () {
-                // Export data functionality
-              },
-            ),
-            _buildSettingsTile(
-              context,
-              icon: Icons.restore,
-              title: 'Importar Datos',
-              subtitle: 'Importar rutinas y progreso',
-              onTap: () {
-                // Import data functionality
-              },
+              icon: Icons.storage,
+              title: 'Gestión de Datos',
+              subtitle: 'Exportar, importar, backup y compartir',
+              onTap: () => context.push(AppRouter.dataManagement),
             ),
             _buildSettingsTile(
               context,
@@ -184,7 +173,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ]),
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 5),
+      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 4),
     );
   }
 

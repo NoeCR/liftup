@@ -27,9 +27,9 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       children: [
         // Opciones de exportación
         _buildExportOptions(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Botones de exportación
         Row(
           children: [
@@ -118,15 +118,12 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
     required ValueChanged<bool?> onChanged,
   }) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Checkbox(
-            value: value,
-            onChanged: onChanged,
-          ),
+          Checkbox(value: value, onChanged: onChanged),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
