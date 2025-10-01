@@ -58,12 +58,13 @@ class OneRmCalculator {
 
   /// Calcula el número objetivo de repeticiones para un peso dado según 1RM.
   /// Inversa aproximada (usa Epley por defecto).
-  static int targetRepsForWeight({required double oneRm, required double weight}) {
+  static int targetRepsForWeight({
+    required double oneRm,
+    required double weight,
+  }) {
     if (oneRm <= 0 || weight <= 0 || weight >= oneRm) return 1;
     // Invertimos Epley: oneRm = w * (1 + r/30) => r = 30 * (oneRm/w - 1)
     final reps = 30.0 * ((oneRm / weight) - 1.0);
     return math.max(1, reps.round());
   }
 }
-
-

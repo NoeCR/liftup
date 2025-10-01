@@ -180,6 +180,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
               _buildSettingsTile(
                 context,
+                icon: Icons.calculate_outlined,
+                title: 'Calculadora 1RM',
+                subtitle: 'Estima tu repetición máxima y porcentajes',
+                onTap: () => context.push(AppRouter.oneRm),
+              ),
+              _buildSettingsTile(
+                context,
                 icon: Icons.delete_forever,
                 title: 'Eliminar Todos los Datos',
                 subtitle: 'Eliminar todas las rutinas y progreso',

@@ -17,6 +17,7 @@ import '../../features/data_management/pages/data_management_page.dart';
 import '../../features/home/notifiers/routine_notifier.dart';
 import '../../features/exercise/notifiers/exercise_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/training/pages/one_rm_page.dart';
 
 class AppRouter {
   static const String home = '/';
@@ -34,6 +35,7 @@ class AppRouter {
   static const String settings = '/settings';
   static const String sectionTemplates = '/section-templates';
   static const String dataManagement = '/data-management';
+  static const String oneRm = '/one-rm';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -106,6 +108,11 @@ class AppRouter {
         path: exerciseList,
         name: 'exerciseList',
         builder: (context, state) => const ExerciseListPage(),
+      ),
+      GoRoute(
+        path: oneRm,
+        name: 'oneRm',
+        builder: (context, state) => const OneRmPage(),
       ),
       GoRoute(
         path: exerciseSelection,
