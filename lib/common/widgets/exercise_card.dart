@@ -7,6 +7,7 @@ class ExerciseCard extends StatelessWidget {
   final RoutineExercise routineExercise;
   final Exercise? exercise;
   final bool isCompleted;
+  final bool wasPerformedThisWeek;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final VoidCallback? onToggleCompleted;
@@ -20,6 +21,7 @@ class ExerciseCard extends StatelessWidget {
     required this.routineExercise,
     this.exercise,
     this.isCompleted = false,
+    this.wasPerformedThisWeek = false,
     this.onTap,
     this.onLongPress,
     this.onToggleCompleted,
@@ -43,10 +45,7 @@ class ExerciseCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color:
-                isCompleted
-                    ? colorScheme.primaryContainer.withOpacity(0.3)
-                    : null,
+            color: _getCardBackgroundColor(colorScheme),
           ),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 240, maxHeight: 280),
@@ -174,7 +173,7 @@ class ExerciseCard extends StatelessWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.remove, size: 16),
-            onPressed: () => onRepsChanged?.call(performedSets - 1),
+            onPressed: performedSets > 0 ? () => onRepsChanged?.call(performedSets - 1) : null,
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
               backgroundColor: colorScheme.surfaceContainerHighest,
@@ -195,7 +194,7 @@ class ExerciseCard extends StatelessWidget {
           const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.add, size: 16),
-            onPressed: () => onRepsChanged?.call(performedSets + 1),
+            onPressed: performedSets < routineExercise.sets ? () => onRepsChanged?.call(performedSets + 1) : null,
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
               backgroundColor: colorScheme.surfaceContainerHighest,
@@ -264,5 +263,18 @@ class ExerciseCard extends StatelessWidget {
             color: colorScheme.onSurfaceVariant,
           ),
     );
+  }
+
+  /// Determina el color de fondo de la tarjeta basado en el estado del ejercicio
+  Color? _getCardBackgroundColor(ColorScheme colorScheme) {
+    if (isCompleted) {
+      // Ejercicio completado en la sesión actual
+      return colorScheme.primaryContainer.withOpacity(0.3);
+    } else if (wasPerformedThisWeek) {
+      // Ejercicio realizado esta semana (fondo ámbar)
+      return Colors.amber.withOpacity(0.15);
+    }
+    // Sin estado especial
+    return null;
   }
 }

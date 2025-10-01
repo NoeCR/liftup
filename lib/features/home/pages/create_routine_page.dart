@@ -47,10 +47,22 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         ),
       );
     }
+
+    // Añadir listeners para actualizar el estado del botón
+    _nameController.addListener(_updateButtonState);
+    _descriptionController.addListener(_updateButtonState);
+  }
+
+  void _updateButtonState() {
+    setState(() {
+      // Esto forzará la reconstrucción del widget y actualizará el botón
+    });
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_updateButtonState);
+    _descriptionController.removeListener(_updateButtonState);
     _nameController.dispose();
     _descriptionController.dispose();
     super.dispose();

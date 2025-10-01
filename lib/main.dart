@@ -6,6 +6,7 @@ import 'core/navigation/app_router.dart';
 import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
 import 'core/database/hive_adapters.dart';
+import 'common/widgets/auto_routine_initializer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +27,9 @@ void main() async {
     );
   }
 
-  runApp(const ProviderScope(child: LiftUpApp()));
+  runApp(
+    const ProviderScope(child: AutoRoutineInitializer(child: LiftUpApp())),
+  );
 }
 
 class LiftUpApp extends StatelessWidget {

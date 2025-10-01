@@ -8,6 +8,7 @@ import '../../../common/widgets/exercise_card.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../settings/notifiers/rest_prefs.dart';
+import '../services/weekly_exercise_tracking_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
@@ -138,12 +139,18 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
         ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ??
         0;
 
+    // Verificar si el ejercicio fue realizado esta semana
+    final wasPerformedThisWeek = ref.watch(
+      exercisePerformedThisWeekProvider(widget.exercise.id),
+    ).value ?? false;
+
     return Stack(
       children: [
         ExerciseCard(
           routineExercise: currentExercise,
           exercise: widget.exercise,
           isCompleted: isCompleted,
+          wasPerformedThisWeek: wasPerformedThisWeek,
           performedSets: performedSets,
           showSetsControls: widget.showSetsControls,
           onTap: null,
