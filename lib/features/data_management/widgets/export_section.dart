@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/data_management/data_management.dart';
+import '../../../core/data_management/models/export_type.dart';
 import '../../../features/sessions/notifiers/session_notifier.dart';
 import '../../../features/exercise/notifiers/exercise_notifier.dart';
 import '../../../features/home/notifiers/routine_notifier.dart';
@@ -170,7 +171,7 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
 
       // Crear exportador JSON
       final exporter = ExportFactory.createExporter(
-        type: 'json',
+        type: ExportType.json,
         config: exportConfig,
         sessions: sessions,
         exercises: exercises,
@@ -224,7 +225,7 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
 
       // Crear exportador CSV
       final exporter = ExportFactory.createExporter(
-        type: 'csv',
+        type: ExportType.csv,
         config: exportConfig,
         sessions: sessions,
         exercises: exercises,
@@ -278,7 +279,7 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
 
       // Crear exportador PDF
       final exporter = ExportFactory.createExporter(
-        type: 'pdf',
+        type: ExportType.pdf,
         config: exportConfig,
         sessions: sessions,
         exercises: exercises,

@@ -2,6 +2,7 @@ import 'import_builder.dart';
 import 'json_importer.dart';
 import 'csv_importer.dart';
 import '../models/export_config.dart';
+import '../models/export_type.dart';
 import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
@@ -18,8 +19,13 @@ class ImportFactory {
     required List<Routine> existingRoutines,
     required List<ProgressData> existingProgressData,
   }) {
-    switch (fileExtension.toLowerCase()) {
-      case '.json':
+    final exportType = ExportType.fromExtension(fileExtension);
+    if (exportType == null) {
+      throw ArgumentError('Tipo de archivo no soportado: $fileExtension');
+    }
+
+    switch (exportType) {
+      case ExportType.json:
         return JsonImporter(
           config: config,
           existingSessions: existingSessions,
@@ -28,7 +34,7 @@ class ImportFactory {
           existingProgressData: existingProgressData,
         );
       
-      case '.csv':
+      case ExportType.csv:
         return CsvImporter(
           config: config,
           existingSessions: existingSessions,
@@ -37,8 +43,8 @@ class ImportFactory {
           existingProgressData: existingProgressData,
         );
       
-      default:
-        throw ArgumentError('Tipo de archivo no soportado: $fileExtension');
+      case ExportType.pdf:
+        throw ArgumentError('La importación desde PDF no está soportada');
     }
   }
 
@@ -51,21 +57,27 @@ class ImportFactory {
     return filePath.substring(lastDot);
   }
 
-  /// Obtiene la lista de extensiones soportadas
+  /// Obtiene la lista de extensiones soportadas para importación
   static List<String> getSupportedExtensions() {
-    return ['.json', '.csv'];
+    return ['.json', '.csv']; // Solo JSON y CSV para importación
+  }
+
+  /// Obtiene la lista de tipos soportados para importación
+  static List<ExportType> getSupportedTypes() {
+    return [ExportType.json, ExportType.csv]; // Solo JSON y CSV para importación
   }
 
   /// Obtiene la descripción de cada tipo de importación
-  static Map<String, String> getTypeDescriptions() {
+  static Map<ExportType, String> getTypeDescriptions() {
     return {
-      '.json': 'Archivos JSON de respaldo completo',
-      '.csv': 'Archivos CSV con datos tabulares',
+      ExportType.json: 'Archivos JSON de respaldo completo',
+      ExportType.csv: 'Archivos CSV con datos tabulares',
     };
   }
 
-  /// Valida si una extensión es soportada
+  /// Valida si una extensión es soportada para importación
   static bool isSupportedExtension(String extension) {
-    return getSupportedExtensions().contains(extension.toLowerCase());
+    final exportType = ExportType.fromExtension(extension);
+    return exportType != null && getSupportedTypes().contains(exportType);
   }
 }

@@ -6,7 +6,7 @@ import '../models/export_config.dart';
 class MetadataService {
   static MetadataService? _instance;
   static MetadataService get instance => _instance ??= MetadataService._();
-  
+
   MetadataService._();
 
   PackageInfo? _packageInfo;
@@ -25,7 +25,7 @@ class MetadataService {
     }
 
     final deviceId = await _getDeviceId();
-    
+
     return ExportMetadata(
       version: '1.0', // Versión del formato de exportación
       exportDate: DateTime.now(),

@@ -3,6 +3,7 @@ import 'json_exporter.dart';
 import 'csv_exporter.dart';
 import 'pdf_exporter.dart';
 import '../models/export_config.dart';
+import '../models/export_type.dart';
 import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
@@ -12,7 +13,7 @@ import '../../../features/statistics/models/progress_data.dart';
 class ExportFactory {
   /// Crea un exportador basado en el tipo especificado
   static ExportBuilder createExporter({
-    required String type,
+    required ExportType type,
     required ExportConfig config,
     required List<WorkoutSession> sessions,
     required List<Exercise> exercises,
@@ -21,8 +22,8 @@ class ExportFactory {
     required Map<String, dynamic> userSettings,
     required ExportMetadata metadata,
   }) {
-    switch (type.toLowerCase()) {
-      case 'json':
+    switch (type) {
+      case ExportType.json:
         return JsonExporter(
           config: config,
           sessions: sessions,
@@ -33,7 +34,7 @@ class ExportFactory {
           metadata: metadata,
         );
       
-      case 'csv':
+      case ExportType.csv:
         return CsvExporter(
           config: config,
           sessions: sessions,
@@ -44,7 +45,7 @@ class ExportFactory {
           metadata: metadata,
         );
       
-      case 'pdf':
+      case ExportType.pdf:
         return PdfExporter(
           config: config,
           sessions: sessions,
@@ -54,32 +55,39 @@ class ExportFactory {
           userSettings: userSettings,
           metadata: metadata,
         );
-      
-      default:
-        throw ArgumentError('Tipo de exportador no soportado: $type');
     }
   }
 
   /// Obtiene la lista de tipos de exportación soportados
-  static List<String> getSupportedTypes() {
-    return ['json', 'csv', 'pdf'];
+  static List<ExportType> getSupportedTypes() {
+    return ExportType.values;
+  }
+
+  /// Obtiene la lista de extensiones soportadas
+  static List<String> getSupportedExtensions() {
+    return ExportType.supportedExtensions;
   }
 
   /// Obtiene la descripción de cada tipo de exportación
-  static Map<String, String> getTypeDescriptions() {
+  static Map<ExportType, String> getTypeDescriptions() {
     return {
-      'json': 'Formato JSON completo con metadatos para respaldos',
-      'csv': 'Formato CSV tabular para análisis de datos',
-      'pdf': 'Reporte PDF visual con gráficos y estadísticas',
+      ExportType.json: 'Formato JSON completo con metadatos para respaldos',
+      ExportType.csv: 'Formato CSV tabular para análisis de datos',
+      ExportType.pdf: 'Reporte PDF visual con gráficos y estadísticas',
     };
   }
 
   /// Obtiene la extensión de archivo para cada tipo
-  static Map<String, String> getFileExtensions() {
+  static Map<ExportType, String> getFileExtensions() {
     return {
-      'json': '.json',
-      'csv': '.csv',
-      'pdf': '.pdf',
+      ExportType.json: '.json',
+      ExportType.csv: '.csv',
+      ExportType.pdf: '.pdf',
     };
+  }
+
+  /// Obtiene el tipo de exportación desde una extensión de archivo
+  static ExportType? getTypeFromExtension(String extension) {
+    return ExportType.fromExtension(extension);
   }
 }
