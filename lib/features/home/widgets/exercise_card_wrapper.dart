@@ -15,11 +15,13 @@ class ExerciseCardWrapper extends ConsumerStatefulWidget {
   final RoutineExercise routineExercise;
   final Exercise exercise;
   final VoidCallback onTap;
+  final bool showSetsControls;
 
   const ExerciseCardWrapper({
     required this.routineExercise,
     required this.exercise,
     required this.onTap,
+    this.showSetsControls = false,
     super.key,
   });
 
@@ -143,7 +145,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           exercise: widget.exercise,
           isCompleted: isCompleted,
           performedSets: performedSets,
-          showSetsControls: false,
+          showSetsControls: widget.showSetsControls,
           onTap: null,
           onLongPress: widget.onTap,
           onToggleCompleted: null,

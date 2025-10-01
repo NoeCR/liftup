@@ -9,9 +9,7 @@ import '../../home/notifiers/routine_notifier.dart';
 import '../../home/models/routine.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../exercise/models/exercise.dart';
-import '../../../common/widgets/exercise_card.dart';
-// performedSets/exerciseCompletion se derivan desde session.exerciseSets para persistencia
-import '../../exercise/models/exercise_set.dart';
+import '../../home/widgets/exercise_card_wrapper.dart';
 import 'package:go_router/go_router.dart';
 
 class SessionPage extends ConsumerStatefulWidget {
@@ -262,84 +260,16 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                                       ),
                                 );
 
-                                final performedSets =
-                                    session.exerciseSets
-                                        .where(
-                                          (s) => s.exerciseId == re.exerciseId,
-                                        )
-                                        .length;
-                                final isCompleted = performedSets >= re.sets;
+                                // ExerciseCardWrapper maneja internamente el estado de series realizadas
 
                                 return SizedBox(
                                   width: 320,
-                                  child: ExerciseCard(
+                                  child: ExerciseCardWrapper(
                                     routineExercise: re,
-                                    exercise: ex.id.isEmpty ? null : ex,
-                                    isCompleted: isCompleted,
-                                    performedSets: performedSets,
+                                    exercise: ex,
                                     showSetsControls: true,
-                                    onTap: null,
-                                    onLongPress: null,
-                                    onToggleCompleted: null,
-                                    onWeightChanged: null,
-                                    onRepsChanged: (newValue) async {
-                                      final clamped =
-                                          newValue.clamp(0, re.sets).toInt();
-
-                                      // No permitir decrementos ni cambios si ya está completado
-                                      if (clamped <= performedSets ||
-                                          performedSets >= re.sets) {
-                                        return;
-                                      }
-
-                                      // Persistir tantos sets como incremento
-                                      final diff = clamped - performedSets;
-                                      for (int i = 0; i < diff; i++) {
-                                        final set = ExerciseSet(
-                                          id:
-                                              '${session.id}-${re.id}-${DateTime.now().microsecondsSinceEpoch}-$i',
-                                          exerciseId: re.exerciseId,
-                                          reps: re.reps,
-                                          weight: re.weight,
-                                          restTimeSeconds: re.restTimeSeconds,
-                                          notes: re.notes,
-                                          completedAt: DateTime.now(),
-                                          isCompleted: true,
-                                        );
-                                        await ref
-                                            .read(
-                                              sessionNotifierProvider.notifier,
-                                            )
-                                            .addExerciseSet(set);
-                                      }
-
-                                      // Iniciar descanso persistente si hay rest configurado y aún no completado
-                                      if (re.restTimeSeconds != null &&
-                                          clamped < re.sets) {
-                                        final endsAt = DateTime.now().add(
-                                          Duration(
-                                            seconds: re.restTimeSeconds!,
-                                          ),
-                                        );
-                                        await ref
-                                            .read(
-                                              sessionNotifierProvider.notifier,
-                                            )
-                                            .setExerciseRestEnd(
-                                              exerciseId: re.exerciseId,
-                                              restEndsAt: endsAt,
-                                            );
-                                      } else {
-                                        // si ya completó, borrar rest
-                                        await ref
-                                            .read(
-                                              sessionNotifierProvider.notifier,
-                                            )
-                                            .setExerciseRestEnd(
-                                              exerciseId: re.exerciseId,
-                                              restEndsAt: null,
-                                            );
-                                      }
+                                    onTap: () {
+                                      // Long press functionality for exercise details
                                     },
                                   ),
                                 );
@@ -347,34 +277,6 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                             ),
                           ),
                         const SizedBox(height: 8),
-                        // Rest chip persistente si aplica
-                        Builder(
-                          builder: (context) {
-                            // Nota: este chip debe estar dentro del builder del item para capturar 're'
-                            return Consumer(
-                              builder: (context, ref, _) {
-                                final endsAt = ref
-                                    .read(sessionNotifierProvider.notifier)
-                                    .readExerciseRestEnd(
-                                      session.notes,
-                                      section.exercises[index].exerciseId,
-                                    );
-                                if (endsAt == null)
-                                  return const SizedBox.shrink();
-                                final remaining =
-                                    endsAt.difference(DateTime.now()).inSeconds;
-                                if (remaining <= 0)
-                                  return const SizedBox.shrink();
-                                return Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Chip(
-                                    label: Text('Descanso: ${remaining}s'),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
                       ],
                     );
                   },
