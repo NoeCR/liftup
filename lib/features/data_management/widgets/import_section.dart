@@ -123,11 +123,12 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
     try {
       // Obtener extensiones soportadas dinámicamente
       final supportedExtensions = ImportFactory.getSupportedExtensions();
-      
+
       // Mostrar diálogo de selección de archivo con validación
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: supportedExtensions.map((ext) => ext.replaceAll('.', '')).toList(),
+        allowedExtensions:
+            supportedExtensions.map((ext) => ext.replaceAll('.', '')).toList(),
         allowMultiple: false,
       );
 
@@ -264,64 +265,65 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
   void _showImportError(BuildContext context, String errorMessage) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.error, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Error de Importación'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'No se pudo importar el archivo. Detalles del error:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+      builder:
+          (context) => AlertDialog(
+            title: const Row(
+              children: [
+                Icon(Icons.error, color: Colors.red),
+                SizedBox(width: 8),
+                Text('Error de Importación'),
+              ],
             ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.shade200),
-              ),
-              child: Text(
-                errorMessage,
-                style: TextStyle(
-                  color: Colors.red.shade800,
-                  fontFamily: 'monospace',
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'No se pudo importar el archivo. Detalles del error:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red.shade200),
+                  ),
+                  child: Text(
+                    errorMessage,
+                    style: TextStyle(
+                      color: Colors.red.shade800,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Sugerencias:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                const Text('• Verifica que el archivo no esté corrupto'),
+                const Text('• Asegúrate de que el formato sea correcto'),
+                const Text('• Comprueba que el archivo no exceda 10MB'),
+                const Text('• Intenta con un archivo de respaldo diferente'),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Entendido'),
               ),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Sugerencias:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text('• Verifica que el archivo no esté corrupto'),
-            const Text('• Asegúrate de que el formato sea correcto'),
-            const Text('• Comprueba que el archivo no exceda 10MB'),
-            const Text('• Intenta con un archivo de respaldo diferente'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Entendido'),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _showImportHelp(context);
+                },
+                child: const Text('Ver Ayuda'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showImportHelp(context);
-            },
-            child: const Text('Ver Ayuda'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -340,10 +342,12 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
     // 2. Validar extensión del archivo
     final fileExtension = ImportFactory.getFileExtension(file.path!);
     if (!ImportFactory.isSupportedExtension(fileExtension)) {
-      final supportedExtensions = ImportFactory.getSupportedExtensions().join(', ');
+      final supportedExtensions = ImportFactory.getSupportedExtensions().join(
+        ', ',
+      );
       throw Exception(
         'Tipo de archivo no soportado: $fileExtension\n'
-        'Extensiones soportadas: $supportedExtensions'
+        'Extensiones soportadas: $supportedExtensions',
       );
     }
 
@@ -355,7 +359,7 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       final maxSizeMB = (maxFileSize / (1024 * 1024)).toStringAsFixed(0);
       throw Exception(
         'El archivo es demasiado grande: ${sizeMB}MB\n'
-        'Tamaño máximo permitido: ${maxSizeMB}MB'
+        'Tamaño máximo permitido: ${maxSizeMB}MB',
       );
     }
 
@@ -372,9 +376,11 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
   Future<void> _validateFileContent(File file, String extension) async {
     try {
       final content = await file.readAsString();
-      
+
       if (content.trim().isEmpty) {
-        throw Exception('El archivo está vacío o contiene solo espacios en blanco');
+        throw Exception(
+          'El archivo está vacío o contiene solo espacios en blanco',
+        );
       }
 
       switch (extension.toLowerCase()) {
@@ -384,27 +390,39 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
             // Intentar parsear el JSON para verificar que es válido
             final jsonData = jsonDecode(content);
             if (jsonData is! Map<String, dynamic>) {
-              throw Exception('El archivo JSON debe contener un objeto en la raíz');
+              throw Exception(
+                'El archivo JSON debe contener un objeto en la raíz',
+              );
             }
           } catch (e) {
-            throw Exception('El archivo no contiene JSON válido: ${e.toString()}');
+            throw Exception(
+              'El archivo no contiene JSON válido: ${e.toString()}',
+            );
           }
           break;
-          
+
         case '.csv':
           // Validar que tiene al menos una línea con contenido
-          final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
+          final lines =
+              content
+                  .split('\n')
+                  .where((line) => line.trim().isNotEmpty)
+                  .toList();
           if (lines.isEmpty) {
             throw Exception('El archivo CSV no contiene datos válidos');
           }
           // Verificar que tiene al menos una coma (indicador básico de CSV)
           if (!lines.first.contains(',')) {
-            throw Exception('El archivo no parece ser un CSV válido (no contiene separadores de columna)');
+            throw Exception(
+              'El archivo no parece ser un CSV válido (no contiene separadores de columna)',
+            );
           }
           break;
-          
+
         default:
-          throw Exception('Tipo de archivo no soportado para validación de contenido');
+          throw Exception(
+            'Tipo de archivo no soportado para validación de contenido',
+          );
       }
     } catch (e) {
       if (e is Exception) {
