@@ -408,6 +408,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final databaseService = DatabaseService.getInstance();
       await databaseService.forceResetDatabase();
 
+      // Limpiar el estado de series realizadas
+      this.ref.read(sessionNotifierProvider.notifier).clearPerformedSets();
+
       // Invalidar todos los providers para forzar la recarga
       this.ref.invalidate(routineNotifierProvider);
       this.ref.invalidate(exerciseNotifierProvider);

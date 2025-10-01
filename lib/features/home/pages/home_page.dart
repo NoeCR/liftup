@@ -79,7 +79,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         ],
       ),
       bottomNavigationBar: CustomBottomNavigation(currentIndex: _currentIndex),
-      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 
@@ -552,18 +551,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return FloatingActionButton.extended(
-      onPressed: () => context.push('/session'),
-      icon: const Icon(Icons.play_arrow),
-      label: const Text('Entrenar'),
-      backgroundColor: colorScheme.primary,
-      foregroundColor: colorScheme.onPrimary,
     );
   }
 

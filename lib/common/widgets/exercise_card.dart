@@ -173,7 +173,7 @@ class ExerciseCard extends StatelessWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.remove, size: 16),
-            onPressed: () => onRepsChanged?.call(performedSets - 1),
+            onPressed: performedSets > 0 ? () => onRepsChanged?.call(performedSets - 1) : null,
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
               backgroundColor: colorScheme.surfaceContainerHighest,
@@ -194,7 +194,7 @@ class ExerciseCard extends StatelessWidget {
           const SizedBox(width: 4),
           IconButton(
             icon: const Icon(Icons.add, size: 16),
-            onPressed: () => onRepsChanged?.call(performedSets + 1),
+            onPressed: performedSets < routineExercise.sets ? () => onRepsChanged?.call(performedSets + 1) : null,
             style: IconButton.styleFrom(
               visualDensity: VisualDensity.compact,
               backgroundColor: colorScheme.surfaceContainerHighest,

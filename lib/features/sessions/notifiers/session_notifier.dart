@@ -3,6 +3,11 @@ import 'package:uuid/uuid.dart';
 import '../models/workout_session.dart';
 import '../services/session_service.dart';
 import '../../exercise/models/exercise_set.dart';
+import '../../exercise/models/exercise.dart';
+import 'performed_sets_notifier.dart';
+import '../../home/notifiers/routine_notifier.dart';
+import '../../home/models/routine.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
 
 part 'session_notifier.g.dart';
 
@@ -26,6 +31,9 @@ class SessionNotifier extends _$SessionNotifier {
     String? routineId,
     required String name,
   }) async {
+    // Limpiar contadores de series realizadas al iniciar nueva sesión
+    ref.read(performedSetsNotifierProvider.notifier).clearAll();
+    
     final sessionService = ref.read(sessionServiceProvider);
     final uuid = const Uuid();
 
@@ -83,14 +91,19 @@ class SessionNotifier extends _$SessionNotifier {
     final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
+    // Convertir contadores de series realizadas en ExerciseSet reales
+    final performedSets = ref.read(performedSetsNotifierProvider);
+    final exerciseSets = await _convertPerformedSetsToExerciseSets(performedSets, currentSession);
+
     // Calcular totales al finalizar
-    final totalWeight = _calculateTotalWeight(currentSession.exerciseSets);
-    final totalReps = _calculateTotalReps(currentSession.exerciseSets);
+    final totalWeight = _calculateTotalWeight(exerciseSets);
+    final totalReps = _calculateTotalReps(exerciseSets);
 
     final completedSession = currentSession.copyWith(
       endTime: DateTime.now(),
       status: SessionStatus.completed,
       notes: notes,
+      exerciseSets: exerciseSets,
       totalWeight: totalWeight,
       totalReps: totalReps,
     );
@@ -100,6 +113,9 @@ class SessionNotifier extends _$SessionNotifier {
     state = AsyncValue.data(await sessionService.getAllSessions());
     _pausedElapsedBySession.remove(currentSession.id);
     _lastResumeAtBySession.remove(currentSession.id);
+    
+    // NO limpiar contadores aquí - mantenerlos en memoria para vista rápida
+    // Se limpiarán al iniciar una nueva sesión
   }
 
   Future<void> pauseSession() async {
@@ -254,6 +270,11 @@ class SessionNotifier extends _$SessionNotifier {
   DateTime? getLastResumeAt(String sessionId) =>
       _lastResumeAtBySession[sessionId];
 
+  /// Limpia manualmente los contadores de series realizadas
+  void clearPerformedSets() {
+    ref.read(performedSetsNotifierProvider.notifier).clearAll();
+  }
+
   // Helpers para notes
   String? _setNoteValue(String? notes, String tag, String? value) {
     final lines = (notes ?? '').split('\n');
@@ -321,5 +342,80 @@ class SessionNotifier extends _$SessionNotifier {
       base = now.difference(session.startTime).inSeconds;
     }
     return base < 0 ? 0 : base;
+  }
+
+  /// Convierte los contadores de series realizadas en ExerciseSet reales
+  Future<List<ExerciseSet>> _convertPerformedSetsToExerciseSets(
+    Map<String, int> performedSets,
+    WorkoutSession session,
+  ) async {
+    final exerciseSets = <ExerciseSet>[];
+    final uuid = const Uuid();
+
+    // Obtener rutina y ejercicios para acceder a los datos necesarios
+    final routines = await ref.read(routineNotifierProvider.future);
+    final exercises = await ref.read(exerciseNotifierProvider.future);
+    
+    // Encontrar la rutina actual
+    Routine? currentRoutine;
+    try {
+      currentRoutine = routines.firstWhere(
+        (routine) => routine.id == session.routineId,
+      );
+    } catch (e) {
+      if (routines.isNotEmpty) {
+        currentRoutine = routines.first;
+      }
+    }
+
+    if (currentRoutine == null) return exerciseSets;
+
+    // Procesar cada contador de series realizadas
+    for (final entry in performedSets.entries) {
+      final routineExerciseId = entry.key;
+      final setsCount = entry.value;
+
+      if (setsCount <= 0) continue;
+
+      // Encontrar el RoutineExercise correspondiente
+      RoutineExercise? routineExercise;
+      for (final section in currentRoutine.sections) {
+        try {
+          routineExercise = section.exercises.firstWhere(
+            (re) => re.id == routineExerciseId,
+          );
+          break;
+        } catch (e) {
+          // Continuar buscando en la siguiente sección
+        }
+      }
+
+      if (routineExercise == null) continue;
+
+      // Encontrar el ejercicio
+      Exercise? exercise;
+      try {
+        exercise = exercises.firstWhere(
+          (e) => e.id == routineExercise!.exerciseId,
+        );
+      } catch (e) {
+        continue;
+      }
+
+      // Crear ExerciseSet para cada serie realizada
+      for (int i = 0; i < setsCount; i++) {
+        final exerciseSet = ExerciseSet(
+          id: uuid.v4(),
+          exerciseId: exercise.id,
+          weight: routineExercise.weight,
+          reps: routineExercise.reps,
+          completedAt: DateTime.now(),
+          isCompleted: true,
+        );
+        exerciseSets.add(exerciseSet);
+      }
+    }
+
+    return exerciseSets;
   }
 }
