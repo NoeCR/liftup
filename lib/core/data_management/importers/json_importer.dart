@@ -22,8 +22,7 @@ class JsonImporter extends ImportBuilder {
       final file = File(filePath);
       
       // Validar tamaño del archivo
-      if (config.maxFileSize != null && 
-          await file.length() > config.maxFileSize!) {
+      if (await file.length() > config.maxFileSize) {
         return ImportResult.failure(
           errorMessage: 'El archivo es demasiado grande',
           errors: ['Archivo excede el tamaño máximo permitido'],

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-import '../models/export_config.dart';
+import '../models/import_config.dart';
 import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
@@ -113,8 +113,7 @@ class ImportBuilder {
       final file = File(filePath);
       
       // Validar tamaño del archivo
-      if (_config.maxFileSize != null && 
-          await file.length() > _config.maxFileSize!) {
+      if (await file.length() > _config.maxFileSize) {
         return ImportResult(
           success: false,
           importedCount: 0,

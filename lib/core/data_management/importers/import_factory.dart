@@ -1,7 +1,7 @@
 import 'import_builder.dart';
 import 'json_importer.dart';
 import 'csv_importer.dart';
-import '../models/export_config.dart';
+import '../models/import_config.dart';
 import '../models/export_type.dart';
 import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';

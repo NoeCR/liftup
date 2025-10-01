@@ -1,7 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../importers/import_factory.dart';
 import '../importers/import_builder.dart';
-import '../models/export_config.dart';
+import '../models/import_config.dart';
 import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';

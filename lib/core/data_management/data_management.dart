@@ -1,5 +1,6 @@
 // Exportar todos los modelos
 export 'models/export_config.dart';
+export 'models/import_config.dart';
 export 'models/export_type.dart';
 export 'models/change_history.dart';
 export 'models/cloud_backup.dart';

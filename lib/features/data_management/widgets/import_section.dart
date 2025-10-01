@@ -157,7 +157,7 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
         overwriteExisting: _overwriteExisting,
         validateData: _validateData,
         createBackup: _createBackup,
-        allowedFormats: const ['json', 'csv'],
+        allowedTypes: const [ExportType.json, ExportType.csv],
         maxFileSize: 10 * 1024 * 1024, // 10MB
       );
 

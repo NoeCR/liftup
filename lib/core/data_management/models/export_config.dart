@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'export_type.dart';
 
 /// Configuración para la exportación de datos
 class ExportConfig extends Equatable {
@@ -11,6 +12,7 @@ class ExportConfig extends Equatable {
   final DateTime? toDate;
   final List<String>? routineIds;
   final List<String>? exerciseIds;
+  final ExportType? preferredType;
   final bool compressData;
   final bool includeMetadata;
 
@@ -24,6 +26,7 @@ class ExportConfig extends Equatable {
     this.toDate,
     this.routineIds,
     this.exerciseIds,
+    this.preferredType,
     this.compressData = false,
     this.includeMetadata = true,
   });
@@ -39,6 +42,7 @@ class ExportConfig extends Equatable {
         toDate,
         routineIds,
         exerciseIds,
+        preferredType,
         compressData,
         includeMetadata,
       ];
@@ -53,6 +57,7 @@ class ExportConfig extends Equatable {
     DateTime? toDate,
     List<String>? routineIds,
     List<String>? exerciseIds,
+    ExportType? preferredType,
     bool? compressData,
     bool? includeMetadata,
   }) {
@@ -66,58 +71,81 @@ class ExportConfig extends Equatable {
       toDate: toDate ?? this.toDate,
       routineIds: routineIds ?? this.routineIds,
       exerciseIds: exerciseIds ?? this.exerciseIds,
+      preferredType: preferredType ?? this.preferredType,
       compressData: compressData ?? this.compressData,
       includeMetadata: includeMetadata ?? this.includeMetadata,
     );
   }
-}
 
-/// Configuración para la importación de datos
-class ImportConfig extends Equatable {
-  final bool mergeData;
-  final bool overwriteExisting;
-  final bool validateData;
-  final bool createBackup;
-  final List<String>? allowedFormats;
-  final int? maxFileSize; // en bytes
+  /// Verifica si se incluye algún tipo de dato
+  bool get hasAnyData {
+    return includeSessions || 
+           includeExercises || 
+           includeRoutines || 
+           includeProgressData || 
+           includeUserSettings;
+  }
 
-  const ImportConfig({
-    this.mergeData = true,
-    this.overwriteExisting = false,
-    this.validateData = true,
-    this.createBackup = true,
-    this.allowedFormats,
-    this.maxFileSize,
-  });
+  /// Verifica si se incluyen todos los tipos de datos
+  bool get hasAllData {
+    return includeSessions && 
+           includeExercises && 
+           includeRoutines && 
+           includeProgressData;
+  }
 
-  @override
-  List<Object?> get props => [
-        mergeData,
-        overwriteExisting,
-        validateData,
-        createBackup,
-        allowedFormats,
-        maxFileSize,
-      ];
+  /// Obtiene una descripción de los datos incluidos
+  String get includedDataDescription {
+    final included = <String>[];
+    if (includeSessions) included.add('Sesiones');
+    if (includeExercises) included.add('Ejercicios');
+    if (includeRoutines) included.add('Rutinas');
+    if (includeProgressData) included.add('Progreso');
+    if (includeUserSettings) included.add('Configuración');
+    
+    return included.isEmpty ? 'Ningún dato' : included.join(', ');
+  }
 
-  ImportConfig copyWith({
-    bool? mergeData,
-    bool? overwriteExisting,
-    bool? validateData,
-    bool? createBackup,
-    List<String>? allowedFormats,
-    int? maxFileSize,
-  }) {
-    return ImportConfig(
-      mergeData: mergeData ?? this.mergeData,
-      overwriteExisting: overwriteExisting ?? this.overwriteExisting,
-      validateData: validateData ?? this.validateData,
-      createBackup: createBackup ?? this.createBackup,
-      allowedFormats: allowedFormats ?? this.allowedFormats,
-      maxFileSize: maxFileSize ?? this.maxFileSize,
+  /// Crea una configuración para exportación completa
+  static ExportConfig fullExport() {
+    return const ExportConfig(
+      includeSessions: true,
+      includeExercises: true,
+      includeRoutines: true,
+      includeProgressData: true,
+      includeUserSettings: true,
+      compressData: true,
+      includeMetadata: true,
+    );
+  }
+
+  /// Crea una configuración para exportación rápida (solo datos esenciales)
+  static ExportConfig quickExport() {
+    return const ExportConfig(
+      includeSessions: true,
+      includeExercises: true,
+      includeRoutines: true,
+      includeProgressData: false,
+      includeUserSettings: false,
+      compressData: false,
+      includeMetadata: false,
+    );
+  }
+
+  /// Crea una configuración para exportación de respaldo
+  static ExportConfig backupExport() {
+    return const ExportConfig(
+      includeSessions: true,
+      includeExercises: true,
+      includeRoutines: true,
+      includeProgressData: true,
+      includeUserSettings: true,
+      compressData: true,
+      includeMetadata: true,
     );
   }
 }
+
 
 /// Metadatos de exportación
 class ExportMetadata extends Equatable {
