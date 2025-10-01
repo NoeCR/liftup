@@ -184,7 +184,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ]),
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 4),
+      bottomNavigationBar: const CustomBottomNavigation(currentIndex: 5),
     );
   }
 
