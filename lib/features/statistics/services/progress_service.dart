@@ -1,8 +1,8 @@
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../models/progress_data.dart';
 import '../../sessions/models/workout_session.dart';
 import '../../exercise/models/exercise_set.dart';
+import '../../../core/database/database_service.dart';
 
 /// Servicio para generar y gestionar datos de progreso
 class ProgressService {
@@ -90,7 +90,8 @@ class ProgressService {
 
   /// Guarda los datos de progreso en Hive
   Future<void> saveProgressData(List<ProgressData> progressData) async {
-    final progressBox = Hive.box<ProgressData>('progress');
+    final databaseService = DatabaseService.getInstance();
+    final progressBox = databaseService.progressBox;
     
     for (final progress in progressData) {
       // Usar una clave compuesta para evitar duplicados
@@ -101,8 +102,9 @@ class ProgressService {
 
   /// Obtiene todos los datos de progreso de Hive
   Future<List<ProgressData>> getAllProgressData() async {
-    final progressBox = Hive.box<ProgressData>('progress');
-    return progressBox.values.toList();
+    final databaseService = DatabaseService.getInstance();
+    final progressBox = databaseService.progressBox;
+    return progressBox.values.cast<ProgressData>().toList();
   }
 
   /// Obtiene datos de progreso para un ejercicio específico
@@ -125,7 +127,8 @@ class ProgressService {
 
   /// Limpia todos los datos de progreso
   Future<void> clearAllProgressData() async {
-    final progressBox = Hive.box<ProgressData>('progress');
+    final databaseService = DatabaseService.getInstance();
+    final progressBox = databaseService.progressBox;
     await progressBox.clear();
   }
 

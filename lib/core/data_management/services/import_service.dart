@@ -1,4 +1,3 @@
-import 'package:hive_flutter/hive_flutter.dart';
 import '../importers/import_factory.dart';
 import '../importers/import_builder.dart';
 import '../models/import_config.dart';
@@ -6,6 +5,7 @@ import '../../../features/sessions/models/workout_session.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
 import '../../../features/statistics/models/progress_data.dart';
+import '../../../core/database/database_service.dart';
 
 /// Servicio para manejar la importación de datos a la base de datos Hive
 class ImportService {
@@ -53,52 +53,47 @@ class ImportService {
 
   /// Obtiene los datos existentes de Hive
   Future<Map<String, List<dynamic>>> _getExistingData() async {
-    final sessionsBox = Hive.box<WorkoutSession>('sessions');
-    final exercisesBox = Hive.box<Exercise>('exercises');
-    final routinesBox = Hive.box<Routine>('routines');
-    final progressBox = Hive.box<ProgressData>('progress');
-
+    final databaseService = DatabaseService.getInstance();
+    
     return {
-      'sessions': sessionsBox.values.toList().cast<WorkoutSession>(),
-      'exercises': exercisesBox.values.toList().cast<Exercise>(),
-      'routines': routinesBox.values.toList().cast<Routine>(),
-      'progressData': progressBox.values.toList().cast<ProgressData>(),
+      'sessions': databaseService.sessionsBox.values.cast<WorkoutSession>().toList(),
+      'exercises': databaseService.exercisesBox.values.cast<Exercise>().toList(),
+      'routines': databaseService.routinesBox.values.cast<Routine>().toList(),
+      'progressData': databaseService.progressBox.values.cast<ProgressData>().toList(),
     };
   }
 
   /// Guarda los datos importados en Hive
   Future<void> _saveToHive(ImportResult result) async {
+    final databaseService = DatabaseService.getInstance();
+    
     // Guardar sesiones
     if (result.importedSessions.isNotEmpty) {
-      final sessionsBox = Hive.box<WorkoutSession>('sessions');
       for (final session in result.importedSessions) {
-        await sessionsBox.put(session.id, session);
+        await databaseService.sessionsBox.put(session.id, session);
       }
     }
 
     // Guardar ejercicios
     if (result.importedExercises.isNotEmpty) {
-      final exercisesBox = Hive.box<Exercise>('exercises');
       for (final exercise in result.importedExercises) {
-        await exercisesBox.put(exercise.id, exercise);
+        await databaseService.exercisesBox.put(exercise.id, exercise);
       }
     }
 
     // Guardar rutinas
     if (result.importedRoutines.isNotEmpty) {
-      final routinesBox = Hive.box<Routine>('routines');
       for (final routine in result.importedRoutines) {
-        await routinesBox.put(routine.id, routine);
+        await databaseService.routinesBox.put(routine.id, routine);
       }
     }
 
     // Guardar datos de progreso
     if (result.importedProgressData.isNotEmpty) {
-      final progressBox = Hive.box<ProgressData>('progress');
       for (final progress in result.importedProgressData) {
         // Usar una clave compuesta para datos de progreso
         final key = '${progress.exerciseId}_${progress.date.millisecondsSinceEpoch}';
-        await progressBox.put(key, progress);
+        await databaseService.progressBox.put(key, progress);
       }
     }
   }

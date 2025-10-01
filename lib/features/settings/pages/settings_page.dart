@@ -8,6 +8,8 @@ import '../notifiers/rest_prefs.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../../home/notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../sessions/notifiers/session_notifier.dart';
+import '../../statistics/notifiers/progress_notifier.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -363,6 +365,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       // Invalidar todos los providers para forzar la recarga
       this.ref.invalidate(routineNotifierProvider);
       this.ref.invalidate(exerciseNotifierProvider);
+      this.ref.invalidate(sessionNotifierProvider);
+      this.ref.invalidate(progressNotifierProvider);
+
+      // Esperar un momento para que se complete la invalidación
+      await Future.delayed(const Duration(milliseconds: 500));
 
       // Cerrar el indicador de progreso
       if (context.mounted) {
