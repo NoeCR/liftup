@@ -11,6 +11,9 @@ import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../statistics/notifiers/progress_notifier.dart';
 
+// Clave global para el ScaffoldMessenger
+final GlobalKey<ScaffoldMessengerState> globalScaffoldKey = GlobalKey<ScaffoldMessengerState>();
+
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
@@ -20,13 +23,16 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   String? _confirmationText;
+  bool _isDeleting = false;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
+    return ScaffoldMessenger(
+      key: globalScaffoldKey,
+      child: Scaffold(
       appBar: AppBar(
         title: const Text('Configuración'),
         backgroundColor: colorScheme.surface,
@@ -176,6 +182,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ],
       ),
       bottomNavigationBar: const CustomBottomNavigation(currentIndex: 4),
+      ),
     );
   }
 
@@ -263,11 +270,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   void _showSecondConfirmationDialog(BuildContext context) {
+    _confirmationText = null; // Reset confirmation text
+    _isDeleting = false; // Reset deleting state
+    
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('🚨 CONFIRMACIÓN FINAL'),
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final isValid = _confirmationText?.toUpperCase() == 'ELIMINAR';
+          
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                const SizedBox(width: 8),
+                const Text('Confirmación Final'),
+              ],
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,66 +322,73 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 const SizedBox(height: 12),
                 TextField(
+                  enabled: !_isDeleting,
                   decoration: const InputDecoration(
                     hintText: 'Escribe ELIMINAR aquí',
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (value) {
-                    // Store the confirmation text for validation
-                    _confirmationText = value;
+                    setDialogState(() {
+                      _confirmationText = value;
+                    });
                   },
                 ),
               ],
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: _isDeleting ? null : () => Navigator.of(context).pop(),
                 child: const Text('Cancelar'),
               ),
               FilledButton(
-                onPressed: () async {
-                  if (_confirmationText?.toUpperCase() == 'ELIMINAR') {
-                    Navigator.of(context).pop();
-                    await _clearAllData(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Debes escribir "ELIMINAR" para confirmar',
-                        ),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
+                onPressed: _isDeleting || !isValid ? null : () async {
+                  setDialogState(() {
+                    _isDeleting = true;
+                  });
+                  
+                  try {
+                    await _clearAllData();
+                    // Cerrar el diálogo
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  } catch (e) {
+                    // En caso de error, permitir reintentar
+                    setDialogState(() {
+                      _isDeleting = false;
+                    });
                   }
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: const Text('ELIMINAR TODO'),
+                child: _isDeleting
+                    ? const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Text('Eliminando...'),
+                        ],
+                      )
+                    : const Text('ELIMINAR TODO'),
               ),
             ],
-          ),
+          );
+        },
+      ),
     );
   }
 
-  Future<void> _clearAllData(BuildContext context) async {
+  Future<void> _clearAllData() async {
     try {
-      // Mostrar indicador de progreso
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder:
-            (context) => const AlertDialog(
-              content: Row(
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(width: 16),
-                  Text('Eliminando todos los datos...'),
-                ],
-              ),
-            ),
-      );
-
       final databaseService = DatabaseService.getInstance();
       await databaseService.forceResetDatabase();
 
@@ -371,35 +401,28 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       // Esperar un momento para que se complete la invalidación
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Cerrar el indicador de progreso
-      if (context.mounted) {
-        Navigator.of(context).pop();
-
-        // Mostrar mensaje de éxito
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Todos los datos han sido eliminados exitosamente'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
+      // Mostrar SnackBar de éxito usando la clave global
+      globalScaffoldKey.currentState?.showSnackBar(
+        const SnackBar(
+          content: Text('✅ Todos los datos han sido eliminados exitosamente'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
     } catch (e) {
       print('Error clearing database: $e');
 
-      // Cerrar el indicador de progreso si está abierto
-      if (context.mounted) {
-        Navigator.of(context).pop();
-
-        // Mostrar mensaje de error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error al eliminar datos: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      }
+      // Mostrar SnackBar de error usando la clave global
+      globalScaffoldKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text('❌ Error al eliminar datos: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+      
+      // Re-lanzar el error para que el diálogo pueda manejarlo
+      rethrow;
     }
   }
 }
