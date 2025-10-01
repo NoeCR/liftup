@@ -21,15 +21,18 @@ class AutoRoutineSelectionService {
   /// Encuentra rutinas que coincidan con el día de la semana actual
   List<Routine> findRoutinesForToday(List<Routine> routines) {
     final today = getCurrentWeekDay();
-    final todayRoutines = routines.where((routine) => routine.days.contains(today)).toList();
-    
+    final todayRoutines =
+        routines.where((routine) => routine.days.contains(today)).toList();
+
     print('AutoSelectionService: Today is ${today.displayName}');
     print('AutoSelectionService: Total routines: ${routines.length}');
     print('AutoSelectionService: Routines for today: ${todayRoutines.length}');
     for (final routine in todayRoutines) {
-      print('AutoSelectionService: - ${routine.name} (days: ${routine.days.map((d) => d.displayName).join(', ')})');
+      print(
+        'AutoSelectionService: - ${routine.name} (days: ${routine.days.map((d) => d.displayName).join(', ')})',
+      );
     }
-    
+
     return todayRoutines;
   }
 
