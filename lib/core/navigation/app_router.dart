@@ -13,6 +13,7 @@ import '../../features/sessions/pages/session_history_page.dart';
 import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 import '../../features/home/pages/section_templates_page.dart';
+import '../../features/data_management/pages/data_management_page.dart';
 import '../../features/home/notifiers/routine_notifier.dart';
 import '../../features/exercise/notifiers/exercise_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,6 +33,7 @@ class AppRouter {
   static const String statistics = '/statistics';
   static const String settings = '/settings';
   static const String sectionTemplates = '/section-templates';
+  static const String dataManagement = '/data-management';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -226,6 +228,11 @@ class AppRouter {
         path: sectionTemplates,
         name: 'sectionTemplates',
         builder: (context, state) => const SectionTemplatesPage(),
+      ),
+      GoRoute(
+        path: dataManagement,
+        name: 'dataManagement',
+        builder: (context, state) => const DataManagementPage(),
       ),
     ],
     errorBuilder:

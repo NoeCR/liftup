@@ -5,12 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
-import '../../home/models/routine.dart';
-import 'package:uuid/uuid.dart';
-import '../../exercise/models/exercise_set.dart';
 import '../../sessions/models/workout_session.dart';
-import '../../sessions/services/session_service.dart';
-import 'package:liftup/common/mocks/session_mock_generator.dart';
 
 class StatisticsPage extends ConsumerWidget {
   const StatisticsPage({super.key});
@@ -24,23 +19,6 @@ class StatisticsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Estadísticas'),
         backgroundColor: colorScheme.surface,
-        actions: [
-          IconButton(
-            tooltip: 'Cargar datos de muestra',
-            onPressed: () => _showSeedDialog(context, ref),
-            icon: const Icon(Icons.dataset),
-          ),
-          IconButton(
-            tooltip: 'Cargar datos mock (4 semanas)',
-            onPressed: () => _loadMockData(ref),
-            icon: const Icon(Icons.analytics),
-          ),
-          IconButton(
-            tooltip: 'Cargar datos con saltos (prueba suavizado)',
-            onPressed: () => _loadJumpData(ref),
-            icon: const Icon(Icons.show_chart),
-          ),
-        ],
       ),
       body: Consumer(
         builder: (context, ref, _) {
@@ -87,147 +65,6 @@ class StatisticsPage extends ConsumerWidget {
     );
   }
 
-  void _showSeedDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Cargar datos de muestra'),
-            content: const Text(
-              'Esto creará sesiones de prueba en distintos días y rutinas.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  Navigator.of(context).pop();
-                  await _seedSampleData(ref);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Datos de muestra creados')),
-                    );
-                  }
-                },
-                child: const Text('Crear'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  Future<void> _seedSampleData(WidgetRef ref) async {
-    // Crea 2 rutinas si no existen suficientes
-    final routineNotifier = ref.read(routineNotifierProvider.notifier);
-    final routines = await ref.read(routineNotifierProvider.future);
-    Routine routineA =
-        routines.isNotEmpty
-            ? routines.first
-            : Routine(
-              id: const Uuid().v4(),
-              name: 'Fuerza A',
-              description: 'Pecho/Espalda',
-              days: const [],
-              sections: const [],
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-              imageUrl: null,
-            );
-    if (routines.isEmpty) {
-      await routineNotifier.addRoutine(routineA);
-    }
-
-    Routine routineB =
-        routines.length > 1
-            ? routines[1]
-            : Routine(
-              id: const Uuid().v4(),
-              name: 'Fuerza B',
-              description: 'Pierna/Hombro',
-              days: const [],
-              sections: const [],
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-              imageUrl: null,
-            );
-    if (routines.length < 2) {
-      await routineNotifier.addRoutine(routineB);
-    }
-
-    // Crear sesiones en días previos
-    final sessionNotifier = ref.read(sessionNotifierProvider.notifier);
-    final exercises = await ref.read(exerciseNotifierProvider.future);
-    final sampleExercise = exercises.isNotEmpty ? exercises.first : null;
-    final now = DateTime.now();
-    final routineIds = [routineA.id, routineB.id];
-
-    for (int i = 1; i <= 14; i++) {
-      final day = now.subtract(Duration(days: i));
-      final routineId = routineIds[i % routineIds.length];
-      final session = await sessionNotifier.startSession(
-        name: 'Sesión $i',
-        routineId: routineId,
-      );
-      // Simular duración: pausa + reanudar para setear elapsed
-      await Future.delayed(const Duration(milliseconds: 5));
-      // Añadir algunos sets
-      if (sampleExercise != null) {
-        final setsCount = 2 + (i % 4);
-        for (int s = 0; s < setsCount; s++) {
-          await sessionNotifier.addExerciseSet(
-            ExerciseSet(
-              id: const Uuid().v4(),
-              exerciseId: sampleExercise.id,
-              reps: 8 + (i % 3),
-              weight: 20 + (i * 1.5),
-              restTimeSeconds: 60,
-              notes: null,
-              completedAt: day.add(Duration(minutes: s * 3)),
-              isCompleted: true,
-            ),
-          );
-        }
-      }
-      // Completar sesión con timestamps manuales
-      final sessions = await ref.read(sessionNotifierProvider.future);
-      final created = sessions.firstWhere((s) => s.id == session.id);
-      final adjusted = created.copyWith(
-        startTime: DateTime(day.year, day.month, day.day, 18, 0),
-        endTime: DateTime(day.year, day.month, day.day, 19, 5 + (i % 20)),
-        status: SessionStatus.completed,
-      );
-      await ref.read(sessionServiceProvider).saveSession(adjusted);
-    }
-    // Refrescar providers
-    ref.invalidate(sessionNotifierProvider);
-    ref.invalidate(routineNotifierProvider);
-  }
-
-  Future<void> _loadMockData(WidgetRef ref) async {
-    final mockSessions = SessionMockGenerator.generateLast4WeeksSessions();
-
-    // Cargar sesiones mock
-    for (final session in mockSessions) {
-      await ref.read(sessionServiceProvider).saveSession(session);
-    }
-
-    // Refrescar providers
-    ref.invalidate(sessionNotifierProvider);
-  }
-
-  Future<void> _loadJumpData(WidgetRef ref) async {
-    final jumpSessions = SessionMockGenerator.generateSessionsWithJumps();
-
-    // Cargar sesiones con saltos bruscos
-    for (final session in jumpSessions) {
-      await ref.read(sessionServiceProvider).saveSession(session);
-    }
-
-    // Refrescar providers
-    ref.invalidate(sessionNotifierProvider);
-  }
 }
 
 class _SectionTitle extends StatelessWidget {
