@@ -266,7 +266,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                                   width: 320,
                                   child: ExerciseCardWrapper(
                                     routineExercise: re,
-                                    exercise: ex.id.isEmpty ? ex : ex,
+                                    exercise: ex,
                                     showSetsControls: true,
                                     onTap: () {
                                       // Long press functionality for exercise details
