@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../widgets/export_section.dart';
 import '../widgets/import_section.dart';
 import '../widgets/backup_section.dart';
@@ -16,7 +17,7 @@ class DataManagementPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestión de Datos'),
+        title: Text(context.tr('dataManagement.title')),
         backgroundColor: colorScheme.surface,
         actions: [
           IconButton(
@@ -32,61 +33,61 @@ class DataManagementPage extends ConsumerWidget {
           // Sección de Exportación
           _buildSectionCard(
             context: context,
-            title: 'Exportar Datos',
-            subtitle: 'Exporta tus rutinas, sesiones y progreso',
+            title: context.tr('dataManagement.exportData'),
+            subtitle: context.tr('dataManagement.exportDataDescription'),
             icon: Icons.download,
             color: colorScheme.primary,
             child: const ExportSection(),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Sección de Importación
           _buildSectionCard(
             context: context,
-            title: 'Importar Datos',
-            subtitle: 'Importa datos desde archivos externos',
+            title: context.tr('dataManagement.importData'),
+            subtitle: context.tr('dataManagement.importDataDescription'),
             icon: Icons.upload,
             color: colorScheme.secondary,
             child: const ImportSection(),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Sección de Backup en la Nube
           _buildSectionCard(
             context: context,
-            title: 'Backup en la Nube',
-            subtitle: 'Respaldo automático y manual',
+            title: context.tr('dataManagement.cloudBackup'),
+            subtitle: context.tr('dataManagement.cloudBackupDescription'),
             icon: Icons.cloud_upload,
             color: colorScheme.tertiary,
             child: const BackupSection(),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Sección de Compartición
           _buildSectionCard(
             context: context,
-            title: 'Compartir Rutinas',
-            subtitle: 'Comparte tus rutinas con otros usuarios',
+            title: context.tr('dataManagement.shareRoutines'),
+            subtitle: context.tr('dataManagement.shareRoutinesDescription'),
             icon: Icons.share,
             color: colorScheme.primaryContainer,
             child: const SharingSection(),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Sección de Historial
           _buildSectionCard(
             context: context,
-            title: 'Historial de Cambios',
-            subtitle: 'Revisa el historial de modificaciones',
+            title: context.tr('dataManagement.changeHistory'),
+            subtitle: context.tr('dataManagement.changeHistoryDescription'),
             icon: Icons.history,
             color: colorScheme.secondaryContainer,
             child: const HistorySection(),
           ),
-          
+
           const SizedBox(height: 32),
         ],
       ),
@@ -102,7 +103,7 @@ class DataManagementPage extends ConsumerWidget {
     required Widget child,
   }) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 2,
       child: Padding(
@@ -118,11 +119,7 @@ class DataManagementPage extends ConsumerWidget {
                     color: color.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: color, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -157,22 +154,23 @@ class DataManagementPage extends ConsumerWidget {
   void _showSettingsDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Configuración de Gestión de Datos'),
-        content: const Text(
-          'Aquí podrás configurar:\n'
-          '• Frecuencia de backup automático\n'
-          '• Configuración de compartición\n'
-          '• Retención de historial\n'
-          '• Formatos de exportación preferidos',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Configuración de Gestión de Datos'),
+            content: const Text(
+              'Aquí podrás configurar:\n'
+              '• Frecuencia de backup automático\n'
+              '• Configuración de compartición\n'
+              '• Retención de historial\n'
+              '• Formatos de exportación preferidos',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cerrar'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }

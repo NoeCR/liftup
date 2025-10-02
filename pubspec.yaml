@@ -62,6 +62,7 @@ dependencies:
   uuid: ^4.4.0
   equatable: ^2.0.5
   json_annotation: ^4.8.1
+  easy_localization: ^3.0.7
 
   # Logging & Error Tracking
   sentry_flutter: ^8.0.0

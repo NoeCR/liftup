@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../sessions/notifiers/session_notifier.dart';
@@ -17,7 +18,7 @@ class StatisticsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Estadísticas'),
+        title: Text(context.tr('statistics.title')),
         backgroundColor: colorScheme.surface,
       ),
       body: Consumer(
@@ -49,7 +50,15 @@ class StatisticsPage extends ConsumerWidget {
                     },
                     loading:
                         () => const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(child: Text('Error: $e')),
+                    error:
+                        (e, _) => Center(
+                          child: Text(
+                            context.tr(
+                              'errors.errorLoadingData',
+                              namedArgs: {'error': e.toString()},
+                            ),
+                          ),
+                        ),
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
@@ -64,7 +73,6 @@ class StatisticsPage extends ConsumerWidget {
       bottomNavigationBar: const CustomBottomNavigation(currentIndex: 3),
     );
   }
-
 }
 
 class _SectionTitle extends StatelessWidget {
@@ -92,7 +100,7 @@ class _RoutineComparisonChart extends ConsumerWidget {
                 (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
           }
           if (setsByRoutine.isEmpty) {
-            return const Center(child: Text('Sin datos'));
+            return Center(child: Text(context.tr('statistics.noData')));
           }
           final pie = <PieChartSectionData>[];
           final total = setsByRoutine.values.fold<int>(0, (a, b) => a + b);
@@ -159,13 +167,15 @@ class _ExerciseProgressChartState
         // Selector de ejercicio
         DropdownButtonFormField<String>(
           value: _selectedExerciseId,
-          decoration: const InputDecoration(labelText: 'Ejercicio'),
+          decoration: InputDecoration(
+            labelText: context.tr('statistics.exercise'),
+          ),
           items: exercisesAsync.when(
             data:
                 (exercises) => [
-                  const DropdownMenuItem(
+                  DropdownMenuItem(
                     value: allExercisesId,
-                    child: Text('Todos'),
+                    child: Text(context.tr('statistics.all')),
                   ),
                   ...exercises
                       .map(
@@ -250,7 +260,9 @@ class _ExerciseProgressChartState
                     }).toList()
                     ..sort((a, b) => a.startTime.compareTo(b.startTime));
               if (filtered.isEmpty) {
-                return const Center(child: Text('Sin datos en el rango'));
+                return Center(
+                  child: Text(context.tr('statistics.noDataInRange')),
+                );
               }
               // Calcular media ponderada (reps * peso) por sesión
               final rawSpots = <FlSpot>[];
@@ -276,7 +288,9 @@ class _ExerciseProgressChartState
               // Aplicar algoritmo de suavizado mejorado
               final spots = _applyAdvancedSmoothing(rawSpots, filtered);
               if (spots.isEmpty) {
-                return const Center(child: Text('Sin datos en el rango'));
+                return Center(
+                  child: Text(context.tr('statistics.noDataInRange')),
+                );
               }
               // Calcular rango Y para evitar que se salga del marco
               final yValues = spots.map((spot) => spot.y).toList();

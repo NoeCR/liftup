@@ -21,13 +21,13 @@ class ImportConfig extends Equatable {
 
   @override
   List<Object?> get props => [
-        mergeData,
-        overwriteExisting,
-        validateData,
-        createBackup,
-        allowedTypes,
-        maxFileSize,
-      ];
+    mergeData,
+    overwriteExisting,
+    validateData,
+    createBackup,
+    allowedTypes,
+    maxFileSize,
+  ];
 
   ImportConfig copyWith({
     bool? mergeData,
@@ -114,15 +114,15 @@ class ImportConfig extends Equatable {
     final errors = <String>[];
 
     if (maxFileSize <= 0) {
-      errors.add('El tamaño máximo del archivo debe ser mayor que 0');
+      errors.add('Maximum file size must be greater than 0');
     }
 
     if (allowedTypes.isEmpty) {
-      errors.add('Debe permitir al menos un tipo de archivo');
+      errors.add('Must allow at least one file type');
     }
 
     if (mergeData && overwriteExisting) {
-      errors.add('No se puede fusionar y sobrescribir al mismo tiempo');
+      errors.add('Cannot merge and overwrite at the same time');
     }
 
     return errors;
@@ -134,8 +134,8 @@ class ImportConfig extends Equatable {
   /// Obtiene una descripción legible de la configuración
   String get description {
     final buffer = StringBuffer();
-    buffer.write('Importación: ');
-    
+    buffer.write('Import: ');
+
     if (mergeData) {
       buffer.write('Fusionar datos');
     } else if (overwriteExisting) {
@@ -143,12 +143,16 @@ class ImportConfig extends Equatable {
     } else {
       buffer.write('Solo nuevos');
     }
-    
-    buffer.write(' | Validar: ${validateData ? 'Sí' : 'No'}');
-    buffer.write(' | Respaldo: ${createBackup ? 'Sí' : 'No'}');
-    buffer.write(' | Tipos: ${allowedTypes.map((t) => t.displayName).join(', ')}');
-    buffer.write(' | Máx: ${(maxFileSize / (1024 * 1024)).toStringAsFixed(1)}MB');
-    
+
+    buffer.write(' | Validate: ${validateData ? 'Yes' : 'No'}');
+    buffer.write(' | Backup: ${createBackup ? 'Yes' : 'No'}');
+    buffer.write(
+      ' | Tipos: ${allowedTypes.map((t) => t.displayName).join(', ')}',
+    );
+    buffer.write(
+      ' | Max: ${(maxFileSize / (1024 * 1024)).toStringAsFixed(1)}MB',
+    );
+
     return buffer.toString();
   }
 }

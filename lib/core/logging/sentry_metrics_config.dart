@@ -8,25 +8,32 @@ class SentryMetricsConfig {
 
   /// Inicializa la configuración de métricas
   static Future<void> initialize() async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      LoggingService.instance.info(
+        'SentryMetricsConfig already initialized, skipping',
+      );
+      return;
+    }
 
     try {
       LoggingService.instance.info('Initializing Sentry metrics configuration');
-      
+
       // Configurar métricas de rendimiento
       _setupPerformanceMetrics();
-      
+
       // Configurar métricas de uso
       _setupUsageMetrics();
-      
+
       // Configurar métricas de errores
       _setupErrorMetrics();
-      
+
       // Configurar métricas de base de datos
       _setupDatabaseMetrics();
-      
+
       _isInitialized = true;
-      LoggingService.instance.info('Sentry metrics configuration initialized successfully');
+      LoggingService.instance.info(
+        'Sentry metrics configuration initialized successfully',
+      );
     } catch (e, stackTrace) {
       LoggingService.instance.error(
         'Failed to initialize Sentry metrics configuration',
@@ -96,15 +103,17 @@ class SentryMetricsConfig {
       });
 
       // Enviar transacción a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'App startup completed',
-        category: 'performance.startup',
-        level: SentryLevel.info,
-        data: {
-          'startup_time_ms': startupTimeMs,
-          'is_slow': startupTimeMs > 3000,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'App startup completed',
+          category: 'performance.startup',
+          level: SentryLevel.info,
+          data: {
+            'startup_time_ms': startupTimeMs,
+            'is_slow': startupTimeMs > 3000,
+          },
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to track app startup time: $e');
     }
@@ -132,18 +141,20 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Database operation: $operation',
-        category: 'database.operation',
-        level: success ? SentryLevel.info : SentryLevel.error,
-        data: {
-          'operation': operation,
-          'duration_ms': durationMs,
-          'success': success,
-          'error': error,
-          'is_slow': durationMs > 1000,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Database operation: $operation',
+          category: 'database.operation',
+          level: success ? SentryLevel.info : SentryLevel.error,
+          data: {
+            'operation': operation,
+            'duration_ms': durationMs,
+            'success': success,
+            'error': error,
+            'is_slow': durationMs > 1000,
+          },
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to track database operation: $e');
     }
@@ -176,22 +187,26 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Import/Export operation: $operation',
-        category: 'data_management.operation',
-        level: success ? SentryLevel.info : SentryLevel.error,
-        data: {
-          'operation': operation,
-          'file_type': fileType,
-          'duration_ms': durationMs,
-          'success': success,
-          'data_size': dataSize,
-          'error': error,
-          'is_slow': durationMs > 5000,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Import/Export operation: $operation',
+          category: 'data_management.operation',
+          level: success ? SentryLevel.info : SentryLevel.error,
+          data: {
+            'operation': operation,
+            'file_type': fileType,
+            'duration_ms': durationMs,
+            'success': success,
+            'data_size': dataSize,
+            'error': error,
+            'is_slow': durationMs > 5000,
+          },
+        ),
+      );
     } catch (e) {
-      LoggingService.instance.error('Failed to track import/export operation: $e');
+      LoggingService.instance.error(
+        'Failed to track import/export operation: $e',
+      );
     }
   }
 
@@ -218,18 +233,20 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Workout session: $sessionId',
-        category: 'usage.workout_session',
-        level: completed ? SentryLevel.info : SentryLevel.warning,
-        data: {
-          'session_id': sessionId,
-          'duration_ms': durationMs,
-          'exercise_count': exerciseCount,
-          'set_count': setCount,
-          'completed': completed,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Workout session: $sessionId',
+          category: 'usage.workout_session',
+          level: completed ? SentryLevel.info : SentryLevel.warning,
+          data: {
+            'session_id': sessionId,
+            'duration_ms': durationMs,
+            'exercise_count': exerciseCount,
+            'set_count': setCount,
+            'completed': completed,
+          },
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to track workout session: $e');
     }
@@ -255,17 +272,19 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Memory usage: ${currentMemoryMB}MB during $operation',
-        category: 'performance.memory',
-        level: currentMemoryMB > 100 ? SentryLevel.warning : SentryLevel.info,
-        data: {
-          'current_memory_mb': currentMemoryMB,
-          'peak_memory_mb': peakMemoryMB,
-          'operation': operation,
-          'is_high': currentMemoryMB > 100,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Memory usage: ${currentMemoryMB}MB during $operation',
+          category: 'performance.memory',
+          level: currentMemoryMB > 100 ? SentryLevel.warning : SentryLevel.info,
+          data: {
+            'current_memory_mb': currentMemoryMB,
+            'peak_memory_mb': peakMemoryMB,
+            'operation': operation,
+            'is_high': currentMemoryMB > 100,
+          },
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to track memory usage: $e');
     }
@@ -292,19 +311,26 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Error: $errorType in $component',
-        category: 'error.occurrence',
-        level: severity == 'critical' ? SentryLevel.fatal : 
-               severity == 'high' ? SentryLevel.error :
-               severity == 'medium' ? SentryLevel.warning : SentryLevel.info,
-        data: {
-          'error_type': errorType,
-          'component': component,
-          'severity': severity,
-          'is_recoverable': isRecoverable,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Error: $errorType in $component',
+          category: 'error.occurrence',
+          level:
+              severity == 'critical'
+                  ? SentryLevel.fatal
+                  : severity == 'high'
+                  ? SentryLevel.error
+                  : severity == 'medium'
+                  ? SentryLevel.warning
+                  : SentryLevel.info,
+          data: {
+            'error_type': errorType,
+            'component': component,
+            'severity': severity,
+            'is_recoverable': isRecoverable,
+          },
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to track error: $e');
     }
@@ -329,16 +355,14 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb a Sentry
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Feature usage: $action in $feature',
-        category: 'usage.feature',
-        level: success ? SentryLevel.info : SentryLevel.warning,
-        data: {
-          'feature': feature,
-          'action': action,
-          'success': success,
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Feature usage: $action in $feature',
+          category: 'usage.feature',
+          level: success ? SentryLevel.info : SentryLevel.warning,
+          data: {'feature': feature, 'action': action, 'success': success},
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to track feature usage: $e');
     }
@@ -348,7 +372,7 @@ class SentryMetricsConfig {
   static Map<String, dynamic> getPerformanceStats() {
     try {
       final stats = PerformanceMonitor.instance.getAllStats();
-      
+
       LoggingService.instance.info('Performance stats retrieved', {
         'total_operations': stats.length,
         'operations': stats.keys.toList(),
@@ -367,7 +391,7 @@ class SentryMetricsConfig {
   static void sendMetricsReport() {
     try {
       final performanceStats = getPerformanceStats();
-      
+
       LoggingService.instance.info('Sending metrics report to Sentry', {
         'performance_operations_count': performanceStats.length,
         'report_timestamp': DateTime.now().toIso8601String(),
@@ -376,15 +400,17 @@ class SentryMetricsConfig {
       });
 
       // Enviar breadcrumb con resumen de métricas
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Metrics report sent',
-        category: 'metrics.report',
-        level: SentryLevel.info,
-        data: {
-          'performance_operations_count': performanceStats.length,
-          'report_timestamp': DateTime.now().toIso8601String(),
-        },
-      ));
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Metrics report sent',
+          category: 'metrics.report',
+          level: SentryLevel.info,
+          data: {
+            'performance_operations_count': performanceStats.length,
+            'report_timestamp': DateTime.now().toIso8601String(),
+          },
+        ),
+      );
     } catch (e) {
       LoggingService.instance.error('Failed to send metrics report: $e');
     }

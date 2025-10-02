@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/data_management/data_management.dart';
 
 class BackupSection extends ConsumerStatefulWidget {
@@ -22,9 +23,9 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       children: [
         // Configuración de backup automático
         _buildBackupConfig(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Botones de backup
         Row(
           children: [
@@ -32,7 +33,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
               child: FilledButton.icon(
                 onPressed: () => _createManualBackup(context),
                 icon: const Icon(Icons.cloud_upload),
-                label: const Text('Backup Manual'),
+                label: Text(context.tr('dataManagement.manualBackup')),
               ),
             ),
             const SizedBox(width: 8),
@@ -40,7 +41,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
               child: OutlinedButton.icon(
                 onPressed: () => _viewBackupHistory(context),
                 icon: const Icon(Icons.history),
-                label: const Text('Historial'),
+                label: Text(context.tr('dataManagement.history')),
               ),
             ),
           ],
@@ -53,15 +54,15 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     return Column(
       children: [
         _buildCheckboxOption(
-          title: 'Backup automático',
-          subtitle: 'Crear respaldos automáticamente',
+          title: context.tr('dataManagement.automaticBackup'),
+          subtitle: context.tr('dataManagement.automaticBackupDescription'),
           value: _autoBackupEnabled,
           onChanged: (value) => setState(() => _autoBackupEnabled = value!),
         ),
-        
+
         if (_autoBackupEnabled) ...[
           const SizedBox(height: 8),
-          
+
           // Intervalo de backup
           Row(
             children: [
@@ -82,7 +83,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
               ),
             ],
           ),
-          
+
           // Máximo de backups
           Row(
             children: [
@@ -103,17 +104,17 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
               ),
             ],
           ),
-          
+
           _buildCheckboxOption(
-            title: 'Solo en WiFi',
-            subtitle: 'Evitar usar datos móviles',
+            title: context.tr('dataManagement.wifiOnly'),
+            subtitle: context.tr('dataManagement.wifiOnlyDescription'),
             value: _backupOnWifiOnly,
             onChanged: (value) => setState(() => _backupOnWifiOnly = value!),
           ),
-          
+
           _buildCheckboxOption(
-            title: 'Comprimir backups',
-            subtitle: 'Reducir tamaño de archivos',
+            title: context.tr('dataManagement.compressBackups'),
+            subtitle: context.tr('dataManagement.compressBackupsDescription'),
             value: _compressBackups,
             onChanged: (value) => setState(() => _compressBackups = value!),
           ),
@@ -129,15 +130,12 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     required ValueChanged<bool?> onChanged,
   }) {
     final theme = Theme.of(context);
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Checkbox(
-            value: value,
-            onChanged: onChanged,
-          ),
+          Checkbox(value: value, onChanged: onChanged),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,15 +166,16 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Creando backup...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text(context.tr('dataManagement.creatingBackup')),
+                ],
+              ),
+            ),
       );
 
       // TODO: Implementar backup manual
@@ -198,8 +197,10 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       // Mostrar resultado
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Backup creado exitosamente'),
+          SnackBar(
+            content: Text(
+              context.tr('dataManagement.backupCreatedSuccessfully'),
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -207,11 +208,16 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
       if (mounted) Navigator.of(context).pop();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error al crear backup: $e'),
+            content: Text(
+              context.tr(
+                'dataManagement.backupCreationError',
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -222,47 +228,48 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
   void _viewBackupHistory(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Historial de Backups'),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: ListView(
-            children: [
-              _buildBackupItem(
-                'Backup Manual',
-                'Hace 2 horas',
-                '2.3 MB',
-                BackupStatus.completed,
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.backupHistory')),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 300,
+              child: ListView(
+                children: [
+                  _buildBackupItem(
+                    'Backup Manual',
+                    'Hace 2 horas',
+                    '2.3 MB',
+                    BackupStatus.completed,
+                  ),
+                  _buildBackupItem(
+                    'Backup Automático',
+                    'Hace 1 día',
+                    '2.1 MB',
+                    BackupStatus.completed,
+                  ),
+                  _buildBackupItem(
+                    'Backup Automático',
+                    'Hace 2 días',
+                    '2.0 MB',
+                    BackupStatus.completed,
+                  ),
+                  _buildBackupItem(
+                    'Backup Manual',
+                    'Hace 1 semana',
+                    '1.8 MB',
+                    BackupStatus.completed,
+                  ),
+                ],
               ),
-              _buildBackupItem(
-                'Backup Automático',
-                'Hace 1 día',
-                '2.1 MB',
-                BackupStatus.completed,
-              ),
-              _buildBackupItem(
-                'Backup Automático',
-                'Hace 2 días',
-                '2.0 MB',
-                BackupStatus.completed,
-              ),
-              _buildBackupItem(
-                'Backup Manual',
-                'Hace 1 semana',
-                '1.8 MB',
-                BackupStatus.completed,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.close')),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -272,19 +279,17 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
     String size,
     BackupStatus status,
   ) {
-    final statusColor = status == BackupStatus.completed
-        ? Colors.green
-        : status == BackupStatus.failed
+    final statusColor =
+        status == BackupStatus.completed
+            ? Colors.green
+            : status == BackupStatus.failed
             ? Colors.red
             : Colors.orange;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        leading: Icon(
-          Icons.cloud_done,
-          color: statusColor,
-        ),
+        leading: Icon(Icons.cloud_done, color: statusColor),
         title: Text(name),
         subtitle: Text('$date • $size'),
         trailing: IconButton(
@@ -298,54 +303,67 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
   void _showBackupOptions(BuildContext context, String backupName) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.download),
-            title: const Text('Descargar'),
-            onTap: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Descargando backup...')),
-              );
-            },
+      builder:
+          (context) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.download),
+                title: Text(context.tr('dataManagement.download')),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.tr('dataManagement.downloadingBackup'),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: Text(context.tr('common.delete')),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _confirmDeleteBackup(context, backupName);
+                },
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.delete),
-            title: const Text('Eliminar'),
-            onTap: () {
-              Navigator.of(context).pop();
-              _confirmDeleteBackup(context, backupName);
-            },
-          ),
-        ],
-      ),
     );
   }
 
   void _confirmDeleteBackup(BuildContext context, String backupName) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Backup'),
-        content: Text('¿Estás seguro de que quieres eliminar "$backupName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.deleteBackup')),
+            content: Text(
+              context.tr(
+                'dataManagement.confirmDeleteBackup',
+                namedArgs: {'backupName': backupName},
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(context.tr('dataManagement.backupDeleted')),
+                    ),
+                  );
+                },
+                child: Text(context.tr('common.delete')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Backup eliminado')),
-              );
-            },
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
     );
   }
 }

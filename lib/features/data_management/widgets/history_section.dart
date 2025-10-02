@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/data_management/data_management.dart';
 
 class HistorySection extends ConsumerStatefulWidget {
@@ -16,9 +17,9 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
       children: [
         // Información sobre historial
         _buildHistoryInfo(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Botones de historial
         Row(
           children: [
@@ -26,7 +27,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
               child: FilledButton.icon(
                 onPressed: () => _viewChangeHistory(context),
                 icon: const Icon(Icons.history),
-                label: const Text('Ver Historial'),
+                label: Text(context.tr('dataManagement.viewHistory')),
               ),
             ),
             const SizedBox(width: 8),
@@ -34,21 +35,21 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
               child: OutlinedButton.icon(
                 onPressed: () => _exportHistory(context),
                 icon: const Icon(Icons.download),
-                label: const Text('Exportar'),
+                label: Text(context.tr('dataManagement.export')),
               ),
             ),
           ],
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         // Botón para limpiar historial
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: () => _cleanupHistory(context),
             icon: const Icon(Icons.cleaning_services),
-            label: const Text('Limpiar Historial Antiguo'),
+            label: Text(context.tr('dataManagement.cleanOldHistory')),
           ),
         ),
       ],
@@ -57,7 +58,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
 
   Widget _buildHistoryInfo() {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -88,63 +89,64 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
   void _viewChangeHistory(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Historial de Cambios'),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 400,
-          child: Column(
-            children: [
-              // Filtros
-              _buildHistoryFilters(),
-              
-              const SizedBox(height: 16),
-              
-              // Lista de cambios
-              Expanded(
-                child: ListView(
-                  children: [
-                    _buildChangeItem(
-                      'Rutina de Fuerza',
-                      'Actualizada',
-                      'Hace 2 horas',
-                      ChangeType.update,
-                      EntityType.routine,
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.changeHistory')),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 400,
+              child: Column(
+                children: [
+                  // Filtros
+                  _buildHistoryFilters(),
+
+                  const SizedBox(height: 16),
+
+                  // Lista de cambios
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        _buildChangeItem(
+                          'Rutina de Fuerza',
+                          'Actualizada',
+                          'Hace 2 horas',
+                          ChangeType.update,
+                          EntityType.routine,
+                        ),
+                        _buildChangeItem(
+                          'Press de Banca',
+                          'Creado',
+                          '1 day ago',
+                          ChangeType.create,
+                          EntityType.exercise,
+                        ),
+                        _buildChangeItem(
+                          'Morning Session',
+                          'Completada',
+                          '2 days ago',
+                          ChangeType.update,
+                          EntityType.session,
+                        ),
+                        _buildChangeItem(
+                          'Rutina de Cardio',
+                          'Eliminada',
+                          'Hace 1 semana',
+                          ChangeType.delete,
+                          EntityType.routine,
+                        ),
+                      ],
                     ),
-                    _buildChangeItem(
-                      'Press de Banca',
-                      'Creado',
-                      'Hace 1 día',
-                      ChangeType.create,
-                      EntityType.exercise,
-                    ),
-                    _buildChangeItem(
-                      'Sesión Matutina',
-                      'Completada',
-                      'Hace 2 días',
-                      ChangeType.update,
-                      EntityType.session,
-                    ),
-                    _buildChangeItem(
-                      'Rutina de Cardio',
-                      'Eliminada',
-                      'Hace 1 semana',
-                      ChangeType.delete,
-                      EntityType.routine,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.close')),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -153,16 +155,17 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
       children: [
         Expanded(
           child: DropdownButtonFormField<EntityType>(
-            decoration: const InputDecoration(
-              labelText: 'Tipo',
+            decoration: InputDecoration(
+              labelText: context.tr('dataManagement.type'),
               isDense: true,
             ),
-            items: EntityType.values.map((type) {
-              return DropdownMenuItem(
-                value: type,
-                child: Text(_getEntityTypeLabel(type)),
-              );
-            }).toList(),
+            items:
+                EntityType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(_getEntityTypeLabel(type)),
+                  );
+                }).toList(),
             onChanged: (value) {
               // TODO: Implementar filtrado
             },
@@ -171,16 +174,17 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
         const SizedBox(width: 8),
         Expanded(
           child: DropdownButtonFormField<ChangeType>(
-            decoration: const InputDecoration(
-              labelText: 'Acción',
+            decoration: InputDecoration(
+              labelText: context.tr('dataManagement.action'),
               isDense: true,
             ),
-            items: ChangeType.values.map((type) {
-              return DropdownMenuItem(
-                value: type,
-                child: Text(_getChangeTypeLabel(type)),
-              );
-            }).toList(),
+            items:
+                ChangeType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(_getChangeTypeLabel(type)),
+                  );
+                }).toList(),
             onChanged: (value) {
               // TODO: Implementar filtrado
             },
@@ -201,7 +205,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
       case EntityType.progressData:
         return 'Progreso';
       case EntityType.userSettings:
-        return 'Configuración';
+        return 'Configuration';
     }
   }
 
@@ -237,11 +241,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
             color: changeColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            entityIcon,
-            color: changeColor,
-            size: 20,
-          ),
+          child: Icon(entityIcon, color: changeColor, size: 20),
         ),
         title: Text(entityName),
         subtitle: Text('$action • $timestamp'),
@@ -296,74 +296,98 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
     }
   }
 
-  void _showChangeDetails(BuildContext context, String entityName, String action, String timestamp) {
+  void _showChangeDetails(
+    BuildContext context,
+    String entityName,
+    String action,
+    String timestamp,
+  ) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Detalles del Cambio'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Entidad: $entityName'),
-            Text('Acción: $action'),
-            Text('Fecha: $timestamp'),
-            const SizedBox(height: 16),
-            const Text(
-              'Cambios realizados:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.changeDetails')),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.tr(
+                    'dataManagement.entity',
+                    namedArgs: {'entityName': entityName},
+                  ),
+                ),
+                Text(
+                  context.tr(
+                    'dataManagement.actionLabel',
+                    namedArgs: {'action': action},
+                  ),
+                ),
+                Text(
+                  context.tr(
+                    'dataManagement.date',
+                    namedArgs: {'timestamp': timestamp},
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  context.tr('dataManagement.changesMade'),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(context.tr('dataManagement.routineNameModified')),
+                Text(context.tr('dataManagement.exercisesAdded')),
+                Text(context.tr('dataManagement.sectionOrderUpdated')),
+              ],
             ),
-            const SizedBox(height: 8),
-            const Text('• Se modificó el nombre de la rutina'),
-            const Text('• Se agregaron 2 nuevos ejercicios'),
-            const Text('• Se actualizó el orden de las secciones'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.close')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _restoreFromHistory(context, entityName);
+                },
+                child: Text(context.tr('dataManagement.restore')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _restoreFromHistory(context, entityName);
-            },
-            child: const Text('Restaurar'),
-          ),
-        ],
-      ),
     );
   }
 
   void _restoreFromHistory(BuildContext context, String entityName) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Restaurar desde Historial'),
-        content: Text(
-          '¿Estás seguro de que quieres restaurar "$entityName" a su estado anterior? '
-          'Esto sobrescribirá los cambios actuales.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.restoreFromHistory')),
+            content: Text(
+              'Are you sure you want to restore "$entityName" to its previous state? '
+              'This will overwrite current changes.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.tr('dataManagement.entityRestoredSuccessfully'),
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+                child: Text(context.tr('dataManagement.restore')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('✅ Entidad restaurada exitosamente'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text('Restaurar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -373,15 +397,16 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Exportando historial...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text(context.tr('dataManagement.exportingHistory')),
+                ],
+              ),
+            ),
       );
 
       // TODO: Implementar exportación de historial
@@ -394,8 +419,10 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
       // Mostrar resultado
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Historial exportado exitosamente'),
+          SnackBar(
+            content: Text(
+              context.tr('dataManagement.historyExportedSuccessfully'),
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -403,11 +430,16 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
       if (mounted) Navigator.of(context).pop();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error al exportar historial: $e'),
+            content: Text(
+              context.tr(
+                'dataManagement.historyExportError',
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -418,26 +450,26 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
   void _cleanupHistory(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Limpiar Historial Antiguo'),
-        content: const Text(
-          'Esto eliminará los registros de historial más antiguos de 90 días. '
-          '¿Estás seguro de que quieres continuar?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.cleanOldHistory')),
+            content: Text(
+              context.tr('dataManagement.cleanOldHistoryDescription'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _confirmCleanupHistory(context);
+                },
+                child: Text(context.tr('dataManagement.clean')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _confirmCleanupHistory(context);
-            },
-            child: const Text('Limpiar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -447,15 +479,16 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Limpiando historial...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text(context.tr('dataManagement.cleaningHistory')),
+                ],
+              ),
+            ),
       );
 
       // TODO: Implementar limpieza de historial
@@ -477,7 +510,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
       if (mounted) Navigator.of(context).pop();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

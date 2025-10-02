@@ -14,7 +14,7 @@ class PerformedSetsNotifier extends StateNotifier<Map<String, int>> {
     if (current < maxSets) setCount(routineExerciseId, current + 1);
   }
 
-  void decrement(String routineExerciseId) {
+  void decrement(String routineExerciseId, int maxSets) {
     final current = getCount(routineExerciseId);
     if (current > 0) setCount(routineExerciseId, current - 1);
   }

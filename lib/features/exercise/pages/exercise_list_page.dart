@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
@@ -31,7 +32,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ejercicios'),
+        title: Text(context.tr('exercises.title')),
         backgroundColor: colorScheme.surface,
         actions: [
           PopupMenuButton<String>(
@@ -57,13 +58,13 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'quick_add',
                     child: Row(
                       children: [
                         Icon(Icons.flash_on),
                         SizedBox(width: 8),
-                        Text('Agregar Rápido'),
+                        Text(context.tr('exercises.quickAdd')),
                       ],
                     ),
                   ),
@@ -94,7 +95,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Buscar ejercicios...',
+              hintText: context.tr('exercises.searchExercises'),
               prefixIcon: const Icon(Icons.search),
               suffixIcon:
                   _searchController.text.isNotEmpty
@@ -251,11 +252,11 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
     List<Widget> actions = [];
 
     if (isSearching) {
-      title = 'No se encontraron ejercicios';
-      subtitle = 'Intenta con otros términos de búsqueda';
+      title = context.tr('exercises.noExercisesFound');
+      subtitle = context.tr('exercises.tryOtherSearchTerms');
       icon = Icons.search_off;
     } else if (isFiltering) {
-      title = 'No hay ejercicios en esta categoría';
+      title = context.tr('exercises.noExercisesInCategory');
       subtitle =
           'No se encontraron ejercicios para ${_getCategoryName(_selectedCategory!)}';
       icon = Icons.category_outlined;
@@ -264,7 +265,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         ElevatedButton.icon(
           onPressed: () => context.push('/exercise/create'),
           icon: const Icon(Icons.add),
-          label: const Text('Agregar Ejercicio'),
+          label: Text(context.tr('exercises.addExercise')),
         ),
         const SizedBox(height: 8),
         TextButton(
@@ -273,12 +274,12 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
               _selectedCategory = null;
             });
           },
-          child: const Text('Ver todos los ejercicios'),
+          child: Text(context.tr('exercises.viewAllExercises')),
         ),
       ];
     } else {
-      title = 'No tienes ejercicios aún';
-      subtitle = 'Comienza agregando tu primer ejercicio';
+      title = context.tr('exercises.noExercisesYet');
+      subtitle = context.tr('exercises.startAddingFirstExercise');
       icon = Icons.fitness_center_outlined;
       actions = [
         const SizedBox(height: 24),
@@ -291,7 +292,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         OutlinedButton.icon(
           onPressed: () => _showQuickAddDialog(context),
           icon: const Icon(Icons.flash_on),
-          label: const Text('Agregar Rápido'),
+          label: Text(context.tr('exercises.quickAdd')),
         ),
       ];
     }
@@ -394,7 +395,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
           (context) => StatefulBuilder(
             builder:
                 (context, setState) => AlertDialog(
-                  title: const Text('Agregar Ejercicio Rápido'),
+                  title: Text(context.tr('exercises.quickAddExercise')),
                   content: SizedBox(
                     width: double.maxFinite,
                     child: Column(
@@ -410,8 +411,8 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: descriptionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Descripción',
+                          decoration: InputDecoration(
+                            labelText: context.tr('routine.description'),
                             border: OutlineInputBorder(),
                           ),
                           maxLines: 2,
@@ -422,8 +423,8 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                             Expanded(
                               child: DropdownButtonFormField<ExerciseCategory>(
                                 value: selectedCategory,
-                                decoration: const InputDecoration(
-                                  labelText: 'Categoría',
+                                decoration: InputDecoration(
+                                  labelText: context.tr('exercises.category'),
                                   border: OutlineInputBorder(),
                                 ),
                                 items:
@@ -528,7 +529,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         imageUrl: 'assets/images/default_exercise.png',
         videoUrl: null,
         muscleGroups: _getDefaultMuscleGroups(category),
-        tips: ['Mantén la forma correcta durante todo el ejercicio'],
+        tips: [context.tr('exercises.maintainFormTip')],
         commonMistakes: ['No mantener la postura adecuada'],
         category: category,
         difficulty: difficulty,

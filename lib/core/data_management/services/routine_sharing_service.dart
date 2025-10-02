@@ -347,12 +347,12 @@ class SharedRoutineImportService {
         importedCount: 0,
         skippedCount: 0,
         errorCount: 1,
-        errorMessage: 'Error al importar rutina compartida: $e',
+        errorMessage: 'Error importing shared routine: $e',
         importedSessions: [],
         importedExercises: [],
         importedRoutines: [],
         importedProgressData: [],
-        errors: ['Error de importación: $e'],
+        errors: ['Import error: $e'],
         warnings: [],
       );
     }

@@ -36,7 +36,7 @@ class AutoSelectionInfoCard extends ConsumerWidget {
                 Text(
                   autoSelectionInfo.hasSelection
                       ? 'Rutina Sugerida'
-                      : 'Información',
+                      : 'Information',
                   style: theme.textTheme.titleSmall?.copyWith(
                     color:
                         autoSelectionInfo.hasSelection
@@ -53,7 +53,7 @@ class AutoSelectionInfoCard extends ConsumerWidget {
             Text(
               autoSelectionInfo.hasSelection
                   ? autoSelectionInfo.description
-                  : 'No hay rutinas específicas para ${autoSelectionInfo.currentDay.displayName}. Se muestra la primera rutina disponible.',
+                  : 'No specific routines for ${autoSelectionInfo.currentDay.displayName}. Showing first available routine.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),

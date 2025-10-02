@@ -215,7 +215,7 @@ class AutoBackupService {
 
     // Verificar conexión WiFi si es requerido
     if (_config.backupOnWifiOnly && !await _isWifiConnected()) {
-      return BackupResult.failure('Backup requiere conexión WiFi');
+      return BackupResult.failure('Backup requires WiFi connection');
     }
 
     final result = await _cloudService.uploadBackup(

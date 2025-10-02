@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/data_management/data_management.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SharingSection extends ConsumerStatefulWidget {
   const SharingSection({super.key});
@@ -16,9 +17,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       children: [
         // Información sobre compartición
         _buildSharingInfo(),
-        
+
         const SizedBox(height: 16),
-        
+
         // Botones de compartición
         Row(
           children: [
@@ -26,7 +27,7 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
               child: FilledButton.icon(
                 onPressed: () => _shareRoutine(context),
                 icon: const Icon(Icons.share),
-                label: const Text('Compartir Rutina'),
+                label: Text(context.tr('dataManagement.shareRoutine')),
               ),
             ),
             const SizedBox(width: 8),
@@ -34,21 +35,21 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
               child: OutlinedButton.icon(
                 onPressed: () => _viewSharedRoutines(context),
                 icon: const Icon(Icons.list),
-                label: const Text('Mis Compartidas'),
+                label: Text(context.tr('dataManagement.myShared')),
               ),
             ),
           ],
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         // Botón para importar rutinas compartidas
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: () => _importSharedRoutine(context),
             icon: const Icon(Icons.download),
-            label: const Text('Importar Rutina Compartida'),
+            label: Text(context.tr('dataManagement.importSharedRoutine')),
           ),
         ),
       ],
@@ -57,7 +58,7 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
 
   Widget _buildSharingInfo() {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -66,15 +67,11 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: theme.colorScheme.primary,
-            size: 20,
-          ),
+          Icon(Icons.info_outline, color: theme.colorScheme.primary, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Comparte tus rutinas con otros usuarios y descarga rutinas de la comunidad',
+              context.tr('dataManagement.sharingDescription'),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onPrimaryContainer,
               ),
@@ -89,26 +86,24 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
     // TODO: Implementar selección de rutina para compartir
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Compartir Rutina'),
-        content: const Text(
-          'Selecciona una rutina para compartir con la comunidad. '
-          'Podrás configurar la visibilidad y agregar una descripción.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('dataManagement.shareRoutineTitle')),
+            content: Text(context.tr('dataManagement.shareRoutineDescription')),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _showShareConfigDialog(context);
+                },
+                child: Text(context.tr('dataManagement.continue')),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _showShareConfigDialog(context);
-            },
-            child: const Text('Continuar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -119,82 +114,89 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Configurar Compartición'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Título',
-                    hintText: 'Nombre de la rutina compartida',
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: Text(context.tr('dataManagement.configureSharing')),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: titleController,
+                          decoration: InputDecoration(
+                            labelText: context.tr('dataManagement.title'),
+                            hintText: context.tr(
+                              'dataManagement.sharedRoutineName',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: descriptionController,
+                          decoration: InputDecoration(
+                            labelText: context.tr('dataManagement.description'),
+                            hintText: context.tr(
+                              'dataManagement.describeRoutine',
+                            ),
+                          ),
+                          maxLines: 3,
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<RoutineVisibility>(
+                          value: visibility,
+                          decoration: InputDecoration(
+                            labelText: context.tr('dataManagement.visibility'),
+                          ),
+                          items:
+                              RoutineVisibility.values.map((v) {
+                                return DropdownMenuItem(
+                                  value: v,
+                                  child: Text(_getVisibilityLabel(v)),
+                                );
+                              }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => visibility = value);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(context.tr('common.cancel')),
+                    ),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _createSharedRoutine(
+                          context,
+                          titleController.text,
+                          descriptionController.text,
+                          visibility,
+                        );
+                      },
+                      child: Text(context.tr('common.share')),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descripción',
-                    hintText: 'Describe tu rutina...',
-                  ),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<RoutineVisibility>(
-                  value: visibility,
-                  decoration: const InputDecoration(
-                    labelText: 'Visibilidad',
-                  ),
-                  items: RoutineVisibility.values.map((v) {
-                    return DropdownMenuItem(
-                      value: v,
-                      child: Text(_getVisibilityLabel(v)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => visibility = value);
-                    }
-                  },
-                ),
-              ],
-            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _createSharedRoutine(
-                  context,
-                  titleController.text,
-                  descriptionController.text,
-                  visibility,
-                );
-              },
-              child: const Text('Compartir'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   String _getVisibilityLabel(RoutineVisibility visibility) {
     switch (visibility) {
       case RoutineVisibility.public:
-        return 'Público (visible para todos)';
+        return context.tr('dataManagement.public');
       case RoutineVisibility.unlisted:
-        return 'No listado (solo con enlace)';
+        return context.tr('dataManagement.unlisted');
       case RoutineVisibility.private:
-        return 'Privado (solo para ti)';
+        return context.tr('dataManagement.private');
     }
   }
 
@@ -209,15 +211,16 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Compartiendo rutina...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => AlertDialog(
+              content: Row(
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(width: 16),
+                  Text(context.tr('dataManagement.sharingRoutine')),
+                ],
+              ),
+            ),
       );
 
       // TODO: Implementar creación de rutina compartida
@@ -238,8 +241,8 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       // Mostrar resultado
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Rutina compartida exitosamente'),
+          SnackBar(
+            content: Text(context.tr('dataManagement.shareSuccess')),
             backgroundColor: Colors.green,
           ),
         );
@@ -247,11 +250,16 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
       if (mounted) Navigator.of(context).pop();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error al compartir: $e'),
+            content: Text(
+              context.tr(
+                'dataManagement.shareError',
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -262,35 +270,36 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
   void _viewSharedRoutines(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Mis Rutinas Compartidas'),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: ListView(
-            children: [
-              _buildSharedRoutineItem(
-                'Rutina de Fuerza',
-                'Público',
-                '15 vistas • 3 descargas',
-                SharedRoutineStatus.active,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Mis Rutinas Compartidas'),
+            content: SizedBox(
+              width: double.maxFinite,
+              height: 300,
+              child: ListView(
+                children: [
+                  _buildSharedRoutineItem(
+                    'Rutina de Fuerza',
+                    context.tr('dataManagement.public'),
+                    '15 vistas • 3 descargas',
+                    SharedRoutineStatus.active,
+                  ),
+                  _buildSharedRoutineItem(
+                    'Rutina de Cardio',
+                    'No listado',
+                    '5 vistas • 1 descarga',
+                    SharedRoutineStatus.active,
+                  ),
+                ],
               ),
-              _buildSharedRoutineItem(
-                'Rutina de Cardio',
-                'No listado',
-                '5 vistas • 1 descarga',
-                SharedRoutineStatus.active,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cerrar'),
               ),
             ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -300,19 +309,17 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
     String stats,
     SharedRoutineStatus status,
   ) {
-    final statusColor = status == SharedRoutineStatus.active
-        ? Colors.green
-        : status == SharedRoutineStatus.expired
+    final statusColor =
+        status == SharedRoutineStatus.active
+            ? Colors.green
+            : status == SharedRoutineStatus.expired
             ? Colors.orange
             : Colors.red;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
       child: ListTile(
-        leading: Icon(
-          Icons.share,
-          color: statusColor,
-        ),
+        leading: Icon(Icons.share, color: statusColor),
         title: Text(name),
         subtitle: Text('$visibility • $stats'),
         trailing: IconButton(
@@ -326,64 +333,77 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
   void _showSharedRoutineOptions(BuildContext context, String routineName) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.edit),
-            title: const Text('Editar'),
-            onTap: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Editando rutina compartida...')),
-              );
-            },
+      builder:
+          (context) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Editar'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Editando rutina compartida...'),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.link),
+                title: const Text('Copiar Enlace'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Enlace copiado al portapapeles'),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: const Text('Eliminar'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _confirmDeleteSharedRoutine(context, routineName);
+                },
+              ),
+            ],
           ),
-          ListTile(
-            leading: const Icon(Icons.link),
-            title: const Text('Copiar Enlace'),
-            onTap: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Enlace copiado al portapapeles')),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.delete),
-            title: const Text('Eliminar'),
-            onTap: () {
-              Navigator.of(context).pop();
-              _confirmDeleteSharedRoutine(context, routineName);
-            },
-          ),
-        ],
-      ),
     );
   }
 
   void _confirmDeleteSharedRoutine(BuildContext context, String routineName) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Rutina Compartida'),
-        content: Text('¿Estás seguro de que quieres eliminar "$routineName"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Eliminar Rutina Compartida'),
+            content: Text(
+              context.tr(
+                'dataManagement.deleteSharedRoutineDescription',
+                namedArgs: {'routineName': routineName},
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Rutina compartida eliminada'),
+                    ),
+                  );
+                },
+                child: const Text('Eliminar'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Rutina compartida eliminada')),
-              );
-            },
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -392,56 +412,61 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Importar Rutina Compartida'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Ingresa el ID o enlace de la rutina compartida que quieres importar.',
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Importar Rutina Compartida'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Ingresa el ID o enlace de la rutina compartida que quieres importar.',
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: shareIdController,
+                  decoration: const InputDecoration(
+                    labelText: 'ID o Enlace',
+                    hintText: 'https://liftup.app/share/abc123',
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: shareIdController,
-              decoration: const InputDecoration(
-                labelText: 'ID o Enlace',
-                hintText: 'https://liftup.app/share/abc123',
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+              FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _processSharedRoutineImport(context, shareIdController.text);
+                },
+                child: const Text('Importar'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _processSharedRoutineImport(context, shareIdController.text);
-            },
-            child: const Text('Importar'),
-          ),
-        ],
-      ),
     );
   }
 
-  Future<void> _processSharedRoutineImport(BuildContext context, String shareId) async {
+  Future<void> _processSharedRoutineImport(
+    BuildContext context,
+    String shareId,
+  ) async {
     try {
       // Mostrar indicador de progreso
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('Importando rutina...'),
-            ],
-          ),
-        ),
+        builder:
+            (context) => const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text('Importando rutina...'),
+                ],
+              ),
+            ),
       );
 
       // TODO: Implementar importación de rutina compartida
@@ -463,7 +488,7 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
       if (mounted) Navigator.of(context).pop();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../widgets/exercise_video_player.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
@@ -19,7 +20,7 @@ class ExerciseDetailPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalle del Ejercicio'),
+        title: Text(context.tr('exercises.exerciseDetail')),
         backgroundColor: colorScheme.surface,
         actions: [
           Consumer(
@@ -40,24 +41,24 @@ class ExerciseDetailPage extends ConsumerWidget {
                             _handleMenuAction(value, context, ref, exercise),
                     itemBuilder:
                         (context) => [
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'edit',
                             child: Row(
                               children: [
                                 Icon(Icons.edit),
                                 SizedBox(width: 8),
-                                Text('Editar'),
+                                Text(context.tr('common.edit')),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Row(
                               children: [
                                 Icon(Icons.delete, color: Colors.red),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Eliminar',
+                                  context.tr('common.delete'),
                                   style: TextStyle(color: Colors.red),
                                 ),
                               ],
@@ -200,7 +201,7 @@ class ExerciseDetailPage extends ConsumerWidget {
         OutlinedButton.icon(
           onPressed: () => _showAddVideoSheet(context),
           icon: const Icon(Icons.video_call),
-          label: const Text('Añadir video'),
+          label: Text(context.tr('exercises.addVideo')),
         ),
       ],
     );
@@ -335,7 +336,7 @@ class ExerciseDetailPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Músculos Trabajados',
+            context.tr('exercises.musclesWorked'),
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -504,7 +505,7 @@ class ExerciseDetailPage extends ConsumerWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            'Aún no hay datos para este ejercicio. Completa la información para crearlo.',
+            context.tr('exercises.noDataYet'),
             style: theme.textTheme.bodyMedium,
           ),
         ),
@@ -560,7 +561,10 @@ class ExerciseDetailPage extends ConsumerWidget {
           (context) => AlertDialog(
             title: const Text('Eliminar Ejercicio'),
             content: Text(
-              '¿Estás seguro de que quieres eliminar "${exercise.name}"? Esta acción no se puede deshacer.',
+              context.tr(
+                'exercises.confirmDelete',
+                namedArgs: {'exerciseName': exercise.name},
+              ),
             ),
             actions: [
               TextButton(

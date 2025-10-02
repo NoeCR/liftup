@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'core/navigation/app_router.dart';
 import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
 import 'core/database/hive_adapters.dart';
-import 'common/widgets/auto_routine_initializer.dart';
 import 'core/logging/logging.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar easy_localization
+  await EasyLocalization.ensureInitialized();
+
   // Inicializar servicio de entorno
   await EnvironmentService.instance.initialize();
 
@@ -20,8 +25,6 @@ void main() async {
 
 /// Función que se ejecuta después de que Sentry se inicializa correctamente
 void _runApp() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   // Inicializar servicio de logging
   LoggingService.instance.initialize();
 
@@ -65,7 +68,12 @@ void _runApp() async {
   }
 
   runApp(
-    const ProviderScope(child: AutoRoutineInitializer(child: LiftUpApp())),
+    EasyLocalization(
+      supportedLocales: const [Locale('es'), Locale('en')],
+      path: 'assets/locales',
+      fallbackLocale: const Locale('es'),
+      child: const ProviderScope(child: const LiftUpApp()),
+    ),
   );
 }
 
@@ -105,15 +113,14 @@ class LiftUpApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      localizationsDelegates: const [
+      localizationsDelegates: [
+        ...context.localizationDelegates,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('es', 'ES'), // Spanish
-        Locale('en', 'US'), // English
-      ],
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       routerConfig: AppRouter.router,
     );
   }
