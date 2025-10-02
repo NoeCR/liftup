@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../notifiers/session_notifier.dart';
 import '../../sessions/models/workout_session.dart';
 import '../../home/notifiers/routine_notifier.dart';
@@ -41,10 +42,12 @@ class SessionSummaryPage extends ConsumerWidget {
             })();
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Resumen de Sesión')),
+          appBar: AppBar(title: Text(context.tr('session.summary'))),
           body:
               session == null
-                  ? const Center(child: Text('No hay sesión completada'))
+                  ? Center(
+                    child: Text(context.tr('session.noCompletedSession')),
+                  )
                   : Padding(
                     padding: const EdgeInsets.all(16),
                     child: Consumer(
@@ -88,17 +91,17 @@ class SessionSummaryPage extends ConsumerWidget {
                                 return ListView(
                                   children: [
                                     _SummaryTile(
-                                      title: 'Rutina',
+                                      title: context.tr('session.routine'),
                                       value: routine?.name ?? 'Sin rutina',
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
-                                      title: 'Fecha',
+                                      title: context.tr('session.date'),
                                       value: s.startTime.toLocal().toString(),
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
-                                      title: 'Duración',
+                                      title: context.tr('session.duration'),
                                       value: _formatDuration(
                                         (s.endTime ?? DateTime.now())
                                             .difference(s.startTime),
@@ -106,12 +109,12 @@ class SessionSummaryPage extends ConsumerWidget {
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
-                                      title: 'Total reps',
+                                      title: context.tr('session.totalReps'),
                                       value: '${s.totalReps ?? 0}',
                                     ),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
-                                      title: 'Peso total (kg)',
+                                      title: context.tr('session.totalWeight'),
                                       value: (s.totalWeight ?? 0)
                                           .toStringAsFixed(1),
                                     ),
@@ -159,7 +162,15 @@ class SessionSummaryPage extends ConsumerWidget {
                                   () => const Center(
                                     child: CircularProgressIndicator(),
                                   ),
-                              error: (e, _) => Center(child: Text('Error: $e')),
+                              error:
+                                  (e, _) => Center(
+                                    child: Text(
+                                      context.tr(
+                                        'errors.errorLoadingData',
+                                        namedArgs: {'error': e.toString()},
+                                      ),
+                                    ),
+                                  ),
                             );
                           },
                           loading:
@@ -176,7 +187,17 @@ class SessionSummaryPage extends ConsumerWidget {
       loading:
           () =>
               const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
+      error:
+          (e, _) => Scaffold(
+            body: Center(
+              child: Text(
+                context.tr(
+                  'errors.errorLoadingData',
+                  namedArgs: {'error': e.toString()},
+                ),
+              ),
+            ),
+          ),
     );
   }
 

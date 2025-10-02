@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../common/localization/localization_service.dart';
-import '../../../common/localization/localized_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class LanguageSelector extends ConsumerStatefulWidget {
   const LanguageSelector({super.key});
@@ -13,24 +12,20 @@ class LanguageSelector extends ConsumerStatefulWidget {
 class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
   @override
   Widget build(BuildContext context) {
-    final localizationService = LocalizationService.instance;
-    
+    final currentLocale = context.locale;
+    final languageName = _getLanguageName(currentLocale);
+    final flag = _getLanguageFlag(currentLocale);
+
     return ListTile(
       leading: const Icon(Icons.language),
-      title: const LocalizedText('settings.language'),
-      subtitle: const LocalizedText('settings.languageDescription'),
+      title: Text(context.tr('settings.language')),
+      subtitle: Text(context.tr('settings.languageDescription')),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            localizationService.getCurrentLanguageFlag(),
-            style: const TextStyle(fontSize: 20),
-          ),
+          Text(flag, style: const TextStyle(fontSize: 20)),
           const SizedBox(width: 8),
-          Text(
-            localizationService.getCurrentLanguageName(),
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(languageName, style: Theme.of(context).textTheme.bodyMedium),
           const Icon(Icons.arrow_forward_ios, size: 16),
         ],
       ),
@@ -39,67 +34,91 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
   }
 
   void _showLanguageDialog(BuildContext context) {
+    final supportedLocales = context.supportedLocales;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const LocalizedText('settings.language'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: LocalizationService.availableLanguages.map((language) {
-            final isSelected = language['code'] == LocalizationService.instance.currentLanguage;
-            
-            return ListTile(
-              leading: Text(
-                language['flag']!,
-                style: const TextStyle(fontSize: 24),
+      builder:
+          (context) => AlertDialog(
+            title: Text(context.tr('settings.language')),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children:
+                  supportedLocales.map((locale) {
+                    final isSelected = locale == context.locale;
+                    final languageName = _getLanguageName(locale);
+                    final flag = _getLanguageFlag(locale);
+
+                    return ListTile(
+                      leading: Text(flag, style: const TextStyle(fontSize: 24)),
+                      title: Text(languageName),
+                      trailing:
+                          isSelected
+                              ? const Icon(Icons.check, color: Colors.blue)
+                              : null,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        _changeLanguage(context, locale);
+                      },
+                    );
+                  }).toList(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
               ),
-              title: Text(language['name']!),
-              trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
-              onTap: () async {
-                Navigator.of(context).pop();
-                await _changeLanguage(language['code']!);
-              },
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const LocalizedText('common.cancel'),
+            ],
           ),
-        ],
-      ),
     );
   }
 
-  Future<void> _changeLanguage(String languageCode) async {
-    try {
-      await LocalizationService.instance.changeLanguage(languageCode);
-      
-      // Mostrar mensaje de éxito
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: LocalizedText(
-              'settings.languageChanged',
-              params: {'language': LocalizationService.instance.getCurrentLanguageName()},
+  void _changeLanguage(BuildContext context, Locale locale) {
+    context.setLocale(locale);
+
+    // Mostrar mensaje de éxito de forma segura
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && context.mounted) {
+        try {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                context.tr(
+                  'settings.languageChanged',
+                  namedArgs: {'language': _getLanguageName(locale)},
+                ),
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
             ),
-            backgroundColor: Colors.green,
-          ),
-        );
+          );
+        } catch (e) {
+          // Si no hay Scaffold disponible, no mostrar el SnackBar
+          // El cambio de idioma ya se aplicó correctamente
+        }
       }
-      
-      // El LocalizationWrapper se encargará de reconstruir la app automáticamente
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al cambiar idioma: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    });
+  }
+
+  String _getLanguageName(Locale locale) {
+    switch (locale.languageCode) {
+      case 'es':
+        return context.tr('settings.spanish');
+      case 'en':
+        return context.tr('settings.english');
+      default:
+        return context.tr('settings.spanish');
     }
   }
 
+  String _getLanguageFlag(Locale locale) {
+    switch (locale.languageCode) {
+      case 'es':
+        return '🇪🇸';
+      case 'en':
+        return '🇺🇸';
+      default:
+        return '🇪🇸';
+    }
+  }
 }

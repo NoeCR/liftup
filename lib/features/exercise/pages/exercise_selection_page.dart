@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
@@ -61,7 +62,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           if (_selectedExercises.isNotEmpty)
             TextButton(
               onPressed: _addSelectedExercises,
-              child: Text('Agregar (${_selectedExercises.length})'),
+              child: Text(
+                context.tr(
+                  'exercises.addCount',
+                  namedArgs: {'count': _selectedExercises.length.toString()},
+                ),
+              ),
             ),
         ],
       ),
@@ -76,7 +82,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Buscar ejercicios...',
+                    hintText: context.tr('exercises.searchExercises'),
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -270,16 +276,19 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     IconData icon;
 
     if (isSearching) {
-      title = 'No se encontraron ejercicios';
-      subtitle = 'Intenta con otros términos de búsqueda';
+      title = context.tr('exercises.noExercisesFound');
+      subtitle = context.tr('exercises.tryOtherSearchTerms');
       icon = Icons.search_off;
     } else if (isFiltering) {
-      title = 'No hay ejercicios en esta categoría';
-      subtitle = 'No se encontraron ejercicios para $_selectedCategory';
+      title = context.tr('exercises.noExercisesInCategory');
+      subtitle = context.tr(
+        'exercises.noExercisesForCategory',
+        namedArgs: {'category': _selectedCategory},
+      );
       icon = Icons.category_outlined;
     } else {
-      title = 'No tienes ejercicios aún';
-      subtitle = 'Comienza agregando tu primer ejercicio';
+      title = context.tr('exercises.noExercisesYet');
+      subtitle = context.tr('exercises.startAddingFirstExercise');
       icon = Icons.fitness_center_outlined;
     }
 
@@ -324,7 +333,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                 context.push(uri.toString());
               },
               icon: const Icon(Icons.add),
-              label: const Text('Agregar ejercicio'),
+              label: Text(context.tr('exercises.addExercise')),
             ),
             const SizedBox(height: 12),
             // Acciones secundarias según contexto
@@ -335,7 +344,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                   setState(() {});
                 },
                 icon: const Icon(Icons.clear),
-                label: const Text('Limpiar búsqueda'),
+                label: Text(context.tr('exercises.clearSearch')),
               ),
             if (isFiltering)
               TextButton(
@@ -344,7 +353,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                     _selectedCategory = 'Todos';
                   });
                 },
-                child: const Text('Ver todos los ejercicios'),
+                child: Text(context.tr('exercises.viewAllExercises')),
               ),
           ],
         ),
@@ -380,7 +389,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
               ref.invalidate(exerciseNotifierProvider);
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('Reintentar'),
+            label: Text(context.tr('common.retry')),
           ),
         ],
       ),
@@ -398,8 +407,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           backgroundColor: colorScheme.primaryContainer,
           child: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
         ),
-        title: const Text('Crear nuevo ejercicio'),
-        subtitle: const Text('Añade un ejercicio y vuelve a esta selección'),
+        title: Text(context.tr('exercises.createNewExercise')),
+        subtitle: Text(context.tr('exercises.addExerciseAndReturn')),
         // sin icono para mantenerlo limpio
         trailing: null,
         onTap: () {
@@ -453,7 +462,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Configurar sets/reps/peso'),
+          title: Text(context.tr('exercises.configureSetsRepsWeight')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -463,8 +472,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                     child: TextField(
                       controller: setsController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Series',
+                      decoration: InputDecoration(
+                        labelText: context.tr('exercises.sets'),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -474,8 +483,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                     child: TextField(
                       controller: repsController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Repeticiones',
+                      decoration: InputDecoration(
+                        labelText: context.tr('exercises.reps'),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -491,8 +500,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Peso (kg)',
+                      decoration: InputDecoration(
+                        labelText: context.tr('exercises.weight'),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -502,8 +511,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                     child: TextField(
                       controller: restController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Descanso (s)',
+                      decoration: InputDecoration(
+                        labelText: context.tr('exercises.restSeconds'),
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -515,11 +524,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(context.tr('common.cancel')),
             ),
             FilledButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Confirmar'),
+              child: Text(context.tr('common.confirm')),
             ),
           ],
         );

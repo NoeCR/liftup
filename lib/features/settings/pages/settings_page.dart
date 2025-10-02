@@ -12,7 +12,7 @@ import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../statistics/notifiers/progress_notifier.dart';
 import '../widgets/language_selector.dart';
-import '../../../common/localization/localized_text.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 // Clave global para el ScaffoldMessenger
 final GlobalKey<ScaffoldMessengerState> globalScaffoldKey =
@@ -38,30 +38,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       key: globalScaffoldKey,
       child: Scaffold(
         appBar: AppBar(
-          title: const LocalizedText('settings.title'),
+          title: Text(context.tr('settings.title')),
           backgroundColor: colorScheme.surface,
         ),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _buildSettingsSection(context, 'Rutinas', [
+            _buildSettingsSection(context, context.tr('settings.routines'), [
               _buildSettingsTile(
                 context,
                 icon: Icons.list_alt,
-                title: 'Mis Rutinas',
-                subtitle: 'Ver y gestionar todas tus rutinas',
+                title: context.tr('settings.myRoutines'),
+                subtitle: context.tr('settings.myRoutinesDescription'),
                 onTap: () => context.push(AppRouter.routineList),
               ),
               _buildSettingsTile(
                 context,
                 icon: Icons.settings_suggest,
-                title: 'Configurar Secciones',
+                title: context.tr('routine.configureSections'),
                 subtitle: 'Personalizar secciones de entrenamiento',
                 onTap: () => context.push(AppRouter.sectionTemplates),
               ),
             ]),
             const SizedBox(height: 24),
-            _buildSettingsSection(context, 'Aplicación', [
+            _buildSettingsSection(context, context.tr('settings.application'), [
               _buildSettingsTile(
                 context,
                 icon: Icons.palette,
@@ -74,15 +74,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const LanguageSelector(),
             ]),
             const SizedBox(height: 24),
-            _buildSettingsSection(context, 'Entrenamiento', [
+            _buildSettingsSection(context, context.tr('settings.training'), [
               SwitchListTile(
                 value: ref.watch(restSoundEnabledProvider),
                 onChanged:
                     (v) =>
                         ref.read(restSoundEnabledProvider.notifier).state = v,
-                title: const Text('Sonido al finalizar descanso'),
-                subtitle: const Text(
-                  'Reproducir aviso sonoro al terminar el contador',
+                title: Text(context.tr('settings.restSoundEnabled')),
+                subtitle: Text(
+                  context.tr('settings.restSoundEnabledDescription'),
                 ),
                 secondary: const Icon(Icons.volume_up),
               ),
@@ -95,18 +95,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     Expanded(
                       child: DropdownButtonFormField<RestSoundType>(
                         value: ref.watch(restSoundTypeProvider),
-                        decoration: const InputDecoration(
-                          labelText: 'Tipo de sonido',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: context.tr('settings.soundType'),
+                          border: const OutlineInputBorder(),
                         ),
-                        items: const [
+                        items: [
                           DropdownMenuItem(
                             value: RestSoundType.notification,
-                            child: Text('Notificación'),
+                            child: Text(context.tr('settings.notification')),
                           ),
                           DropdownMenuItem(
                             value: RestSoundType.alarm,
-                            child: Text('Alarma (mayor prioridad)'),
+                            child: Text(context.tr('settings.alarm')),
                           ),
                         ],
                         onChanged: (v) {
@@ -125,9 +125,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     (v) =>
                         ref.read(restVibrationEnabledProvider.notifier).state =
                             v,
-                title: const Text('Vibración al finalizar descanso'),
-                subtitle: const Text(
-                  'Activar vibración al terminar el contador',
+                title: Text(context.tr('settings.restVibrationEnabled')),
+                subtitle: Text(
+                  context.tr('settings.restVibrationEnabledDescription'),
                 ),
                 secondary: const Icon(Icons.vibration),
               ),
@@ -160,23 +160,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       );
                     },
                     icon: const Icon(Icons.play_arrow),
-                    label: const Text('Probar sonido de descanso'),
+                    label: Text(context.tr('settings.testRestSound')),
                   ),
                 ),
               ),
             ]),
-            _buildSettingsSection(context, 'Datos', [
+            _buildSettingsSection(context, context.tr('settings.data'), [
               _buildSettingsTile(
                 context,
                 icon: Icons.storage,
-                title: 'Gestión de Datos',
+                title: context.tr('settings.dataManagement'),
                 subtitle: 'Exportar, importar, backup y compartir',
                 onTap: () => context.push(AppRouter.dataManagement),
               ),
               _buildSettingsTile(
                 context,
                 icon: Icons.delete_forever,
-                title: 'Eliminar Todos los Datos',
+                title: context.tr('settings.deleteAllData'),
                 subtitle: 'Eliminar todas las rutinas y progreso',
                 onTap: () => _showClearDatabaseDialog(context),
                 isDestructive: true,
@@ -246,16 +246,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('⚠️ Eliminar Todos los Datos'),
-            content: const Text(
-              'Esta acción eliminará PERMANENTEMENTE todas las rutinas, ejercicios, sesiones y datos de progreso.\n\n'
-              'Esta acción NO se puede deshacer.\n\n'
-              '¿Estás completamente seguro de que quieres continuar?',
-            ),
+            title: Text(context.tr('settings.deleteAllData')),
+            content: Text(context.tr('settings.deleteAllDataDescription')),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
+                child: Text(context.tr('common.cancel')),
               ),
               FilledButton(
                 onPressed: () {
@@ -265,7 +261,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: const Text('Continuar'),
+                child: Text(context.tr('dataManagement.continue')),
               ),
             ],
           ),
@@ -282,7 +278,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       builder:
           (context) => StatefulBuilder(
             builder: (context, setDialogState) {
-              final isValid = _confirmationText?.toUpperCase() == 'ELIMINAR';
+              final isValid =
+                  _confirmationText?.toUpperCase() ==
+                  context.tr('settings.deleteConfirm').toUpperCase();
 
               return AlertDialog(
                 title: Row(
@@ -292,24 +290,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: Theme.of(context).colorScheme.error,
                     ),
                     const SizedBox(width: 8),
-                    const Text('Confirmación Final'),
+                    Text(context.tr('settings.finalConfirmation')),
                   ],
                 ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'ÚLTIMA ADVERTENCIA:\n',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    Text(
+                      context.tr('settings.finalWarning'),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Text(
-                      '• Todas las rutinas serán eliminadas\n'
-                      '• Todos los ejercicios serán eliminados\n'
-                      '• Todas las sesiones de entrenamiento serán eliminadas\n'
-                      '• Todos los datos de progreso serán eliminados\n'
-                      '• Esta acción es IRREVERSIBLE\n\n',
-                    ),
+                    Text(context.tr('settings.finalWarningDetails')),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -317,7 +309,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        'Escribe "ELIMINAR" para confirmar:',
+                        context.tr('settings.typeToConfirm'),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onErrorContainer,
@@ -327,9 +319,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     const SizedBox(height: 12),
                     TextField(
                       enabled: !_isDeleting,
-                      decoration: const InputDecoration(
-                        hintText: 'Escribe ELIMINAR aquí',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: context.tr('settings.typeHere'),
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (value) {
                         setDialogState(() {
@@ -343,7 +335,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   TextButton(
                     onPressed:
                         _isDeleting ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Cancelar'),
+                    child: Text(context.tr('common.cancel')),
                   ),
                   FilledButton(
                     onPressed:
@@ -372,7 +364,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                     child:
                         _isDeleting
-                            ? const Row(
+                            ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 SizedBox(
@@ -386,10 +378,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ),
                                 ),
                                 SizedBox(width: 8),
-                                Text('Eliminando...'),
+                                Text(context.tr('settings.deleting')),
                               ],
                             )
-                            : const Text('ELIMINAR TODO'),
+                            : Text(context.tr('settings.deleteAllData')),
                   ),
                 ],
               );
@@ -417,10 +409,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
       // Mostrar SnackBar de éxito usando la clave global
       globalScaffoldKey.currentState?.showSnackBar(
-        const SnackBar(
-          content: Text('✅ Todos los datos han sido eliminados exitosamente'),
+        SnackBar(
+          content: Text(context.tr('settings.deleteAllDataSuccess')),
           backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
         ),
       );
     } catch (e, stackTrace) {
@@ -434,7 +426,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       // Mostrar SnackBar de error usando la clave global
       globalScaffoldKey.currentState?.showSnackBar(
         SnackBar(
-          content: Text('❌ Error al eliminar datos: $e'),
+          content: Text(
+            'settings.deleteAllDataError'.tr(
+              namedArgs: {'error': e.toString()},
+            ),
+          ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
         ),

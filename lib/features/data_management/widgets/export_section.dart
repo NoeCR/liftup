@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/data_management/data_management.dart';
 import '../../../core/data_management/models/export_type.dart';
 import '../../../features/sessions/notifiers/session_notifier.dart';
@@ -39,7 +40,7 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
               child: OutlinedButton.icon(
                 onPressed: () => _exportToJSON(context),
                 icon: const Icon(Icons.code),
-                label: const Text('JSON'),
+                label: Text(context.tr('dataManagement.json')),
               ),
             ),
             const SizedBox(width: 8),
@@ -47,7 +48,7 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
               child: OutlinedButton.icon(
                 onPressed: () => _exportToCSV(context),
                 icon: const Icon(Icons.table_chart),
-                label: const Text('CSV'),
+                label: Text(context.tr('dataManagement.csv')),
               ),
             ),
             const SizedBox(width: 8),
@@ -55,7 +56,7 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
               child: OutlinedButton.icon(
                 onPressed: () => _exportToPDF(context),
                 icon: const Icon(Icons.picture_as_pdf),
-                label: const Text('PDF'),
+                label: Text(context.tr('dataManagement.pdf')),
               ),
             ),
           ],
@@ -68,44 +69,44 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
     return Column(
       children: [
         _buildCheckboxOption(
-          title: 'Sesiones de entrenamiento',
-          subtitle: 'Incluir todas las sesiones completadas',
+          title: context.tr('dataManagement.trainingSessions'),
+          subtitle: context.tr('dataManagement.trainingSessionsDescription'),
           value: _includeSessions,
           onChanged: (value) => setState(() => _includeSessions = value!),
         ),
         _buildCheckboxOption(
-          title: 'Ejercicios',
-          subtitle: 'Incluir catálogo de ejercicios',
+          title: context.tr('dataManagement.exercises'),
+          subtitle: context.tr('dataManagement.exercisesDescription'),
           value: _includeExercises,
           onChanged: (value) => setState(() => _includeExercises = value!),
         ),
         _buildCheckboxOption(
-          title: 'Rutinas',
-          subtitle: 'Incluir rutinas personalizadas',
+          title: context.tr('dataManagement.routines'),
+          subtitle: context.tr('dataManagement.routinesDescription'),
           value: _includeRoutines,
           onChanged: (value) => setState(() => _includeRoutines = value!),
         ),
         _buildCheckboxOption(
-          title: 'Datos de progreso',
-          subtitle: 'Incluir estadísticas de progreso',
+          title: context.tr('dataManagement.progressData'),
+          subtitle: context.tr('dataManagement.progressDataDescription'),
           value: _includeProgressData,
           onChanged: (value) => setState(() => _includeProgressData = value!),
         ),
         _buildCheckboxOption(
-          title: 'Configuración de usuario',
-          subtitle: 'Incluir preferencias y configuraciones',
+          title: context.tr('dataManagement.userSettings'),
+          subtitle: context.tr('dataManagement.userSettingsDescription'),
           value: _includeUserSettings,
           onChanged: (value) => setState(() => _includeUserSettings = value!),
         ),
         _buildCheckboxOption(
-          title: 'Comprimir datos',
-          subtitle: 'Reducir tamaño del archivo',
+          title: context.tr('dataManagement.compressData'),
+          subtitle: context.tr('dataManagement.compressDataDescription'),
           value: _compressData,
           onChanged: (value) => setState(() => _compressData = value!),
         ),
         _buildCheckboxOption(
-          title: 'Metadatos',
-          subtitle: 'Incluir información de exportación',
+          title: context.tr('dataManagement.metadata'),
+          subtitle: context.tr('dataManagement.metadataDescription'),
           value: _includeMetadata,
           onChanged: (value) => setState(() => _includeMetadata = value!),
         ),
@@ -186,8 +187,10 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Datos exportados a JSON exitosamente'),
+          SnackBar(
+            content: Text(
+              context.tr('dataManagement.dataExportedToJsonSuccessfully'),
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -196,7 +199,12 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error al exportar: $e'),
+            content: Text(
+              context.tr(
+                'dataManagement.exportError',
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -240,8 +248,10 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Datos exportados a CSV exitosamente'),
+          SnackBar(
+            content: Text(
+              context.tr('dataManagement.dataExportedToCsvSuccessfully'),
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -250,7 +260,12 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error al exportar: $e'),
+            content: Text(
+              context.tr(
+                'dataManagement.exportError',
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -294,8 +309,10 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Reporte PDF generado exitosamente'),
+          SnackBar(
+            content: Text(
+              context.tr('dataManagement.pdfReportGeneratedSuccessfully'),
+            ),
             backgroundColor: Colors.green,
           ),
         );

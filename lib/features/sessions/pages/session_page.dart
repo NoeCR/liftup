@@ -11,6 +11,7 @@ import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../exercise/models/exercise.dart';
 import '../../home/widgets/exercise_card_wrapper.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class SessionPage extends ConsumerStatefulWidget {
   const SessionPage({super.key});
@@ -58,11 +59,11 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sesión de Entrenamiento'),
+        title: Text(context.tr('session.title')),
         backgroundColor: colorScheme.surface,
         actions: [
           IconButton(
-            tooltip: 'Historial',
+            tooltip: context.tr('sessionHistory.title'),
             onPressed: () => context.push('/session-history'),
             icon: const Icon(Icons.list_alt),
           ),
@@ -165,7 +166,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
       child: Column(
         children: [
           Text(
-            'Tiempo de Entrenamiento',
+            context.tr('session.workoutTime'),
             style: theme.textTheme.titleMedium?.copyWith(
               color: colorScheme.onPrimaryContainer,
             ),
@@ -199,7 +200,9 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             }
             routine ??= routines.isNotEmpty ? routines.first : null;
             if (routine == null) {
-              return const Center(child: Text('No hay rutina asociada'));
+              return Center(
+                child: Text(context.tr('session.noRoutineAssociated')),
+              );
             }
 
             return exercisesAsync.when(
@@ -223,7 +226,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 16),
                             child: Text(
-                              'Sin ejercicios',
+                              context.tr('session.noExercises'),
                               style: Theme.of(
                                 context,
                               ).textTheme.bodyMedium?.copyWith(
@@ -247,7 +250,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                                   orElse:
                                       () => Exercise(
                                         id: '',
-                                        name: 'Ejercicio',
+                                        name: context.tr('exercises.title'),
                                         description: '',
                                         imageUrl: '',
                                         muscleGroups: const [],
@@ -283,11 +286,17 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error cargando ejercicios')),
+              error:
+                  (e, _) => Center(
+                    child: Text(context.tr('session.errorLoadingExercises')),
+                  ),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error cargando rutina')),
+          error:
+              (e, _) => Center(
+                child: Text(context.tr('session.errorLoadingRoutine')),
+              ),
         );
       },
     );
@@ -333,8 +342,8 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               ),
               label: Text(
                 (_isManuallyPaused || session.status == SessionStatus.paused)
-                    ? 'Reanudar'
-                    : 'Pausar',
+                    ? context.tr('session.resume')
+                    : context.tr('session.pause'),
               ),
             ),
           ),
@@ -355,14 +364,16 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 // Forzar recarga de sesiones para ocultar controles
                 ref.invalidate(sessionNotifierProvider);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Sesión finalizada')),
+                  SnackBar(
+                    content: Text(context.tr('session.sessionFinished')),
+                  ),
                 );
                 if (mounted) {
                   context.push('/session-summary');
                 }
               },
               icon: const Icon(Icons.check),
-              label: const Text('Finalizar'),
+              label: Text(context.tr('session.finish')),
             ),
           ),
         ],
@@ -384,10 +395,13 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             color: colorScheme.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
-          Text('No hay sesión activa', style: theme.textTheme.headlineSmall),
+          Text(
+            context.tr('session.noActiveSession'),
+            style: theme.textTheme.headlineSmall,
+          ),
           const SizedBox(height: 8),
           Text(
-            'Inicia una nueva sesión de entrenamiento',
+            context.tr('session.startNewSession'),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -399,21 +413,22 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               if (selectedRoutineId == null) {
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Selecciona una rutina en Home antes de iniciar la sesión.',
-                    ),
+                  SnackBar(
+                    content: Text(context.tr('session.selectRoutineFirst')),
                   ),
                 );
                 return;
               }
               await ref
                   .read(sessionNotifierProvider.notifier)
-                  .startSession(name: 'Sesión', routineId: selectedRoutineId);
+                  .startSession(
+                    name: context.tr('session.title'),
+                    routineId: selectedRoutineId,
+                  );
               if (mounted) setState(() {});
             },
             icon: const Icon(Icons.play_arrow),
-            label: const Text('Iniciar Sesión'),
+            label: Text(context.tr('session.startSession')),
           ),
         ],
       ),

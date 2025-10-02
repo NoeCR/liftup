@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:extended_image/extended_image.dart' as ext_img;
@@ -164,7 +165,11 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Editar Ejercicio' : 'Nuevo Ejercicio'),
+        title: Text(
+          isEditing
+              ? context.tr('exercises.editExercise')
+              : context.tr('exercises.newExercise'),
+        ),
         backgroundColor: colorScheme.surface,
         actions: [
           if (_isLoading)
@@ -271,18 +276,20 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             onPressed: _pickImage,
             icon: const Icon(Icons.camera_alt),
             label: Text(
-              _imagePath.isEmpty ? 'Seleccionar Imagen' : 'Cambiar Imagen',
+              _imagePath.isEmpty
+                  ? context.tr('exercises.selectImage')
+                  : context.tr('exercises.changeImage'),
             ),
           ),
         ),
         const SizedBox(height: 12),
         TextFormField(
           controller: _imageUrlController,
-          decoration: const InputDecoration(
-            labelText: 'URL de imagen (opcional)',
-            hintText: 'https://…/imagen.jpg o file:///…/imagen.jpg',
+          decoration: InputDecoration(
+            labelText: context.tr('exercises.imageUrlOptional'),
+            hintText: context.tr('exercises.imageUrlHint'),
             border: OutlineInputBorder(),
-            helperText: 'Tiene prioridad sobre la imagen local',
+            helperText: context.tr('exercises.imageUrlHelper'),
           ),
           keyboardType: TextInputType.url,
           onChanged: (_) => setState(() {}),
@@ -296,7 +303,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               setState(() {});
             },
             icon: const Icon(Icons.image_search),
-            label: const Text('Probar imagen'),
+            label: Text(context.tr('exercises.testImage')),
           ),
         ),
       ],
@@ -317,7 +324,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Agregar imagen',
+          context.tr('exercises.addImage'),
           style: theme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
@@ -381,7 +388,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Información Básica',
+          context.tr('exercises.basicInformation'),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -389,14 +396,14 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         const SizedBox(height: 12),
         TextFormField(
           controller: _nameController,
-          decoration: const InputDecoration(
-            labelText: 'Nombre del Ejercicio',
-            hintText: 'Ej: Press de Banca',
+          decoration: InputDecoration(
+            labelText: context.tr('exercises.exerciseName'),
+            hintText: context.tr('exercises.exerciseNameHint'),
             border: OutlineInputBorder(),
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'El nombre es obligatorio';
+              return context.tr('exercises.nameRequired');
             }
             return null;
           },
@@ -404,15 +411,15 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         const SizedBox(height: 16),
         TextFormField(
           controller: _descriptionController,
-          decoration: const InputDecoration(
-            labelText: 'Descripción',
-            hintText: 'Describe cómo realizar el ejercicio...',
+          decoration: InputDecoration(
+            labelText: context.tr('routine.description'),
+            hintText: context.tr('exercises.describeExercise'),
             border: OutlineInputBorder(),
           ),
           maxLines: 3,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'La descripción es obligatoria';
+              return context.tr('exercises.descriptionRequired');
             }
             return null;
           },
@@ -428,7 +435,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Categoría y Dificultad',
+          context.tr('exercises.categoryAndDifficulty'),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -439,8 +446,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: DropdownButtonFormField<ExerciseCategory>(
                 value: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Categoría',
+                decoration: InputDecoration(
+                  labelText: context.tr('exercises.category'),
                   border: OutlineInputBorder(),
                 ),
                 items:
@@ -463,8 +470,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: DropdownButtonFormField<ExerciseDifficulty>(
                 value: _selectedDifficulty,
-                decoration: const InputDecoration(
-                  labelText: 'Dificultad',
+                decoration: InputDecoration(
+                  labelText: context.tr('exercises.difficulty'),
                   border: OutlineInputBorder(),
                 ),
                 items:
@@ -497,7 +504,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Músculos Trabajados',
+          context.tr('exercises.musclesWorked'),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -513,7 +520,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Selecciona los músculos que trabaja este ejercicio:',
+                context.tr('exercises.selectMuscles'),
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 12),
@@ -544,7 +551,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    'Selecciona al menos un músculo',
+                    context.tr('exercises.selectAtLeastOneMuscle'),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.error,
                     ),
@@ -572,22 +579,22 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         const SizedBox(height: 12),
         TextFormField(
           controller: _tipsController,
-          decoration: const InputDecoration(
-            labelText: 'Consejos (uno por línea)',
-            hintText: 'Mantén los pies firmes en el suelo\nContrae el core...',
+          decoration: InputDecoration(
+            labelText: context.tr('exercises.tipsOnePerLine'),
+            hintText: context.tr('exercises.tipsHint'),
             border: OutlineInputBorder(),
-            helperText: 'Escribe cada consejo en una línea separada',
+            helperText: context.tr('exercises.writeEachTipOnSeparateLine'),
           ),
           maxLines: 4,
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: _commonMistakesController,
-          decoration: const InputDecoration(
-            labelText: 'Errores Comunes (uno por línea)',
-            hintText: 'Rebotar la barra en el pecho\nArquear excesivamente...',
+          decoration: InputDecoration(
+            labelText: context.tr('exercises.commonMistakesOnePerLine'),
+            hintText: context.tr('exercises.commonMistakesHint'),
             border: OutlineInputBorder(),
-            helperText: 'Escribe cada error en una línea separada',
+            helperText: context.tr('exercises.writeEachMistakeOnSeparateLine'),
           ),
           maxLines: 4,
         ),
@@ -602,7 +609,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Video de Demostración (Opcional)',
+          context.tr('exercises.demoVideoOptional'),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -613,11 +620,11 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _videoUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'URL del Video',
-                  hintText: 'https://youtu.be/… o https://…/video.mp4',
+                decoration: InputDecoration(
+                  labelText: context.tr('exercises.videoUrl'),
+                  hintText: context.tr('exercises.videoUrlHint'),
                   border: OutlineInputBorder(),
-                  helperText: 'Pega un enlace de YouTube o URL directa',
+                  helperText: context.tr('exercises.videoUrlHelper'),
                 ),
                 keyboardType: TextInputType.url,
               ),
@@ -630,7 +637,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                   child: OutlinedButton.icon(
                     onPressed: _pickVideoFile,
                     icon: const Icon(Icons.folder_open),
-                    label: const Text('Archivo'),
+                    label: Text(context.tr('exercises.file')),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -662,7 +669,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Parámetros de Entrenamiento',
+          context.tr('exercises.trainingParameters'),
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -673,8 +680,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _setsController,
-                decoration: const InputDecoration(
-                  labelText: 'Series',
+                decoration: InputDecoration(
+                  labelText: context.tr('exercises.sets'),
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -690,8 +697,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _repsController,
-                decoration: const InputDecoration(
-                  labelText: 'Repeticiones',
+                decoration: InputDecoration(
+                  labelText: context.tr('exercises.reps'),
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -707,8 +714,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _weightController,
-                decoration: const InputDecoration(
-                  labelText: 'Peso (kg)',
+                decoration: InputDecoration(
+                  labelText: context.tr('exercises.weight'),
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -773,7 +780,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               children: [
                 ListTile(
                   leading: const Icon(Icons.photo_library),
-                  title: const Text('Galería'),
+                  title: Text(context.tr('exercises.gallery')),
                   onTap: () async {
                     Navigator.pop(context);
                     await _pickImageFromSource(ImageSource.gallery);
@@ -781,7 +788,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.camera_alt),
-                  title: const Text('Cámara'),
+                  title: Text(context.tr('exercises.camera')),
                   onTap: () async {
                     Navigator.pop(context);
                     await _pickImageFromSource(ImageSource.camera);
@@ -789,7 +796,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.delete),
-                  title: const Text('Eliminar imagen'),
+                  title: Text(context.tr('exercises.deleteImage')),
                   onTap: () {
                     Navigator.pop(context);
                     setState(() {
@@ -848,7 +855,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(null),
-              child: const Text('Cancelar'),
+              child: Text(context.tr('common.cancel')),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -887,7 +894,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 await file.writeAsBytes(croppedBytes, flush: true);
                 if (ctx.mounted) Navigator.of(ctx).pop(file.path);
               },
-              child: const Text('Recortar y guardar'),
+              child: Text(context.tr('exercises.cropAndSave')),
             ),
           ],
         );
@@ -937,8 +944,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     if (_selectedMuscleGroups.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona al menos un músculo trabajado'),
+        SnackBar(
+          content: Text(context.tr('exercises.selectAtLeastOneMuscle')),
           backgroundColor: Colors.red,
         ),
       );

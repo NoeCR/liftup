@@ -24,8 +24,8 @@ class JsonImporter extends ImportBuilder {
       // Validar tamaño del archivo
       if (await file.length() > config.maxFileSize) {
         return ImportResult.failure(
-          errorMessage: 'El archivo es demasiado grande',
-          errors: ['Archivo excede el tamaño máximo permitido'],
+          errorMessage: 'File is too large',
+          errors: ['File exceeds maximum allowed size'],
         );
       }
 
@@ -36,7 +36,7 @@ class JsonImporter extends ImportBuilder {
       final validationErrors = await validateData(data);
       if (validationErrors.isNotEmpty) {
         return ImportResult.failure(
-          errorMessage: 'Datos no válidos',
+          errorMessage: 'Invalid data',
           errors: validationErrors,
         );
       }
@@ -76,7 +76,7 @@ class JsonImporter extends ImportBuilder {
             skippedCount++;
           }
         } catch (e) {
-          errors.add('Error al importar sesión: $e');
+          errors.add('Error importing session: $e');
         }
       }
     }
@@ -148,7 +148,7 @@ class JsonImporter extends ImportBuilder {
       importedCount: importedCount,
       skippedCount: skippedCount,
       errorCount: errors.length,
-      errorMessage: errors.isNotEmpty ? 'Se encontraron errores durante la importación' : null,
+      errorMessage: errors.isNotEmpty ? 'Errors found during import' : null,
       importedSessions: importedSessions,
       importedExercises: importedExercises,
       importedRoutines: importedRoutines,

@@ -16,7 +16,7 @@ class CsvImporter extends ImportBuilder {
     try {
       final file = File(filePath);
       final csvContent = await file.readAsString();
-      
+
       return await _processCsvData(csvContent);
     } catch (e) {
       return ImportResult.failure(
@@ -35,15 +35,15 @@ class CsvImporter extends ImportBuilder {
     // Por ahora, solo validamos el formato básico
     if (lines.isEmpty) {
       return ImportResult.failure(
-        errorMessage: 'El archivo CSV está vacío',
-        errors: ['Archivo CSV vacío'],
+        errorMessage: 'CSV file is empty',
+        errors: ['Empty CSV file'],
       );
     }
 
     // TODO: Implementar parsing completo de CSV
     // Por ahora, solo validamos que el archivo no esté vacío
-    warnings.add('Importación de CSV aún no implementada completamente');
-    warnings.add('Solo se validó el formato básico del archivo');
+    warnings.add('CSV import not fully implemented yet');
+    warnings.add('Only basic file format was validated');
 
     return ImportResult(
       success: true,
@@ -58,5 +58,4 @@ class CsvImporter extends ImportBuilder {
       warnings: warnings,
     );
   }
-
 }

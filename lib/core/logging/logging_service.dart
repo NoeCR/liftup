@@ -1,22 +1,17 @@
+import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Niveles de logging disponibles
-enum LogLevel {
-  debug,
-  info,
-  warning,
-  error,
-  fatal,
-}
+enum LogLevel { debug, info, warning, error, fatal }
 
 /// Servicio centralizado de logging que integra Logger y Sentry
 class LoggingService {
   static LoggingService? _instance;
   static LoggingService get instance => _instance ??= LoggingService._();
-  
+
   LoggingService._();
 
   late final Logger _logger;
@@ -42,7 +37,7 @@ class LoggingService {
     );
 
     _isInitialized = true;
-    
+
     info('LoggingService initialized', {
       'console_logging': enableConsoleLogging,
       'sentry_logging': enableSentryLogging,
@@ -65,12 +60,22 @@ class LoggingService {
   }
 
   /// Log de nivel error - errores que no detienen la aplicación
-  void error(String message, [Object? error, StackTrace? stackTrace, Map<String, dynamic>? context]) {
+  void error(
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? context,
+  ]) {
     _log(LogLevel.error, message, context, error, stackTrace);
   }
 
   /// Log de nivel fatal - errores críticos que pueden detener la aplicación
-  void fatal(String message, [Object? error, StackTrace? stackTrace, Map<String, dynamic>? context]) {
+  void fatal(
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? context,
+  ]) {
     _log(LogLevel.fatal, message, context, error, stackTrace);
   }
 
@@ -88,7 +93,7 @@ class LoggingService {
     }
 
     final logMessage = _formatMessage(message, context);
-    
+
     // Log local con Logger
     switch (level) {
       case LogLevel.debug:
@@ -130,18 +135,20 @@ class LoggingService {
           stackTrace: stackTrace,
           withScope: (scope) {
             scope.setTag('log_level', level.name);
-            scope.setExtra('logging_context', context ?? {});
-            scope.level = level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error;
+            scope.setExtra('logging_context', jsonEncode(context ?? {}));
+            scope.level =
+                level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error;
           },
         );
       } else {
         // Capturar mensaje
         Sentry.captureMessage(
           message,
-          level: level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error,
+          level:
+              level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error,
           withScope: (scope) {
             scope.setTag('log_level', level.name);
-            scope.setExtra('logging_context', context ?? {});
+            scope.setExtra('logging_context', jsonEncode(context ?? {}));
           },
         );
       }
@@ -156,16 +163,17 @@ class LoggingService {
     if (context == null || context.isEmpty) {
       return message;
     }
-    
+
     final contextString = context.entries
         .map((e) => '${e.key}: ${e.value}')
         .join(', ');
-    
+
     return '$message | Context: $contextString';
   }
 
   /// Añade breadcrumb para Sentry
-  void addBreadcrumb(String message, {
+  void addBreadcrumb(
+    String message, {
     String? category,
     SentryLevel level = SentryLevel.info,
     Map<String, dynamic>? data,
@@ -194,12 +202,14 @@ class LoggingService {
   }) {
     try {
       Sentry.configureScope((scope) {
-        scope.setUser(SentryUser(
-          id: userId,
-          username: username,
-          email: email,
-          extras: extra,
-        ));
+        scope.setUser(
+          SentryUser(
+            id: userId,
+            username: username,
+            email: email,
+            extras: extra,
+          ),
+        );
       });
     } catch (e) {
       developer.log('Failed to set user context: $e');
@@ -221,8 +231,12 @@ class LoggingService {
   void setContext(String key, Map<String, dynamic> context) {
     try {
       Sentry.configureScope((scope) {
-        scope.setExtra(key, context);
+        scope.setExtra(key, jsonEncode(context));
       });
+      // Solo log en modo debug para evitar spam
+      if (kDebugMode) {
+        developer.log('Context set for Sentry: $key');
+      }
     } catch (e) {
       developer.log('Failed to set context: $e');
     }

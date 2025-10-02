@@ -14,6 +14,7 @@ import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../../core/database/database_service.dart';
 import '../../sessions/models/workout_session.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -51,18 +52,18 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LiftUp'),
+        title: Text(context.tr('app.title')),
         backgroundColor: colorScheme.surface,
         actions: [
           IconButton(
-            tooltip: 'Gestionar rutinas',
+            tooltip: context.tr('home.manageRoutines'),
             onPressed: () => _showRoutineManagement(context, ref),
             icon: const Icon(Icons.reorder),
           ),
           IconButton(
             onPressed: () => context.push('/settings'),
             icon: const Icon(Icons.settings),
-            tooltip: 'Configuración',
+            tooltip: context.tr('home.settings'),
           ),
         ],
       ),
@@ -106,9 +107,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
               if (menuOptions.isNotEmpty) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   // Get auto-selected routine or fallback to first
-                  final autoSelectionInfo = ref.read(autoRoutineSelectionNotifierProvider);
-                  final routines = ref.read(routineNotifierProvider).value ?? [];
-                  
+                  final autoSelectionInfo = ref.read(
+                    autoRoutineSelectionNotifierProvider,
+                  );
+                  final routines =
+                      ref.read(routineNotifierProvider).value ?? [];
+
                   Routine? routineToSelect;
                   if (autoSelectionInfo.hasSelection) {
                     // Use auto-selected routine for today
@@ -117,12 +121,13 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                     // Fallback to first routine
                     routineToSelect = routines.first;
                   }
-                  
+
                   if (routineToSelect != null) {
                     setState(() {
                       _selectedMenuOption = routineToSelect!.name;
                     });
-                    ref.read(selectedRoutineIdProvider.notifier).state = routineToSelect.id;
+                    ref.read(selectedRoutineIdProvider.notifier).state =
+                        routineToSelect.id;
                   }
                 });
               }
@@ -130,9 +135,18 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
 
             return _buildMenuOptions(menuOptions, theme, colorScheme);
           },
-          loading: () => _buildMenuOptions(['Hoy'], theme, colorScheme),
+          loading:
+              () => _buildMenuOptions(
+                [context.tr('home.today')],
+                theme,
+                colorScheme,
+              ),
           error:
-              (error, stack) => _buildMenuOptions(['Hoy'], theme, colorScheme),
+              (error, stack) => _buildMenuOptions(
+                [context.tr('home.today')],
+                theme,
+                colorScheme,
+              ),
         );
       },
     );
@@ -296,7 +310,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                       orElse:
                           () => Exercise(
                             id: '',
-                            name: 'Ejercicio no encontrado',
+                            name: context.tr('errors.exerciseNotFound'),
                             description: '',
                             imageUrl: '',
                             muscleGroups: [],
@@ -362,10 +376,10 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             color: colorScheme.onSurfaceVariant,
           ),
           const SizedBox(height: 16),
-          Text('¡Bienvenido a LiftUp!', style: theme.textTheme.headlineSmall),
+          Text(context.tr('app.welcome'), style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
-            'Crea tu primera rutina para comenzar',
+            context.tr('app.createFirstRoutine'),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -376,7 +390,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
               context.push('/create-routine');
             },
             icon: const Icon(Icons.add),
-            label: const Text('Crear Rutina'),
+            label: Text(context.tr('app.createRoutine')),
           ),
         ],
       ),
@@ -398,12 +412,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           ),
           const SizedBox(height: 16),
           Text(
-            'No hay secciones configuradas',
+            context.tr('home.noSectionsConfigured'),
             style: theme.textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Añade secciones a tu rutina para empezar a entrenar',
+            context.tr('home.addSectionsToStart'),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -475,8 +489,11 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                     const SizedBox(height: 12),
                     Text(
                       hasActiveSession
-                          ? 'Edición bloqueada durante la sesión'
-                          : 'Agregar ejercicios a $sectionName',
+                          ? context.tr('home.editingBlockedDuringSession')
+                          : context.tr(
+                            'home.addExercisesToSection',
+                            namedArgs: {'sectionName': sectionName},
+                          ),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -486,7 +503,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                     const SizedBox(height: 6),
                     if (!hasActiveSession)
                       Text(
-                        'Toca para agregar ejercicios a esta sección',
+                        context.tr('home.tapToAddExercises'),
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -515,7 +532,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
           Text(
-            'Error al cargar los datos',
+            context.tr('errors.errorLoadingData'),
             style: theme.textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
@@ -536,7 +553,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                   ref.invalidate(exerciseNotifierProvider);
                 },
                 icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar'),
+                label: Text(context.tr('home.retry')),
               ),
               const SizedBox(width: 16),
               OutlinedButton.icon(
@@ -545,7 +562,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                   _showResetDatabaseDialog();
                 },
                 icon: const Icon(Icons.restore),
-                label: const Text('Resetear'),
+                label: Text(context.tr('home.reset')),
               ),
             ],
           ),
@@ -559,15 +576,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('🔄 Resetear Base de Datos'),
-            content: const Text(
-              'Esto eliminará todos los datos y reiniciará la aplicación.\n\n'
-              '¿Estás seguro de que quieres continuar?',
-            ),
+            title: Text(context.tr('home.resetDatabase')),
+            content: Text(context.tr('home.resetDatabaseDescription')),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
+                child: Text(context.tr('common.cancel')),
               ),
               FilledButton(
                 onPressed: () async {
@@ -577,7 +591,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: const Text('Resetear'),
+                child: Text(context.tr('home.reset')),
               ),
             ],
           ),
@@ -591,12 +605,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         context: context,
         barrierDismissible: false,
         builder:
-            (context) => const AlertDialog(
+            (context) => AlertDialog(
               content: Row(
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(width: 16),
-                  Text('Reseteando base de datos...'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(width: 16),
+                  Text(context.tr('home.resettingDatabase')),
                 ],
               ),
             ),
@@ -615,10 +629,10 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       // Mostrar mensaje de éxito
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Base de datos reseteada exitosamente'),
+          SnackBar(
+            content: Text(context.tr('home.databaseResetSuccess')),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -627,7 +641,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('❌ Error al resetear: $e'),
+            content: Text(
+              context.tr(
+                'home.databaseResetError',
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -640,15 +659,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Gestionar Rutinas'),
-            content: const Text(
-              'Aquí podrás reordenar tus rutinas manualmente. '
-              'Por ahora, las rutinas mantienen su orden fijo y no se reordenan automáticamente al interactuar con ellas.',
-            ),
+            title: Text(context.tr('home.manageRoutinesTitle')),
+            content: Text(context.tr('home.manageRoutinesDescription')),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Entendido'),
+                child: Text(context.tr('home.understood')),
               ),
             ],
           ),

@@ -122,14 +122,14 @@ class AutoSelectionInfo {
   /// Mensaje descriptivo sobre la selección
   String get description {
     if (!hasSelection) {
-      return 'No hay rutinas configuradas para ${currentDay.displayName}';
+      return 'No routines configured for ${currentDay.displayName}';
     }
 
     if (availableRoutines.length == 1) {
-      return 'Rutina automática para ${currentDay.displayName}: ${selectedRoutine!.name}';
+      return 'Auto routine for ${currentDay.displayName}: ${selectedRoutine!.name}';
     }
 
-    return 'Rutina seleccionada para ${currentDay.displayName}: ${selectedRoutine!.name} (${availableRoutines.length} disponibles)';
+    return 'Selected routine for ${currentDay.displayName}: ${selectedRoutine!.name} (${availableRoutines.length} available)';
   }
 }
 

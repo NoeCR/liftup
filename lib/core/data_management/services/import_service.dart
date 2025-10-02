@@ -93,8 +93,8 @@ class ImportService {
           });
 
           return ImportResult.failure(
-            errorMessage: 'Error durante la importación: $e',
-            errors: ['Error del servicio: $e'],
+            errorMessage: 'Error during import: $e',
+            errors: ['Service error: $e'],
           );
         }
       },

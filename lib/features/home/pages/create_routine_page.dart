@@ -8,6 +8,7 @@ import '../models/routine_section_template.dart';
 import '../../../common/enums/week_day_enum.dart';
 import '../../../common/enums/section_muscle_group_enum.dart';
 import '../../../core/navigation/app_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
   final Routine? routineToEdit; // Para edición de rutinas existentes
@@ -96,9 +97,9 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               // Routine Name
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Nombre de la rutina',
-                  hintText: 'Ej: Rutina de Pecho y Tríceps',
+                  hintText: context.tr('routine.nameHint'),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -112,14 +113,14 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               // Routine Description
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
+                decoration: InputDecoration(
+                  labelText: context.tr('routine.description'),
                   hintText: 'Describe tu rutina...',
                 ),
                 maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa una descripción';
+                    return context.tr('routine.descriptionRequired');
                   }
                   return null;
                 },
@@ -128,7 +129,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
               // Days of Week Section
               Text(
-                'Días de la semana',
+                context.tr('routine.weekDays'),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -331,7 +332,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Ve a Configuración > Configurar Secciones para crear plantillas personalizadas.',
+            context.tr('routine.goToSettingsToCreateTemplates'),
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -341,7 +342,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
           OutlinedButton.icon(
             onPressed: () => context.push(AppRouter.sectionTemplates),
             icon: const Icon(Icons.settings),
-            label: const Text('Configurar Secciones'),
+            label: Text(context.tr('routine.configureSections')),
           ),
         ],
       ),
@@ -394,8 +395,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
     if (_selectedDays.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor selecciona al menos un día de la semana'),
+        SnackBar(
+          content: Text(context.tr('routine.selectAtLeastOneDay')),
           backgroundColor: Colors.red,
         ),
       );
@@ -404,8 +405,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
     if (_selectedSectionIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor selecciona al menos una sección'),
+        SnackBar(
+          content: Text(context.tr('routine.selectAtLeastOneSection')),
           backgroundColor: Colors.red,
         ),
       );
@@ -532,14 +533,17 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Eliminar Rutina'),
+            title: Text(context.tr('routine.deleteRoutine')),
             content: Text(
-              '¿Estás seguro de que quieres eliminar la rutina "${_nameController.text.trim()}"?',
+              context.tr(
+                'routine.deleteRoutineDescription',
+                namedArgs: {'routineName': _nameController.text.trim()},
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
+                child: Text(context.tr('common.cancel')),
               ),
               FilledButton(
                 onPressed: () async {
@@ -549,7 +553,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.error,
                 ),
-                child: const Text('Eliminar'),
+                child: Text(context.tr('common.delete')),
               ),
             ],
           ),
@@ -564,8 +568,8 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Rutina eliminada exitosamente'),
+          SnackBar(
+            content: Text(context.tr('routine.routineDeletedSuccess')),
             backgroundColor: Colors.green,
           ),
         );
@@ -576,7 +580,11 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al eliminar rutina: $e'),
+            content: Text(
+              'routine.routineDeleteError'.tr(
+                namedArgs: {'error': e.toString()},
+              ),
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -590,7 +598,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     switch (muscleGroup) {
       case SectionMuscleGroup.warmup:
       case SectionMuscleGroup.cooldown:
-        return 'Preparación y Recuperación';
+        return context.tr('routine.preparationAndRecovery');
       case SectionMuscleGroup.chest:
       case SectionMuscleGroup.back:
       case SectionMuscleGroup.shoulders:
