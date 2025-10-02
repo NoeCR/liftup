@@ -11,6 +11,8 @@ import '../../home/notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../statistics/notifiers/progress_notifier.dart';
+import '../widgets/language_selector.dart';
+import '../../../common/localization/localized_text.dart';
 
 // Clave global para el ScaffoldMessenger
 final GlobalKey<ScaffoldMessengerState> globalScaffoldKey =
@@ -36,7 +38,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       key: globalScaffoldKey,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Configuración'),
+          title: const LocalizedText('settings.title'),
           backgroundColor: colorScheme.surface,
         ),
         body: ListView(
@@ -69,15 +71,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   // Theme selection functionality
                 },
               ),
-              _buildSettingsTile(
-                context,
-                icon: Icons.language,
-                title: 'Idioma',
-                subtitle: 'Cambiar idioma de la aplicación',
-                onTap: () {
-                  // Language selection functionality
-                },
-              ),
+              const LanguageSelector(),
             ]),
             const SizedBox(height: 24),
             _buildSettingsSection(context, 'Entrenamiento', [

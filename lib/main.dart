@@ -9,6 +9,8 @@ import 'core/database/database_service.dart';
 import 'core/database/hive_adapters.dart';
 import 'common/widgets/auto_routine_initializer.dart';
 import 'core/logging/logging.dart';
+import 'common/localization/localization_service.dart';
+import 'common/localization/localization_wrapper.dart';
 
 void main() async {
   // Inicializar servicio de entorno
@@ -27,6 +29,9 @@ void _runApp() async {
 
   // Inicializar servicio de contexto de usuario
   await UserContextService.instance.initialize();
+
+  // Inicializar servicio de localización
+  await LocalizationService.instance.initialize();
 
   // Configurar alertas y métricas de Sentry
   if (SentryDsnConfig.isAlertsEnabled) {
@@ -65,7 +70,11 @@ void _runApp() async {
   }
 
   runApp(
-    const ProviderScope(child: AutoRoutineInitializer(child: LiftUpApp())),
+    const ProviderScope(
+      child: LocalizationWrapper(
+        child: AutoRoutineInitializer(child: LiftUpApp()),
+      ),
+    ),
   );
 }
 
