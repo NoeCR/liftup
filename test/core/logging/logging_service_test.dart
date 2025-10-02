@@ -122,7 +122,11 @@ void main() {
         mockLoggingService.info('Info message 1', {});
         mockLoggingService.warning('Warning message 1', {});
         mockLoggingService.info('Info message 2', {});
-        mockLoggingService.error('Error message 1', <String, dynamic>{}, StackTrace.current);
+        mockLoggingService.error(
+          'Error message 1',
+          <String, dynamic>{},
+          StackTrace.current,
+        );
 
         // Act
         final infoLogs = mockLoggingService.getLogsByLevel(LogLevel.info);
