@@ -57,21 +57,22 @@ class ImportService {
           // Realizar importación
           final result = await importer.import(filePath);
 
-            LoggingService.instance.info('Import completed', {
-              'success': result.success,
-              'imported_count': result.importedCount,
-              'errors_count': result.errors.length,
-            });
+          LoggingService.instance.info('Import completed', {
+            'success': result.success,
+            'imported_count': result.importedCount,
+            'errors_count': result.errors.length,
+          });
 
-            // Registrar métrica de importación
-            SentryMetricsConfig.trackImportExportOperation(
-              operation: 'import',
-              fileType: fileExtension,
-              durationMs: 0, // Se calculará automáticamente por PerformanceMonitor
-              success: result.success,
-              dataSize: result.importedCount,
-              error: result.success ? null : result.errorMessage,
-            );
+          // Registrar métrica de importación
+          SentryMetricsConfig.trackImportExportOperation(
+            operation: 'import',
+            fileType: fileExtension,
+            durationMs:
+                0, // Se calculará automáticamente por PerformanceMonitor
+            success: result.success,
+            dataSize: result.importedCount,
+            error: result.success ? null : result.errorMessage,
+          );
 
           // Si la importación fue exitosa, guardar en Hive
           if (result.success && result.importedCount > 0) {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/navigation/app_router.dart';
 import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
@@ -11,25 +12,32 @@ import 'common/widgets/auto_routine_initializer.dart';
 import 'core/logging/logging.dart';
 
 void main() async {
+  // Cargar variables de entorno
+  await dotenv.load(fileName: ".env");
+  
   // Inicializar Sentry y manejo global de errores
   await SentryConfig.initialize();
-  
+
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializar servicio de logging
   LoggingService.instance.initialize();
-  
+
   // Inicializar servicio de contexto de usuario
   await UserContextService.instance.initialize();
 
   // Configurar alertas y métricas de Sentry
-  SentryAlertsConfig.configureAlerts();
+  if (SentryDsnConfig.isAlertsEnabled) {
+    SentryAlertsConfig.configureAlerts();
+  }
   await SentryMetricsConfig.initialize();
 
-  // Iniciar monitoreo de métricas y salud
-  MetricsMonitor.instance.startMonitoring();
-  HealthMonitor.instance.startMonitoring();
-  
+  // Iniciar monitoreo de métricas y salud si está habilitado
+  if (SentryDsnConfig.isMetricsMonitoringEnabled) {
+    MetricsMonitor.instance.startMonitoring();
+    HealthMonitor.instance.startMonitoring();
+  }
+
   // Configurar manejo global de errores
   _setupGlobalErrorHandling();
 
@@ -77,12 +85,9 @@ void _setupGlobalErrorHandling() {
 
   // Capturar errores de plataforma
   PlatformDispatcher.instance.onError = (error, stack) {
-    LoggingService.instance.error(
-      'Platform Error: $error',
-      error,
-      stack,
-      {'component': 'platform_error'},
-    );
+    LoggingService.instance.error('Platform Error: $error', error, stack, {
+      'component': 'platform_error',
+    });
     return true;
   };
 }

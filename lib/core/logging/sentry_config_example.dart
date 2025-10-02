@@ -8,7 +8,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class SentryConfigExample {
   // Reemplaza con tu DSN real de Sentry
   static const String _dnsKey = 'https://your-dsn@sentry.io/project-id';
-  
+
   /// Configuración de Sentry para desarrollo
   static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(
     dsn: _dnsKey,
@@ -49,7 +49,10 @@ class SentryConfigExample {
   }
 
   /// Filtra transacciones antes de enviarlas a Sentry
-  static SentryTransaction? _beforeSendTransaction(SentryTransaction transaction, {Hint? hint}) {
+  static SentryTransaction? _beforeSendTransaction(
+    SentryTransaction transaction, {
+    Hint? hint,
+  }) {
     // Filtrar transacciones de desarrollo en producción
     if (!kDebugMode && transaction.environment == 'development') {
       return null;
@@ -62,7 +65,7 @@ class SentryConfigExample {
   static bool _containsSensitiveData(SentryEvent event) {
     final message = event.message?.formatted.toLowerCase() ?? '';
     final exception = event.exceptions?.firstOrNull?.value?.toLowerCase() ?? '';
-    
+
     final sensitiveKeywords = [
       'password',
       'token',
@@ -72,8 +75,8 @@ class SentryConfigExample {
       'credential',
     ];
 
-    return sensitiveKeywords.any((keyword) => 
-      message.contains(keyword) || exception.contains(keyword)
+    return sensitiveKeywords.any(
+      (keyword) => message.contains(keyword) || exception.contains(keyword),
     );
   }
 
@@ -86,19 +89,20 @@ class SentryConfigExample {
         options.debug = kDebugMode;
         options.environment = kDebugMode ? 'development' : 'production';
         options.release = 'liftup@1.0.0+1';
-        
+
         // Configuraciones de rendimiento
         options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
         options.profilesSampleRate = kDebugMode ? 1.0 : 0.1;
-        
+
         // Configuraciones de sesión
         options.enableAutoSessionTracking = true;
         options.maxBreadcrumbs = kDebugMode ? 100 : 50;
-        
+
         // Filtros
         options.beforeSend = _beforeSend as BeforeSendCallback?;
-        options.beforeSendTransaction = _beforeSendTransaction as BeforeSendTransactionCallback?;
-        
+        options.beforeSendTransaction =
+            _beforeSendTransaction as BeforeSendTransactionCallback?;
+
         // Configuraciones adicionales
         options.attachScreenshot = true;
         options.attachViewHierarchy = true;

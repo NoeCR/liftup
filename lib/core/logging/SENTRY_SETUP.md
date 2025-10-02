@@ -26,14 +26,37 @@ Este documento explica cómo configurar Sentry para el monitoreo de errores y re
 
 ### 4. Configurar DSN en la aplicación
 
-1. Abre el archivo `lib/core/logging/sentry_dsn_config.dart`
-2. Reemplaza `YOUR_SENTRY_DSN_HERE` con tu DSN real:
+1. Copia el archivo `env.example` a `.env`:
+   ```bash
+   cp env.example .env
+   ```
 
-```dart
-static const String _dnsKey = 'https://abc123def456@o123456.ingest.sentry.io/123456';
+2. Abre el archivo `.env` y reemplaza `YOUR_SENTRY_DSN_HERE` con tu DSN real:
+   ```env
+   SENTRY_DSN=https://abc123def456@o123456.ingest.sentry.io/123456
+   ```
+
+3. Asegúrate de que `.env` esté en tu `.gitignore` para no exponer tu DSN
+
+### 5. Configurar variables de entorno adicionales
+
+Puedes configurar otras opciones en el archivo `.env`:
+
+```env
+# Configuración de entorno
+ENVIRONMENT=development  # development, staging, production
+
+# Configuración de logging
+DEBUG_LOGGING=true  # true para logging detallado, false para mínimo
+
+# Configuración de monitoreo
+ENABLE_METRICS_MONITORING=true  # true para habilitar métricas, false para deshabilitar
+
+# Configuración de alertas
+ENABLE_ALERTS=true  # true para habilitar alertas, false para deshabilitar
 ```
 
-### 5. Verificar configuración
+### 6. Verificar configuración
 
 1. Reinicia la aplicación
 2. Los logs deberían mostrar que Sentry se inicializó correctamente
@@ -69,6 +92,18 @@ static const String _dnsKey = 'https://abc123def456@o123456.ingest.sentry.io/123
 - Verificación de salud cada 60 segundos
 
 ## Configuración avanzada
+
+### Variables de entorno
+
+El sistema utiliza variables de entorno para una configuración flexible y segura:
+
+| Variable | Descripción | Valores posibles | Valor por defecto |
+|----------|-------------|------------------|-------------------|
+| `SENTRY_DSN` | DSN de Sentry | URL válida de Sentry | `YOUR_SENTRY_DSN_HERE` |
+| `ENVIRONMENT` | Entorno de la aplicación | `development`, `staging`, `production` | `development` |
+| `DEBUG_LOGGING` | Habilitar logging detallado | `true`, `false` | `true` |
+| `ENABLE_METRICS_MONITORING` | Habilitar monitoreo de métricas | `true`, `false` | `true` |
+| `ENABLE_ALERTS` | Habilitar alertas automáticas | `true`, `false` | `true` |
 
 ### Filtros de datos sensibles
 

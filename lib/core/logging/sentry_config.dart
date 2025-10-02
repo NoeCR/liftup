@@ -81,8 +81,8 @@ class SentryConfig {
       (options) {
         // Configuración básica
         options.dsn = _dnsKey;
-        options.debug = kDebugMode;
-        options.environment = kDebugMode ? 'development' : 'production';
+        options.debug = kDebugMode && SentryDsnConfig.isDebugLoggingEnabled;
+        options.environment = SentryDsnConfig.environment;
         options.release = 'liftup@1.0.0+1';
         
         // Configuraciones de rendimiento

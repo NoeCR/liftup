@@ -66,7 +66,8 @@ class WeeklyExerciseTrackingService {
 
           // Verificar si la sesión fue completada en la semana actual
           final sessionDate = session.endTime ?? session.startTime;
-          if (sessionDate.isAfter(startOfWeek) && sessionDate.isBefore(endOfWeek)) {
+          if (sessionDate.isAfter(startOfWeek) &&
+              sessionDate.isBefore(endOfWeek)) {
             LoggingService.instance.debug('Session completed in current week', {
               'session_id': session.id,
               'session_date': sessionDate.toIso8601String(),
@@ -97,9 +98,7 @@ class WeeklyExerciseTrackingService {
         });
         return exercisesThisWeek;
       },
-      context: {
-        'component': 'weekly_exercise_tracking',
-      },
+      context: {'component': 'weekly_exercise_tracking'},
     );
   }
 
@@ -197,10 +196,13 @@ final exercisePerformedThisWeekProvider = FutureProvider.family<bool, String>((
   ref,
   exerciseId,
 ) async {
-  LoggingService.instance.debug('Checking if exercise was performed this week', {
-    'exercise_id': exerciseId,
-    'component': 'weekly_exercise_tracking_provider',
-  });
+  LoggingService.instance.debug(
+    'Checking if exercise was performed this week',
+    {
+      'exercise_id': exerciseId,
+      'component': 'weekly_exercise_tracking_provider',
+    },
+  );
   final service = ref.watch(weeklyExerciseTrackingServiceProvider);
   final result = await service.wasExercisePerformedThisWeek(exerciseId, ref);
   LoggingService.instance.debug('Exercise performance check completed', {
