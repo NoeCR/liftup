@@ -6,7 +6,8 @@ import 'logging_service.dart';
 /// Servicio para manejar variables de entorno
 class EnvironmentService {
   static EnvironmentService? _instance;
-  static EnvironmentService get instance => _instance ??= EnvironmentService._();
+  static EnvironmentService get instance =>
+      _instance ??= EnvironmentService._();
 
   EnvironmentService._();
 
@@ -19,18 +20,21 @@ class EnvironmentService {
 
     try {
       LoggingService.instance.info('Initializing EnvironmentService');
-      
+
       // Determinar el entorno actual
       _currentEnvironment = _determineEnvironment();
-      
+
       // Cargar el archivo .env apropiado
       await _loadEnvironmentFile();
-      
+
       _isInitialized = true;
-      LoggingService.instance.info('EnvironmentService initialized successfully', {
-        'environment': _currentEnvironment,
-        'env_file_loaded': _getEnvFileName(),
-      });
+      LoggingService.instance.info(
+        'EnvironmentService initialized successfully',
+        {
+          'environment': _currentEnvironment,
+          'env_file_loaded': _getEnvFileName(),
+        },
+      );
     } catch (e, stackTrace) {
       LoggingService.instance.error(
         'Failed to initialize EnvironmentService',
@@ -73,7 +77,7 @@ class EnvironmentService {
   /// Carga el archivo .env apropiado
   Future<void> _loadEnvironmentFile() async {
     final envFileName = _getEnvFileName();
-    
+
     try {
       LoggingService.instance.debug('Loading environment file', {
         'file_name': envFileName,
@@ -81,24 +85,27 @@ class EnvironmentService {
       });
 
       await dotenv.load(fileName: envFileName);
-      
+
       LoggingService.instance.info('Environment file loaded successfully', {
         'file_name': envFileName,
         'environment': _currentEnvironment,
         'variables_count': dotenv.env.length,
       });
     } catch (e) {
-      LoggingService.instance.warning('Failed to load environment file, using defaults', {
-        'file_name': envFileName,
-        'error': e.toString(),
-        'environment': _currentEnvironment,
-      });
-      
+      LoggingService.instance
+          .warning('Failed to load environment file, using defaults', {
+            'file_name': envFileName,
+            'error': e.toString(),
+            'environment': _currentEnvironment,
+          });
+
       // Si no se puede cargar el archivo específico, intentar cargar .env
       if (envFileName != '.env') {
         try {
           await dotenv.load(fileName: '.env');
-          LoggingService.instance.info('Fallback .env file loaded successfully');
+          LoggingService.instance.info(
+            'Fallback .env file loaded successfully',
+          );
         } catch (fallbackError) {
           LoggingService.instance.warning('Failed to load fallback .env file', {
             'error': fallbackError.toString(),
@@ -189,7 +196,9 @@ class EnvironmentService {
       LoggingService.instance.info('Reloading environment configuration');
       _isInitialized = false;
       await initialize();
-      LoggingService.instance.info('Environment configuration reloaded successfully');
+      LoggingService.instance.info(
+        'Environment configuration reloaded successfully',
+      );
     } catch (e, stackTrace) {
       LoggingService.instance.error(
         'Failed to reload environment configuration',
@@ -207,10 +216,10 @@ class EnvironmentService {
         'from': _currentEnvironment,
         'to': newEnvironment,
       });
-      
+
       _currentEnvironment = newEnvironment;
       await reload();
-      
+
       LoggingService.instance.info('Environment changed successfully', {
         'new_environment': newEnvironment,
       });
@@ -219,10 +228,7 @@ class EnvironmentService {
         'Failed to change environment',
         e,
         stackTrace,
-        {
-          'component': 'environment_service',
-          'new_environment': newEnvironment,
-        },
+        {'component': 'environment_service', 'new_environment': newEnvironment},
       );
     }
   }

@@ -13,7 +13,7 @@ import 'core/logging/logging.dart';
 void main() async {
   // Inicializar servicio de entorno
   await EnvironmentService.instance.initialize();
-  
+
   // Inicializar Sentry y manejo global de errores
   await SentryConfig.initialize();
 
