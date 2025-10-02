@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../sessions/models/workout_session.dart';
+import '../../../core/logging/logging.dart';
 
 /// Servicio para rastrear ejercicios realizados en la semana actual
 class WeeklyExerciseTrackingService {
@@ -27,50 +28,78 @@ class WeeklyExerciseTrackingService {
 
   /// Obtiene todos los ejercicios realizados en la semana actual
   Future<Set<String>> getExercisesPerformedThisWeek(Ref ref) async {
-    final sessions = await ref.read(sessionNotifierProvider.future);
-    final startOfWeek = getStartOfCurrentWeek();
-    final endOfWeek = getEndOfCurrentWeek();
+    return await PerformanceMonitor.instance.monitorAsync(
+      'get_exercises_performed_this_week',
+      () async {
+        final sessions = await ref.read(sessionNotifierProvider.future);
+        final startOfWeek = getStartOfCurrentWeek();
+        final endOfWeek = getEndOfCurrentWeek();
 
-    print('WeeklyTracking: startOfWeek=$startOfWeek, endOfWeek=$endOfWeek');
-    print('WeeklyTracking: Total sessions=${sessions.length}');
+        LoggingService.instance.debug('Getting exercises performed this week', {
+          'start_of_week': startOfWeek.toIso8601String(),
+          'end_of_week': endOfWeek.toIso8601String(),
+          'total_sessions': sessions.length,
+          'component': 'weekly_exercise_tracking',
+        });
 
-    final exercisesThisWeek = <String>{};
+        final exercisesThisWeek = <String>{};
 
-    for (final session in sessions) {
-      print(
-        'WeeklyTracking: Session ${session.id} - startTime=${session.startTime}, endTime=${session.endTime}, status=${session.status}, exerciseSets=${session.exerciseSets.length}',
-      );
+        for (final session in sessions) {
+          LoggingService.instance.debug('Processing session', {
+            'session_id': session.id,
+            'start_time': session.startTime.toIso8601String(),
+            'end_time': session.endTime?.toIso8601String(),
+            'status': session.status.toString(),
+            'exercise_sets_count': session.exerciseSets.length,
+            'component': 'weekly_exercise_tracking',
+          });
 
-      // Solo considerar sesiones completadas
-      if (session.status != SessionStatus.completed) {
-        print(
-          'WeeklyTracking: Session ${session.id} is not completed, skipping',
-        );
-        continue;
-      }
+          // Solo considerar sesiones completadas
+          if (session.status != SessionStatus.completed) {
+            LoggingService.instance.debug('Session not completed, skipping', {
+              'session_id': session.id,
+              'status': session.status.toString(),
+              'component': 'weekly_exercise_tracking',
+            });
+            continue;
+          }
 
-      // Verificar si la sesión fue completada en la semana actual
-      final sessionDate = session.endTime ?? session.startTime;
-      if (sessionDate.isAfter(startOfWeek) && sessionDate.isBefore(endOfWeek)) {
-        print(
-          'WeeklyTracking: Session ${session.id} was completed in current week',
-        );
-        // Agregar todos los ejercicios de esta sesión
-        for (final exerciseSet in session.exerciseSets) {
-          print('WeeklyTracking: Adding exercise ${exerciseSet.exerciseId}');
-          exercisesThisWeek.add(exerciseSet.exerciseId);
+          // Verificar si la sesión fue completada en la semana actual
+          final sessionDate = session.endTime ?? session.startTime;
+          if (sessionDate.isAfter(startOfWeek) &&
+              sessionDate.isBefore(endOfWeek)) {
+            LoggingService.instance.debug('Session completed in current week', {
+              'session_id': session.id,
+              'session_date': sessionDate.toIso8601String(),
+              'component': 'weekly_exercise_tracking',
+            });
+            // Agregar todos los ejercicios de esta sesión
+            for (final exerciseSet in session.exerciseSets) {
+              LoggingService.instance.debug('Adding exercise from session', {
+                'exercise_id': exerciseSet.exerciseId,
+                'session_id': session.id,
+                'component': 'weekly_exercise_tracking',
+              });
+              exercisesThisWeek.add(exerciseSet.exerciseId);
+            }
+          } else {
+            LoggingService.instance.debug('Session not in current week', {
+              'session_id': session.id,
+              'session_date': sessionDate.toIso8601String(),
+              'component': 'weekly_exercise_tracking',
+            });
+          }
         }
-      } else {
-        print(
-          'WeeklyTracking: Session ${session.id} was NOT completed in current week',
-        );
-      }
-    }
 
-    print(
-      'WeeklyTracking: Total exercises this week=${exercisesThisWeek.length}: $exercisesThisWeek',
+        LoggingService.instance.info('Weekly exercise tracking completed', {
+          'total_exercises_this_week': exercisesThisWeek.length,
+          'exercises': exercisesThisWeek.toList(),
+          'component': 'weekly_exercise_tracking',
+        });
+        return exercisesThisWeek;
+      },
+      context: {'component': 'weekly_exercise_tracking'},
     );
-    return exercisesThisWeek;
   }
 
   /// Verifica si un ejercicio específico fue realizado esta semana
@@ -167,13 +196,19 @@ final exercisePerformedThisWeekProvider = FutureProvider.family<bool, String>((
   ref,
   exerciseId,
 ) async {
-  print(
-    'WeeklyTracking: Checking if exercise $exerciseId was performed this week',
+  LoggingService.instance.debug(
+    'Checking if exercise was performed this week',
+    {
+      'exercise_id': exerciseId,
+      'component': 'weekly_exercise_tracking_provider',
+    },
   );
   final service = ref.watch(weeklyExerciseTrackingServiceProvider);
   final result = await service.wasExercisePerformedThisWeek(exerciseId, ref);
-  print(
-    'WeeklyTracking: Exercise $exerciseId was performed this week: $result',
-  );
+  LoggingService.instance.debug('Exercise performance check completed', {
+    'exercise_id': exerciseId,
+    'was_performed': result,
+    'component': 'weekly_exercise_tracking_provider',
+  });
   return result;
 });

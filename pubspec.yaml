@@ -63,6 +63,13 @@ dependencies:
   equatable: ^2.0.5
   json_annotation: ^4.8.1
 
+  # Logging & Error Tracking
+  sentry_flutter: ^8.0.0
+  logger: ^2.4.0
+  
+  # Environment Variables
+  flutter_dotenv: ^5.1.0
+
   # Image handling
   cached_network_image: ^3.3.1
   image_picker: ^1.0.7
@@ -112,6 +119,10 @@ flutter:
     - assets/icons/
     - assets/animations/
     - assets/locales/
+    - .env
+    - .env.development
+    - .env.staging
+    - .env.production
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

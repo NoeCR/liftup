@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/routine.dart';
 import '../../../common/enums/week_day_enum.dart';
 import '../notifiers/routine_notifier.dart';
+import '../../../core/logging/logging.dart';
 
 /// Servicio para selección automática de rutinas basada en el día de la semana
 class AutoRoutineSelectionService {
@@ -24,13 +25,21 @@ class AutoRoutineSelectionService {
     final todayRoutines =
         routines.where((routine) => routine.days.contains(today)).toList();
 
-    print('AutoSelectionService: Today is ${today.displayName}');
-    print('AutoSelectionService: Total routines: ${routines.length}');
-    print('AutoSelectionService: Routines for today: ${todayRoutines.length}');
+    LoggingService.instance.debug('Finding routines for today', {
+      'today': today.displayName,
+      'total_routines': routines.length,
+      'today_routines_count': todayRoutines.length,
+      'component': 'auto_routine_selection',
+    });
+
     for (final routine in todayRoutines) {
-      print(
-        'AutoSelectionService: - ${routine.name} (days: ${routine.days.map((d) => d.displayName).join(', ')})',
-      );
+      LoggingService.instance.debug('Available routine for today', {
+        'routine_name': routine.name,
+        'routine_id': routine.id,
+        'routine_days': routine.days.map((d) => d.displayName).join(', '),
+        'routine_order': routine.order,
+        'component': 'auto_routine_selection',
+      });
     }
 
     return todayRoutines;
@@ -39,25 +48,46 @@ class AutoRoutineSelectionService {
   /// Selecciona automáticamente la rutina para el día actual
   /// Prioriza rutinas con menor orden, luego por fecha de creación
   Routine? selectRoutineForToday(List<Routine> routines) {
-    final todayRoutines = findRoutinesForToday(routines);
+    return PerformanceMonitor.instance.monitorSync(
+      'select_routine_for_today',
+      () {
+        final todayRoutines = findRoutinesForToday(routines);
 
-    if (todayRoutines.isEmpty) {
-      return null;
-    }
+        if (todayRoutines.isEmpty) {
+          LoggingService.instance.info('No routines available for today', {
+            'component': 'auto_routine_selection',
+          });
+          return null;
+        }
 
-    // Ordenar por orden (ascendente), luego por fecha de creación (ascendente)
-    todayRoutines.sort((a, b) {
-      // Primero por orden
-      final orderA = a.order ?? 999;
-      final orderB = b.order ?? 999;
-      if (orderA != orderB) {
-        return orderA.compareTo(orderB);
-      }
-      // Luego por fecha de creación
-      return a.createdAt.compareTo(b.createdAt);
-    });
+        // Ordenar por orden (ascendente), luego por fecha de creación (ascendente)
+        todayRoutines.sort((a, b) {
+          // Primero por orden
+          final orderA = a.order ?? 999;
+          final orderB = b.order ?? 999;
+          if (orderA != orderB) {
+            return orderA.compareTo(orderB);
+          }
+          // Luego por fecha de creación
+          return a.createdAt.compareTo(b.createdAt);
+        });
 
-    return todayRoutines.first;
+        final selectedRoutine = todayRoutines.first;
+        LoggingService.instance.info('Routine selected for today', {
+          'selected_routine_name': selectedRoutine.name,
+          'selected_routine_id': selectedRoutine.id,
+          'selected_routine_order': selectedRoutine.order,
+          'total_available': todayRoutines.length,
+          'component': 'auto_routine_selection',
+        });
+
+        return selectedRoutine;
+      },
+      context: {
+        'total_routines': routines.length,
+        'component': 'auto_routine_selection',
+      },
+    );
   }
 
   /// Obtiene información sobre la selección automática

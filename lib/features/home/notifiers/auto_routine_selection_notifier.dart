@@ -4,6 +4,7 @@ import '../services/auto_routine_selection_service.dart';
 import 'routine_notifier.dart';
 import 'selected_routine_provider.dart';
 import '../../../common/enums/week_day_enum.dart';
+import '../../../core/logging/logging.dart';
 
 part 'auto_routine_selection_notifier.g.dart';
 
@@ -32,22 +33,39 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
     
     final currentSelection = ref.read(selectedRoutineIdProvider);
     
-    print('AutoSelection: currentSelection=$currentSelection, hasSelection=${newInfo.hasSelection}');
-    print('AutoSelection: today=${newInfo.currentDay.displayName}, availableRoutines=${newInfo.availableRoutines.length}');
+    LoggingService.instance.debug('Updating auto selection', {
+      'current_selection': currentSelection,
+      'has_selection': newInfo.hasSelection,
+      'today': newInfo.currentDay.displayName,
+      'available_routines_count': newInfo.availableRoutines.length,
+      'total_routines': routines.length,
+      'component': 'auto_routine_selection_notifier',
+    });
     
     // Solo seleccionar automáticamente si no hay selección actual
     if (currentSelection == null) {
       if (newInfo.hasSelection) {
         // Si hay rutina para hoy, seleccionarla
-        print('AutoSelection: Selecting routine for today: ${newInfo.selectedRoutine!.name}');
+        LoggingService.instance.info('Auto-selecting routine for today', {
+          'selected_routine_name': newInfo.selectedRoutine!.name,
+          'selected_routine_id': newInfo.selectedRoutine!.id,
+          'component': 'auto_routine_selection_notifier',
+        });
         _selectAutoRoutine(newInfo.selectedRoutine!);
       } else if (routines.isNotEmpty) {
         // Si no hay rutina para hoy, seleccionar la primera disponible
-        print('AutoSelection: No routine for today, selecting first: ${routines.first.name}');
+        LoggingService.instance.info('No routine for today, selecting first available', {
+          'selected_routine_name': routines.first.name,
+          'selected_routine_id': routines.first.id,
+          'component': 'auto_routine_selection_notifier',
+        });
         _selectAutoRoutine(routines.first);
       }
     } else {
-      print('AutoSelection: Already have selection, not changing');
+      LoggingService.instance.debug('Already have selection, not changing', {
+        'current_selection': currentSelection,
+        'component': 'auto_routine_selection_notifier',
+      });
     }
   }
 
@@ -59,6 +77,11 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
 
   /// Selecciona automáticamente una rutina
   void _selectAutoRoutine(Routine routine) {
+    LoggingService.instance.info('Selecting auto routine', {
+      'routine_name': routine.name,
+      'routine_id': routine.id,
+      'component': 'auto_routine_selection_notifier',
+    });
     ref.read(selectedRoutineIdProvider.notifier).state = routine.id;
   }
 

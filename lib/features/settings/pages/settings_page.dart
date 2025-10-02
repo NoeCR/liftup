@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/database/database_service.dart';
+import '../../../core/logging/logging.dart';
 import '../notifiers/rest_prefs.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import '../../home/notifiers/routine_notifier.dart';
@@ -428,8 +429,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           duration: Duration(seconds: 3),
         ),
       );
-    } catch (e) {
-      print('Error clearing database: $e');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error clearing database from settings',
+        e,
+        stackTrace,
+        {'component': 'settings_page'},
+      );
 
       // Mostrar SnackBar de error usando la clave global
       globalScaffoldKey.currentState?.showSnackBar(
