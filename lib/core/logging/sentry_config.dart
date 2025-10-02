@@ -6,7 +6,7 @@ import 'sentry_dsn_config.dart';
 class SentryConfig {
   // Usar el DSN configurado desde SentryDsnConfig
   static String get _dnsKey => SentryDsnConfig.dsn;
-  
+
   /// Configuración de Sentry para desarrollo
   static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(
     dsn: _dnsKey,
@@ -47,7 +47,10 @@ class SentryConfig {
   }
 
   /// Filtra transacciones antes de enviarlas a Sentry
-  static SentryTransaction? _beforeSendTransaction(SentryTransaction transaction, {Hint? hint}) {
+  static SentryTransaction? _beforeSendTransaction(
+    SentryTransaction transaction, {
+    Hint? hint,
+  }) {
     // Filtrar transacciones de desarrollo en producción
     if (!kDebugMode && transaction.environment == 'development') {
       return null;
@@ -60,7 +63,7 @@ class SentryConfig {
   static bool _containsSensitiveData(SentryEvent event) {
     final message = event.message?.formatted.toLowerCase() ?? '';
     final exception = event.exceptions?.firstOrNull?.value?.toLowerCase() ?? '';
-    
+
     final sensitiveKeywords = [
       'password',
       'token',
@@ -70,8 +73,8 @@ class SentryConfig {
       'credential',
     ];
 
-    return sensitiveKeywords.any((keyword) => 
-      message.contains(keyword) || exception.contains(keyword)
+    return sensitiveKeywords.any(
+      (keyword) => message.contains(keyword) || exception.contains(keyword),
     );
   }
 
@@ -84,22 +87,23 @@ class SentryConfig {
         options.debug = kDebugMode && SentryDsnConfig.isDebugLoggingEnabled;
         options.environment = SentryDsnConfig.environment;
         options.release = 'liftup@1.0.0+1';
-        
+
         // Configuraciones de rendimiento
-        options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
-        options.profilesSampleRate = kDebugMode ? 1.0 : 0.1;
-        
+        options.tracesSampleRate = SentryDsnConfig.tracesSampleRate;
+        options.profilesSampleRate = SentryDsnConfig.profilesSampleRate;
+
         // Configuraciones de sesión
         options.enableAutoSessionTracking = true;
         options.maxBreadcrumbs = kDebugMode ? 100 : 50;
-        
+
         // Filtros
         options.beforeSend = _beforeSend as BeforeSendCallback?;
-        options.beforeSendTransaction = _beforeSendTransaction as BeforeSendTransactionCallback?;
-        
+        options.beforeSendTransaction =
+            _beforeSendTransaction as BeforeSendTransactionCallback?;
+
         // Configuraciones adicionales
-        options.attachScreenshot = true;
-        options.attachViewHierarchy = true;
+        options.attachScreenshot = SentryDsnConfig.isScreenshotsEnabled;
+        options.attachViewHierarchy = SentryDsnConfig.isViewHierarchyEnabled;
         options.enableUserInteractionTracing = true;
         options.enableAutoPerformanceTracing = true;
       },

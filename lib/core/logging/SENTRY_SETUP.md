@@ -26,21 +26,28 @@ Este documento explica cómo configurar Sentry para el monitoreo de errores y re
 
 ### 4. Configurar DSN en la aplicación
 
-1. Copia el archivo `env.example` a `.env`:
+1. Copia los archivos de ejemplo según tu entorno:
    ```bash
-   cp env.example .env
+   # Para desarrollo
+   cp env.development.example .env.development
+   
+   # Para staging
+   cp env.staging.example .env.staging
+   
+   # Para producción
+   cp env.production.example .env.production
    ```
 
-2. Abre el archivo `.env` y reemplaza `YOUR_SENTRY_DSN_HERE` con tu DSN real:
+2. Abre el archivo `.env.{environment}` apropiado y reemplaza `YOUR_SENTRY_DSN_HERE` con tu DSN real:
    ```env
    SENTRY_DSN=https://abc123def456@o123456.ingest.sentry.io/123456
    ```
 
-3. Asegúrate de que `.env` esté en tu `.gitignore` para no exponer tu DSN
+3. Asegúrate de que los archivos `.env*` estén en tu `.gitignore` para no exponer tu DSN
 
 ### 5. Configurar variables de entorno adicionales
 
-Puedes configurar otras opciones en el archivo `.env`:
+Puedes configurar otras opciones en los archivos `.env.{environment}`:
 
 ```env
 # Configuración de entorno
@@ -54,9 +61,37 @@ ENABLE_METRICS_MONITORING=true  # true para habilitar métricas, false para desh
 
 # Configuración de alertas
 ENABLE_ALERTS=true  # true para habilitar alertas, false para deshabilitar
+
+# Configuración específica de Sentry
+ENABLE_SCREENSHOTS=true  # true para capturar pantallas en errores
+ENABLE_VIEW_HIERARCHY=true  # true para capturar jerarquía de vistas
+TRACES_SAMPLE_RATE=1.0  # Nivel de muestreo para transacciones (0.0 a 1.0)
+PROFILES_SAMPLE_RATE=1.0  # Nivel de muestreo para perfiles (0.0 a 1.0)
 ```
 
-### 6. Verificar configuración
+### 6. Configurar entorno automáticamente
+
+El sistema detecta automáticamente el entorno basándose en:
+
+- **Variable de entorno del sistema**: `FLUTTER_ENV` (tiene prioridad)
+- **Modo de Flutter**: 
+  - `kDebugMode` → `development`
+  - `kProfileMode` → `staging`
+  - `kReleaseMode` → `production`
+
+Para forzar un entorno específico, puedes usar:
+```bash
+# En desarrollo
+export FLUTTER_ENV=development
+
+# En staging
+export FLUTTER_ENV=staging
+
+# En producción
+export FLUTTER_ENV=production
+```
+
+### 7. Verificar configuración
 
 1. Reinicia la aplicación
 2. Los logs deberían mostrar que Sentry se inicializó correctamente
@@ -104,6 +139,10 @@ El sistema utiliza variables de entorno para una configuración flexible y segur
 | `DEBUG_LOGGING` | Habilitar logging detallado | `true`, `false` | `true` |
 | `ENABLE_METRICS_MONITORING` | Habilitar monitoreo de métricas | `true`, `false` | `true` |
 | `ENABLE_ALERTS` | Habilitar alertas automáticas | `true`, `false` | `true` |
+| `ENABLE_SCREENSHOTS` | Habilitar captura de pantallas | `true`, `false` | `true` |
+| `ENABLE_VIEW_HIERARCHY` | Habilitar captura de jerarquía de vistas | `true`, `false` | `true` |
+| `TRACES_SAMPLE_RATE` | Nivel de muestreo para transacciones | `0.0` a `1.0` | `1.0` |
+| `PROFILES_SAMPLE_RATE` | Nivel de muestreo para perfiles | `0.0` a `1.0` | `1.0` |
 
 ### Filtros de datos sensibles
 

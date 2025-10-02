@@ -8,3 +8,4 @@ export 'sentry_metrics_config.dart';
 export 'metrics_monitor.dart';
 export 'health_monitor.dart';
 export 'sentry_dsn_config.dart';
+export 'environment_service.dart';

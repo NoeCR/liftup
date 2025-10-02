@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/navigation/app_router.dart';
 import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
@@ -12,8 +11,8 @@ import 'common/widgets/auto_routine_initializer.dart';
 import 'core/logging/logging.dart';
 
 void main() async {
-  // Cargar variables de entorno
-  await dotenv.load(fileName: ".env");
+  // Inicializar servicio de entorno
+  await EnvironmentService.instance.initialize();
   
   // Inicializar Sentry y manejo global de errores
   await SentryConfig.initialize();
