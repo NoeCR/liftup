@@ -1,11 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'sentry_dsn_config.dart';
+import 'user_context_service.dart';
 
 /// Configuración de Sentry para la aplicación LiftUp
 class SentryConfig {
   // Usar el DSN configurado desde SentryDsnConfig
   static String get _dnsKey => SentryDsnConfig.dsn;
+
+  // Callback para ejecutar la aplicación
+  static void Function()? _appRunner;
 
   /// Configuración de Sentry para desarrollo
   static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(
@@ -79,14 +83,17 @@ class SentryConfig {
   }
 
   /// Configuración inicial de Sentry
-  static Future<void> initialize() async {
+  static Future<void> initialize({void Function()? appRunner}) async {
+    // Guardar el callback de la aplicación
+    _appRunner = appRunner;
+
     await SentryFlutter.init(
       (options) {
         // Configuración básica
         options.dsn = _dnsKey;
         options.debug = kDebugMode && SentryDsnConfig.isDebugLoggingEnabled;
         options.environment = SentryDsnConfig.environment;
-        options.release = 'liftup@1.0.0+1';
+        options.release = UserContextService.instance.getReleaseInfo();
 
         // Configuraciones de rendimiento
         options.tracesSampleRate = SentryDsnConfig.tracesSampleRate;
@@ -108,7 +115,10 @@ class SentryConfig {
         options.enableAutoPerformanceTracing = true;
       },
       appRunner: () {
-        // La aplicación se ejecutará después de la inicialización
+        // Ejecutar la aplicación después de que Sentry se inicialice correctamente
+        if (_appRunner != null) {
+          _appRunner!();
+        }
       },
     );
   }

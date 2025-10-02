@@ -314,4 +314,25 @@ class UserContextService {
 
   /// Verifica si el servicio está inicializado
   bool get isInitialized => _isInitialized;
+
+  /// Obtiene la información de release para Sentry
+  String getReleaseInfo() {
+    if (_packageInfo == null) {
+      return 'liftup@unknown';
+    }
+    
+    return '${_packageInfo!.packageName}@${_packageInfo!.version}+${_packageInfo!.buildNumber}';
+  }
+
+  /// Obtiene información del servicio
+  Map<String, dynamic> getServiceInfo() {
+    return {
+      'is_initialized': _isInitialized,
+      'package_info_available': _packageInfo != null,
+      'package_name': _packageInfo?.packageName,
+      'package_version': _packageInfo?.version,
+      'package_build_number': _packageInfo?.buildNumber,
+      'release_info': getReleaseInfo(),
+    };
+  }
 }

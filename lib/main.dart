@@ -14,9 +14,12 @@ void main() async {
   // Inicializar servicio de entorno
   await EnvironmentService.instance.initialize();
 
-  // Inicializar Sentry y manejo global de errores
-  await SentryConfig.initialize();
+  // Inicializar Sentry y ejecutar la aplicación
+  await SentryConfig.initialize(appRunner: _runApp);
+}
 
+/// Función que se ejecuta después de que Sentry se inicializa correctamente
+void _runApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializar servicio de logging
