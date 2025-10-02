@@ -22,17 +22,24 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
 
     // Obtener rutinas iniciales y actualizar selección automática
     final routines = ref.read(routineNotifierProvider).value ?? [];
-    _updateAutoSelection(routines);
-    return _getAutoSelectionInfo(routines);
+    final info = _getAutoSelectionInfo(routines);
+
+    // Auto-seleccionar solo si no hay selección actual
+    final currentSelection = ref.read(selectedRoutineIdProvider);
+    if (currentSelection == null && routines.isNotEmpty) {
+      _performAutoSelection(routines, info);
+    }
+
+    return info;
   }
 
   /// Actualiza la selección automática cuando cambian las rutinas
   void _updateAutoSelection(List<Routine> routines) {
     final newInfo = _getAutoSelectionInfo(routines);
     state = newInfo;
-    
+
     final currentSelection = ref.read(selectedRoutineIdProvider);
-    
+
     LoggingService.instance.debug('Updating auto selection', {
       'current_selection': currentSelection,
       'has_selection': newInfo.hasSelection,
@@ -41,26 +48,10 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
       'total_routines': routines.length,
       'component': 'auto_routine_selection_notifier',
     });
-    
+
     // Solo seleccionar automáticamente si no hay selección actual
-    if (currentSelection == null) {
-      if (newInfo.hasSelection) {
-        // Si hay rutina para hoy, seleccionarla
-        LoggingService.instance.info('Auto-selecting routine for today', {
-          'selected_routine_name': newInfo.selectedRoutine!.name,
-          'selected_routine_id': newInfo.selectedRoutine!.id,
-          'component': 'auto_routine_selection_notifier',
-        });
-        _selectAutoRoutine(newInfo.selectedRoutine!);
-      } else if (routines.isNotEmpty) {
-        // Si no hay rutina para hoy, seleccionar la primera disponible
-        LoggingService.instance.info('No routine for today, selecting first available', {
-          'selected_routine_name': routines.first.name,
-          'selected_routine_id': routines.first.id,
-          'component': 'auto_routine_selection_notifier',
-        });
-        _selectAutoRoutine(routines.first);
-      }
+    if (currentSelection == null && routines.isNotEmpty) {
+      _performAutoSelection(routines, newInfo);
     } else {
       LoggingService.instance.debug('Already have selection, not changing', {
         'current_selection': currentSelection,
@@ -89,10 +80,32 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
   void forceAutoSelection() {
     final routines = ref.read(routineNotifierProvider).value ?? [];
     final info = _getAutoSelectionInfo(routines);
-    
+
     if (info.hasSelection) {
       _selectAutoRoutine(info.selectedRoutine!);
       state = info;
+    }
+  }
+
+  /// Realiza la auto-selección de rutina
+  void _performAutoSelection(List<Routine> routines, AutoSelectionInfo info) {
+    if (info.hasSelection) {
+      // Si hay rutina para hoy, seleccionarla
+      LoggingService.instance.info('Auto-selecting routine for today', {
+        'selected_routine_name': info.selectedRoutine!.name,
+        'selected_routine_id': info.selectedRoutine!.id,
+        'component': 'auto_routine_selection_notifier',
+      });
+      _selectAutoRoutine(info.selectedRoutine!);
+    } else if (routines.isNotEmpty) {
+      // Si no hay rutina para hoy, seleccionar la primera disponible
+      LoggingService.instance
+          .info('No routine for today, selecting first available', {
+            'selected_routine_name': routines.first.name,
+            'selected_routine_id': routines.first.id,
+            'component': 'auto_routine_selection_notifier',
+          });
+      _selectAutoRoutine(routines.first);
     }
   }
 
@@ -101,18 +114,12 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
     final routines = ref.read(routineNotifierProvider).value ?? [];
     final info = _getAutoSelectionInfo(routines);
     state = info;
-    
+
     final currentSelection = ref.read(selectedRoutineIdProvider);
-    
+
     // Solo seleccionar automáticamente si no hay selección actual
-    if (currentSelection == null) {
-      if (info.hasSelection) {
-        // Si hay rutina para hoy, seleccionarla
-        _selectAutoRoutine(info.selectedRoutine!);
-      } else if (routines.isNotEmpty) {
-        // Si no hay rutina para hoy, seleccionar la primera disponible
-        _selectAutoRoutine(routines.first);
-      }
+    if (currentSelection == null && routines.isNotEmpty) {
+      _performAutoSelection(routines, info);
     }
   }
 
@@ -125,9 +132,9 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
   bool isCurrentSelectionAuto() {
     final currentSelection = ref.read(selectedRoutineIdProvider);
     final autoRoutine = state.selectedRoutine;
-    
-    return currentSelection != null && 
-           autoRoutine != null && 
-           currentSelection == autoRoutine.id;
+
+    return currentSelection != null &&
+        autoRoutine != null &&
+        currentSelection == autoRoutine.id;
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'sentry_dsn_config.dart';
@@ -27,7 +28,7 @@ class SentryConfig {
   }
 
   /// Filtra eventos antes de enviarlos a Sentry
-  static SentryEvent? _beforeSend(SentryEvent event, {Hint? hint}) {
+  static FutureOr<SentryEvent?> _beforeSend(SentryEvent event, Hint hint) {
     // Filtrar eventos de desarrollo en producción
     if (!kDebugMode && event.environment == 'development') {
       return null;
@@ -51,10 +52,9 @@ class SentryConfig {
   }
 
   /// Filtra transacciones antes de enviarlas a Sentry
-  static SentryTransaction? _beforeSendTransaction(
-    SentryTransaction transaction, {
-    Hint? hint,
-  }) {
+  static FutureOr<SentryTransaction?> _beforeSendTransaction(
+    SentryTransaction transaction,
+  ) {
     // Filtrar transacciones de desarrollo en producción
     if (!kDebugMode && transaction.environment == 'development') {
       return null;
@@ -104,7 +104,7 @@ class SentryConfig {
         options.maxBreadcrumbs = kDebugMode ? 100 : 50;
 
         // Filtros
-        options.beforeSend = _beforeSend as BeforeSendCallback?;
+        options.beforeSend = _beforeSend;
         options.beforeSendTransaction =
             _beforeSendTransaction as BeforeSendTransactionCallback?;
 
