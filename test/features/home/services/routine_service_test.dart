@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liftup/common/enums/week_day_enum.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../test_helpers/test_setup.dart';
@@ -7,6 +8,7 @@ import '../../../mocks/database_service_mock.dart';
 import '../../../mocks/logging_service_mock.dart';
 import '../../../../lib/features/home/services/routine_service.dart';
 import '../../../../lib/features/home/models/routine.dart';
+import '../../../../lib/common/enums/week_day_enum.dart';
 
 void main() {
   group('RoutineService Tests', () {
@@ -64,13 +66,13 @@ void main() {
           updatedAt: DateTime.now(),
         );
 
-        final testData = {
-          'test-routine': testRoutine.toJson(),
-        };
+        final testData = {'test-routine': testRoutine.toJson()};
         TestSetup.setupTestData(routines: testData);
 
         // Act
-        final retrievedRoutine = await routineService.getRoutineById('test-routine');
+        final retrievedRoutine = await routineService.getRoutineById(
+          'test-routine',
+        );
 
         // Assert
         expect(retrievedRoutine, isNotNull);
@@ -83,7 +85,9 @@ void main() {
         TestSetup.setupTestData(routines: {});
 
         // Act
-        final retrievedRoutine = await routineService.getRoutineById('non-existent');
+        final retrievedRoutine = await routineService.getRoutineById(
+          'non-existent',
+        );
 
         // Assert
         expect(retrievedRoutine, isNull);
@@ -192,72 +196,78 @@ void main() {
         expect(sortedRoutines[2].name, equals('Third Routine'));
       });
 
-      test('should sort by creation date when order is not available', () async {
-        // Arrange
-        final now = DateTime.now();
-        final testRoutines = {
-          'routine1': {
-            'id': 'routine1',
-            'name': 'Newer Routine',
-            'description': 'Newer description',
-            'exercises': [],
-            'createdAt': now.add(Duration(hours: 1)).toIso8601String(),
-            'updatedAt': now.add(Duration(hours: 1)).toIso8601String(),
-          },
-          'routine2': {
-            'id': 'routine2',
-            'name': 'Older Routine',
-            'description': 'Older description',
-            'exercises': [],
-            'createdAt': now.toIso8601String(),
-            'updatedAt': now.toIso8601String(),
-          },
-        };
-        TestSetup.setupTestData(routines: testRoutines);
+      test(
+        'should sort by creation date when order is not available',
+        () async {
+          // Arrange
+          final now = DateTime.now();
+          final testRoutines = {
+            'routine1': {
+              'id': 'routine1',
+              'name': 'Newer Routine',
+              'description': 'Newer description',
+              'exercises': [],
+              'createdAt': now.add(Duration(hours: 1)).toIso8601String(),
+              'updatedAt': now.add(Duration(hours: 1)).toIso8601String(),
+            },
+            'routine2': {
+              'id': 'routine2',
+              'name': 'Older Routine',
+              'description': 'Older description',
+              'exercises': [],
+              'createdAt': now.toIso8601String(),
+              'updatedAt': now.toIso8601String(),
+            },
+          };
+          TestSetup.setupTestData(routines: testRoutines);
 
-        // Act
-        final sortedRoutines = await routineService.getAllRoutines();
+          // Act
+          final sortedRoutines = await routineService.getAllRoutines();
 
-        // Assert
-        expect(sortedRoutines, isNotNull);
-        expect(sortedRoutines.length, equals(2));
-        expect(sortedRoutines[0].name, equals('Older Routine'));
-        expect(sortedRoutines[1].name, equals('Newer Routine'));
-      });
+          // Assert
+          expect(sortedRoutines, isNotNull);
+          expect(sortedRoutines.length, equals(2));
+          expect(sortedRoutines[0].name, equals('Older Routine'));
+          expect(sortedRoutines[1].name, equals('Newer Routine'));
+        },
+      );
 
-      test('should prioritize routines with order over those without', () async {
-        // Arrange
-        final now = DateTime.now();
-        final testRoutines = {
-          'routine1': {
-            'id': 'routine1',
-            'name': 'Routine Without Order',
-            'description': 'No order',
-            'exercises': [],
-            'createdAt': now.toIso8601String(),
-            'updatedAt': now.toIso8601String(),
-          },
-          'routine2': {
-            'id': 'routine2',
-            'name': 'Routine With Order',
-            'description': 'Has order',
-            'exercises': [],
-            'createdAt': now.add(Duration(hours: 1)).toIso8601String(),
-            'updatedAt': now.add(Duration(hours: 1)).toIso8601String(),
-            'order': 1,
-          },
-        };
-        TestSetup.setupTestData(routines: testRoutines);
+      test(
+        'should prioritize routines with order over those without',
+        () async {
+          // Arrange
+          final now = DateTime.now();
+          final testRoutines = {
+            'routine1': {
+              'id': 'routine1',
+              'name': 'Routine Without Order',
+              'description': 'No order',
+              'exercises': [],
+              'createdAt': now.toIso8601String(),
+              'updatedAt': now.toIso8601String(),
+            },
+            'routine2': {
+              'id': 'routine2',
+              'name': 'Routine With Order',
+              'description': 'Has order',
+              'exercises': [],
+              'createdAt': now.add(Duration(hours: 1)).toIso8601String(),
+              'updatedAt': now.add(Duration(hours: 1)).toIso8601String(),
+              'order': 1,
+            },
+          };
+          TestSetup.setupTestData(routines: testRoutines);
 
-        // Act
-        final sortedRoutines = await routineService.getAllRoutines();
+          // Act
+          final sortedRoutines = await routineService.getAllRoutines();
 
-        // Assert
-        expect(sortedRoutines, isNotNull);
-        expect(sortedRoutines.length, equals(2));
-        expect(sortedRoutines[0].name, equals('Routine With Order'));
-        expect(sortedRoutines[1].name, equals('Routine Without Order'));
-      });
+          // Assert
+          expect(sortedRoutines, isNotNull);
+          expect(sortedRoutines.length, equals(2));
+          expect(sortedRoutines[0].name, equals('Routine With Order'));
+          expect(sortedRoutines[1].name, equals('Routine Without Order'));
+        },
+      );
     });
 
     group('Active Routines', () {
@@ -364,7 +374,9 @@ void main() {
 
         // Act
         await routineService.saveRoutine(testRoutine);
-        final retrievedRoutine = await routineService.getRoutineById('test-routine');
+        final retrievedRoutine = await routineService.getRoutineById(
+          'test-routine',
+        );
 
         // Assert
         expect(mockDatabaseService.exercisesBox, isNotNull);

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liftup/common/enums/muscle_group_enum.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../../test_helpers/test_setup.dart';
@@ -89,11 +90,11 @@ void main() {
           name: 'New Exercise',
           description: 'A new exercise',
           imageUrl: 'assets/images/new_exercise.png',
-          muscleGroups: ['Chest'],
+          muscleGroups: [MuscleGroup.pectoralMajor],
           tips: ['Keep your back straight'],
           commonMistakes: ['Arching your back'],
-          category: 'Strength',
-          difficulty: 'Beginner',
+          category: ExerciseCategory.chest,
+          difficulty: ExerciseDifficulty.beginner,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -129,11 +130,11 @@ void main() {
           name: 'Updated Name',
           description: 'Updated description',
           imageUrl: 'assets/images/updated.png',
-          muscleGroups: ['Chest'],
+          muscleGroups: [MuscleGroup.pectoralMajor],
           tips: ['Keep your back straight'],
           commonMistakes: ['Arching your back'],
-          category: 'Updated Category',
-          difficulty: 'Intermediate',
+          category: ExerciseCategory.back,
+          difficulty: ExerciseDifficulty.intermediate,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -145,9 +146,14 @@ void main() {
 
         // Assert
         expect(state, isNotNull);
-        final updatedExerciseFromState = state.firstWhere((e) => e.id == 'exercise1');
+        final updatedExerciseFromState = state.firstWhere(
+          (e) => e.id == 'exercise1',
+        );
         expect(updatedExerciseFromState.name, equals('Updated Name'));
-        expect(updatedExerciseFromState.description, equals('Updated description'));
+        expect(
+          updatedExerciseFromState.description,
+          equals('Updated description'),
+        );
         expect(updatedExerciseFromState.category, equals('Updated Category'));
       });
 
@@ -216,7 +222,8 @@ void main() {
         // Act
         final notifier = container.read(exerciseNotifierProvider.notifier);
         final state = await container.read(exerciseNotifierProvider.future);
-        final bodyweightExercises = state.where((e) => e.category == 'Bodyweight').toList();
+        final bodyweightExercises =
+            state.where((e) => e.category == 'Bodyweight').toList();
 
         // Assert
         expect(bodyweightExercises, isNotNull);
@@ -251,7 +258,8 @@ void main() {
         // Act
         final notifier = container.read(exerciseNotifierProvider.notifier);
         final state = await container.read(exerciseNotifierProvider.future);
-        final pushExercises = state.where((e) => e.name.toLowerCase().contains('push')).toList();
+        final pushExercises =
+            state.where((e) => e.name.toLowerCase().contains('push')).toList();
 
         // Assert
         expect(pushExercises, isNotNull);
@@ -269,20 +277,24 @@ void main() {
           name: 'Test Exercise',
           description: 'Test description',
           imageUrl: 'assets/images/test.png',
-          muscleGroups: ['Chest'],
+          muscleGroups: [MuscleGroup.pectoralMajor],
           tips: ['Keep your back straight'],
           commonMistakes: ['Arching your back'],
-          category: 'Test',
-          difficulty: 'Beginner',
+          category: ExerciseCategory.chest,
+          difficulty: ExerciseDifficulty.beginner,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
 
         // Act
         final notifier = container.read(exerciseNotifierProvider.notifier);
-        final initialState = await container.read(exerciseNotifierProvider.future);
+        final initialState = await container.read(
+          exerciseNotifierProvider.future,
+        );
         await notifier.addExercise(newExercise);
-        final updatedState = await container.read(exerciseNotifierProvider.future);
+        final updatedState = await container.read(
+          exerciseNotifierProvider.future,
+        );
 
         // Assert
         expect(updatedState.length, greaterThan(initialState.length));
@@ -306,9 +318,13 @@ void main() {
 
         // Act
         final notifier = container.read(exerciseNotifierProvider.notifier);
-        final initialState = await container.read(exerciseNotifierProvider.future);
+        final initialState = await container.read(
+          exerciseNotifierProvider.future,
+        );
         await notifier.deleteExercise('exercise1');
-        final updatedState = await container.read(exerciseNotifierProvider.future);
+        final updatedState = await container.read(
+          exerciseNotifierProvider.future,
+        );
 
         // Assert
         expect(updatedState.length, lessThan(initialState.length));
@@ -353,11 +369,11 @@ void main() {
           name: 'Test Exercise',
           description: 'Test description',
           imageUrl: 'assets/images/test.png',
-          muscleGroups: ['Chest'],
+          muscleGroups: [MuscleGroup.pectoralMajor],
           tips: ['Keep your back straight'],
           commonMistakes: ['Arching your back'],
-          category: 'Test',
-          difficulty: 'Beginner',
+          category: ExerciseCategory.chest,
+          difficulty: ExerciseDifficulty.beginner,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
