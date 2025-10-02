@@ -63,6 +63,10 @@ dependencies:
   equatable: ^2.0.5
   json_annotation: ^4.8.1
 
+  # Logging & Error Tracking
+  sentry_flutter: ^8.0.0
+  logger: ^2.4.0
+
   # Image handling
   cached_network_image: ^3.3.1
   image_picker: ^1.0.7

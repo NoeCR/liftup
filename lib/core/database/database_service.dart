@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import '../logging/logging.dart';
 
 class DatabaseService {
   static DatabaseService? _instance;
@@ -27,13 +28,32 @@ class DatabaseService {
   // Initialize the database service
   Future<void> initialize() async {
     if (!_isInitialized) {
-      await _initializeHive();
-      _isInitialized = true;
+      return await PerformanceMonitor.instance.monitorAsync(
+        'database_initialize',
+        () async {
+          LoggingService.instance.info('Initializing DatabaseService');
+          await _initializeHive();
+          _isInitialized = true;
+          LoggingService.instance.info('DatabaseService initialized successfully');
+          
+          // Registrar métrica de inicialización exitosa
+          SentryMetricsConfig.trackDatabaseOperation(
+            operation: 'initialize',
+            durationMs: 0, // Se calculará automáticamente por PerformanceMonitor
+            success: true,
+          );
+        },
+        context: {'component': 'database_service'},
+      );
     }
   }
 
   Future<void> _initializeHive() async {
     try {
+      LoggingService.instance.debug('Opening Hive boxes', {
+        'boxes': [_exercisesBox, _routinesBox, _sessionsBox, _progressBox, _settingsBox, _routineSectionTemplatesBox]
+      });
+      
       // Open all boxes (Hive and adapters already initialized in main.dart)
       await Future.wait([
         Hive.openBox(_exercisesBox),
@@ -45,24 +65,45 @@ class DatabaseService {
       ]);
 
       // Verify all boxes are open and accessible
-      print('DatabaseService: All boxes initialized successfully');
-    } catch (e) {
-      print('Error opening boxes: $e');
+      LoggingService.instance.info('All Hive boxes initialized successfully');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error opening Hive boxes',
+        e,
+        stackTrace,
+        {'component': 'hive_initialization'},
+      );
+      
       // If there's an error, clear all data and try again
+      LoggingService.instance.warning('Attempting to clear and reinitialize boxes');
       await _clearAllBoxes();
-      await Future.wait([
-        Hive.openBox(_exercisesBox),
-        Hive.openBox(_routinesBox),
-        Hive.openBox(_sessionsBox),
-        Hive.openBox(_progressBox),
-        Hive.openBox(_settingsBox),
-        Hive.openBox(_routineSectionTemplatesBox),
-      ]);
+      
+      try {
+        await Future.wait([
+          Hive.openBox(_exercisesBox),
+          Hive.openBox(_routinesBox),
+          Hive.openBox(_sessionsBox),
+          Hive.openBox(_progressBox),
+          Hive.openBox(_settingsBox),
+          Hive.openBox(_routineSectionTemplatesBox),
+        ]);
+        LoggingService.instance.info('Hive boxes reinitialized successfully after clear');
+      } catch (retryError, retryStackTrace) {
+        LoggingService.instance.fatal(
+          'Failed to reinitialize Hive boxes after clear',
+          retryError,
+          retryStackTrace,
+          {'component': 'hive_retry_initialization'},
+        );
+        rethrow;
+      }
     }
   }
 
   Future<void> _clearAllBoxes() async {
     try {
+      LoggingService.instance.debug('Clearing all Hive boxes');
+      
       // Try to clear each box if it exists
       final boxes = [
         _exercisesBox,
@@ -77,18 +118,28 @@ class DatabaseService {
         try {
           if (Hive.isBoxOpen(boxName)) {
             await Hive.box(boxName).clear();
+            LoggingService.instance.debug('Cleared box: $boxName');
           }
         } catch (e) {
+          LoggingService.instance.warning('Failed to clear box: $boxName', {'error': e.toString()});
           // Box might not exist, continue with others
         }
       }
-    } catch (e) {
-      print('Error clearing boxes: $e');
+      
+      LoggingService.instance.info('All boxes cleared successfully');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error clearing boxes',
+        e,
+        stackTrace,
+        {'component': 'clear_boxes'},
+      );
     }
   }
 
   Box get exercisesBox {
     if (!_isInitialized) {
+      LoggingService.instance.error('DatabaseService not initialized when accessing exercisesBox');
       throw Exception('DatabaseService not initialized');
     }
     return Hive.box(_exercisesBox);
@@ -130,23 +181,40 @@ class DatabaseService {
   }
 
   Future<void> clearAllData() async {
-    await Future.wait([
-      exercisesBox.clear(),
-      routinesBox.clear(),
-      sessionsBox.clear(),
-      progressBox.clear(),
-      settingsBox.clear(),
-      routineSectionTemplatesBox.clear(),
-    ]);
+    try {
+      LoggingService.instance.info('Clearing all application data');
+      
+      await Future.wait([
+        exercisesBox.clear(),
+        routinesBox.clear(),
+        sessionsBox.clear(),
+        progressBox.clear(),
+        settingsBox.clear(),
+        routineSectionTemplatesBox.clear(),
+      ]);
+      
+      LoggingService.instance.info('All application data cleared successfully');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error clearing all data',
+        e,
+        stackTrace,
+        {'component': 'clear_all_data'},
+      );
+      rethrow;
+    }
   }
 
   Future<void> forceResetDatabase() async {
     try {
+      LoggingService.instance.warning('Force resetting database - this will delete all data');
+      
       // Close all boxes if they exist
       try {
         await Hive.close();
+        LoggingService.instance.debug('Hive closed successfully');
       } catch (e) {
-        print('Error closing Hive: $e');
+        LoggingService.instance.warning('Error closing Hive: $e');
       }
 
       // Note: Adapters are registered once in main.dart, no need to reset
@@ -162,6 +230,7 @@ class DatabaseService {
       ];
 
       final directory = await getApplicationDocumentsDirectory();
+      LoggingService.instance.debug('Deleting database files from: ${directory.path}');
 
       for (final boxName in boxes) {
         try {
@@ -170,32 +239,58 @@ class DatabaseService {
 
           if (await boxFile.exists()) {
             await boxFile.delete();
+            LoggingService.instance.debug('Deleted file: ${boxFile.path}');
           }
           if (await lockFile.exists()) {
             await lockFile.delete();
+            LoggingService.instance.debug('Deleted file: ${lockFile.path}');
           }
         } catch (e) {
+          LoggingService.instance.warning('Failed to delete files for box: $boxName', {'error': e.toString()});
           // Continue with other boxes if one fails
         }
       }
 
       // Reinitialize Hive
       await _initializeHive();
-      print('Database reset and initialized successfully');
-    } catch (e) {
-      print('Error resetting database: $e');
+      LoggingService.instance.info('Database reset and initialized successfully');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error resetting database',
+        e,
+        stackTrace,
+        {'component': 'force_reset_database'},
+      );
+      
       // Try to initialize normally as fallback
       try {
         await _initializeHive();
-        print('Fallback initialization successful');
-      } catch (fallbackError) {
-        print('Fallback initialization failed: $fallbackError');
+        LoggingService.instance.info('Fallback initialization successful');
+      } catch (fallbackError, fallbackStackTrace) {
+        LoggingService.instance.fatal(
+          'Fallback initialization failed',
+          fallbackError,
+          fallbackStackTrace,
+          {'component': 'fallback_initialization'},
+        );
         rethrow;
       }
     }
   }
 
   Future<void> close() async {
-    await Hive.close();
+    try {
+      LoggingService.instance.info('Closing DatabaseService');
+      await Hive.close();
+      LoggingService.instance.info('DatabaseService closed successfully');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error closing DatabaseService',
+        e,
+        stackTrace,
+        {'component': 'close_database'},
+      );
+      rethrow;
+    }
   }
 }
