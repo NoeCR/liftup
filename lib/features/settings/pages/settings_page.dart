@@ -11,6 +11,7 @@ import '../../home/notifiers/routine_notifier.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../../statistics/notifiers/progress_notifier.dart';
+import '../../progression/notifiers/progression_notifier.dart';
 import '../widgets/language_selector.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -72,6 +73,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 },
               ),
               const LanguageSelector(),
+            ]),
+            const SizedBox(height: 24),
+            _buildSettingsSection(context, 'Progresión', [
+              _buildProgressionSettings(),
             ]),
             const SizedBox(height: 24),
             _buildSettingsSection(context, context.tr('settings.training'), [
@@ -238,6 +243,128 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildProgressionSettings() {
+    return Consumer(
+      builder: (context, ref, child) {
+        final progressionAsync = ref.watch(progressionNotifierProvider);
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
+        return progressionAsync.when(
+          data: (config) {
+            if (config == null) {
+              return ListTile(
+                leading: Icon(Icons.trending_up, color: colorScheme.primary),
+                title: const Text('Configurar Progresión'),
+                subtitle: const Text(
+                  'Activar progresión automática para tus entrenamientos',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/progression-selection'),
+              );
+            }
+
+            return Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.trending_up, color: colorScheme.primary),
+                  title: Text('Progresión: ${config.type.displayName}'),
+                  subtitle: Text(config.type.description),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/progression-selection'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.settings, color: colorScheme.secondary),
+                  title: const Text('Configuración Avanzada'),
+                  subtitle: const Text('Ajustar parámetros de la progresión'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap:
+                      () => context.push(
+                        '/progression-configuration',
+                        extra: {'progressionType': config.type},
+                      ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: Icon(Icons.stop, color: colorScheme.error),
+                  title: const Text('Desactivar Progresión'),
+                  subtitle: const Text('Volver al entrenamiento libre'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _showDisableProgressionDialog(context, ref),
+                ),
+              ],
+            );
+          },
+          loading:
+              () => const ListTile(
+                leading: CircularProgressIndicator(),
+                title: Text('Cargando progresión...'),
+              ),
+          error:
+              (error, stack) => ListTile(
+                leading: Icon(Icons.error_outline, color: colorScheme.error),
+                title: const Text('Error al cargar progresión'),
+                subtitle: Text(error.toString()),
+                trailing: const Icon(Icons.refresh),
+                onTap: () => ref.invalidate(progressionNotifierProvider),
+              ),
+        );
+      },
+    );
+  }
+
+  void _showDisableProgressionDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Desactivar Progresión'),
+            content: const Text(
+              '¿Estás seguro de que quieres desactivar la progresión automática? '
+              'Esto volverá al entrenamiento libre y no se aplicarán incrementos automáticos.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  try {
+                    await ref
+                        .read(progressionNotifierProvider.notifier)
+                        .disableProgression();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Progresión desactivada exitosamente'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error al desactivar progresión: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Desactivar'),
+              ),
+            ],
+          ),
     );
   }
 

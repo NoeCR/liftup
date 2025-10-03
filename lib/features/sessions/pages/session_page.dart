@@ -10,6 +10,7 @@ import '../../home/models/routine.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../exercise/models/exercise.dart';
 import '../../home/widgets/exercise_card_wrapper.dart';
+import '../../progression/widgets/progression_status_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -385,53 +386,67 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.play_circle_outline,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            context.tr('session.noActiveSession'),
-            style: theme.textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.tr('session.startNewSession'),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
+    return Column(
+      children: [
+        // Widget de estado de progresión
+        const ProgressionStatusWidget(),
+
+        // Contenido principal
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.play_circle_outline,
+                  size: 64,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  context.tr('session.noActiveSession'),
+                  style: theme.textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.tr('session.startNewSession'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FilledButton.icon(
+                  onPressed: () async {
+                    final selectedRoutineId = ref.read(
+                      selectedRoutineIdProvider,
+                    );
+                    if (selectedRoutineId == null) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            context.tr('session.selectRoutineFirst'),
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+                    await ref
+                        .read(sessionNotifierProvider.notifier)
+                        .startSession(
+                          name: context.tr('session.title'),
+                          routineId: selectedRoutineId,
+                        );
+                    if (mounted) setState(() {});
+                  },
+                  icon: const Icon(Icons.play_arrow),
+                  label: Text(context.tr('session.startSession')),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: () async {
-              final selectedRoutineId = ref.read(selectedRoutineIdProvider);
-              if (selectedRoutineId == null) {
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.tr('session.selectRoutineFirst')),
-                  ),
-                );
-                return;
-              }
-              await ref
-                  .read(sessionNotifierProvider.notifier)
-                  .startSession(
-                    name: context.tr('session.title'),
-                    routineId: selectedRoutineId,
-                  );
-              if (mounted) setState(() {});
-            },
-            icon: const Icon(Icons.play_arrow),
-            label: Text(context.tr('session.startSession')),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

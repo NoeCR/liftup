@@ -11,6 +11,9 @@ class DatabaseService {
   static const String _progressBox = 'progress';
   static const String _settingsBox = 'settings';
   static const String _routineSectionTemplatesBox = 'routine_section_templates';
+  static const String _progressionConfigsBox = 'progression_configs';
+  static const String _progressionStatesBox = 'progression_states';
+  static const String _progressionTemplatesBox = 'progression_templates';
 
   bool _isInitialized = false;
 
@@ -51,7 +54,7 @@ class DatabaseService {
   Future<void> _initializeHive() async {
     try {
       LoggingService.instance.debug('Opening Hive boxes', {
-        'boxes': [_exercisesBox, _routinesBox, _sessionsBox, _progressBox, _settingsBox, _routineSectionTemplatesBox]
+        'boxes': [_exercisesBox, _routinesBox, _sessionsBox, _progressBox, _settingsBox, _routineSectionTemplatesBox, _progressionConfigsBox, _progressionStatesBox, _progressionTemplatesBox]
       });
       
       // Open all boxes (Hive and adapters already initialized in main.dart)
@@ -62,6 +65,9 @@ class DatabaseService {
         Hive.openBox(_progressBox),
         Hive.openBox(_settingsBox),
         Hive.openBox(_routineSectionTemplatesBox),
+        Hive.openBox(_progressionConfigsBox),
+        Hive.openBox(_progressionStatesBox),
+        Hive.openBox(_progressionTemplatesBox),
       ]);
 
       // Verify all boxes are open and accessible
@@ -86,6 +92,9 @@ class DatabaseService {
           Hive.openBox(_progressBox),
           Hive.openBox(_settingsBox),
           Hive.openBox(_routineSectionTemplatesBox),
+          Hive.openBox(_progressionConfigsBox),
+          Hive.openBox(_progressionStatesBox),
+          Hive.openBox(_progressionTemplatesBox),
         ]);
         LoggingService.instance.info('Hive boxes reinitialized successfully after clear');
       } catch (retryError, retryStackTrace) {
@@ -112,6 +121,9 @@ class DatabaseService {
         _progressBox,
         _settingsBox,
         _routineSectionTemplatesBox,
+        _progressionConfigsBox,
+        _progressionStatesBox,
+        _progressionTemplatesBox,
       ];
 
       for (final boxName in boxes) {
@@ -180,6 +192,27 @@ class DatabaseService {
     return Hive.box(_routineSectionTemplatesBox);
   }
 
+  Box get progressionConfigsBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_progressionConfigsBox);
+  }
+
+  Box get progressionStatesBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_progressionStatesBox);
+  }
+
+  Box get progressionTemplatesBox {
+    if (!_isInitialized) {
+      throw Exception('DatabaseService not initialized');
+    }
+    return Hive.box(_progressionTemplatesBox);
+  }
+
   Future<void> clearAllData() async {
     try {
       LoggingService.instance.info('Clearing all application data');
@@ -191,6 +224,9 @@ class DatabaseService {
         progressBox.clear(),
         settingsBox.clear(),
         routineSectionTemplatesBox.clear(),
+        progressionConfigsBox.clear(),
+        progressionStatesBox.clear(),
+        progressionTemplatesBox.clear(),
       ]);
       
       LoggingService.instance.info('All application data cleared successfully');
@@ -227,6 +263,9 @@ class DatabaseService {
         _progressBox,
         _settingsBox,
         _routineSectionTemplatesBox,
+        _progressionConfigsBox,
+        _progressionStatesBox,
+        _progressionTemplatesBox,
       ];
 
       final directory = await getApplicationDocumentsDirectory();

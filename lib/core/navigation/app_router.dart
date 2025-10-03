@@ -14,6 +14,8 @@ import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 import '../../features/home/pages/section_templates_page.dart';
 import '../../features/data_management/pages/data_management_page.dart';
+import '../../features/progression/pages/progression_selection_page.dart';
+import '../../features/progression/pages/progression_configuration_page.dart';
 import '../../features/home/notifiers/routine_notifier.dart';
 import '../../features/exercise/notifiers/exercise_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +36,8 @@ class AppRouter {
   static const String settings = '/settings';
   static const String sectionTemplates = '/section-templates';
   static const String dataManagement = '/data-management';
+  static const String progressionSelection = '/progression-selection';
+  static const String progressionConfiguration = '/progression-configuration';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -233,6 +237,27 @@ class AppRouter {
         path: dataManagement,
         name: 'dataManagement',
         builder: (context, state) => const DataManagementPage(),
+      ),
+      GoRoute(
+        path: progressionSelection,
+        name: 'progressionSelection',
+        builder: (context, state) => const ProgressionSelectionPage(),
+      ),
+      GoRoute(
+        path: progressionConfiguration,
+        name: 'progressionConfiguration',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final progressionType = extra?['progressionType'];
+          if (progressionType == null) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: Tipo de progresión no especificado'),
+              ),
+            );
+          }
+          return ProgressionConfigurationPage(progressionType: progressionType);
+        },
       ),
     ],
     errorBuilder:
