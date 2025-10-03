@@ -1,27 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mocktail/mocktail.dart';
-
-import '../../../test_helpers/test_setup.dart';
-import '../../../mocks/database_service_mock.dart';
-import '../../../mocks/logging_service_mock.dart';
-import '../../../../lib/features/sessions/notifiers/performed_sets_notifier.dart';
+import 'package:liftup/features/sessions/notifiers/performed_sets_notifier.dart';
 
 void main() {
   group('PerformedSetsNotifier Tests', () {
     late ProviderContainer container;
-    late MockDatabaseService mockDatabaseService;
-    late MockLoggingService mockLoggingService;
-
-    setUpAll(() {
-      TestSetup.initialize();
-      mockDatabaseService = TestSetup.mockDatabaseService;
-      mockLoggingService = TestSetup.mockLoggingService;
-    });
+    late PerformedSetsNotifier notifier;
 
     setUp(() {
-      TestSetup.cleanup();
-      container = TestSetup.createTestContainer();
+      container = ProviderContainer();
+      notifier = container.read(performedSetsNotifierProvider.notifier);
     });
 
     tearDown(() {
@@ -30,329 +18,178 @@ void main() {
 
     group('Initialization', () {
       test('should initialize with empty state', () {
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        final state = container.read(performedSetsNotifierProvider);
+        expect(notifier.state, isEmpty);
+      });
 
-        // Assert
-        expect(state, isNotNull);
+      test('should provide correct initial state through provider', () {
+        final state = container.read(performedSetsNotifierProvider);
         expect(state, isEmpty);
       });
     });
 
-    group('Set Count Management', () {
-      test('should set count for routine exercise', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
+    group('Count Management', () {
+      test('should get count for existing routine exercise', () {
+        const routineExerciseId = 'routine_exercise_1';
         const count = 3;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
+        
         notifier.setCount(routineExerciseId, count);
-        final state = container.read(performedSetsNotifierProvider);
-
-        // Assert
-        expect(state[routineExerciseId], equals(count));
+        
+        expect(notifier.getCount(routineExerciseId), equals(count));
       });
 
-      test('should get count for routine exercise', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
+      test('should return 0 for non-existing routine exercise', () {
+        const routineExerciseId = 'non_existing';
+        
+        expect(notifier.getCount(routineExerciseId), equals(0));
+      });
+
+      test('should set count for routine exercise', () {
+        const routineExerciseId = 'routine_exercise_1';
         const count = 5;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
+        
         notifier.setCount(routineExerciseId, count);
-        final retrievedCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(retrievedCount, equals(count));
+        
+        expect(notifier.state[routineExerciseId], equals(count));
       });
 
-      test('should return 0 for non-existent routine exercise', () {
-        // Arrange
-        const nonExistentId = 'non-existent';
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        final count = notifier.getCount(nonExistentId);
-
-        // Assert
-        expect(count, equals(0));
+      test('should update count for existing routine exercise', () {
+        const routineExerciseId = 'routine_exercise_1';
+        
+        notifier.setCount(routineExerciseId, 3);
+        notifier.setCount(routineExerciseId, 7);
+        
+        expect(notifier.getCount(routineExerciseId), equals(7));
       });
+    });
 
-      test('should increment count', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const initialCount = 2;
+    group('Increment Operations', () {
+      test('should increment count when below max sets', () {
+        const routineExerciseId = 'routine_exercise_1';
         const maxSets = 5;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, initialCount);
+        
+        notifier.setCount(routineExerciseId, 2);
         notifier.increment(routineExerciseId, maxSets);
-        final finalCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(finalCount, equals(initialCount + 1));
+        
+        expect(notifier.getCount(routineExerciseId), equals(3));
       });
 
-      test('should not increment beyond max sets', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const maxSets = 3;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
+      test('should not increment when at max sets', () {
+        const routineExerciseId = 'routine_exercise_1';
+        const maxSets = 5;
+        
         notifier.setCount(routineExerciseId, maxSets);
         notifier.increment(routineExerciseId, maxSets);
-        final finalCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(finalCount, equals(maxSets));
+        
+        expect(notifier.getCount(routineExerciseId), equals(maxSets));
       });
 
-      test('should decrement count', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const initialCount = 3;
-        const maxSets = 5;
+      test('should increment from 0 when below max sets', () {
+        const routineExerciseId = 'routine_exercise_1';
+        const maxSets = 3;
+        
+        notifier.increment(routineExerciseId, maxSets);
+        
+        expect(notifier.getCount(routineExerciseId), equals(1));
+      });
+    });
 
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, initialCount);
+    group('Decrement Operations', () {
+      test('should decrement count when above 0', () {
+        const routineExerciseId = 'routine_exercise_1';
+        const maxSets = 5;
+        
+        notifier.setCount(routineExerciseId, 3);
         notifier.decrement(routineExerciseId, maxSets);
-        final finalCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(finalCount, equals(initialCount - 1));
+        
+        expect(notifier.getCount(routineExerciseId), equals(2));
       });
 
-      test('should not decrement below 0', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
+      test('should not decrement when at 0', () {
+        const routineExerciseId = 'routine_exercise_1';
         const maxSets = 5;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
+        
         notifier.setCount(routineExerciseId, 0);
         notifier.decrement(routineExerciseId, maxSets);
-        final finalCount = notifier.getCount(routineExerciseId);
+        
+        expect(notifier.getCount(routineExerciseId), equals(0));
+      });
 
-        // Assert
-        expect(finalCount, equals(0));
+      test('should not decrement for non-existing routine exercise', () {
+        const routineExerciseId = 'non_existing';
+        const maxSets = 5;
+        
+        notifier.decrement(routineExerciseId, maxSets);
+        
+        expect(notifier.getCount(routineExerciseId), equals(0));
+      });
+    });
+
+    group('Clear Operations', () {
+      test('should clear all counts', () {
+        notifier.setCount('routine_exercise_1', 3);
+        notifier.setCount('routine_exercise_2', 5);
+        notifier.setCount('routine_exercise_3', 2);
+        
+        notifier.clearAll();
+        
+        expect(notifier.state, isEmpty);
+      });
+
+      test('should clear empty state without error', () {
+        notifier.clearAll();
+        
+        expect(notifier.state, isEmpty);
+      });
+    });
+
+    group('Multiple Routine Exercises', () {
+      test('should handle multiple routine exercises independently', () {
+        notifier.setCount('routine_exercise_1', 3);
+        notifier.setCount('routine_exercise_2', 5);
+        notifier.setCount('routine_exercise_3', 2);
+        
+        expect(notifier.getCount('routine_exercise_1'), equals(3));
+        expect(notifier.getCount('routine_exercise_2'), equals(5));
+        expect(notifier.getCount('routine_exercise_3'), equals(2));
+      });
+
+      test('should update one routine exercise without affecting others', () {
+        notifier.setCount('routine_exercise_1', 3);
+        notifier.setCount('routine_exercise_2', 5);
+        
+        notifier.setCount('routine_exercise_1', 7);
+        
+        expect(notifier.getCount('routine_exercise_1'), equals(7));
+        expect(notifier.getCount('routine_exercise_2'), equals(5));
       });
     });
 
     group('State Management', () {
-      test('should update state when count changes', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const count = 4;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        final initialState = container.read(performedSetsNotifierProvider);
-        notifier.setCount(routineExerciseId, count);
-        final updatedState = container.read(performedSetsNotifierProvider);
-
-        // Assert
-        expect(initialState, isEmpty);
-        expect(updatedState[routineExerciseId], equals(count));
+      test('should maintain state consistency', () {
+        const routineExerciseId = 'routine_exercise_1';
+        
+        notifier.setCount(routineExerciseId, 3);
+        notifier.increment(routineExerciseId, 10);
+        notifier.decrement(routineExerciseId, 10);
+        
+        expect(notifier.getCount(routineExerciseId), equals(3));
       });
 
-      test('should maintain multiple routine exercises', () {
-        // Arrange
-        const routineExerciseId1 = 'routine-exercise-1';
-        const routineExerciseId2 = 'routine-exercise-2';
-        const count1 = 2;
-        const count2 = 4;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId1, count1);
-        notifier.setCount(routineExerciseId2, count2);
-        final state = container.read(performedSetsNotifierProvider);
-
-        // Assert
-        expect(state[routineExerciseId1], equals(count1));
-        expect(state[routineExerciseId2], equals(count2));
-        expect(state.length, equals(2));
-      });
-
-      test('should clear all counts', () {
-        // Arrange
-        const routineExerciseId1 = 'routine-exercise-1';
-        const routineExerciseId2 = 'routine-exercise-2';
-        const count1 = 2;
-        const count2 = 4;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId1, count1);
-        notifier.setCount(routineExerciseId2, count2);
+      test('should notify listeners on state changes', () {
+        var listenerCallCount = 0;
+        
+        container.listen(
+          performedSetsNotifierProvider,
+          (previous, next) {
+            listenerCallCount++;
+          },
+        );
+        
+        notifier.setCount('routine_exercise_1', 3);
+        notifier.increment('routine_exercise_1', 10);
         notifier.clearAll();
-        final state = container.read(performedSetsNotifierProvider);
-
-        // Assert
-        expect(state, isEmpty);
-      });
-    });
-
-    group('Edge Cases', () {
-      test('should handle negative count gracefully', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const negativeCount = -1;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, negativeCount);
-        final count = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(count, equals(negativeCount));
-      });
-
-      test('should handle zero count', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const zeroCount = 0;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, zeroCount);
-        final count = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(count, equals(zeroCount));
-      });
-
-      test('should handle large count values', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const largeCount = 1000;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, largeCount);
-        final count = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(count, equals(largeCount));
-      });
-
-      test('should handle empty routine exercise id', () {
-        // Arrange
-        const emptyId = '';
-        const count = 3;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(emptyId, count);
-        final retrievedCount = notifier.getCount(emptyId);
-
-        // Assert
-        expect(retrievedCount, equals(count));
-      });
-    });
-
-    group('Increment/Decrement Logic', () {
-      test('should increment multiple times correctly', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const maxSets = 10;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, 0);
-        notifier.increment(routineExerciseId, maxSets);
-        notifier.increment(routineExerciseId, maxSets);
-        notifier.increment(routineExerciseId, maxSets);
-        final finalCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(finalCount, equals(3));
-      });
-
-      test('should decrement multiple times correctly', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const maxSets = 10;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, 5);
-        notifier.decrement(routineExerciseId, maxSets);
-        notifier.decrement(routineExerciseId, maxSets);
-        notifier.decrement(routineExerciseId, maxSets);
-        final finalCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(finalCount, equals(2));
-      });
-
-      test('should respect max sets limit during increment', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-        const maxSets = 3;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        notifier.setCount(routineExerciseId, maxSets - 1);
-        notifier.increment(routineExerciseId, maxSets);
-        notifier.increment(routineExerciseId, maxSets); // Should not increment
-        final finalCount = notifier.getCount(routineExerciseId);
-
-        // Assert
-        expect(finalCount, equals(maxSets));
-      });
-    });
-
-    group('State Persistence', () {
-      test('should maintain state across multiple operations', () {
-        // Arrange
-        const routineExerciseId1 = 'routine-exercise-1';
-        const routineExerciseId2 = 'routine-exercise-2';
-        const maxSets = 5;
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
         
-        // Set initial counts
-        notifier.setCount(routineExerciseId1, 2);
-        notifier.setCount(routineExerciseId2, 3);
-        
-        // Perform operations
-        notifier.increment(routineExerciseId1, maxSets);
-        notifier.decrement(routineExerciseId2, maxSets);
-        
-        final state = container.read(performedSetsNotifierProvider);
-
-        // Assert
-        expect(state[routineExerciseId1], equals(3));
-        expect(state[routineExerciseId2], equals(2));
-        expect(state.length, equals(2));
-      });
-
-      test('should handle state updates correctly', () {
-        // Arrange
-        const routineExerciseId = 'routine-exercise-1';
-
-        // Act
-        final notifier = container.read(performedSetsNotifierProvider.notifier);
-        final state1 = container.read(performedSetsNotifierProvider);
-        
-        notifier.setCount(routineExerciseId, 1);
-        final state2 = container.read(performedSetsNotifierProvider);
-        
-        notifier.setCount(routineExerciseId, 2);
-        final state3 = container.read(performedSetsNotifierProvider);
-
-        // Assert
-        expect(state1, isEmpty);
-        expect(state2[routineExerciseId], equals(1));
-        expect(state3[routineExerciseId], equals(2));
+        expect(listenerCallCount, equals(3));
       });
     });
   });

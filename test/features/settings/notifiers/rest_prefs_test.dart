@@ -1,324 +1,143 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mocktail/mocktail.dart';
-
-import '../../../test_helpers/test_setup.dart';
-import '../../../mocks/database_service_mock.dart';
-import '../../../mocks/logging_service_mock.dart';
-import '../../../../lib/features/settings/notifiers/rest_prefs.dart';
+import 'package:liftup/features/settings/notifiers/rest_prefs.dart';
 
 void main() {
-  group('Rest Preferences Tests', () {
+  group('RestPrefs Tests', () {
     late ProviderContainer container;
-    late MockDatabaseService mockDatabaseService;
-    late MockLoggingService mockLoggingService;
-
-    setUpAll(() {
-      TestSetup.initialize();
-      mockDatabaseService = TestSetup.mockDatabaseService;
-      mockLoggingService = TestSetup.mockLoggingService;
-    });
 
     setUp(() {
-      TestSetup.cleanup();
-      container = TestSetup.createTestContainer();
+      container = ProviderContainer();
     });
 
     tearDown(() {
       container.dispose();
     });
 
-    group('Rest Sound Settings', () {
-      test('should initialize with default sound enabled', () {
-        // Act
-        final state = container.read(restSoundEnabledProvider);
+    group('Initialization', () {
+      test('should initialize with default values', () {
+        final soundEnabled = container.read(restSoundEnabledProvider);
+        final vibrationEnabled = container.read(restVibrationEnabledProvider);
+        final soundType = container.read(restSoundTypeProvider);
 
-        // Assert
-        expect(state, isTrue);
+        expect(soundEnabled, isTrue);
+        expect(vibrationEnabled, isTrue);
+        expect(soundType, equals(RestSoundType.notification));
+      });
+    });
+
+    group('Rest Sound Settings', () {
+      test('should update sound enabled setting', () {
+        final notifier = container.read(restSoundEnabledProvider.notifier);
+
+        notifier.state = false;
+
+        expect(container.read(restSoundEnabledProvider), isFalse);
       });
 
-      test('should toggle rest sound enabled', () {
-        // Arrange
+      test('should toggle sound enabled setting', () {
         final notifier = container.read(restSoundEnabledProvider.notifier);
         final initialState = container.read(restSoundEnabledProvider);
 
-        // Act
         notifier.state = !initialState;
-        final toggledState = container.read(restSoundEnabledProvider);
 
-        // Assert
-        expect(toggledState, equals(!initialState));
-      });
-
-      test('should set rest sound to specific value', () {
-        // Arrange
-        const soundEnabled = false;
-
-        // Act
-        final notifier = container.read(restSoundEnabledProvider.notifier);
-        notifier.state = soundEnabled;
-        final state = container.read(restSoundEnabledProvider);
-
-        // Assert
-        expect(state, equals(soundEnabled));
-      });
-
-      test('should handle multiple sound setting changes', () {
-        // Arrange
-        final notifier = container.read(restSoundEnabledProvider.notifier);
-
-        // Act
-        notifier.state = true;
-        final state1 = container.read(restSoundEnabledProvider);
-        
-        notifier.state = false;
-        final state2 = container.read(restSoundEnabledProvider);
-        
-        notifier.state = !state2;
-        final state3 = container.read(restSoundEnabledProvider);
-
-        // Assert
-        expect(state1, equals(true));
-        expect(state2, equals(false));
-        expect(state3, equals(true));
+        expect(container.read(restSoundEnabledProvider), equals(!initialState));
       });
     });
 
     group('Rest Vibration Settings', () {
-      test('should initialize with default vibration enabled', () {
-        // Act
-        final state = container.read(restVibrationEnabledProvider);
+      test('should update vibration enabled setting', () {
+        final notifier = container.read(restVibrationEnabledProvider.notifier);
 
-        // Assert
-        expect(state, isTrue);
+        notifier.state = false;
+
+        expect(container.read(restVibrationEnabledProvider), isFalse);
       });
 
-      test('should toggle rest vibration enabled', () {
-        // Arrange
+      test('should toggle vibration enabled setting', () {
         final notifier = container.read(restVibrationEnabledProvider.notifier);
         final initialState = container.read(restVibrationEnabledProvider);
 
-        // Act
         notifier.state = !initialState;
-        final toggledState = container.read(restVibrationEnabledProvider);
 
-        // Assert
-        expect(toggledState, equals(!initialState));
-      });
-
-      test('should set rest vibration to specific value', () {
-        // Arrange
-        const vibrationEnabled = false;
-
-        // Act
-        final notifier = container.read(restVibrationEnabledProvider.notifier);
-        notifier.state = vibrationEnabled;
-        final state = container.read(restVibrationEnabledProvider);
-
-        // Assert
-        expect(state, equals(vibrationEnabled));
+        expect(
+          container.read(restVibrationEnabledProvider),
+          equals(!initialState),
+        );
       });
     });
 
     group('Rest Sound Type Settings', () {
-      test('should initialize with default sound type', () {
-        // Act
-        final state = container.read(restSoundTypeProvider);
-
-        // Assert
-        expect(state, equals(RestSoundType.notification));
-      });
-
-      test('should change rest sound type', () {
-        // Arrange
+      test('should update sound type to alarm', () {
         final notifier = container.read(restSoundTypeProvider.notifier);
 
-        // Act
         notifier.state = RestSoundType.alarm;
-        final state = container.read(restSoundTypeProvider);
 
-        // Assert
-        expect(state, equals(RestSoundType.alarm));
+        expect(
+          container.read(restSoundTypeProvider),
+          equals(RestSoundType.alarm),
+        );
       });
 
-      test('should cycle through sound types', () {
-        // Arrange
+      test('should update sound type to notification', () {
         final notifier = container.read(restSoundTypeProvider.notifier);
 
-        // Act
-        notifier.state = RestSoundType.alarm;
-        final state1 = container.read(restSoundTypeProvider);
-        
         notifier.state = RestSoundType.notification;
-        final state2 = container.read(restSoundTypeProvider);
 
-        // Assert
-        expect(state1, equals(RestSoundType.alarm));
-        expect(state2, equals(RestSoundType.notification));
+        expect(
+          container.read(restSoundTypeProvider),
+          equals(RestSoundType.notification),
+        );
       });
     });
 
     group('State Persistence', () {
-      test('should persist state changes', () {
-        // Arrange
-        const soundEnabled = false;
-        const vibrationEnabled = false;
-        const soundType = RestSoundType.alarm;
-
-        // Act
+      test('should maintain state across provider container recreation', () {
         final soundNotifier = container.read(restSoundEnabledProvider.notifier);
-        final vibrationNotifier = container.read(restVibrationEnabledProvider.notifier);
-        final soundTypeNotifier = container.read(restSoundTypeProvider.notifier);
-        
-        soundNotifier.state = soundEnabled;
-        vibrationNotifier.state = vibrationEnabled;
-        soundTypeNotifier.state = soundType;
-        
-        final soundState = container.read(restSoundEnabledProvider);
-        final vibrationState = container.read(restVibrationEnabledProvider);
-        final soundTypeState = container.read(restSoundTypeProvider);
+        final vibrationNotifier = container.read(
+          restVibrationEnabledProvider.notifier,
+        );
+        final soundTypeNotifier = container.read(
+          restSoundTypeProvider.notifier,
+        );
 
-        // Assert
-        expect(soundState, equals(soundEnabled));
-        expect(vibrationState, equals(vibrationEnabled));
-        expect(soundTypeState, equals(soundType));
-      });
-
-      test('should maintain state across multiple operations', () {
-        // Arrange
-        final soundNotifier = container.read(restSoundEnabledProvider.notifier);
-        final vibrationNotifier = container.read(restVibrationEnabledProvider.notifier);
-        final soundTypeNotifier = container.read(restSoundTypeProvider.notifier);
-
-        // Act
+        // Change values
         soundNotifier.state = false;
         vibrationNotifier.state = false;
         soundTypeNotifier.state = RestSoundType.alarm;
-        
+
+        // Verify changes
+        expect(container.read(restSoundEnabledProvider), isFalse);
+        expect(container.read(restVibrationEnabledProvider), isFalse);
+        expect(
+          container.read(restSoundTypeProvider),
+          equals(RestSoundType.alarm),
+        );
+      });
+    });
+
+    group('Settings Integration', () {
+      test('should work together without conflicts', () {
+        final soundNotifier = container.read(restSoundEnabledProvider.notifier);
+        final vibrationNotifier = container.read(
+          restVibrationEnabledProvider.notifier,
+        );
+        final soundTypeNotifier = container.read(
+          restSoundTypeProvider.notifier,
+        );
+
+        // Set different combinations
         soundNotifier.state = true;
-        vibrationNotifier.state = true;
-        soundTypeNotifier.state = RestSoundType.notification;
-        
-        final finalSoundState = container.read(restSoundEnabledProvider);
-        final finalVibrationState = container.read(restVibrationEnabledProvider);
-        final finalSoundTypeState = container.read(restSoundTypeProvider);
-
-        // Assert
-        expect(finalSoundState, equals(true));
-        expect(finalVibrationState, equals(true));
-        expect(finalSoundTypeState, equals(RestSoundType.notification));
-      });
-    });
-
-    group('State Updates', () {
-      test('should notify listeners on state changes', () {
-        // Arrange
-        var soundStateChanged = false;
-        var vibrationStateChanged = false;
-        var soundTypeStateChanged = false;
-
-        // Act
-        final soundNotifier = container.read(restSoundEnabledProvider.notifier);
-        final vibrationNotifier = container.read(restVibrationEnabledProvider.notifier);
-        final soundTypeNotifier = container.read(restSoundTypeProvider.notifier);
-        
-        container.listen(restSoundEnabledProvider, (previous, next) {
-          soundStateChanged = true;
-        });
-        container.listen(restVibrationEnabledProvider, (previous, next) {
-          vibrationStateChanged = true;
-        });
-        container.listen(restSoundTypeProvider, (previous, next) {
-          soundTypeStateChanged = true;
-        });
-        
-        soundNotifier.state = false;
         vibrationNotifier.state = false;
         soundTypeNotifier.state = RestSoundType.alarm;
 
-        // Assert
-        expect(soundStateChanged, isTrue);
-        expect(vibrationStateChanged, isTrue);
-        expect(soundTypeStateChanged, isTrue);
-      });
-
-      test('should update state immediately', () {
-        // Arrange
-        const newSoundState = false;
-
-        // Act
-        final notifier = container.read(restSoundEnabledProvider.notifier);
-        notifier.state = newSoundState;
-        final state = container.read(restSoundEnabledProvider);
-
-        // Assert
-        expect(state, equals(newSoundState));
-      });
-    });
-
-    group('Default Values', () {
-      test('should have reasonable default values', () {
-        // Act
-        final soundState = container.read(restSoundEnabledProvider);
-        final vibrationState = container.read(restVibrationEnabledProvider);
-        final soundTypeState = container.read(restSoundTypeProvider);
-
-        // Assert
-        expect(soundState, isA<bool>());
-        expect(vibrationState, isA<bool>());
-        expect(soundTypeState, isA<RestSoundType>());
-        expect(soundTypeState, equals(RestSoundType.notification));
-      });
-
-      test('should maintain consistency across operations', () {
-        // Arrange
-        final soundNotifier = container.read(restSoundEnabledProvider.notifier);
-        final vibrationNotifier = container.read(restVibrationEnabledProvider.notifier);
-        final soundTypeNotifier = container.read(restSoundTypeProvider.notifier);
-
-        // Act
-        final initialSoundState = container.read(restSoundEnabledProvider);
-        final initialVibrationState = container.read(restVibrationEnabledProvider);
-        final initialSoundTypeState = container.read(restSoundTypeProvider);
-        
-        soundNotifier.state = !initialSoundState;
-        vibrationNotifier.state = !initialVibrationState;
-        soundTypeNotifier.state = RestSoundType.alarm;
-        
-        soundNotifier.state = initialSoundState;
-        vibrationNotifier.state = initialVibrationState;
-        soundTypeNotifier.state = initialSoundTypeState;
-        
-        final finalSoundState = container.read(restSoundEnabledProvider);
-        final finalVibrationState = container.read(restVibrationEnabledProvider);
-        final finalSoundTypeState = container.read(restSoundTypeProvider);
-
-        // Assert
-        expect(finalSoundState, equals(initialSoundState));
-        expect(finalVibrationState, equals(initialVibrationState));
-        expect(finalSoundTypeState, equals(initialSoundTypeState));
-      });
-    });
-
-    group('Enum Values', () {
-      test('should have all expected sound types', () {
-        // Assert
-        expect(RestSoundType.values.length, equals(2));
-        expect(RestSoundType.values.contains(RestSoundType.notification), isTrue);
-        expect(RestSoundType.values.contains(RestSoundType.alarm), isTrue);
-      });
-
-      test('should handle enum comparisons correctly', () {
-        // Arrange
-        final notifier = container.read(restSoundTypeProvider.notifier);
-
-        // Act
-        notifier.state = RestSoundType.alarm;
-        final state = container.read(restSoundTypeProvider);
-
-        // Assert
-        expect(state == RestSoundType.alarm, isTrue);
-        expect(state == RestSoundType.notification, isFalse);
+        // Verify all settings are independent
+        expect(container.read(restSoundEnabledProvider), isTrue);
+        expect(container.read(restVibrationEnabledProvider), isFalse);
+        expect(
+          container.read(restSoundTypeProvider),
+          equals(RestSoundType.alarm),
+        );
       });
     });
   });

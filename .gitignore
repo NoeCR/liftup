@@ -121,3 +121,6 @@ Thumbs.db
 
 # Sentry native files
 .sentry-native/
+
+# Coverage report files
+generate_coverage_report.py

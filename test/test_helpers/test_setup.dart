@@ -2,29 +2,40 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:faker/faker.dart';
+import 'package:hive/hive.dart';
+import 'dart:io';
 
 import '../mocks/database_service_mock.dart';
+import '../mocks/test_database_service.dart';
 import '../mocks/logging_service_mock.dart';
+import '../mocks/routine_service_mock.dart';
+import '../../lib/features/home/services/routine_service.dart';
+import '../../lib/core/database/database_service.dart';
 
 /// Configuración central para todos los tests
 /// Proporciona mocks y configuración común
 class TestSetup {
   static late MockDatabaseService _mockDatabaseService;
+  static late TestDatabaseService _testDatabaseService;
   static late MockLoggingService _mockLoggingService;
   static late MockPerformanceMonitor _mockPerformanceMonitor;
+  static late MockRoutineService _mockRoutineService;
   static late Faker _faker;
 
   /// Inicializar todos los mocks y configuración de testing
   static void initialize() {
     _faker = Faker();
     _mockDatabaseService = MockDatabaseService.getInstance();
+    _testDatabaseService = TestDatabaseService.getInstance();
     _mockLoggingService = MockLoggingService.getInstance();
     _mockPerformanceMonitor = MockPerformanceMonitor.getInstance();
+    _mockRoutineService = MockRoutineService();
 
     // Configurar comportamiento por defecto de los mocks
     _mockDatabaseService.setupMockBehavior();
     _mockLoggingService.setupMockBehavior();
     _mockPerformanceMonitor.setupMockBehavior();
+    _mockRoutineService.setupMockBehavior();
 
     // Configurar fallback values para mocktail
     registerFallbackValue(<String, dynamic>{});
@@ -36,10 +47,26 @@ class TestSetup {
     _mockDatabaseService.clearMockData();
     _mockLoggingService.clearCapturedLogs();
     _mockPerformanceMonitor.clearCapturedMetrics();
+    _mockRoutineService.clearMockData();
+    // Clear test database data but don't close it
+    try {
+      _testDatabaseService.clearAllData();
+    } catch (_) {}
+  }
+
+  /// Limpiar completamente el TestDatabaseService
+  static void cleanupTestDatabase() {
+    try {
+      _testDatabaseService.close();
+      TestDatabaseService.cleanup();
+    } catch (_) {}
   }
 
   /// Obtener instancia del mock de DatabaseService
   static MockDatabaseService get mockDatabaseService => _mockDatabaseService;
+
+  /// Obtener instancia del TestDatabaseService
+  static TestDatabaseService get testDatabaseService => _testDatabaseService;
 
   /// Obtener instancia del mock de LoggingService
   static MockLoggingService get mockLoggingService => _mockLoggingService;
@@ -48,8 +75,16 @@ class TestSetup {
   static MockPerformanceMonitor get mockPerformanceMonitor =>
       _mockPerformanceMonitor;
 
+  /// Obtener instancia del mock de RoutineService
+  static MockRoutineService get mockRoutineService => _mockRoutineService;
+
   /// Obtener instancia de Faker para generar datos de prueba
   static Faker get faker => _faker;
+
+  /// Inicializar el TestDatabaseService para tests que requieren base de datos real
+  static Future<void> initializeTestDatabase() async {
+    await _testDatabaseService.initialize();
+  }
 
   /// Crear un ProviderContainer con overrides para testing
   static ProviderContainer createTestContainer({

@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/exercise.dart';
 import '../../../common/enums/muscle_group_enum.dart';
 import '../../../core/database/database_service.dart';
+import '../../../core/database/database_service_provider.dart';
 
 part 'exercise_service.g.dart';
 
@@ -19,7 +20,7 @@ class ExerciseService extends _$ExerciseService {
   }
 
   Box get _box {
-    return DatabaseService.getInstance().exercisesBox;
+    return ref.read(databaseServiceProvider).exercisesBox;
   }
 
   Future<void> saveExercise(Exercise exercise) async {
