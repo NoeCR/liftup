@@ -597,12 +597,13 @@ class ProgressionService extends _$ProgressionService {
     required int deloadWeek,
     required double deloadPercentage,
     Map<String, dynamic>? customParameters,
+    bool isGlobal = true,
   }) async {
     try {
       final uuid = const Uuid();
       final config = ProgressionConfig(
         id: uuid.v4(),
-        isGlobal: true,
+        isGlobal: isGlobal,
         type: type,
         unit: unit,
         primaryTarget: primaryTarget,

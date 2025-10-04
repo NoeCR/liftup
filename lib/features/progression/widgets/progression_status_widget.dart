@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'progression_selection_dialog.dart';
 import '../notifiers/progression_notifier.dart';
-import '../../../common/localization/app_localizations.dart';
 
 class ProgressionStatusWidget extends ConsumerWidget {
   const ProgressionStatusWidget({super.key});
@@ -11,14 +11,13 @@ class ProgressionStatusWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context);
 
     final progressionAsync = ref.watch(progressionNotifierProvider);
 
     return progressionAsync.when(
       data: (config) {
         if (config == null) {
-          return _buildNoProgression(context, theme, colorScheme, l10n);
+          return _buildNoProgression(context, theme, colorScheme);
         }
 
         return _buildActiveProgression(
@@ -26,7 +25,6 @@ class ProgressionStatusWidget extends ConsumerWidget {
           theme,
           colorScheme,
           config,
-          l10n,
           ref,
         );
       },
@@ -37,7 +35,6 @@ class ProgressionStatusWidget extends ConsumerWidget {
             theme,
             colorScheme,
             error.toString(),
-            l10n,
           ),
     );
   }
@@ -46,7 +43,6 @@ class ProgressionStatusWidget extends ConsumerWidget {
     BuildContext context,
     ThemeData theme,
     ColorScheme colorScheme,
-    AppLocalizations l10n,
   ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -66,7 +62,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              l10n.noProgression,
+              'progression.noProgression'.tr(),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -80,7 +76,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              l10n.progressionConfigure,
+              'progression.configure'.tr(),
               style: TextStyle(fontSize: 12, color: colorScheme.primary),
             ),
           ),
@@ -94,7 +90,6 @@ class ProgressionStatusWidget extends ConsumerWidget {
     ThemeData theme,
     ColorScheme colorScheme,
     dynamic config,
-    AppLocalizations l10n,
     WidgetRef ref,
   ) {
     return Container(
@@ -114,7 +109,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l10n.activeProgression(config.type.displayName),
+                  'progression.activeProgression'.tr(namedArgs: {'type': config.type.displayName}),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.primary,
                     fontWeight: FontWeight.w500,
@@ -150,7 +145,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
                       children: [
                         const Icon(Icons.edit, size: 16),
                         const SizedBox(width: 8),
-                        Text(l10n.progressionChange),
+                        Text('progression.change'.tr()),
                       ],
                     ),
                   ),
@@ -160,7 +155,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
                       children: [
                         const Icon(Icons.stop, size: 16),
                         const SizedBox(width: 8),
-                        Text(l10n.progressionDisable),
+                        Text('progression.disable'.tr()),
                       ],
                     ),
                   ),
@@ -176,7 +171,6 @@ class ProgressionStatusWidget extends ConsumerWidget {
     ThemeData theme,
     ColorScheme colorScheme,
     String error,
-    AppLocalizations l10n,
   ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -192,7 +186,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              l10n.errorLoadingProgression(error),
+              'progression.errorLoadingProgression'.tr(namedArgs: {'error': error}),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.error,
               ),
@@ -211,17 +205,16 @@ class ProgressionStatusWidget extends ConsumerWidget {
   }
 
   void _disableProgression(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text(l10n.disableProgression),
-            content: Text(l10n.disableProgressionQuestion),
+            title: Text('progression.disableProgression'.tr()),
+            content: Text('progression.disableProgressionQuestion'.tr()),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(l10n.cancel),
+                child: Text('common.cancel'.tr()),
               ),
               FilledButton(
                 onPressed: () async {
@@ -233,7 +226,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(l10n.progressionDisabled),
+                          content: Text('progression.progressionDisabled'.tr()),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -243,7 +236,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            l10n.errorDisablingProgression(e.toString()),
+                            'progression.errorDisablingProgression'.tr(namedArgs: {'error': e.toString()}),
                           ),
                           backgroundColor: Colors.red,
                         ),
@@ -251,7 +244,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
                     }
                   }
                 },
-                child: Text(l10n.progressionDisable),
+                child: Text('progression.disable'.tr()),
               ),
             ],
           ),

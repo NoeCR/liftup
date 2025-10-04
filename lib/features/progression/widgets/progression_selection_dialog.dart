@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/progression_template.dart';
 import '../services/progression_template_service.dart';
 import '../notifiers/progression_notifier.dart';
 import '../../../common/enums/progression_type_enum.dart';
-import '../../../common/localization/app_localizations.dart';
 
 class ProgressionSelectionDialog extends ConsumerStatefulWidget {
   const ProgressionSelectionDialog({super.key});
@@ -24,14 +24,13 @@ class _ProgressionSelectionDialogState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       title: Row(
         children: [
           Icon(Icons.trending_up, color: colorScheme.primary),
           const SizedBox(width: 8),
-          Text(l10n.configureProgression),
+          Text('progression.configureProgression'.tr()),
         ],
       ),
       content: SizedBox(
@@ -41,15 +40,15 @@ class _ProgressionSelectionDialogState
           crossAxisAlignment: CrossAxisAlignment.start,
            children: [
              Text(
-               l10n.configureProgressionQuestion,
+               'progression.configureProgressionQuestion'.tr(),
                style: theme.textTheme.bodyMedium,
              ),
              const SizedBox(height: 16),
 
              // Opción de entrenamiento libre
              _buildOptionCard(
-               title: l10n.freeTraining,
-               description: l10n.freeTrainingDescription,
+               title: 'progression.freeTraining'.tr(),
+               description: 'progression.freeTrainingDescription'.tr(),
                icon: Icons.fitness_center,
                isSelected: _selectedType == ProgressionType.none,
                onTap: () {
@@ -63,8 +62,8 @@ class _ProgressionSelectionDialogState
 
              // Opción de progresión automática
              _buildOptionCard(
-               title: l10n.automaticProgression,
-               description: l10n.automaticProgressionDescription,
+               title: 'progression.automaticProgression'.tr(),
+               description: 'progression.automaticProgressionDescription'.tr(),
                icon: Icons.auto_graph,
                isSelected:
                    _selectedType != null &&
@@ -96,7 +95,7 @@ class _ProgressionSelectionDialogState
                     const SizedBox(width: 8),
                      Expanded(
                        child: Text(
-                         l10n.selectedProgression(_selectedType!.displayName),
+                         'progression.selectedProgression'.tr(namedArgs: {'type': _selectedType!.displayName}),
                          style: theme.textTheme.bodySmall?.copyWith(
                            color: colorScheme.primary,
                            fontWeight: FontWeight.w500,
@@ -118,7 +117,7 @@ class _ProgressionSelectionDialogState
                    : () {
                      Navigator.of(context).pop();
                    },
-           child: Text(l10n.cancel),
+           child: Text('common.cancel'.tr()),
          ),
          FilledButton(
            onPressed: _isLoading ? null : _handleSelection,
@@ -129,7 +128,7 @@ class _ProgressionSelectionDialogState
                      height: 16,
                      child: CircularProgressIndicator(strokeWidth: 2),
                    )
-                   : Text(l10n.progressionContinue),
+                   : Text('progression.continue'.tr()),
          ),
        ],
     );
@@ -270,10 +269,9 @@ class _ProgressionTypeSelectionDialogState
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
-      title: Text(l10n.selectProgressionType),
+      title: Text('progression.selectProgressionType'.tr()),
       content: SizedBox(
         width: double.maxFinite,
         child: Consumer(
@@ -312,7 +310,7 @@ class _ProgressionTypeSelectionDialogState
            onPressed: () {
              Navigator.of(context).pop();
            },
-           child: Text(l10n.cancel),
+           child: Text('common.cancel'.tr()),
          ),
          FilledButton(
            onPressed:
