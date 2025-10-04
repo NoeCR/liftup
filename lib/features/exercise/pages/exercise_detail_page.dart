@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
 import '../../../common/enums/muscle_group_enum.dart';
-import '../../home/notifiers/routine_notifier.dart';
 
 class ExerciseDetailPage extends ConsumerWidget {
   final String exerciseId;
@@ -272,28 +271,15 @@ class ExerciseDetailPage extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           // Parámetros de entrenamiento (leer desde RoutineExercise)
-          Consumer(
-            builder: (context, ref, _) {
-              final routineAsync = ref.watch(routineNotifierProvider);
-              int sets = 3;
-              int reps = 10;
-              double weight = 0.0;
-              routineAsync.whenData((routines) {
-                for (final r in routines) {
-                  for (final s in r.sections) {
-                    final match = s.exercises.where(
-                      (re) => re.exerciseId == exercise.id,
-                    );
-                    if (match.isNotEmpty) {
-                      final re = match.first;
-                      sets = re.sets;
-                      reps = re.reps;
-                      weight = re.weight;
-                      return; // break out once found
-                    }
-                  }
-                }
-              });
+          // Mostrar valores directamente del ejercicio
+          Builder(
+            builder: (context) {
+              final sets = exercise.defaultSets ?? 3;
+              final reps = exercise.defaultReps ?? 10;
+              final weight = exercise.defaultWeight ?? 0.0;
+              final restTime = exercise.restTimeSeconds;
+
+              // Debug: Mostrando valores del ejercicio
 
               return Align(
                 alignment: Alignment.centerLeft,
@@ -316,6 +302,12 @@ class ExerciseDetailPage extends ConsumerWidget {
                       Icons.scale,
                       context,
                     ),
+                    if (restTime != null)
+                      _buildInfoChip(
+                        'Descanso: ${restTime}s',
+                        Icons.timer,
+                        context,
+                      ),
                   ],
                 ),
               );

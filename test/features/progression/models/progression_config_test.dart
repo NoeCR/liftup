@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/features/progression/models/progression_config.dart';
 import 'package:liftup/common/enums/progression_type_enum.dart';
 import '../mocks/progression_mock_factory.dart';
 

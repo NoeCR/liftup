@@ -93,7 +93,7 @@ void _runApp() async {
       supportedLocales: const [Locale('es'), Locale('en')],
       path: 'assets/locales',
       fallbackLocale: const Locale('es'),
-      child: const ProviderScope(child: const LiftUpApp()),
+      child: const ProviderScope(child: LiftUpApp()),
     ),
   );
 }

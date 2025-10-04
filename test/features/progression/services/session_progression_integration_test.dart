@@ -199,37 +199,6 @@ void _setupWaveProgressionMock(
   });
 }
 
-void _setupStaticProgressionMock(
-  MockProgressionService mockService,
-  ProgressionConfig config,
-  ProgressionState state,
-) {
-  when(
-    mockService.getActiveProgressionConfig(),
-  ).thenAnswer((_) async => config);
-  when(
-    mockService.getProgressionStateByExercise(any, any),
-  ).thenAnswer((_) async => state);
-
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
-    invocation,
-  ) async {
-    final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
-
-    // Static progression: no changes
-    return ProgressionCalculationResult(
-      newWeight: currentWeight,
-      newReps: currentReps,
-      newSets: currentSets,
-      incrementApplied: false,
-      reason: 'Static progression: No changes applied',
-    );
-  });
-}
-
 void _setupReverseProgressionMock(
   MockProgressionService mockService,
   ProgressionConfig config,
@@ -388,7 +357,6 @@ void main() {
           );
         });
 
-        final routine = ProgressionMockFactory.createRoutine();
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -434,7 +402,6 @@ void main() {
           isHeavyDay: true,
         );
 
-        final routine = ProgressionMockFactory.createRoutine();
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -518,7 +485,6 @@ void main() {
           isHeavyDay: false,
         );
 
-        final routine = ProgressionMockFactory.createRoutine();
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -602,7 +568,6 @@ void main() {
           isDeloadWeek: false,
         );
 
-        final routine = ProgressionMockFactory.createRoutine();
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -685,8 +650,6 @@ void main() {
           state,
           isDeloadWeek: true,
         );
-
-        final routine = ProgressionMockFactory.createRoutine();
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -771,8 +734,6 @@ void main() {
           isAtMaxReps: false,
         );
 
-        final routine = ProgressionMockFactory.createRoutine();
-
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -849,7 +810,6 @@ void main() {
           isAtMaxReps: true,
         );
 
-        final routine = ProgressionMockFactory.createRoutine();
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -954,7 +914,6 @@ void main() {
           );
         });
 
-        final routine = ProgressionMockFactory.createRoutine();
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -1000,8 +959,6 @@ void main() {
           state,
           weekNumber: 2,
         );
-
-        final routine = ProgressionMockFactory.createRoutine();
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -1087,8 +1044,6 @@ void main() {
           state,
           weekNumber: 3,
         );
-
-        final routine = ProgressionMockFactory.createRoutine();
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -1188,8 +1143,6 @@ void main() {
           );
         });
 
-        final routine = ProgressionMockFactory.createRoutine();
-
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
           config.id,
@@ -1226,8 +1179,6 @@ void main() {
 
         // Setup specific reverse progression mock
         _setupReverseProgressionMock(mockProgressionService, config, state);
-
-        final routine = ProgressionMockFactory.createRoutine();
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(

@@ -156,10 +156,6 @@ class ProgressionMockFactory {
   static RoutineExercise createRoutineExercise({
     String? id,
     String? exerciseId,
-    double? weight,
-    int? reps,
-    int? sets,
-    int? restTimeSeconds,
     String? notes,
   }) {
     return RoutineExercise(
@@ -168,10 +164,6 @@ class ProgressionMockFactory {
           'test-routine-exercise-${DateTime.now().millisecondsSinceEpoch}',
       routineSectionId: 'test-section-1',
       exerciseId: exerciseId ?? 'test-exercise-1',
-      weight: weight ?? 100.0,
-      reps: reps ?? 10,
-      sets: sets ?? 3,
-      restTimeSeconds: restTimeSeconds ?? 90,
       notes: notes ?? '',
       order: 1,
     );
@@ -223,11 +215,7 @@ class ProgressionMockFactory {
               exercises ??
               [
                 createRoutineExercise(),
-                createRoutineExercise(
-                  exerciseId: 'test-exercise-2',
-                  weight: 80.0,
-                  reps: 12,
-                ),
+                createRoutineExercise(exerciseId: 'test-exercise-2'),
               ],
           isCollapsed: false,
           order: 1,

@@ -551,7 +551,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
     // Get selected exercises from the exercise notifier
     final exerciseAsync = ref.read(exerciseNotifierProvider);
-    exerciseAsync.whenData((exercises) {
+    final exercises = exerciseAsync.valueOrNull;
+
+    if (exercises != null) {
       final selectedExercises =
           exercises
               .where((exercise) => _selectedExercises.contains(exercise.id))
@@ -587,7 +589,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           ),
         );
       }
-    });
+    }
 
     // Navegación segura: volver si se puede, si no, ir a Home
     if (Navigator.canPop(context)) {
@@ -605,7 +607,22 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     required int reps,
     required double weight,
     required int restTime,
-  }) {
+  }) async {
+    // Primero, actualizar los valores por defecto en cada ejercicio
+    for (final exercise in exercises) {
+      final updatedExercise = exercise.copyWith(
+        defaultSets: sets,
+        defaultReps: reps,
+        defaultWeight: weight,
+        restTimeSeconds: restTime,
+      );
+
+      // Guardar el ejercicio actualizado
+      await ref
+          .read(exerciseNotifierProvider.notifier)
+          .updateExercise(updatedExercise);
+    }
+
     // Get current routine
     final routineAsync = ref.read(routineNotifierProvider);
     routineAsync.whenData((routines) {
@@ -614,7 +631,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         orElse: () => throw Exception('Routine not found'),
       );
 
-      // Create RoutineExercise objects
+      // Create RoutineExercise objects (valores de peso/series/reps ahora se guardan en Exercise)
       final routineExercises =
           exercises
               .map(
@@ -622,10 +639,6 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                   id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
                   routineSectionId: sectionId,
                   exerciseId: exercise.id,
-                  sets: sets,
-                  reps: reps,
-                  weight: weight,
-                  restTimeSeconds: restTime,
                   notes: '',
                   order: 0,
                 ),
@@ -653,25 +666,21 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     });
   }
 
-  /// Busca los últimos parámetros usados para un ejercicio en cualquier rutina
+  /// Busca los últimos parámetros usados para un ejercicio desde el modelo Exercise
   Map<String, Object>? _findLastUsedParamsForExercise(String exerciseId) {
-    final routines = ref.read(routineNotifierProvider).valueOrNull;
-    if (routines == null) return null;
+    final exercises = ref.read(exerciseNotifierProvider).valueOrNull;
+    if (exercises == null) return null;
 
-    for (final routine in routines) {
-      for (final section in routine.sections) {
-        for (final re in section.exercises) {
-          if (re.exerciseId == exerciseId) {
-            return <String, Object>{
-              'sets': re.sets,
-              'reps': re.reps,
-              'weight': re.weight,
-              'rest': re.restTimeSeconds ?? _defaultRestSeconds,
-            };
-          }
-        }
-      }
-    }
-    return null;
+    final exercise = exercises.firstWhere(
+      (e) => e.id == exerciseId,
+      orElse: () => throw Exception('Exercise not found'),
+    );
+
+    return <String, Object>{
+      'sets': exercise.defaultSets ?? 3,
+      'reps': exercise.defaultReps ?? 10,
+      'weight': exercise.defaultWeight ?? 0.0,
+      'rest': exercise.restTimeSeconds ?? _defaultRestSeconds,
+    };
   }
 }

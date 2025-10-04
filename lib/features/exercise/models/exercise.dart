@@ -44,6 +44,18 @@ class Exercise extends Equatable {
   @HiveField(11)
   final DateTime updatedAt;
 
+  @HiveField(12)
+  final double? defaultWeight;
+
+  @HiveField(13)
+  final int? defaultSets;
+
+  @HiveField(14)
+  final int? defaultReps;
+
+  @HiveField(15)
+  final int? restTimeSeconds;
+
   const Exercise({
     required this.id,
     required this.name,
@@ -57,6 +69,10 @@ class Exercise extends Equatable {
     required this.difficulty,
     required this.createdAt,
     required this.updatedAt,
+    this.defaultWeight,
+    this.defaultSets,
+    this.defaultReps,
+    this.restTimeSeconds,
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) =>
@@ -76,6 +92,10 @@ class Exercise extends Equatable {
     ExerciseDifficulty? difficulty,
     DateTime? createdAt,
     DateTime? updatedAt,
+    double? defaultWeight,
+    int? defaultSets,
+    int? defaultReps,
+    int? restTimeSeconds,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -90,6 +110,10 @@ class Exercise extends Equatable {
       difficulty: difficulty ?? this.difficulty,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      defaultWeight: defaultWeight ?? this.defaultWeight,
+      defaultSets: defaultSets ?? this.defaultSets,
+      defaultReps: defaultReps ?? this.defaultReps,
+      restTimeSeconds: restTimeSeconds ?? this.restTimeSeconds,
     );
   }
 
@@ -107,6 +131,10 @@ class Exercise extends Equatable {
     difficulty,
     createdAt,
     updatedAt,
+    defaultWeight,
+    defaultSets,
+    defaultReps,
+    restTimeSeconds,
   ];
 }
 

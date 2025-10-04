@@ -269,16 +269,23 @@ class ProgressionService extends _$ProgressionService {
         currentSets: currentSets,
       );
 
+      // Calcular la semana actual basada en el número de sesiones
+      // Asumiendo 3 sesiones por semana (configurable)
+      final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
+      final newSession = state.currentSession + 1;
+      final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
+
       // Actualizar el estado de progresión
       final updatedState = state.copyWith(
         currentWeight: result.newWeight,
         currentReps: result.newReps,
         currentSets: result.newSets,
-        currentSession: state.currentSession + 1,
+        currentSession: newSession,
+        currentWeek: newWeek,
         lastUpdated: DateTime.now(),
         sessionHistory: {
           ...state.sessionHistory,
-          'session_${state.currentSession + 1}': {
+          'session_$newSession': {
             'weight': result.newWeight,
             'reps': result.newReps,
             'sets': result.newSets,
@@ -367,6 +374,30 @@ class ProgressionService extends _$ProgressionService {
         );
       case ProgressionType.reverse:
         return _calculateReverseProgression(
+          config,
+          state,
+          currentWeight,
+          currentReps,
+          currentSets,
+        );
+      case ProgressionType.autoregulated:
+        return _calculateAutoregulatedProgression(
+          config,
+          state,
+          currentWeight,
+          currentReps,
+          currentSets,
+        );
+      case ProgressionType.doubleFactor:
+        return _calculateDoubleFactorProgression(
+          config,
+          state,
+          currentWeight,
+          currentReps,
+          currentSets,
+        );
+      case ProgressionType.overload:
+        return _calculateOverloadProgression(
           config,
           state,
           currentWeight,
@@ -581,6 +612,153 @@ class ProgressionService extends _$ProgressionService {
       incrementApplied: true,
       reason: 'Reverse progression: decreasing weight, increasing reps',
     );
+  }
+
+  ProgressionCalculationResult _calculateAutoregulatedProgression(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+  ) {
+    // Progresión autoregulada: ajusta basado en RPE/RIR
+    // Calcula el RPE basado en las repeticiones realizadas vs objetivo
+
+    final targetRPE = config.customParameters['target_rpe'] ?? 8.0;
+    final rpeThreshold = config.customParameters['rpe_threshold'] ?? 0.5;
+    final targetReps = config.customParameters['target_reps'] ?? 10;
+    final maxReps = config.customParameters['max_reps'] ?? 12;
+    final minReps = config.customParameters['min_reps'] ?? 5;
+
+    // Obtener las repeticiones realizadas en la última sesión
+    final lastSessionData =
+        state.sessionHistory['session_${state.currentSession}'];
+    final performedReps = lastSessionData?['reps'] ?? currentReps;
+
+    // Calcular RPE estimado basado en repeticiones realizadas vs objetivo
+    // Si realizó más repeticiones de las objetivo, RPE fue bajo
+    // Si realizó menos repeticiones de las objetivo, RPE fue alto
+    double estimatedRPE;
+    if (performedReps >= targetReps) {
+      // RPE bajo: pudo hacer más repeticiones de las objetivo
+      estimatedRPE = targetRPE - ((performedReps - targetReps) * 0.5);
+    } else {
+      // RPE alto: no pudo completar las repeticiones objetivo
+      estimatedRPE = targetRPE + ((targetReps - performedReps) * 0.8);
+    }
+
+    // Limitar RPE entre 1-10
+    estimatedRPE = estimatedRPE.clamp(1.0, 10.0);
+
+    // Si el RPE fue muy bajo, aumentar peso
+    if (estimatedRPE < targetRPE - rpeThreshold) {
+      return ProgressionCalculationResult(
+        newWeight: currentWeight + config.incrementValue,
+        newReps: currentReps,
+        newSets: currentSets,
+        incrementApplied: true,
+        reason:
+            'Autoregulated progression: RPE too low (${estimatedRPE.toStringAsFixed(1)}), increasing weight',
+      );
+    }
+    // Si el RPE fue muy alto, reducir peso
+    else if (estimatedRPE > targetRPE + rpeThreshold) {
+      // Si las repeticiones están por debajo del mínimo, ajustarlas al mínimo
+      final adjustedReps = currentReps < minReps ? minReps : currentReps;
+
+      return ProgressionCalculationResult(
+        newWeight: currentWeight - (config.incrementValue * 0.5),
+        newReps: adjustedReps,
+        newSets: currentSets,
+        incrementApplied: true,
+        reason:
+            adjustedReps > currentReps
+                ? 'Autoregulated progression: RPE too high (${estimatedRPE.toStringAsFixed(1)}), reducing weight and adjusting reps to minimum'
+                : 'Autoregulated progression: RPE too high (${estimatedRPE.toStringAsFixed(1)}), reducing weight',
+      );
+    }
+    // Si el RPE está en el rango objetivo, aumentar repeticiones (hasta el máximo)
+    else {
+      // Asegurar que las repeticiones estén al menos en el mínimo
+      final baseReps = currentReps < minReps ? minReps : currentReps;
+      final newReps = baseReps < maxReps ? baseReps + 1 : baseReps;
+
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: newReps,
+        newSets: currentSets,
+        incrementApplied: newReps > currentReps,
+        reason:
+            newReps > currentReps
+                ? 'Autoregulated progression: RPE optimal (${estimatedRPE.toStringAsFixed(1)}), increasing reps'
+                : 'Autoregulated progression: RPE optimal (${estimatedRPE.toStringAsFixed(1)}), max reps reached',
+      );
+    }
+  }
+
+  ProgressionCalculationResult _calculateDoubleFactorProgression(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+  ) {
+    // Progresión doble factor: balance entre fitness y fatiga
+    final fitnessGain = config.customParameters['fitness_gain'] ?? 0.1;
+    final fatigueDecay = config.customParameters['fatigue_decay'] ?? 0.05;
+
+    // Simular fitness y fatiga acumulados
+    final currentFitness = state.customData['fitness'] ?? 1.0;
+    final currentFatigue = state.customData['fatigue'] ?? 0.0;
+
+    final newFitness = currentFitness + fitnessGain;
+    final newFatigue =
+        (currentFatigue + fitnessGain * 0.8) * (1 - fatigueDecay);
+
+    // Ajustar peso basado en la relación fitness/fatiga
+    final fitnessFatigueRatio = newFitness / (1 + newFatigue);
+    final weightMultiplier = fitnessFatigueRatio > 1.0 ? 1.05 : 0.95;
+
+    return ProgressionCalculationResult(
+      newWeight: currentWeight * weightMultiplier,
+      newReps: currentReps,
+      newSets: currentSets,
+      incrementApplied: true,
+      reason:
+          'Double factor progression: fitness/fatigue ratio = ${fitnessFatigueRatio.toStringAsFixed(2)}',
+    );
+  }
+
+  ProgressionCalculationResult _calculateOverloadProgression(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+  ) {
+    // Sobrecarga progresiva: incremento gradual de volumen o intensidad
+    final overloadType = config.customParameters['overload_type'] ?? 'volume';
+    final overloadRate = config.customParameters['overload_rate'] ?? 0.1;
+
+    if (overloadType == 'volume') {
+      // Aumentar volumen (series)
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: currentReps,
+        newSets: (currentSets * (1 + overloadRate)).round(),
+        incrementApplied: true,
+        reason: 'Overload progression: increasing volume (sets)',
+      );
+    } else {
+      // Aumentar intensidad (peso)
+      return ProgressionCalculationResult(
+        newWeight: currentWeight * (1 + overloadRate),
+        newReps: currentReps,
+        newSets: currentSets,
+        incrementApplied: true,
+        reason: 'Overload progression: increasing intensity (weight)',
+      );
+    }
   }
 
   // ========== INICIALIZACIÓN DE PROGRESIONES ==========

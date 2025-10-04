@@ -14,18 +14,19 @@ class RoutineExerciseNotifier extends _$RoutineExerciseNotifier {
   void addExercisesToSection(String sectionId, List<Exercise> exercises) {
     final currentState = state;
     final existingExercises = currentState[sectionId] ?? <RoutineExercise>[];
-    
-    final newExercises = exercises.map((exercise) => RoutineExercise(
-      id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
-      routineSectionId: sectionId,
-      exerciseId: exercise.id,
-      sets: 3,
-      reps: 10,
-      weight: 0.0,
-      restTimeSeconds: 60,
-      notes: '',
-      order: existingExercises.length,
-    )).toList();
+
+    final newExercises =
+        exercises
+            .map(
+              (exercise) => RoutineExercise(
+                id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
+                routineSectionId: sectionId,
+                exerciseId: exercise.id,
+                notes: '',
+                order: existingExercises.length,
+              ),
+            )
+            .toList();
 
     state = {
       ...currentState,
@@ -36,28 +37,31 @@ class RoutineExerciseNotifier extends _$RoutineExerciseNotifier {
   void removeExerciseFromSection(String sectionId, String exerciseId) {
     final currentState = state;
     final exercises = currentState[sectionId] ?? <RoutineExercise>[];
-    
+
     state = {
       ...currentState,
-      sectionId: exercises.where((exercise) => exercise.id != exerciseId).toList(),
+      sectionId:
+          exercises.where((exercise) => exercise.id != exerciseId).toList(),
     };
   }
 
-  void updateExerciseInSection(String sectionId, String exerciseId, RoutineExercise updatedExercise) {
+  void updateExerciseInSection(
+    String sectionId,
+    String exerciseId,
+    RoutineExercise updatedExercise,
+  ) {
     final currentState = state;
     final exercises = currentState[sectionId] ?? <RoutineExercise>[];
-    
-    final updatedExercises = exercises.map((exercise) {
-      if (exercise.id == exerciseId) {
-        return updatedExercise;
-      }
-      return exercise;
-    }).toList();
 
-    state = {
-      ...currentState,
-      sectionId: updatedExercises,
-    };
+    final updatedExercises =
+        exercises.map((exercise) {
+          if (exercise.id == exerciseId) {
+            return updatedExercise;
+          }
+          return exercise;
+        }).toList();
+
+    state = {...currentState, sectionId: updatedExercises};
   }
 
   List<RoutineExercise> getExercisesForSection(String sectionId) {
@@ -66,10 +70,7 @@ class RoutineExerciseNotifier extends _$RoutineExerciseNotifier {
 
   void clearSection(String sectionId) {
     final currentState = state;
-    state = {
-      ...currentState,
-      sectionId: <RoutineExercise>[],
-    };
+    state = {...currentState, sectionId: <RoutineExercise>[]};
   }
 
   void clearAllSections() {

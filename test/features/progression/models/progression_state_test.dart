@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/features/progression/models/progression_state.dart';
 import '../mocks/progression_mock_factory.dart';
 
 void main() {

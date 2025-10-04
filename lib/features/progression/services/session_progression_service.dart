@@ -2,7 +2,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/progression_state.dart';
 import '../notifiers/progression_notifier.dart';
 import '../../exercise/models/exercise_set.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../home/models/routine.dart';
+import '../../sessions/services/session_service.dart';
 import '../../../core/logging/logging.dart';
 import '../../../common/enums/progression_type_enum.dart';
 
@@ -16,6 +18,7 @@ class SessionProgressionService extends _$SessionProgressionService {
   }
 
   /// Aplica la progresión a los ejercicios de una rutina antes de iniciar la sesión
+  /// Solo se aplica en la primera sesión de la semana para esta rutina
   Future<List<RoutineExercise>> applyProgressionToRoutine(
     Routine routine,
   ) async {
@@ -32,29 +35,59 @@ class SessionProgressionService extends _$SessionProgressionService {
         return _getAllExercisesFromRoutine(routine);
       }
 
-      LoggingService.instance.info('Applying progression to routine', {
-        'routineId': routine.id,
-        'routineName': routine.name,
-        'progressionType': progressionNotifier.activeProgressionType?.name,
-      });
+      // Verificar si es la primera sesión de la semana para esta rutina
+      if (!await _isFirstSessionOfWeekForRoutine(routine)) {
+        LoggingService.instance.debug(
+          'Not first session of week for routine, returning routine as-is',
+          {'routineId': routine.id, 'routineName': routine.name},
+        );
+        return _getAllExercisesFromRoutine(routine);
+      }
+
+      LoggingService.instance
+          .info('Applying progression to routine (first session of week)', {
+            'routineId': routine.id,
+            'routineName': routine.name,
+            'progressionType': progressionNotifier.activeProgressionType?.name,
+          });
 
       final updatedExercises = <RoutineExercise>[];
+      final processedExerciseIds = <String>{}; // Track processed exercises
 
       for (final section in routine.sections) {
         for (final exercise in section.exercises) {
+          // Skip if we've already processed this exercise in this routine
+          if (processedExerciseIds.contains(exercise.exerciseId)) {
+            updatedExercises.add(exercise);
+            continue;
+          }
+          processedExerciseIds.add(exercise.exerciseId);
           try {
             // Obtener o inicializar el estado de progresión para este ejercicio
             ProgressionState? progressionState = await progressionNotifier
                 .getExerciseProgressionState(exercise.exerciseId);
 
             if (progressionState == null) {
+              // Obtener el ejercicio para acceder a sus valores por defecto
+              final exerciseData = await ref.read(
+                exerciseNotifierProvider.future,
+              );
+              final exerciseModel = exerciseData.firstWhere(
+                (e) => e.id == exercise.exerciseId,
+                orElse:
+                    () =>
+                        throw Exception(
+                          'Exercise not found: ${exercise.exerciseId}',
+                        ),
+              );
+
               // Inicializar progresión para este ejercicio
               progressionState = await progressionNotifier
                   .initializeExerciseProgression(
                     exerciseId: exercise.exerciseId,
-                    baseWeight: exercise.weight,
-                    baseReps: exercise.reps,
-                    baseSets: exercise.sets,
+                    baseWeight: exerciseModel.defaultWeight ?? 0.0,
+                    baseReps: exerciseModel.defaultReps ?? 10,
+                    baseSets: exerciseModel.defaultSets ?? 3,
                   );
             }
 
@@ -68,22 +101,43 @@ class SessionProgressionService extends _$SessionProgressionService {
                 );
 
             if (calculationResult != null) {
-              // Crear ejercicio actualizado con los nuevos valores
-              final updatedExercise = exercise.copyWith(
-                weight: calculationResult.newWeight,
-                reps: calculationResult.newReps,
-                sets: calculationResult.newSets,
+              // Obtener el ejercicio para acceder a sus valores por defecto
+              final exerciseData = await ref.read(
+                exerciseNotifierProvider.future,
               );
+              final exerciseModel = exerciseData.firstWhere(
+                (e) => e.id == exercise.exerciseId,
+                orElse:
+                    () =>
+                        throw Exception(
+                          'Exercise not found: ${exercise.exerciseId}',
+                        ),
+              );
+
+              // Actualizar el modelo Exercise con los nuevos valores calculados
+              final updatedExerciseModel = exerciseModel.copyWith(
+                defaultWeight: calculationResult.newWeight,
+                defaultReps: calculationResult.newReps,
+                defaultSets: calculationResult.newSets,
+              );
+
+              // Guardar el ejercicio actualizado
+              await ref
+                  .read(exerciseNotifierProvider.notifier)
+                  .updateExercise(updatedExerciseModel);
+
+              // Crear ejercicio actualizado (RoutineExercise no cambia, solo el Exercise)
+              final updatedExercise = exercise.copyWith();
 
               updatedExercises.add(updatedExercise);
 
               LoggingService.instance.debug('Exercise progression applied', {
                 'exerciseId': exercise.exerciseId,
-                'oldWeight': exercise.weight,
+                'oldWeight': exerciseModel.defaultWeight,
                 'newWeight': calculationResult.newWeight,
-                'oldReps': exercise.reps,
+                'oldReps': exerciseModel.defaultReps,
                 'newReps': calculationResult.newReps,
-                'oldSets': exercise.sets,
+                'oldSets': exerciseModel.defaultSets,
                 'newSets': calculationResult.newSets,
                 'reason': calculationResult.reason,
               });
@@ -137,18 +191,32 @@ class SessionProgressionService extends _$SessionProgressionService {
     DateTime sessionStartTime,
   ) async {
     try {
-       final exerciseSets = <ExerciseSet>[];
+      final exerciseSets = <ExerciseSet>[];
 
       for (final exercise in exercises) {
+        // Obtener el ejercicio para acceder a sus valores por defecto
+        final exerciseData = await ref.read(exerciseNotifierProvider.future);
+        final exerciseModel = exerciseData.firstWhere(
+          (e) => e.id == exercise.exerciseId,
+          orElse:
+              () =>
+                  throw Exception('Exercise not found: ${exercise.exerciseId}'),
+        );
+
         // Crear sets basados en la configuración del ejercicio
-        for (int i = 0; i < exercise.sets; i++) {
+        final sets = exerciseModel.defaultSets ?? 3;
+        final reps = exerciseModel.defaultReps ?? 10;
+        final weight = exerciseModel.defaultWeight ?? 0.0;
+        final restTime = exerciseModel.restTimeSeconds ?? 60;
+
+        for (int i = 0; i < sets; i++) {
           final exerciseSet = ExerciseSet(
             id:
                 '${exercise.id}_set_${i + 1}_${DateTime.now().millisecondsSinceEpoch}',
             exerciseId: exercise.exerciseId,
-            reps: exercise.reps,
-            weight: exercise.weight,
-            restTimeSeconds: exercise.restTimeSeconds,
+            reps: reps,
+            weight: weight,
+            restTimeSeconds: restTime,
             notes: exercise.notes,
             completedAt: sessionStartTime,
             isCompleted: false,
@@ -219,6 +287,85 @@ class SessionProgressionService extends _$SessionProgressionService {
         stackTrace,
       );
       return null;
+    }
+  }
+
+  /// Verifica si es la primera sesión de la semana para esta rutina
+  Future<bool> _isFirstSessionOfWeekForRoutine(Routine routine) async {
+    try {
+      // Obtener las sesiones de esta rutina de la semana actual
+      final sessionService = ref.read(sessionServiceProvider);
+      final allSessions = await sessionService.getAllSessions();
+
+      // Filtrar sesiones de esta rutina
+      final routineSessions =
+          allSessions
+              .where((session) => session.routineId == routine.id)
+              .toList();
+
+      if (routineSessions.isEmpty) {
+        // Si no hay sesiones previas, es la primera sesión
+        return true;
+      }
+
+      // Obtener la fecha actual
+      final now = DateTime.now();
+      final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+      final endOfWeek = startOfWeek.add(const Duration(days: 6));
+
+      // Filtrar sesiones de esta semana
+      final sessionsThisWeek =
+          routineSessions.where((session) {
+            final sessionDate = session.startTime;
+            return sessionDate.isAfter(
+                  startOfWeek.subtract(const Duration(days: 1)),
+                ) &&
+                sessionDate.isBefore(endOfWeek.add(const Duration(days: 1)));
+          }).toList();
+
+      // Si no hay sesiones esta semana, es la primera
+      if (sessionsThisWeek.isEmpty) {
+        return true;
+      }
+
+      // Verificar si ya se aplicó progresión esta semana
+      // Buscar en el historial de progresión si ya se aplicó esta semana
+      final progressionNotifier = ref.read(
+        progressionNotifierProvider.notifier,
+      );
+
+      // Obtener el primer ejercicio de la rutina para verificar el estado
+      if (routine.sections.isNotEmpty &&
+          routine.sections.first.exercises.isNotEmpty) {
+        final firstExerciseId =
+            routine.sections.first.exercises.first.exerciseId;
+        final progressionState = await progressionNotifier
+            .getExerciseProgressionState(firstExerciseId);
+
+        if (progressionState != null) {
+          // Verificar si ya se aplicó progresión esta semana
+          final sessionsPerWeek =
+              progressionState.customData['sessions_per_week'] ?? 3;
+          final currentSession = progressionState.currentSession;
+
+          // Calcular si ya se aplicó progresión esta semana
+          final sessionsInCurrentWeek =
+              ((currentSession - 1) % sessionsPerWeek) + 1;
+
+          // Si es la primera sesión de la semana, aplicar progresión
+          return sessionsInCurrentWeek == 1;
+        }
+      }
+
+      // Por defecto, si no podemos determinar, aplicar progresión
+      return true;
+    } catch (e) {
+      LoggingService.instance.error(
+        'Error checking if first session of week',
+        e,
+      );
+      // En caso de error, aplicar progresión para ser conservador
+      return true;
     }
   }
 }
