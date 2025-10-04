@@ -140,9 +140,11 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
         0;
 
     // Verificar si el ejercicio fue realizado esta semana
-    final wasPerformedThisWeek = ref.watch(
-      exercisePerformedThisWeekProvider(widget.exercise.id),
-    ).value ?? false;
+    final wasPerformedThisWeek =
+        ref
+            .watch(exercisePerformedThisWeekProvider(widget.exercise.id))
+            .value ??
+        false;
 
     return Stack(
       children: [
@@ -159,7 +161,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           onWeightChanged: null,
           onRepsChanged: (newValue) {
             // Contador de series realizadas
-            final totalSets = currentExercise.sets;
+            final totalSets = widget.exercise.defaultSets ?? 3;
             final previous =
                 ref.read(performedSetsNotifierProvider)[widget
                     .routineExercise
@@ -172,7 +174,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
 
             // Lanzar temporizador de descanso si incrementa y no es la última serie
             if (clamped > previous && clamped < totalSets) {
-              final rest = currentExercise.restTimeSeconds ?? 60;
+              final rest = widget.exercise.restTimeSeconds ?? 60;
               if (rest > 0) {
                 _startRestTimer(rest);
               }

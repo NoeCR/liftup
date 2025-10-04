@@ -5,7 +5,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:extended_image/extended_image.dart' as ext_img;
-import 'package:extended_image_library/extended_image_library.dart';
 import 'package:image/image.dart' as image;
 // import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
@@ -14,7 +13,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
 import '../notifiers/exercise_notifier.dart';
-import '../../home/notifiers/routine_notifier.dart';
 import '../models/exercise.dart';
 import '../../../common/enums/muscle_group_enum.dart';
 
@@ -47,6 +45,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   final _setsController = TextEditingController();
   final _repsController = TextEditingController();
   final _weightController = TextEditingController();
+  final _restTimeController = TextEditingController();
 
   ExerciseCategory _selectedCategory = ExerciseCategory.chest;
   ExerciseDifficulty _selectedDifficulty = ExerciseDifficulty.beginner;
@@ -56,6 +55,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   int _formSets = 3;
   int _formReps = 10;
   double _formWeight = 0.0;
+  int? _formRestTimeSeconds;
 
   @override
   void initState() {
@@ -65,6 +65,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _setsController.text = _formSets.toString();
     _repsController.text = _formReps.toString();
     _weightController.text = _formWeight.toStringAsFixed(1);
+    _restTimeController.text = _formRestTimeSeconds?.toString() ?? '';
 
     if (widget.exerciseToEdit != null) {
       _populateForm();
@@ -83,64 +84,17 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _selectedMuscleGroups = List.from(exercise.muscleGroups);
     _imagePath = exercise.imageUrl;
 
-    // Hidratar parámetros de entrenamiento desde el contexto de rutina/sección si está disponible
-    int sets = 3;
-    int reps = 10;
-    double weight = 0.0;
+    // Usar valores por defecto del ejercicio
+    _formSets = exercise.defaultSets ?? 3;
+    _formReps = exercise.defaultReps ?? 10;
+    _formWeight = exercise.defaultWeight ?? 0.0;
+    _formRestTimeSeconds = exercise.restTimeSeconds;
 
-    final routines = ref.read(routineNotifierProvider).valueOrNull;
-    if (routines != null) {
-      if (widget.routineId != null && widget.sectionId != null) {
-        final routine = routines.firstWhere(
-          (r) => r.id == widget.routineId,
-          orElse: () => routines.first,
-        );
-        final section = routine.sections.firstWhere(
-          (s) => s.id == widget.sectionId,
-          orElse:
-              () =>
-                  routine.sections.isNotEmpty
-                      ? routine.sections.first
-                      : routine.sections.first,
-        );
-        final re = section.exercises.firstWhere(
-          (e) => e.exerciseId == exercise.id || e.id == exercise.id,
-          orElse:
-              () =>
-                  section.exercises.isNotEmpty
-                      ? section.exercises.first
-                      : section.exercises.first,
-        );
-        sets = re.sets;
-        reps = re.reps;
-        weight = re.weight;
-      } else {
-        // Sin contexto: intenta recuperar la primera ocurrencia del ejercicio en cualquier rutina
-        for (final routine in routines) {
-          for (final section in routine.sections) {
-            final match = section.exercises.where(
-              (re) => re.exerciseId == exercise.id,
-            );
-            if (match.isNotEmpty) {
-              final re = match.first;
-              sets = re.sets;
-              reps = re.reps;
-              weight = re.weight;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    _formSets = sets;
-    _formReps = reps;
-    _formWeight = weight;
-
-    // Actualizar controladores con los valores de RoutineExercise
-    _setsController.text = sets.toString();
-    _repsController.text = reps.toString();
-    _weightController.text = weight.toStringAsFixed(1);
+    // Actualizar controladores con los valores por defecto del ejercicio
+    _setsController.text = _formSets.toString();
+    _repsController.text = _formReps.toString();
+    _weightController.text = _formWeight.toStringAsFixed(1);
+    _restTimeController.text = _formRestTimeSeconds?.toString() ?? '';
   }
 
   @override
@@ -154,6 +108,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _setsController.dispose();
     _repsController.dispose();
     _weightController.dispose();
+    _restTimeController.dispose();
     super.dispose();
   }
 
@@ -729,6 +684,29 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             ),
           ],
         ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _restTimeController,
+                decoration: InputDecoration(
+                  labelText: 'Tiempo de descanso (segundos)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (v) {
+                  final parsed = int.tryParse(v.trim());
+                  if (parsed != null && parsed > 0) {
+                    _formRestTimeSeconds = parsed;
+                  } else if (v.trim().isEmpty) {
+                    _formRestTimeSeconds = null;
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -990,14 +968,18 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         difficulty: _selectedDifficulty,
         createdAt: widget.exerciseToEdit?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
+        defaultWeight: _formWeight > 0 ? _formWeight : null,
+        defaultSets: _formSets > 0 ? _formSets : null,
+        defaultReps: _formReps > 0 ? _formReps : null,
+        restTimeSeconds: _formRestTimeSeconds,
       );
 
-      Exercise saved = exercise;
+      // Debug: Guardando ejercicio con valores por defecto
+
       if (widget.exerciseToEdit != null) {
         await ref
             .read(exerciseNotifierProvider.notifier)
             .updateExercise(exercise);
-        saved = exercise;
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -1007,9 +989,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           );
         }
       } else {
-        saved = await ref
-            .read(exerciseNotifierProvider.notifier)
-            .addExercise(exercise);
+        await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -1020,75 +1000,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         }
       }
 
-      // Si viene con contexto de rutina/sección, aplicar series/reps/peso como defaults en esa sección
-      if (widget.routineId != null && widget.sectionId != null) {
-        final routines = ref.read(routineNotifierProvider).valueOrNull;
-        if (routines != null) {
-          final routine = routines.firstWhere(
-            (r) => r.id == widget.routineId,
-            orElse: () => throw Exception('Rutina no encontrada'),
-          );
-
-          final updatedSections =
-              routine.sections.map((s) {
-                if (s.id != widget.sectionId) return s;
-                final updatedExercises =
-                    s.exercises.map((re) {
-                      if (re.exerciseId == saved.id || re.id == saved.id) {
-                        return re.copyWith(
-                          sets: _formSets,
-                          reps: _formReps,
-                          weight: _formWeight,
-                        );
-                      }
-                      return re;
-                    }).toList();
-                return s.copyWith(exercises: updatedExercises);
-              }).toList();
-
-          final updatedRoutine = routine.copyWith(
-            sections: updatedSections,
-            updatedAt: DateTime.now(),
-          );
-          await ref
-              .read(routineNotifierProvider.notifier)
-              .updateRoutine(updatedRoutine);
-        }
-      } else {
-        // Sin contexto: actualizar todas las ocurrencias del ejercicio en todas las rutinas
-        final routines = ref.read(routineNotifierProvider).valueOrNull;
-        if (routines != null) {
-          for (final routine in routines) {
-            bool changed = false;
-            final updatedSections =
-                routine.sections.map((s) {
-                  final updatedExercises =
-                      s.exercises.map((re) {
-                        if (re.exerciseId == saved.id) {
-                          changed = true;
-                          return re.copyWith(
-                            sets: _formSets,
-                            reps: _formReps,
-                            weight: _formWeight,
-                          );
-                        }
-                        return re;
-                      }).toList();
-                  return s.copyWith(exercises: updatedExercises);
-                }).toList();
-
-            if (changed) {
-              final updatedRoutine = routine.copyWith(
-                sections: updatedSections,
-                updatedAt: DateTime.now(),
-              );
-              await ref
-                  .read(routineNotifierProvider.notifier)
-                  .updateRoutine(updatedRoutine);
-            }
-          }
-        }
-      }
+      // Los valores de peso, series, repeticiones y tiempo de descanso ahora se guardan directamente en Exercise
+      // No necesitamos actualizar RoutineExercise ya que estos valores se leen desde Exercise
+      // Debug: Valores guardados en Exercise
 
       if (mounted) {
         // Navigate back based on context

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../core/data_management/data_management.dart';
-import '../../../core/data_management/models/export_type.dart';
 import '../../../features/sessions/notifiers/session_notifier.dart';
 import '../../../features/exercise/notifiers/exercise_notifier.dart';
 import '../../../features/home/notifiers/routine_notifier.dart';

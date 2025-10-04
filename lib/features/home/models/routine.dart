@@ -187,31 +187,15 @@ class RoutineExercise extends Equatable {
   final String exerciseId;
 
   @HiveField(3)
-  final int sets;
-
-  @HiveField(4)
-  final int reps;
-
-  @HiveField(5)
-  final double weight;
-
-  @HiveField(6)
-  final int? restTimeSeconds;
-
-  @HiveField(7)
   final String? notes;
 
-  @HiveField(8)
+  @HiveField(4)
   final int order;
 
   const RoutineExercise({
     required this.id,
     required this.routineSectionId,
     required this.exerciseId,
-    required this.sets,
-    required this.reps,
-    required this.weight,
-    this.restTimeSeconds,
     this.notes,
     required this.order,
   });
@@ -224,10 +208,6 @@ class RoutineExercise extends Equatable {
     String? id,
     String? routineSectionId,
     String? exerciseId,
-    int? sets,
-    int? reps,
-    double? weight,
-    int? restTimeSeconds,
     String? notes,
     int? order,
   }) {
@@ -235,25 +215,11 @@ class RoutineExercise extends Equatable {
       id: id ?? this.id,
       routineSectionId: routineSectionId ?? this.routineSectionId,
       exerciseId: exerciseId ?? this.exerciseId,
-      sets: sets ?? this.sets,
-      reps: reps ?? this.reps,
-      weight: weight ?? this.weight,
-      restTimeSeconds: restTimeSeconds ?? this.restTimeSeconds,
       notes: notes ?? this.notes,
       order: order ?? this.order,
     );
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    routineSectionId,
-    exerciseId,
-    sets,
-    reps,
-    weight,
-    restTimeSeconds,
-    notes,
-    order,
-  ];
+  List<Object?> get props => [id, routineSectionId, exerciseId, notes, order];
 }

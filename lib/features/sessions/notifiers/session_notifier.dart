@@ -8,6 +8,7 @@ import 'performed_sets_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
 import '../../home/models/routine.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../progression/services/session_progression_service.dart';
 
 part 'session_notifier.g.dart';
 
@@ -33,7 +34,26 @@ class SessionNotifier extends _$SessionNotifier {
   }) async {
     // Limpiar contadores de series realizadas al iniciar nueva sesión
     ref.read(performedSetsNotifierProvider.notifier).clearAll();
-    
+
+    // Aplicar progresión si hay una rutina seleccionada
+    if (routineId != null) {
+      try {
+        final routines = await ref.read(routineNotifierProvider.future);
+        final routine = routines.firstWhere(
+          (r) => r.id == routineId,
+          orElse: () => throw Exception('Routine not found: $routineId'),
+        );
+
+        // Aplicar progresión a la rutina
+        final sessionProgressionService = ref.read(
+          sessionProgressionServiceProvider.notifier,
+        );
+        await sessionProgressionService.applyProgressionToRoutine(routine);
+      } catch (e) {
+        // Log error but don't fail session creation
+      }
+    }
+
     final sessionService = ref.read(sessionServiceProvider);
     final uuid = const Uuid();
 
@@ -93,7 +113,10 @@ class SessionNotifier extends _$SessionNotifier {
 
     // Convertir contadores de series realizadas en ExerciseSet reales
     final performedSets = ref.read(performedSetsNotifierProvider);
-    final exerciseSets = await _convertPerformedSetsToExerciseSets(performedSets, currentSession);
+    final exerciseSets = await _convertPerformedSetsToExerciseSets(
+      performedSets,
+      currentSession,
+    );
 
     // Calcular totales al finalizar
     final totalWeight = _calculateTotalWeight(exerciseSets);
@@ -113,7 +136,7 @@ class SessionNotifier extends _$SessionNotifier {
     state = AsyncValue.data(await sessionService.getAllSessions());
     _pausedElapsedBySession.remove(currentSession.id);
     _lastResumeAtBySession.remove(currentSession.id);
-    
+
     // NO limpiar contadores aquí - mantenerlos en memoria para vista rápida
     // Se limpiarán al iniciar una nueva sesión
   }
@@ -355,7 +378,7 @@ class SessionNotifier extends _$SessionNotifier {
     // Obtener rutina y ejercicios para acceder a los datos necesarios
     final routines = await ref.read(routineNotifierProvider.future);
     final exercises = await ref.read(exerciseNotifierProvider.future);
-    
+
     // Encontrar la rutina actual
     Routine? currentRoutine;
     try {
@@ -407,8 +430,8 @@ class SessionNotifier extends _$SessionNotifier {
         final exerciseSet = ExerciseSet(
           id: uuid.v4(),
           exerciseId: exercise.id,
-          weight: routineExercise.weight,
-          reps: routineExercise.reps,
+          weight: exercise.defaultWeight ?? 0.0,
+          reps: exercise.defaultReps ?? 10,
           completedAt: DateTime.now(),
           isCompleted: true,
         );

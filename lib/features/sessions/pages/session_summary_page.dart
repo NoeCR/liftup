@@ -255,7 +255,7 @@ class _SectionSummary extends StatelessWidget {
               return _ExerciseSummaryRow(
                 exercise: ex,
                 sets: sets,
-                plannedSets: re.sets,
+                plannedSets: ex?.defaultSets ?? 3,
               );
             }),
         ],

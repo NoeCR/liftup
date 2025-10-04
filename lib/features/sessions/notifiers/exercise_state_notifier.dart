@@ -10,35 +10,15 @@ class ExerciseStateNotifier extends _$ExerciseStateNotifier {
     return <String, RoutineExercise>{};
   }
 
-  void updateExerciseWeight(String exerciseId, double newWeight) {
-    final currentState = state;
-    final exercise = currentState[exerciseId];
-    if (exercise != null) {
-      state = {
-        ...currentState,
-        exerciseId: exercise.copyWith(weight: newWeight),
-      };
-    }
-  }
-
-  void updateExerciseReps(String exerciseId, int newReps) {
-    final currentState = state;
-    final exercise = currentState[exerciseId];
-    if (exercise != null) {
-      state = {
-        ...currentState,
-        exerciseId: exercise.copyWith(reps: newReps),
-      };
-    }
-  }
+  // Nota: Los valores de peso y repeticiones ahora se guardan en el modelo Exercise
+  // Estas funciones ya no son necesarias ya que RoutineExercise no tiene estos campos
+  // void updateExerciseWeight(String exerciseId, double newWeight) { ... }
+  // void updateExerciseReps(String exerciseId, int newReps) { ... }
 
   void initializeExercise(RoutineExercise exercise) {
     final currentState = state;
     if (!currentState.containsKey(exercise.id)) {
-      state = {
-        ...currentState,
-        exercise.id: exercise,
-      };
+      state = {...currentState, exercise.id: exercise};
     }
   }
 

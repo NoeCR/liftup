@@ -92,17 +92,17 @@ class ExerciseCard extends StatelessWidget {
                             children: [
                               _buildInfoChip(
                                 context,
-                                '${routineExercise.sets} series',
+                                '${exercise?.defaultSets ?? 3} series',
                                 Icons.repeat,
                               ),
                               _buildInfoChip(
                                 context,
-                                '${routineExercise.reps} reps',
+                                '${exercise?.defaultReps ?? 10} reps',
                                 Icons.fitness_center,
                               ),
                               _buildInfoChip(
                                 context,
-                                '${routineExercise.weight.toStringAsFixed(1)} kg',
+                                '${(exercise?.defaultWeight ?? 0.0).toStringAsFixed(1)} kg',
                                 Icons.scale,
                               ),
                               if (exercise != null)
@@ -174,7 +174,8 @@ class ExerciseCard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.remove, size: 16),
             onPressed:
-                performedSets > 0 && performedSets < routineExercise.sets
+                performedSets > 0 &&
+                        performedSets < (exercise?.defaultSets ?? 3)
                     ? () => onRepsChanged?.call(performedSets - 1)
                     : null,
             style: IconButton.styleFrom(
@@ -189,7 +190,7 @@ class ExerciseCard extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            '${performedSets}/${routineExercise.sets} series',
+            '${performedSets}/${exercise?.defaultSets ?? 3} series',
             style: theme.textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
@@ -198,7 +199,7 @@ class ExerciseCard extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.add, size: 16),
             onPressed:
-                performedSets < routineExercise.sets
+                performedSets < (exercise?.defaultSets ?? 3)
                     ? () => onRepsChanged?.call(performedSets + 1)
                     : null,
             style: IconButton.styleFrom(
