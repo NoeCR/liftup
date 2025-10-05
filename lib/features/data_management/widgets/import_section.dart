@@ -100,18 +100,8 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                Text(title, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+                Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -128,8 +118,7 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       // Show file picker with validation
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions:
-            supportedExtensions.map((ext) => ext.replaceAll('.', '')).toList(),
+        allowedExtensions: supportedExtensions.map((ext) => ext.replaceAll('.', '')).toList(),
         allowMultiple: false,
       );
 
@@ -152,13 +141,7 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
         barrierDismissible: false,
         builder:
             (context) => const AlertDialog(
-              content: Row(
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(width: 16),
-                  Text('Importando datos...'),
-                ],
-              ),
+              content: Row(children: [CircularProgressIndicator(), SizedBox(width: 16), Text('Importando datos...')]),
             ),
       );
 
@@ -173,10 +156,7 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       );
 
       // Perform import using the service
-      final importResult = await ImportService.instance.importFromFile(
-        filePath: file.path!,
-        config: importConfig,
-      );
+      final importResult = await ImportService.instance.importFromFile(filePath: file.path!, config: importConfig);
 
       // Close progress indicator
       if (!context.mounted) return;
@@ -187,18 +167,13 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       if (importResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              '✅ Import successful: ${importResult.importedCount} items imported',
-            ),
+            content: Text('✅ Import successful: ${importResult.importedCount} items imported'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Import error: ${importResult.errorMessage}'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('❌ Import error: ${importResult.errorMessage}'), backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -224,38 +199,24 @@ void _showImportHelp(BuildContext context) {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Supported Formats:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                Text('Supported Formats:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 Text('• JSON: Full backup files'),
                 Text('• CSV: Tabular data for analysis'),
                 SizedBox(height: 16),
-                Text(
-                  'Recommendations:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                Text('Recommendations:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 Text('• Always create a backup before importing'),
                 Text('• Validate data to avoid errors'),
                 Text('• Use "Merge data" to keep existing information'),
                 SizedBox(height: 16),
-                Text(
-                  'Maximum Size:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                Text('Maximum Size:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 Text('• 10MB per file'),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
-          ],
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))],
         ),
   );
 }
@@ -266,21 +227,12 @@ void _showImportError(BuildContext context, String errorMessage) {
     context: context,
     builder:
         (context) => AlertDialog(
-          title: const Row(
-            children: [
-              Icon(Icons.error, color: Colors.red),
-              SizedBox(width: 8),
-              Text('Import Error'),
-            ],
-          ),
+          title: const Row(children: [Icon(Icons.error, color: Colors.red), SizedBox(width: 8), Text('Import Error')]),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Could not import the file. Error details:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Could not import the file. Error details:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -289,19 +241,10 @@ void _showImportError(BuildContext context, String errorMessage) {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.red.shade200),
                 ),
-                child: Text(
-                  errorMessage,
-                  style: TextStyle(
-                    color: Colors.red.shade800,
-                    fontFamily: 'monospace',
-                  ),
-                ),
+                child: Text(errorMessage, style: TextStyle(color: Colors.red.shade800, fontFamily: 'monospace')),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Suggestions:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Suggestions:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               const Text('• Verify that the file is not corrupted'),
               const Text('• Make sure the format is correct'),
@@ -310,10 +253,7 @@ void _showImportError(BuildContext context, String errorMessage) {
             ],
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
-            ),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -341,9 +281,7 @@ Future<void> _validateFile(PlatformFile file) async {
   // 2. Validar extensión del archivo
   final fileExtension = ImportFactory.getFileExtension(file.path!);
   if (!ImportFactory.isSupportedExtension(fileExtension)) {
-    final supportedExtensions = ImportFactory.getSupportedExtensions().join(
-      ', ',
-    );
+    final supportedExtensions = ImportFactory.getSupportedExtensions().join(', ');
     throw Exception(
       'Tipo de archivo no soportado: $fileExtension\n'
       'Extensiones soportadas: $supportedExtensions',
@@ -396,19 +334,13 @@ Future<void> _validateFileContent(File file, String extension) async {
 
       case '.csv':
         // Validar que tiene al menos una línea con contenido
-        final lines =
-            content
-                .split('\n')
-                .where((line) => line.trim().isNotEmpty)
-                .toList();
+        final lines = content.split('\n').where((line) => line.trim().isNotEmpty).toList();
         if (lines.isEmpty) {
           throw Exception('CSV file does not contain valid data');
         }
         // Verificar que tiene al menos una coma (indicador básico de CSV)
         if (!lines.first.contains(',')) {
-          throw Exception(
-            'File does not appear to be a valid CSV (no column separators found)',
-          );
+          throw Exception('File does not appear to be a valid CSV (no column separators found)');
         }
         break;
 

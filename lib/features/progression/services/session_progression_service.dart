@@ -394,7 +394,7 @@ class SessionProgressionService extends _$SessionProgressionService {
         progressionNotifierProvider.notifier,
       );
 
-      // Obtener el primer ejercicio de la rutina para verificar el estado
+      // Get the first exercise in the routine to check its progression state
       if (routine.sections.isNotEmpty &&
           routine.sections.first.exercises.isNotEmpty) {
         final firstExerciseId =
@@ -403,7 +403,7 @@ class SessionProgressionService extends _$SessionProgressionService {
             .getExerciseProgressionState(firstExerciseId);
 
         if (progressionState != null) {
-          // Check if progression already applied this week
+          // Check if progression was already applied this week
           final sessionsPerWeek =
               progressionState.customData['sessions_per_week'] ?? 3;
           final currentSession = progressionState.currentSession;
