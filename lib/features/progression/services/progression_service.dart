@@ -481,32 +481,45 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
-    final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    // Calcular la sesión/semana actual en el ciclo según la unidad
+    final currentInCycle =
+        config.unit == ProgressionUnit.session
+            ? ((state.currentSession - 1) % config.cycleLength) + 1
+            : ((state.currentWeek - 1) % config.cycleLength) + 1;
 
-    // Si es semana de deload, aplicar deload
-    if (isDeloadWeek) {
+    final isDeloadPeriod =
+        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+
+    // Si es período de deload, aplicar deload
+    if (isDeloadPeriod) {
+      // Deload proporcional: reduce un porcentaje del aumento logrado desde el peso base
+      // Ej.: base 100, actual 120, 90% => 100 + (20 * 0.9) = 118
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+        0,
+        double.infinity,
+      );
+      final double deloadWeight =
+          state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
       return ProgressionCalculationResult(
-        newWeight: state.baseWeight * config.deloadPercentage,
+        newWeight: deloadWeight,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
         reason:
-            'Linear progression: deload week (week $weekInCycle of ${config.cycleLength})',
+            'Linear progression: deload ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
       );
     }
 
-    // Progresión lineal: incremento constante cada X semanas
-    if (weekInCycle % config.incrementFrequency == 0) {
+    // Progresión lineal: incremento constante cada X períodos
+    if (currentInCycle % config.incrementFrequency == 0) {
       return ProgressionCalculationResult(
         newWeight: currentWeight + config.incrementValue,
         newReps: currentReps,
         newSets: currentSets,
         incrementApplied: true,
         reason:
-            'Linear progression: weight increased by ${config.incrementValue}kg (week $weekInCycle of ${config.cycleLength})',
+            'Linear progression: weight increased by ${config.incrementValue}kg (${config.unit.name} $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -516,7 +529,7 @@ class ProgressionService extends _$ProgressionService {
       newSets: currentSets,
       incrementApplied: false,
       reason:
-          'Linear progression: no increment this session (week $weekInCycle of ${config.cycleLength})',
+          'Linear progression: no increment this ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
     );
   }
 
@@ -618,45 +631,108 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
-    final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    // Calcular el índice actual en el ciclo según la unidad configurada
+    final currentInCycle =
+        config.unit == ProgressionUnit.session
+            ? ((state.currentSession - 1) % config.cycleLength) + 1
+            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final isDeloadPeriod =
+        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
-    if (isDeloadWeek) {
+    // Logs detallados para debugging
+    LoggingService.instance.info('DOUBLE PROGRESSION CALCULATION', {
+      'exerciseId': state.exerciseId,
+      'currentWeek': state.currentWeek,
+      'currentSession': state.currentSession,
+      'unit': config.unit.name,
+      'currentInCycle': currentInCycle,
+      'cycleLength': config.cycleLength,
+      'isDeloadPeriod': isDeloadPeriod,
+      'deloadWeek': config.deloadWeek,
+      'currentWeight': currentWeight,
+      'currentReps': currentReps,
+      'currentSets': currentSets,
+      'baseWeight': state.baseWeight,
+      'incrementValue': config.incrementValue,
+      'maxReps': config.customParameters['max_reps'] ?? 12,
+      'minReps': config.customParameters['min_reps'] ?? 5,
+      'deloadPercentage': config.deloadPercentage,
+    });
+
+    // Si es período de deload, aplicar deload
+    if (isDeloadPeriod) {
+      final deloadWeight = state.baseWeight * config.deloadPercentage;
+      final deloadSets = (currentSets * 0.7).round();
+
+      LoggingService.instance.info('DOUBLE PROGRESSION: APPLYING DELOAD', {
+        'exerciseId': state.exerciseId,
+        'unit': config.unit.name,
+        'currentInCycle': currentInCycle,
+        'deloadWeight': deloadWeight,
+        'deloadSets': deloadSets,
+        'reason': 'Deload week reached',
+      });
+
       return ProgressionCalculationResult(
-        newWeight: state.baseWeight * config.deloadPercentage,
+        newWeight: deloadWeight,
         newReps: currentReps,
-        newSets: (currentSets * 0.7).round(),
+        newSets: deloadSets,
         incrementApplied: true,
         reason:
-            'Double progression: deload week (week $weekInCycle of ${config.cycleLength})',
+            'Double progression: deload ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
       );
     }
 
     // Progresión doble: primero aumenta repeticiones, luego peso
     final maxReps = config.customParameters['max_reps'] ?? 12;
+    final minReps = config.customParameters['min_reps'] ?? 5;
 
     if (currentReps < maxReps) {
       // Aumentar repeticiones
+      LoggingService.instance.info('DOUBLE PROGRESSION: INCREASING REPS', {
+        'exerciseId': state.exerciseId,
+        'unit': config.unit.name,
+        'currentInCycle': currentInCycle,
+        'currentReps': currentReps,
+        'newReps': currentReps + 1,
+        'maxReps': maxReps,
+        'weight': currentWeight,
+        'reason': 'Reps below max threshold',
+      });
+
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps + 1,
         newSets: currentSets,
         incrementApplied: true,
         reason:
-            'Double progression: increasing reps (week $weekInCycle of ${config.cycleLength})',
+            'Double progression: increasing reps (${config.unit.name} $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Aumentar peso y resetear repeticiones
+      final newWeight = currentWeight + config.incrementValue;
+
+      LoggingService.instance
+          .info('DOUBLE PROGRESSION: INCREASING WEIGHT & RESETTING REPS', {
+            'exerciseId': state.exerciseId,
+            'unit': config.unit.name,
+            'currentInCycle': currentInCycle,
+            'currentWeight': currentWeight,
+            'newWeight': newWeight,
+            'incrementValue': config.incrementValue,
+            'currentReps': currentReps,
+            'newReps': minReps,
+            'maxReps': maxReps,
+            'reason': 'Max reps reached, increasing weight and resetting reps',
+          });
+
       return ProgressionCalculationResult(
-        newWeight: currentWeight + config.incrementValue,
-        newReps: config.customParameters['min_reps'] ?? 5,
+        newWeight: newWeight,
+        newReps: minReps,
         newSets: currentSets,
         incrementApplied: true,
         reason:
-            'Double progression: increasing weight, resetting reps (week $weekInCycle of ${config.cycleLength})',
+            'Double progression: increasing weight, resetting reps (${config.unit.name} $currentInCycle of ${config.cycleLength})',
       );
     }
   }

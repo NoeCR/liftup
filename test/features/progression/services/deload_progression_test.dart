@@ -125,14 +125,14 @@ void main() {
           );
           expect(
             result.newWeight,
-            equals(80.0),
-          ); // 100 * 0.8 (baseWeight * deloadPercentage)
+            equals(106.0),
+          ); // Proporcional: 100 + (7.5 * 0.8) = 106.0
           expect(result.newSets, equals(2)); // 3 * 0.7 (reduced sets)
           expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('deload week'));
+          expect(result.reason, contains('deload'));
 
           // Semana 5: Continuación de progresión (nuevo ciclo)
-          state = state.copyWith(currentWeek: 5, currentWeight: 80.0);
+          state = state.copyWith(currentWeek: 5, currentWeight: 106.0);
           await progressionService.saveProgressionState(state);
           result = await progressionService.calculateProgression(
             config.id,
@@ -141,7 +141,7 @@ void main() {
             state.currentReps,
             state.currentSets,
           );
-          expect(result.newWeight, equals(82.5)); // 80 + 2.5
+          expect(result.newWeight, equals(108.5)); // 106 + 2.5
           expect(result.incrementApplied, isTrue);
           expect(result.reason, contains('week 1 of 4')); // Nuevo ciclo
         },
@@ -191,11 +191,11 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(result.newWeight, equals(75.0)); // 100 * 0.75
+        expect(result.newWeight, closeTo(103.75, 0.001)); // 100 + (5 * 0.75)
 
         // Segundo ciclo
         // Semana 4 (nuevo ciclo, semana 1)
-        state = state.copyWith(currentWeek: 4, currentWeight: 75.0);
+        state = state.copyWith(currentWeek: 4, currentWeight: 103.75);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
@@ -204,11 +204,11 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(result.newWeight, equals(77.5)); // 75 + 2.5
+        expect(result.newWeight, closeTo(106.25, 0.001)); // 103.75 + 2.5
         expect(result.reason, contains('week 1 of 3'));
 
         // Semana 5 (nuevo ciclo, semana 2)
-        state = state.copyWith(currentWeek: 5, currentWeight: 77.5);
+        state = state.copyWith(currentWeek: 5, currentWeight: 106.25);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
@@ -217,11 +217,11 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(result.newWeight, equals(80.0)); // 77.5 + 2.5
+        expect(result.newWeight, closeTo(108.75, 0.001)); // 106.25 + 2.5
         expect(result.reason, contains('week 2 of 3'));
 
         // Semana 6: DELOAD (segundo ciclo)
-        state = state.copyWith(currentWeek: 6, currentWeight: 80.0);
+        state = state.copyWith(currentWeek: 6, currentWeight: 108.75);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
@@ -230,8 +230,11 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(result.newWeight, equals(75.0)); // 100 * 0.75 (baseWeight)
-        expect(result.reason, contains('week 3 of 3'));
+        expect(
+          result.newWeight,
+          closeTo(106.5625, 0.001),
+        ); // 100 + (8.75 * 0.75)
+        expect(result.reason, contains('deload'));
       });
     });
 
@@ -288,7 +291,7 @@ void main() {
         expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.incrementApplied, isTrue);
-        expect(deloadResult.reason, contains('deload week'));
+        expect(deloadResult.reason, contains('deload'));
       });
     });
 
@@ -693,8 +696,11 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.reason, contains('deload week'));
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
+        expect(deloadResult.reason, contains('deload'));
+        expect(
+          deloadResult.newWeight,
+          equals(100.0),
+        ); // Sin incremento previo → deload proporcional no cambia peso
       });
 
       test('should handle very long cycles correctly', () async {
@@ -719,8 +725,11 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.reason, contains('deload week'));
-        expect(deloadResult.newWeight, equals(70.0)); // 100 * 0.7
+        expect(deloadResult.reason, contains('deload'));
+        expect(
+          deloadResult.newWeight,
+          equals(100.0),
+        ); // Sin incremento acumulado
 
         // Semana 13: Nuevo ciclo
         final newCycleState = testState.copyWith(

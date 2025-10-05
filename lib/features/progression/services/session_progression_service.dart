@@ -35,19 +35,26 @@ class SessionProgressionService extends _$SessionProgressionService {
         return _getAllExercisesFromRoutine(routine);
       }
 
-      // Verificar si se debe aplicar progresión basado en la frecuencia de la rutina
-      if (!await _shouldApplyProgressionForRoutine(routine)) {
-        LoggingService.instance.debug(
-          'Progression not needed for this session, returning routine as-is',
-          {'routineId': routine.id, 'routineName': routine.name},
+      // Obtener la configuración de progresión activa
+      final config = await ref.read(progressionNotifierProvider.future);
+      if (config == null) {
+        LoggingService.instance.warning(
+          'No progression config found, returning routine as-is',
         );
         return _getAllExercisesFromRoutine(routine);
       }
 
+      // Verificar si se debe aplicar progresión basado en la frecuencia de la rutina
+      final shouldApplyProgression = await _shouldApplyProgressionForRoutine(
+        routine,
+      );
+
       LoggingService.instance.info('Applying progression to routine', {
         'routineId': routine.id,
         'routineName': routine.name,
-        'progressionType': progressionNotifier.activeProgressionType?.name,
+        'progressionType': config.type.name,
+        'progressionUnit': config.unit.name,
+        'shouldApplyProgression': shouldApplyProgression,
       });
 
       final updatedExercises = <RoutineExercise>[];
@@ -62,24 +69,24 @@ class SessionProgressionService extends _$SessionProgressionService {
           }
           processedExerciseIds.add(exercise.exerciseId);
           try {
+            // Obtener el ejercicio para acceder a sus valores por defecto
+            final exerciseData = await ref.read(
+              exerciseNotifierProvider.future,
+            );
+            final exerciseModel = exerciseData.firstWhere(
+              (e) => e.id == exercise.exerciseId,
+              orElse:
+                  () =>
+                      throw Exception(
+                        'Exercise not found: ${exercise.exerciseId}',
+                      ),
+            );
+
             // Obtener o inicializar el estado de progresión para este ejercicio
             ProgressionState? progressionState = await progressionNotifier
                 .getExerciseProgressionState(exercise.exerciseId);
 
             if (progressionState == null) {
-              // Obtener el ejercicio para acceder a sus valores por defecto
-              final exerciseData = await ref.read(
-                exerciseNotifierProvider.future,
-              );
-              final exerciseModel = exerciseData.firstWhere(
-                (e) => e.id == exercise.exerciseId,
-                orElse:
-                    () =>
-                        throw Exception(
-                          'Exercise not found: ${exercise.exerciseId}',
-                        ),
-              );
-
               // Inicializar progresión para este ejercicio
               progressionState = await progressionNotifier
                   .initializeExerciseProgression(
@@ -89,6 +96,19 @@ class SessionProgressionService extends _$SessionProgressionService {
                     baseSets: exerciseModel.defaultSets ?? 3,
                   );
             }
+
+            // Log del estado actual antes del cálculo
+            LoggingService.instance
+                .info('SESSION PROGRESSION: BEFORE CALCULATION', {
+                  'exerciseId': exercise.exerciseId,
+                  'exerciseName': exerciseModel.name,
+                  'currentWeight': progressionState.currentWeight,
+                  'currentReps': progressionState.currentReps,
+                  'currentSets': progressionState.currentSets,
+                  'progressionType': config.type.name,
+                  'progressionUnit': config.unit.name,
+                  'shouldApplyProgression': shouldApplyProgression,
+                });
 
             // Calcular nuevos valores basados en la progresión
             final calculationResult = await progressionNotifier
@@ -100,18 +120,20 @@ class SessionProgressionService extends _$SessionProgressionService {
                 );
 
             if (calculationResult != null) {
-              // Obtener el ejercicio para acceder a sus valores por defecto
-              final exerciseData = await ref.read(
-                exerciseNotifierProvider.future,
-              );
-              final exerciseModel = exerciseData.firstWhere(
-                (e) => e.id == exercise.exerciseId,
-                orElse:
-                    () =>
-                        throw Exception(
-                          'Exercise not found: ${exercise.exerciseId}',
-                        ),
-              );
+              // Log del resultado del cálculo
+              LoggingService.instance
+                  .info('SESSION PROGRESSION: CALCULATION RESULT', {
+                    'exerciseId': exercise.exerciseId,
+                    'exerciseName': exerciseModel.name,
+                    'oldWeight': progressionState.currentWeight,
+                    'newWeight': calculationResult.newWeight,
+                    'oldReps': progressionState.currentReps,
+                    'newReps': calculationResult.newReps,
+                    'oldSets': progressionState.currentSets,
+                    'newSets': calculationResult.newSets,
+                    'incrementApplied': calculationResult.incrementApplied,
+                    'reason': calculationResult.reason,
+                  });
 
               // Actualizar el modelo Exercise con los nuevos valores calculados
               final updatedExerciseModel = exerciseModel.copyWith(
@@ -292,13 +314,18 @@ class SessionProgressionService extends _$SessionProgressionService {
   /// Verifica si se debe aplicar progresión basado en la frecuencia de la rutina
   Future<bool> _shouldApplyProgressionForRoutine(Routine routine) async {
     try {
-      final progressionNotifier = ref.read(
-        progressionNotifierProvider.notifier,
-      );
-
       // Obtener la configuración de progresión activa
-      final config = await progressionNotifier.future;
+      final config = await ref.read(progressionNotifierProvider.future);
       if (config == null) return false;
+
+      // Si la progresión es por sesión, aplicar en cada sesión
+      if (config.unit == ProgressionUnit.session) {
+        LoggingService.instance.debug(
+          'Session-based progression - applying progression every session',
+          {'routineId': routine.id, 'unit': config.unit.name},
+        );
+        return true;
+      }
 
       // Obtener la frecuencia de sesiones por semana de la configuración
       final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
@@ -312,7 +339,7 @@ class SessionProgressionService extends _$SessionProgressionService {
         return true;
       }
 
-      // Para rutinas de múltiples días, solo aplicar en la primera sesión de la semana
+      // Para rutinas de múltiples días con progresión por semana, solo aplicar en la primera sesión de la semana
       return await _isFirstSessionOfWeekForRoutine(routine);
     } catch (e) {
       LoggingService.instance.error(

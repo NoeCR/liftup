@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
@@ -345,20 +346,15 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       // Verificar si hay plantillas integradas, si no las hay, inicializarlas
       final builtInTemplates = allTemplates.where((t) => t.isBuiltIn).toList();
       if (builtInTemplates.isEmpty) {
+        // Devolver integradas en memoria inmediatamente, y en background intentar restaurarlas en DB
         LoggingService.instance.info(
-          'No built-in templates found, initializing...',
+          'No built-in templates found in DB, falling back to in-memory built-ins and triggering initialization...',
         );
-        await initializeBuiltInTemplates();
-        // Recargar las plantillas después de la inicialización
-        final reloadedTemplates =
-            _templatesBox.values.cast<ProgressionTemplate>().toList();
-        reloadedTemplates.sort((a, b) {
-          // Primero las plantillas integradas, luego las personalizadas
-          if (a.isBuiltIn && !b.isBuiltIn) return -1;
-          if (!a.isBuiltIn && b.isBuiltIn) return 1;
-          return a.name.compareTo(b.name);
-        });
-        return reloadedTemplates;
+        // Fire-and-forget
+        unawaited(initializeBuiltInTemplates());
+        final builtIns = _getBuiltInTemplates();
+        builtIns.sort((a, b) => a.name.compareTo(b.name));
+        return builtIns;
       }
 
       // Verificar si faltan plantillas específicas (para casos donde se agregaron nuevas)
@@ -396,11 +392,13 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       return allTemplates;
     } catch (e, stackTrace) {
       LoggingService.instance.error(
-        'Error getting all progression templates',
+        'Error getting all progression templates - returning in-memory built-ins as fallback',
         e,
         stackTrace,
       );
-      return [];
+      final builtIns = _getBuiltInTemplates();
+      builtIns.sort((a, b) => a.name.compareTo(b.name));
+      return builtIns;
     }
   }
 

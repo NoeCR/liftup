@@ -272,6 +272,21 @@ class _ProgressionTypeSelectionDialogState
   ProgressionType? _selectedType;
 
   @override
+  void initState() {
+    super.initState();
+    // Asegurar que las plantillas integradas existan al abrir el diálogo
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        final notifier = ref.read(progressionTemplateServiceProvider.notifier);
+        await notifier.initializeBuiltInTemplates();
+        ref.invalidate(progressionTemplateServiceProvider);
+      } catch (_) {
+        // Silenciar errores aquí; el builder mostrará el estado adecuado
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('progression.selectProgressionType'.tr()),
@@ -292,6 +307,32 @@ class _ProgressionTypeSelectionDialogState
                           (template) => template.type != ProgressionType.none,
                         )
                         .toList();
+
+                if (progressionTemplates.isEmpty) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        'progression.noTemplatesFound'.tr(),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton(
+                        onPressed: () async {
+                          try {
+                            final notifier = ref.read(
+                              progressionTemplateServiceProvider.notifier,
+                            );
+                            await notifier.restoreBuiltInTemplates();
+                            ref.invalidate(progressionTemplateServiceProvider);
+                          } catch (_) {}
+                        },
+                        child: Text('progression.restoreTemplates'.tr()),
+                      ),
+                    ],
+                  );
+                }
 
                 return ListView.builder(
                   shrinkWrap: true,
