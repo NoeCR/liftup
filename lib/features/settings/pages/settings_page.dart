@@ -16,8 +16,7 @@ import '../../progression/notifiers/progression_notifier.dart';
 import '../widgets/language_selector.dart';
 
 // Clave global para el ScaffoldMessenger
-final GlobalKey<ScaffoldMessengerState> globalScaffoldKey =
-    GlobalKey<ScaffoldMessengerState>();
+final GlobalKey<ScaffoldMessengerState> globalScaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -38,10 +37,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return ScaffoldMessenger(
       key: globalScaffoldKey,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.tr('settings.title')),
-          backgroundColor: colorScheme.surface,
-        ),
+        appBar: AppBar(title: Text(context.tr('settings.title')), backgroundColor: colorScheme.surface),
         body: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -75,20 +71,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const LanguageSelector(),
             ]),
             const SizedBox(height: 24),
-            _buildSettingsSection(context, 'Progresión', [
-              _buildProgressionSettings(),
-            ]),
+            _buildSettingsSection(context, 'Progresión', [_buildProgressionSettings()]),
             const SizedBox(height: 24),
             _buildSettingsSection(context, context.tr('settings.training'), [
               SwitchListTile(
                 value: ref.watch(restSoundEnabledProvider),
-                onChanged:
-                    (v) =>
-                        ref.read(restSoundEnabledProvider.notifier).state = v,
+                onChanged: (v) => ref.read(restSoundEnabledProvider.notifier).state = v,
                 title: Text(context.tr('settings.restSoundEnabled')),
-                subtitle: Text(
-                  context.tr('settings.restSoundEnabledDescription'),
-                ),
+                subtitle: Text(context.tr('settings.restSoundEnabledDescription')),
                 secondary: const Icon(Icons.volume_up),
               ),
               Padding(
@@ -109,10 +99,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             value: RestSoundType.notification,
                             child: Text(context.tr('settings.notification')),
                           ),
-                          DropdownMenuItem(
-                            value: RestSoundType.alarm,
-                            child: Text(context.tr('settings.alarm')),
-                          ),
+                          DropdownMenuItem(value: RestSoundType.alarm, child: Text(context.tr('settings.alarm'))),
                         ],
                         onChanged: (v) {
                           if (v != null) {
@@ -126,21 +113,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
               SwitchListTile(
                 value: ref.watch(restVibrationEnabledProvider),
-                onChanged:
-                    (v) =>
-                        ref.read(restVibrationEnabledProvider.notifier).state =
-                            v,
+                onChanged: (v) => ref.read(restVibrationEnabledProvider.notifier).state = v,
                 title: Text(context.tr('settings.restVibrationEnabled')),
-                subtitle: Text(
-                  context.tr('settings.restVibrationEnabledDescription'),
-                ),
+                subtitle: Text(context.tr('settings.restVibrationEnabledDescription')),
                 secondary: const Icon(Icons.vibration),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -149,13 +128,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       if (!soundEnabled) return;
                       final soundType = ref.read(restSoundTypeProvider);
                       final androidSound =
-                          soundType == RestSoundType.alarm
-                              ? AndroidSounds.alarm
-                              : AndroidSounds.notification;
-                      final iosSound =
-                          soundType == RestSoundType.alarm
-                              ? IosSounds.alarm
-                              : IosSounds.triTone;
+                          soundType == RestSoundType.alarm ? AndroidSounds.alarm : AndroidSounds.notification;
+                      final iosSound = soundType == RestSoundType.alarm ? IosSounds.alarm : IosSounds.triTone;
                       FlutterRingtonePlayer().play(
                         android: androidSound,
                         ios: iosSound,
@@ -194,11 +168,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildSettingsSection(
-    BuildContext context,
-    String title,
-    List<Widget> children,
-  ) {
+  Widget _buildSettingsSection(BuildContext context, String title, List<Widget> children) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -209,10 +179,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           padding: const EdgeInsets.only(left: 16, bottom: 8),
           child: Text(
             title,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
           ),
         ),
         Card(child: Column(children: children)),
@@ -232,14 +199,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final colorScheme = theme.colorScheme;
 
     return ListTile(
-      leading: Icon(
-        icon,
-        color: isDestructive ? colorScheme.error : colorScheme.primary,
-      ),
-      title: Text(
-        title,
-        style: TextStyle(color: isDestructive ? colorScheme.error : null),
-      ),
+      leading: Icon(icon, color: isDestructive ? colorScheme.error : colorScheme.primary),
+      title: Text(title, style: TextStyle(color: isDestructive ? colorScheme.error : null)),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
@@ -259,9 +220,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               return ListTile(
                 leading: Icon(Icons.trending_up, color: colorScheme.primary),
                 title: const Text('Configurar Progresión'),
-                subtitle: const Text(
-                  'Activar progresión automática para tus entrenamientos',
-                ),
+                subtitle: const Text('Activar progresión automática para tus entrenamientos'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.push('/progression-selection'),
               );
@@ -271,9 +230,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               children: [
                 ListTile(
                   leading: Icon(Icons.trending_up, color: colorScheme.primary),
-                  title: Text(
-                    'Progresión: ${context.tr(config.type.displayNameKey)}',
-                  ),
+                  title: Text('Progresión: ${context.tr(config.type.displayNameKey)}'),
                   subtitle: Text(context.tr(config.type.descriptionKey)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/progression-selection'),
@@ -284,11 +241,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   title: const Text('Configuración Avanzada'),
                   subtitle: const Text('Ajustar parámetros de la progresión'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap:
-                      () => context.push(
-                        '/progression-configuration',
-                        extra: {'progressionType': config.type},
-                      ),
+                  onTap: () => context.push('/progression-configuration', extra: {'progressionType': config.type}),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -301,11 +254,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ],
             );
           },
-          loading:
-              () => const ListTile(
-                leading: CircularProgressIndicator(),
-                title: Text('Cargando progresión...'),
-              ),
+          loading: () => const ListTile(leading: CircularProgressIndicator(), title: Text('Cargando progresión...')),
           error:
               (error, stack) => ListTile(
                 leading: Icon(Icons.error_outline, color: colorScheme.error),
@@ -330,17 +279,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               'Esto volverá al entrenamiento libre y no se aplicarán incrementos automáticos.',
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
               FilledButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
                   try {
-                    await ref
-                        .read(progressionNotifierProvider.notifier)
-                        .disableProgression();
+                    await ref.read(progressionNotifierProvider.notifier).disableProgression();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -352,17 +296,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error al desactivar progresión: $e'),
-                          backgroundColor: Colors.red,
-                        ),
+                        SnackBar(content: Text('Error al desactivar progresión: $e'), backgroundColor: Colors.red),
                       );
                     }
                   }
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
                 child: const Text('Desactivar'),
               ),
             ],
@@ -378,18 +317,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             title: Text(context.tr('settings.deleteAllData')),
             content: Text(context.tr('settings.deleteAllDataDescription')),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.cancel')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
               FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                   _showSecondConfirmationDialog(context);
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
                 child: Text(context.tr('dataManagement.continue')),
               ),
             ],
@@ -407,17 +341,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       builder:
           (context) => StatefulBuilder(
             builder: (context, setDialogState) {
-              final isValid =
-                  _confirmationText?.toUpperCase() ==
-                  context.tr('settings.deleteConfirm').toUpperCase();
+              final isValid = _confirmationText?.toUpperCase() == context.tr('settings.deleteConfirm').toUpperCase();
 
               return AlertDialog(
                 title: Row(
                   children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                    Icon(Icons.warning_amber_rounded, color: Theme.of(context).colorScheme.error),
                     const SizedBox(width: 8),
                     Text(context.tr('settings.finalConfirmation')),
                   ],
@@ -426,10 +355,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      context.tr('settings.finalWarning'),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    Text(context.tr('settings.finalWarning'), style: const TextStyle(fontWeight: FontWeight.bold)),
                     Text(context.tr('settings.finalWarningDetails')),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -462,8 +388,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 actions: [
                   TextButton(
-                    onPressed:
-                        _isDeleting ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isDeleting ? null : () => Navigator.of(context).pop(),
                     child: Text(context.tr('common.cancel')),
                   ),
                   FilledButton(
@@ -488,9 +413,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 });
                               }
                             },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
+                    style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
                     child:
                         _isDeleting
                             ? Row(
@@ -501,9 +424,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                   ),
                                 ),
                                 SizedBox(width: 8),
@@ -539,31 +460,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       // Mostrar SnackBar de éxito usando la clave global
       globalScaffoldKey.currentState?.showSnackBar(
         SnackBar(
-          content: Text(
-            globalScaffoldKey.currentContext!.tr(
-              'settings.deleteAllDataSuccess',
-            ),
-          ),
+          content: Text(globalScaffoldKey.currentContext!.tr('settings.deleteAllDataSuccess')),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 3),
         ),
       );
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error clearing database from settings',
-        e,
-        stackTrace,
-        {'component': 'settings_page'},
-      );
+      LoggingService.instance.error('Error clearing database from settings', e, stackTrace, {
+        'component': 'settings_page',
+      });
 
       // Mostrar SnackBar de error usando la clave global
       globalScaffoldKey.currentState?.showSnackBar(
         SnackBar(
-          content: Text(
-            'settings.deleteAllDataError'.tr(
-              namedArgs: {'error': e.toString()},
-            ),
-          ),
+          content: Text('settings.deleteAllDataError'.tr(namedArgs: {'error': e.toString()})),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
         ),
