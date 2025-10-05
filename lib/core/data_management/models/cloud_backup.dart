@@ -1,13 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Estado del backup en la nube
-enum BackupStatus {
-  pending,
-  uploading,
-  completed,
-  failed,
-  expired,
-}
+enum BackupStatus { pending, uploading, completed, failed, expired }
 
 /// Configuración de backup automático
 class BackupConfig extends Equatable {
@@ -28,14 +22,7 @@ class BackupConfig extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        enabled,
-        intervalHours,
-        maxBackups,
-        backupOnWifiOnly,
-        compressBackups,
-        includeDataTypes,
-      ];
+  List<Object?> get props => [enabled, intervalHours, maxBackups, backupOnWifiOnly, compressBackups, includeDataTypes];
 
   BackupConfig copyWith({
     bool? enabled,
@@ -82,16 +69,16 @@ class CloudBackup extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        createdAt,
-        completedAt,
-        status,
-        sizeBytes,
-        downloadUrl,
-        errorMessage,
-        metadata,
-      ];
+    id,
+    userId,
+    createdAt,
+    completedAt,
+    status,
+    sizeBytes,
+    downloadUrl,
+    errorMessage,
+    metadata,
+  ];
 
   Map<String, dynamic> toJson() {
     return {
@@ -112,12 +99,8 @@ class CloudBackup extends Equatable {
       id: json['id'] as String,
       userId: json['userId'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'] as String)
-          : null,
-      status: BackupStatus.values.firstWhere(
-        (e) => e.name == json['status'],
-      ),
+      completedAt: json['completedAt'] != null ? DateTime.parse(json['completedAt'] as String) : null,
+      status: BackupStatus.values.firstWhere((e) => e.name == json['status']),
       sizeBytes: json['sizeBytes'] as int,
       downloadUrl: json['downloadUrl'] as String?,
       errorMessage: json['errorMessage'] as String?,
@@ -158,28 +141,12 @@ class BackupResult extends Equatable {
   final int? sizeBytes;
   final DateTime? completedAt;
 
-  const BackupResult({
-    required this.success,
-    this.backupId,
-    this.errorMessage,
-    this.sizeBytes,
-    this.completedAt,
-  });
+  const BackupResult({required this.success, this.backupId, this.errorMessage, this.sizeBytes, this.completedAt});
 
   @override
-  List<Object?> get props => [
-        success,
-        backupId,
-        errorMessage,
-        sizeBytes,
-        completedAt,
-      ];
+  List<Object?> get props => [success, backupId, errorMessage, sizeBytes, completedAt];
 
-  factory BackupResult.success({
-    required String backupId,
-    required int sizeBytes,
-    DateTime? completedAt,
-  }) {
+  factory BackupResult.success({required String backupId, required int sizeBytes, DateTime? completedAt}) {
     return BackupResult(
       success: true,
       backupId: backupId,
@@ -189,9 +156,6 @@ class BackupResult extends Equatable {
   }
 
   factory BackupResult.failure(String errorMessage) {
-    return BackupResult(
-      success: false,
-      errorMessage: errorMessage,
-    );
+    return BackupResult(success: false, errorMessage: errorMessage);
   }
 }

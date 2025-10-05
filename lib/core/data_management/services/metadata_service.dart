@@ -17,9 +17,7 @@ class MetadataService {
   }
 
   /// Crea metadatos de exportación con datos reales
-  Future<ExportMetadata> createExportMetadata({
-    Map<String, dynamic>? customData,
-  }) async {
+  Future<ExportMetadata> createExportMetadata({Map<String, dynamic>? customData}) async {
     if (_packageInfo == null) {
       await initialize();
     }
@@ -41,7 +39,7 @@ class MetadataService {
       // Por ahora, generar un ID basado en la plataforma y timestamp
       final platform = Platform.operatingSystem;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
-      return '${platform}-$timestamp';
+      return '$platform-$timestamp';
     } catch (e) {
       // Fallback a un ID generado basado en timestamp
       return 'device-${DateTime.now().millisecondsSinceEpoch}';

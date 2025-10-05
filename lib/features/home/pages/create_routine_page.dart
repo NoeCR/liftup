@@ -32,21 +32,13 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
   void initState() {
     super.initState();
     _isEditing = widget.routineToEdit != null;
-    _routineId =
-        widget.routineToEdit?.id ??
-        DateTime.now().millisecondsSinceEpoch.toString();
+    _routineId = widget.routineToEdit?.id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
     if (_isEditing) {
       _nameController.text = widget.routineToEdit!.name;
       _descriptionController.text = widget.routineToEdit!.description;
-      _selectedDays.addAll(
-        widget.routineToEdit!.days.map((day) => day.displayName),
-      );
-      _selectedSectionIds.addAll(
-        widget.routineToEdit!.sections.map(
-          (section) => section.sectionTemplateId ?? '',
-        ),
-      );
+      _selectedDays.addAll(widget.routineToEdit!.days.map((day) => day.displayName));
+      _selectedSectionIds.addAll(widget.routineToEdit!.sections.map((section) => section.sectionTemplateId ?? ''));
     }
 
     // Añadir listeners para actualizar el estado del botón
@@ -97,10 +89,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               // Routine Name
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nombre de la rutina',
-                  hintText: context.tr('routine.nameHint'),
-                ),
+                decoration: InputDecoration(labelText: 'Nombre de la rutina', hintText: context.tr('routine.nameHint')),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingresa un nombre para la rutina';
@@ -130,9 +119,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               // Days of Week Section
               Text(
                 context.tr('routine.weekDays'),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
@@ -141,12 +128,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               const SizedBox(height: 24),
 
               // Sections Selection
-              Text(
-                'Secciones de la rutina',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text('Secciones de la rutina', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
 
               // Sections Selection
@@ -202,9 +184,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
   Widget _buildSectionsSelection() {
     return Consumer(
       builder: (context, ref, child) {
-        final sectionTemplatesAsync = ref.watch(
-          routineSectionTemplateNotifierProvider,
-        );
+        final sectionTemplatesAsync = ref.watch(routineSectionTemplateNotifierProvider);
 
         return sectionTemplatesAsync.when(
           data: (templates) {
@@ -233,10 +213,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     );
   }
 
-  Widget _buildCategorySection(
-    String category,
-    List<RoutineSectionTemplate> templates,
-  ) {
+  Widget _buildCategorySection(String category, List<RoutineSectionTemplate> templates) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -247,10 +224,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Text(
             category,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            style: theme.textTheme.titleSmall?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
           ),
         ),
         ...templates.map((template) => _buildSectionTemplateCard(template)),
@@ -277,25 +251,17 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
             }
           });
         },
-        title: Text(
-          template.name,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: Text(template.name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
         subtitle:
             template.description != null
                 ? Text(
                   template.description!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                 )
                 : null,
         secondary: Icon(
           _getIconData(template.iconName),
-          color:
-              isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+          color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
         ),
         activeColor: colorScheme.primary,
         checkColor: colorScheme.onPrimary,
@@ -312,30 +278,22 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.5),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.settings_suggest,
-            size: 48,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(Icons.settings_suggest, size: 48, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 12),
           Text(
             'No hay secciones disponibles',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Text(
             context.tr('routine.goToSettingsToCreateTemplates'),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -356,26 +314,19 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colorScheme.errorContainer.withOpacity(0.3),
+        color: colorScheme.errorContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colorScheme.error.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
           Icon(Icons.error_outline, size: 48, color: colorScheme.error),
           const SizedBox(height: 12),
-          Text(
-            'Error al cargar secciones',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: colorScheme.error,
-            ),
-          ),
+          Text('Error al cargar secciones', style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.error)),
           const SizedBox(height: 8),
           Text(
             error.toString(),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -394,21 +345,15 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedDays.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('routine.selectAtLeastOneDay')),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.tr('routine.selectAtLeastOneDay')), backgroundColor: Colors.red));
       return;
     }
 
     if (_selectedSectionIds.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('routine.selectAtLeastOneSection')),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(context.tr('routine.selectAtLeastOneSection')), backgroundColor: Colors.red),
       );
       return;
     }
@@ -457,9 +402,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Error al ${_isEditing ? 'actualizar' : 'crear'} rutina: $e',
-            ),
+            content: Text('Error al ${_isEditing ? 'actualizar' : 'crear'} rutina: $e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
           ),
@@ -474,8 +417,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       id: _routineId,
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
-      days:
-          _selectedDays.map((day) => WeekDayExtension.fromString(day)).toList(),
+      days: _selectedDays.map((day) => WeekDayExtension.fromString(day)).toList(),
       sections: [],
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
@@ -485,9 +427,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     await ref.read(routineNotifierProvider.notifier).addRoutine(routine);
 
     // Agregar secciones seleccionadas
-    await ref
-        .read(routineNotifierProvider.notifier)
-        .addSectionsToRoutine(_routineId, _selectedSectionIds.toList());
+    await ref.read(routineNotifierProvider.notifier).addSectionsToRoutine(_routineId, _selectedSectionIds.toList());
   }
 
   Future<void> _updateRoutine() async {
@@ -497,15 +437,12 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     final updatedRoutine = widget.routineToEdit!.copyWith(
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
-      days:
-          _selectedDays.map((day) => WeekDayExtension.fromString(day)).toList(),
+      days: _selectedDays.map((day) => WeekDayExtension.fromString(day)).toList(),
       updatedAt: DateTime.now(),
     );
 
     // Actualizar rutina
-    await ref
-        .read(routineNotifierProvider.notifier)
-        .updateRoutine(updatedRoutine);
+    await ref.read(routineNotifierProvider.notifier).updateRoutine(updatedRoutine);
 
     // Actualizar secciones si han cambiado
     final currentSectionIds =
@@ -517,14 +454,10 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
     if (currentSectionIds != _selectedSectionIds) {
       // Eliminar secciones existentes y agregar las nuevas
       final routineWithEmptySections = updatedRoutine.copyWith(sections: []);
-      await ref
-          .read(routineNotifierProvider.notifier)
-          .updateRoutine(routineWithEmptySections);
+      await ref.read(routineNotifierProvider.notifier).updateRoutine(routineWithEmptySections);
 
       // Agregar nuevas secciones
-      await ref
-          .read(routineNotifierProvider.notifier)
-          .addSectionsToRoutine(_routineId, _selectedSectionIds.toList());
+      await ref.read(routineNotifierProvider.notifier).addSectionsToRoutine(_routineId, _selectedSectionIds.toList());
     }
   }
 
@@ -535,24 +468,16 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
           (context) => AlertDialog(
             title: Text(context.tr('routine.deleteRoutine')),
             content: Text(
-              context.tr(
-                'routine.deleteRoutineDescription',
-                namedArgs: {'routineName': _nameController.text.trim()},
-              ),
+              context.tr('routine.deleteRoutineDescription', namedArgs: {'routineName': _nameController.text.trim()}),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.cancel')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
               FilledButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
                   await _deleteRoutine();
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
                 child: Text(context.tr('common.delete')),
               ),
             ],
@@ -562,16 +487,11 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
 
   Future<void> _deleteRoutine() async {
     try {
-      await ref
-          .read(routineNotifierProvider.notifier)
-          .deleteRoutine(_routineId);
+      await ref.read(routineNotifierProvider.notifier).deleteRoutine(_routineId);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr('routine.routineDeletedSuccess')),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text(context.tr('routine.routineDeletedSuccess')), backgroundColor: Colors.green),
         );
 
         context.go('/');
@@ -580,11 +500,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'routine.routineDeleteError'.tr(
-                namedArgs: {'error': e.toString()},
-              ),
-            ),
+            content: Text('routine.routineDeleteError'.tr(namedArgs: {'error': e.toString()})),
             backgroundColor: Colors.red,
           ),
         );

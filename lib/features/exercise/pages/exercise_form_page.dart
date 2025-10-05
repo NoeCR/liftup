@@ -214,7 +214,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               width: 200,
               height: 150,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceVariant,
+                color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: colorScheme.outline,
@@ -844,7 +844,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 }
                 // Recorte manual con paquete image
                 Uint8List croppedBytes;
-                final raw = await state.rawImageData;
+                final raw = state.rawImageData;
                 final rect = state.getCropRect();
                 final img = image.decodeImage(raw);
                 if (img != null && rect != null) {
@@ -864,8 +864,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 // Guardar a AppDocuments/images
                 final dir = await getApplicationDocumentsDirectory();
                 final imagesDir = Directory('${dir.path}/images');
-                if (!await imagesDir.exists())
+                if (!await imagesDir.exists()) {
                   await imagesDir.create(recursive: true);
+                }
                 final filename =
                     'img_${DateTime.now().millisecondsSinceEpoch}.jpg';
                 final file = File('${imagesDir.path}/$filename');

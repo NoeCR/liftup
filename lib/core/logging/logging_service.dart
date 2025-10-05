@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
@@ -31,7 +30,7 @@ class LoggingService {
         lineLength: 120,
         colors: true,
         printEmojis: true,
-        printTime: true,
+        dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
       ),
       filter: enableConsoleLogging ? DevelopmentFilter() : ProductionFilter(),
     );
@@ -135,7 +134,7 @@ class LoggingService {
           stackTrace: stackTrace,
           withScope: (scope) {
             scope.setTag('log_level', level.name);
-            scope.setExtra('logging_context', jsonEncode(context ?? {}));
+            scope.setContexts('logging_context', context ?? {});
             scope.level =
                 level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error;
           },
@@ -148,7 +147,7 @@ class LoggingService {
               level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error,
           withScope: (scope) {
             scope.setTag('log_level', level.name);
-            scope.setExtra('logging_context', jsonEncode(context ?? {}));
+            scope.setContexts('logging_context', context ?? {});
           },
         );
       }
@@ -203,12 +202,7 @@ class LoggingService {
     try {
       Sentry.configureScope((scope) {
         scope.setUser(
-          SentryUser(
-            id: userId,
-            username: username,
-            email: email,
-            extras: extra,
-          ),
+          SentryUser(id: userId, username: username, email: email, data: extra),
         );
       });
     } catch (e) {
@@ -231,7 +225,7 @@ class LoggingService {
   void setContext(String key, Map<String, dynamic> context) {
     try {
       Sentry.configureScope((scope) {
-        scope.setExtra(key, jsonEncode(context));
+        scope.setContexts(key, context);
       });
       // Solo log en modo debug para evitar spam
       if (kDebugMode) {

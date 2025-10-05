@@ -20,48 +20,30 @@ class ProgressionStatusWidget extends ConsumerWidget {
           return _buildNoProgression(context, theme, colorScheme);
         }
 
-        return _buildActiveProgression(
-          context,
-          theme,
-          colorScheme,
-          config,
-          ref,
-        );
+        return _buildActiveProgression(context, theme, colorScheme, config, ref);
       },
       loading: () => const SizedBox.shrink(),
-      error:
-          (error, stack) =>
-              _buildErrorState(context, theme, colorScheme, error.toString()),
+      error: (error, stack) => _buildErrorState(context, theme, colorScheme, error.toString()),
     );
   }
 
-  Widget _buildNoProgression(
-    BuildContext context,
-    ThemeData theme,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildNoProgression(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant.withOpacity(0.5),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.fitness_center,
-            color: colorScheme.onSurfaceVariant,
-            size: 20,
-          ),
+          Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               'progression.noProgression'.tr(),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ),
           TextButton(
@@ -71,10 +53,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(
-              'progression.configure'.tr(),
-              style: TextStyle(fontSize: 12, color: colorScheme.primary),
-            ),
+            child: Text('progression.configure'.tr(), style: TextStyle(fontSize: 12, color: colorScheme.primary)),
           ),
         ],
       ),
@@ -92,9 +71,9 @@ class ProgressionStatusWidget extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer.withOpacity(0.3),
+        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -105,20 +84,12 @@ class ProgressionStatusWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'progression.activeProgression'.tr(
-                    namedArgs: {'type': context.tr(config.type.displayNameKey)},
-                  ),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  'progression.activeProgression'.tr(namedArgs: {'type': context.tr(config.type.displayNameKey)}),
+                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w500),
                 ),
                 Text(
                   context.tr(config.type.descriptionKey),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: 11,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant, fontSize: 11),
                 ),
               ],
             ),
@@ -164,19 +135,14 @@ class ProgressionStatusWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildErrorState(
-    BuildContext context,
-    ThemeData theme,
-    ColorScheme colorScheme,
-    String error,
-  ) {
+  Widget _buildErrorState(BuildContext context, ThemeData theme, ColorScheme colorScheme, String error) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colorScheme.errorContainer.withOpacity(0.3),
+        color: colorScheme.errorContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colorScheme.error.withOpacity(0.3)),
+        border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -184,12 +150,8 @@ class ProgressionStatusWidget extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'progression.errorLoadingProgression'.tr(
-                namedArgs: {'error': error},
-              ),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.error,
-              ),
+              'progression.errorLoadingProgression'.tr(namedArgs: {'error': error}),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.error),
             ),
           ),
         ],
@@ -198,10 +160,7 @@ class ProgressionStatusWidget extends ConsumerWidget {
   }
 
   void _showProgressionDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => const ProgressionSelectionDialog(),
-    );
+    showDialog(context: context, builder: (context) => const ProgressionSelectionDialog());
   }
 
   void _disableProgression(BuildContext context, WidgetRef ref) {
@@ -212,34 +171,22 @@ class ProgressionStatusWidget extends ConsumerWidget {
             title: Text('progression.disableProgression'.tr()),
             content: Text('progression.disableProgressionQuestion'.tr()),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('common.cancel'.tr()),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('common.cancel'.tr())),
               FilledButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
                   try {
-                    await ref
-                        .read(progressionNotifierProvider.notifier)
-                        .disableProgression();
+                    await ref.read(progressionNotifierProvider.notifier).disableProgression();
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('progression.progressionDisabled'.tr()),
-                          backgroundColor: Colors.green,
-                        ),
+                        SnackBar(content: Text('progression.progressionDisabled'.tr()), backgroundColor: Colors.green),
                       );
                     }
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                            'progression.errorDisablingProgression'.tr(
-                              namedArgs: {'error': e.toString()},
-                            ),
-                          ),
+                          content: Text('progression.errorDisablingProgression'.tr(namedArgs: {'error': e.toString()})),
                           backgroundColor: Colors.red,
                         ),
                       );

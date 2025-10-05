@@ -2,21 +2,10 @@ import 'package:equatable/equatable.dart';
 import 'package:uuid/uuid.dart';
 
 /// Tipo de cambio realizado
-enum ChangeType {
-  create,
-  update,
-  delete,
-  restore,
-}
+enum ChangeType { create, update, delete, restore }
 
 /// Entidad que fue modificada
-enum EntityType {
-  routine,
-  exercise,
-  session,
-  progressData,
-  userSettings,
-}
+enum EntityType { routine, exercise, session, progressData, userSettings }
 
 /// Historial de cambios en las entidades
 class ChangeRecord extends Equatable {
@@ -46,17 +35,17 @@ class ChangeRecord extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        entityType,
-        entityId,
-        changeType,
-        timestamp,
-        userId,
-        previousData,
-        newData,
-        description,
-        reason,
-      ];
+    id,
+    entityType,
+    entityId,
+    changeType,
+    timestamp,
+    userId,
+    previousData,
+    newData,
+    description,
+    reason,
+  ];
 
   Map<String, dynamic> toJson() {
     return {
@@ -76,13 +65,9 @@ class ChangeRecord extends Equatable {
   factory ChangeRecord.fromJson(Map<String, dynamic> json) {
     return ChangeRecord(
       id: json['id'] as String,
-      entityType: EntityType.values.firstWhere(
-        (e) => e.name == json['entityType'],
-      ),
+      entityType: EntityType.values.firstWhere((e) => e.name == json['entityType']),
       entityId: json['entityId'] as String,
-      changeType: ChangeType.values.firstWhere(
-        (e) => e.name == json['changeType'],
-      ),
+      changeType: ChangeType.values.firstWhere((e) => e.name == json['changeType']),
       timestamp: DateTime.parse(json['timestamp'] as String),
       userId: json['userId'] as String,
       previousData: json['previousData'] as Map<String, dynamic>?,

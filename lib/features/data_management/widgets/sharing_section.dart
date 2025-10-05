@@ -62,7 +62,7 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -235,35 +235,32 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       // Simular tiempo de compartición
       await Future.delayed(const Duration(seconds: 2));
 
-      // Cerrar indicador de progreso
-      if (mounted) Navigator.of(context).pop();
+      // Cerrar indicador de progreso y mostrar resultado
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
 
-      // Mostrar resultado
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.tr('dataManagement.shareSuccess')),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.shareSuccess')),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      // Cerrar indicador de progreso si está abierto
-      if (mounted) Navigator.of(context).pop();
+      // Cerrar indicador de progreso si está abierto y mostrar error
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr(
-                'dataManagement.shareError',
-                namedArgs: {'error': e.toString()},
-              ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.tr(
+              'dataManagement.shareError',
+              namedArgs: {'error': e.toString()},
             ),
-            backgroundColor: Colors.red,
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -474,10 +471,10 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       await Future.delayed(const Duration(seconds: 2));
 
       // Cerrar indicador de progreso
-      if (mounted) Navigator.of(context).pop();
+      if (context.mounted) Navigator.of(context).pop();
 
       // Mostrar resultado
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('✅ Rutina importada exitosamente'),
@@ -487,9 +484,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       }
     } catch (e) {
       // Cerrar indicador de progreso si está abierto
-      if (mounted) Navigator.of(context).pop();
+      if (context.mounted) Navigator.of(context).pop();
 
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('❌ Error al importar: $e'),

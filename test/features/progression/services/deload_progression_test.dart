@@ -13,16 +13,11 @@ void main() {
 
     setUp(() async {
       // Crear servicio con mock de base de datos
-      progressionService =
-          ProgressionServiceTestHelper.createWithMockDatabase();
+      progressionService = ProgressionServiceTestHelper.createWithMockDatabase();
       testConfig = ProgressionConfig(
         id: 'test-config',
         isGlobal: true,
-        customParameters: {
-          'sessions_per_week': 3,
-          'max_weeks': 8,
-          'reset_percentage': 0.85,
-        },
+        customParameters: {'sessions_per_week': 3, 'max_weeks': 8, 'reset_percentage': 0.85},
         type: ProgressionType.linear,
         unit: ProgressionUnit.week,
         primaryTarget: ProgressionTarget.weight,
@@ -63,89 +58,83 @@ void main() {
     // No need for tearDown with mock database - it's automatically cleaned up
 
     group('Linear Progression Deload Tests', () {
-      test(
-        'should apply deload on week 4 and continue progression after',
-        () async {
-          // Configurar progresión lineal con ciclo de 4 semanas
-          final config = testConfig.copyWith(
-            type: ProgressionType.linear,
-            cycleLength: 4,
-            deloadWeek: 4,
-            deloadPercentage: 0.8,
-          );
-          await progressionService.saveProgressionConfig(config);
+      test('should apply deload on week 4 and continue progression after', () async {
+        // Configurar progresión lineal con ciclo de 4 semanas
+        final config = testConfig.copyWith(
+          type: ProgressionType.linear,
+          cycleLength: 4,
+          deloadWeek: 4,
+          deloadPercentage: 0.8,
+        );
+        await progressionService.saveProgressionConfig(config);
 
-          // Semana 1: Progresión normal
-          var state = testState.copyWith(currentWeek: 1);
-          var result = await progressionService.calculateProgression(
-            config.id,
-            'test-exercise',
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
-          expect(result.newWeight, equals(102.5)); // 100 + 2.5
-          expect(result.incrementApplied, isTrue);
+        // Semana 1: Progresión normal
+        var state = testState.copyWith(currentWeek: 1);
+        var result = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
+        expect(result.newWeight, equals(102.5)); // 100 + 2.5
+        expect(result.incrementApplied, isTrue);
 
-          // Semana 2: Progresión normal
-          state = state.copyWith(currentWeek: 2, currentWeight: 102.5);
-          await progressionService.saveProgressionState(state);
-          result = await progressionService.calculateProgression(
-            config.id,
-            'test-exercise',
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
-          expect(result.newWeight, equals(105.0)); // 102.5 + 2.5
-          expect(result.incrementApplied, isTrue);
+        // Semana 2: Progresión normal
+        state = state.copyWith(currentWeek: 2, currentWeight: 102.5);
+        await progressionService.saveProgressionState(state);
+        result = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
+        expect(result.newWeight, equals(105.0)); // 102.5 + 2.5
+        expect(result.incrementApplied, isTrue);
 
-          // Semana 3: Progresión normal
-          state = state.copyWith(currentWeek: 3, currentWeight: 105.0);
-          await progressionService.saveProgressionState(state);
-          result = await progressionService.calculateProgression(
-            config.id,
-            'test-exercise',
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
-          expect(result.newWeight, equals(107.5)); // 105 + 2.5
-          expect(result.incrementApplied, isTrue);
+        // Semana 3: Progresión normal
+        state = state.copyWith(currentWeek: 3, currentWeight: 105.0);
+        await progressionService.saveProgressionState(state);
+        result = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
+        expect(result.newWeight, equals(107.5)); // 105 + 2.5
+        expect(result.incrementApplied, isTrue);
 
-          // Semana 4: DELOAD
-          state = state.copyWith(currentWeek: 4, currentWeight: 107.5);
-          await progressionService.saveProgressionState(state);
-          result = await progressionService.calculateProgression(
-            config.id,
-            'test-exercise',
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
-          expect(
-            result.newWeight,
-            equals(106.0),
-          ); // Proporcional: 100 + (7.5 * 0.8) = 106.0
-          expect(result.newSets, equals(2)); // 3 * 0.7 (reduced sets)
-          expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('deload'));
+        // Semana 4: DELOAD
+        state = state.copyWith(currentWeek: 4, currentWeight: 107.5);
+        await progressionService.saveProgressionState(state);
+        result = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
+        expect(result.newWeight, equals(106.0)); // Proporcional: 100 + (7.5 * 0.8) = 106.0
+        expect(result.newSets, equals(2)); // 3 * 0.7 (reduced sets)
+        expect(result.incrementApplied, isTrue);
+        expect(result.reason, contains('deload'));
 
-          // Semana 5: Continuación de progresión (nuevo ciclo)
-          state = state.copyWith(currentWeek: 5, currentWeight: 106.0);
-          await progressionService.saveProgressionState(state);
-          result = await progressionService.calculateProgression(
-            config.id,
-            'test-exercise',
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
-          expect(result.newWeight, equals(108.5)); // 106 + 2.5
-          expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('week 1 of 4')); // Nuevo ciclo
-        },
-      );
+        // Semana 5: Continuación de progresión (nuevo ciclo)
+        state = state.copyWith(currentWeek: 5, currentWeight: 106.0);
+        await progressionService.saveProgressionState(state);
+        result = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
+        expect(result.newWeight, equals(108.5)); // 106 + 2.5
+        expect(result.incrementApplied, isTrue);
+        expect(result.reason, contains('week 1 of 4')); // Nuevo ciclo
+      });
 
       test('should handle multiple deload cycles correctly', () async {
         final config = testConfig.copyWith(
@@ -230,10 +219,7 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(
-          result.newWeight,
-          closeTo(106.5625, 0.001),
-        ); // 100 + (8.75 * 0.75)
+        expect(result.newWeight, closeTo(106.5625, 0.001)); // 100 + (8.75 * 0.75)
         expect(result.reason, contains('deload'));
       });
     });
@@ -246,11 +232,7 @@ void main() {
           cycleLength: 4,
           deloadWeek: 4,
           deloadPercentage: 0.8,
-          customParameters: {
-            'sessions_per_week': 3,
-            'accumulation_weeks': 3,
-            'deload_volume_reduction': 0.7,
-          },
+          customParameters: {'sessions_per_week': 3, 'accumulation_weeks': 3, 'deload_volume_reduction': 0.7},
         );
 
         // Guardar la configuración específica
@@ -258,10 +240,7 @@ void main() {
 
         // Semanas 1-3: Acumulación
         for (int week = 1; week <= 3; week++) {
-          final state = testState.copyWith(
-            progressionConfigId: config.id,
-            currentWeek: week,
-          );
+          final state = testState.copyWith(progressionConfigId: config.id, currentWeek: week);
           await progressionService.saveProgressionState(state);
           final result = await progressionService.calculateProgression(
             config.id,
@@ -276,10 +255,7 @@ void main() {
         }
 
         // Semana 4: DELOAD
-        final deloadState = testState.copyWith(
-          progressionConfigId: config.id,
-          currentWeek: 4,
-        );
+        final deloadState = testState.copyWith(progressionConfigId: config.id, currentWeek: 4);
         await progressionService.saveProgressionState(deloadState);
         final deloadResult = await progressionService.calculateProgression(
           config.id,
@@ -306,10 +282,7 @@ void main() {
         await progressionService.saveProgressionConfig(config);
 
         // Semana 1: Alta intensidad
-        var state = testState.copyWith(
-          progressionConfigId: config.id,
-          currentWeek: 1,
-        );
+        var state = testState.copyWith(progressionConfigId: config.id, currentWeek: 1);
         await progressionService.saveProgressionState(state);
         var result = await progressionService.calculateProgression(
           config.id,
@@ -323,11 +296,7 @@ void main() {
         expect(result.reason, contains('high intensity week'));
 
         // Semana 2: Alto volumen
-        state = state.copyWith(
-          currentWeek: 2,
-          currentWeight: 102.5,
-          currentReps: 8,
-        );
+        state = state.copyWith(currentWeek: 2, currentWeight: 102.5, currentReps: 8);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
@@ -342,12 +311,7 @@ void main() {
         expect(result.reason, contains('high volume week'));
 
         // Semana 3: DELOAD
-        state = state.copyWith(
-          currentWeek: 3,
-          currentWeight: 102.0,
-          currentReps: 10,
-          currentSets: 4,
-        );
+        state = state.copyWith(currentWeek: 3, currentWeight: 102.0, currentReps: 10, currentSets: 4);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
@@ -361,11 +325,7 @@ void main() {
         expect(result.reason, contains('deload week'));
 
         // Semana 4: Nuevo ciclo (alta intensidad)
-        state = state.copyWith(
-          currentWeek: 4,
-          currentWeight: 70.0,
-          currentSets: 3,
-        );
+        state = state.copyWith(currentWeek: 4, currentWeight: 70.0, currentSets: 3);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
@@ -391,17 +351,10 @@ void main() {
         await progressionService.saveProgressionConfig(config);
 
         // Semanas 1-5: Progresión normal (aumentar reps)
-        var state = testState.copyWith(
-          progressionConfigId: config.id,
-          currentWeek: 1,
-          currentReps: 5,
-        );
+        var state = testState.copyWith(progressionConfigId: config.id, currentWeek: 1, currentReps: 5);
 
         for (int week = 1; week <= 5; week++) {
-          state = state.copyWith(
-            progressionConfigId: config.id,
-            currentWeek: week,
-          );
+          state = state.copyWith(progressionConfigId: config.id, currentWeek: week);
           await progressionService.saveProgressionState(state);
           final result = await progressionService.calculateProgression(
             config.id,
@@ -450,10 +403,7 @@ void main() {
 
         // Semanas 1-3: Progresión ondulante normal
         for (int week = 1; week <= 3; week++) {
-          final state = testState.copyWith(
-            progressionConfigId: config.id,
-            currentWeek: week,
-          );
+          final state = testState.copyWith(progressionConfigId: config.id, currentWeek: week);
           await progressionService.saveProgressionState(state);
           final result = await progressionService.calculateProgression(
             config.id,
@@ -477,10 +427,7 @@ void main() {
         }
 
         // Semana 4: DELOAD
-        final deloadState = testState.copyWith(
-          progressionConfigId: config.id,
-          currentWeek: 4,
-        );
+        final deloadState = testState.copyWith(progressionConfigId: config.id, currentWeek: 4);
         await progressionService.saveProgressionState(deloadState);
         final deloadResult = await progressionService.calculateProgression(
           config.id,
@@ -496,105 +443,90 @@ void main() {
     });
 
     group('Autoregulated Progression Deload Tests', () {
-      test(
-        'should apply deload correctly in autoregulated progression',
-        () async {
-          final config = testConfig.copyWith(
-            type: ProgressionType.autoregulated,
-            cycleLength: 8,
-            deloadWeek: 8,
-            deloadPercentage: 0.8,
-            customParameters: {
-              'target_rpe': 8.0,
-              'rpe_threshold': 0.5,
-              'target_reps': 10,
-              'max_reps': 12,
-              'min_reps': 5,
-            },
-          );
-          await progressionService.saveProgressionConfig(config);
+      test('should apply deload correctly in autoregulated progression', () async {
+        final config = testConfig.copyWith(
+          type: ProgressionType.autoregulated,
+          cycleLength: 8,
+          deloadWeek: 8,
+          deloadPercentage: 0.8,
+          customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
+        );
+        await progressionService.saveProgressionConfig(config);
 
-          // Semanas 1-7: Progresión autoregulada normal
-          for (int week = 1; week <= 7; week++) {
-            final state = testState.copyWith(currentWeek: week);
-            await progressionService.saveProgressionState(state);
-            final result = await progressionService.calculateProgression(
-              config.id,
-              'test-exercise',
-              state.currentWeight,
-              state.currentReps,
-              state.currentSets,
-            );
-
-            // La progresión autoregulada puede aumentar peso o reps
-            expect(result.incrementApplied, isTrue);
-            expect(result.reason, contains('Autoregulated progression'));
-          }
-
-          // Semana 8: DELOAD
-          final deloadState = testState.copyWith(currentWeek: 8);
-          await progressionService.saveProgressionState(deloadState);
-          final deloadResult = await progressionService.calculateProgression(
+        // Semanas 1-7: Progresión autoregulada normal
+        for (int week = 1; week <= 7; week++) {
+          final state = testState.copyWith(currentWeek: week);
+          await progressionService.saveProgressionState(state);
+          final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
-            deloadState.currentWeight,
-            deloadState.currentReps,
-            deloadState.currentSets,
+            state.currentWeight,
+            state.currentReps,
+            state.currentSets,
           );
-          expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
-          expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-          expect(deloadResult.reason, contains('deload week'));
-        },
-      );
+
+          // La progresión autoregulada puede aumentar peso o reps
+          expect(result.incrementApplied, isTrue);
+          expect(result.reason, contains('Autoregulated progression'));
+        }
+
+        // Semana 8: DELOAD
+        final deloadState = testState.copyWith(currentWeek: 8);
+        await progressionService.saveProgressionState(deloadState);
+        final deloadResult = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          deloadState.currentWeight,
+          deloadState.currentReps,
+          deloadState.currentSets,
+        );
+        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
+        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
+        expect(deloadResult.reason, contains('deload week'));
+      });
     });
 
     group('Double Factor Progression Deload Tests', () {
-      test(
-        'should apply deload correctly in double factor progression',
-        () async {
-          final config = testConfig.copyWith(
-            type: ProgressionType.doubleFactor,
-            cycleLength: 8,
-            deloadWeek: 4,
-            deloadPercentage: 0.8,
-            customParameters: {'fitness_gain': 0.1, 'fatigue_decay': 0.05},
-          );
-          await progressionService.saveProgressionConfig(config);
+      test('should apply deload correctly in double factor progression', () async {
+        final config = testConfig.copyWith(
+          type: ProgressionType.doubleFactor,
+          cycleLength: 8,
+          deloadWeek: 4,
+          deloadPercentage: 0.8,
+          customParameters: {'fitness_gain': 0.1, 'fatigue_decay': 0.05},
+        );
+        await progressionService.saveProgressionConfig(config);
 
-          // Semanas 1-3: Progresión doble factor normal
-          for (int week = 1; week <= 3; week++) {
-            final state = testState.copyWith(currentWeek: week);
-            await progressionService.saveProgressionState(state);
-            final result = await progressionService.calculateProgression(
-              config.id,
-              'test-exercise',
-              state.currentWeight,
-              state.currentReps,
-              state.currentSets,
-            );
-
-            expect(result.incrementApplied, isTrue);
-            expect(result.reason, contains('Double factor progression'));
-          }
-
-          // Semana 4: DELOAD
-          final deloadState = testState.copyWith(
-            progressionConfigId: config.id,
-            currentWeek: 4,
-          );
-          await progressionService.saveProgressionState(deloadState);
-          final deloadResult = await progressionService.calculateProgression(
+        // Semanas 1-3: Progresión doble factor normal
+        for (int week = 1; week <= 3; week++) {
+          final state = testState.copyWith(currentWeek: week);
+          await progressionService.saveProgressionState(state);
+          final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
-            deloadState.currentWeight,
-            deloadState.currentReps,
-            deloadState.currentSets,
+            state.currentWeight,
+            state.currentReps,
+            state.currentSets,
           );
-          expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
-          expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-          expect(deloadResult.reason, contains('deload week'));
-        },
-      );
+
+          expect(result.incrementApplied, isTrue);
+          expect(result.reason, contains('Double factor progression'));
+        }
+
+        // Semana 4: DELOAD
+        final deloadState = testState.copyWith(progressionConfigId: config.id, currentWeek: 4);
+        await progressionService.saveProgressionState(deloadState);
+        final deloadResult = await progressionService.calculateProgression(
+          config.id,
+          'test-exercise',
+          deloadState.currentWeight,
+          deloadState.currentReps,
+          deloadState.currentSets,
+        );
+        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
+        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
+        expect(deloadResult.reason, contains('deload week'));
+      });
     });
 
     group('Overload Progression Deload Tests', () {
@@ -610,10 +542,7 @@ void main() {
 
         // Semanas 1-5: Progresión de sobrecarga normal
         for (int week = 1; week <= 5; week++) {
-          final state = testState.copyWith(
-            progressionConfigId: config.id,
-            currentWeek: week,
-          );
+          final state = testState.copyWith(progressionConfigId: config.id, currentWeek: week);
           await progressionService.saveProgressionState(state);
           final result = await progressionService.calculateProgression(
             config.id,
@@ -628,10 +557,7 @@ void main() {
         }
 
         // Semana 6: DELOAD
-        final deloadState = testState.copyWith(
-          progressionConfigId: config.id,
-          currentWeek: 6,
-        );
+        final deloadState = testState.copyWith(progressionConfigId: config.id, currentWeek: 6);
         await progressionService.saveProgressionState(deloadState);
         final deloadResult = await progressionService.calculateProgression(
           config.id,
@@ -674,8 +600,7 @@ void main() {
 
           expect(result.newWeight, equals(100.0 + (week * 2.5)));
           expect(result.reason, isNot(contains('deload')));
-          currentWeight =
-              result.newWeight; // Actualizar para la siguiente semana
+          currentWeight = result.newWeight; // Actualizar para la siguiente semana
         }
       });
 
@@ -697,10 +622,7 @@ void main() {
           deloadState.currentSets,
         );
         expect(deloadResult.reason, contains('deload'));
-        expect(
-          deloadResult.newWeight,
-          equals(100.0),
-        ); // Sin incremento previo → deload proporcional no cambia peso
+        expect(deloadResult.newWeight, equals(100.0)); // Sin incremento previo → deload proporcional no cambia peso
       });
 
       test('should handle very long cycles correctly', () async {
@@ -713,10 +635,7 @@ void main() {
         await progressionService.saveProgressionConfig(config);
 
         // Semana 12: DELOAD
-        final deloadState = testState.copyWith(
-          progressionConfigId: config.id,
-          currentWeek: 12,
-        );
+        final deloadState = testState.copyWith(progressionConfigId: config.id, currentWeek: 12);
         await progressionService.saveProgressionState(deloadState);
         final deloadResult = await progressionService.calculateProgression(
           config.id,
@@ -726,16 +645,10 @@ void main() {
           deloadState.currentSets,
         );
         expect(deloadResult.reason, contains('deload'));
-        expect(
-          deloadResult.newWeight,
-          equals(100.0),
-        ); // Sin incremento acumulado
+        expect(deloadResult.newWeight, equals(100.0)); // Sin incremento acumulado
 
         // Semana 13: Nuevo ciclo
-        final newCycleState = testState.copyWith(
-          currentWeek: 13,
-          currentWeight: 70.0,
-        );
+        final newCycleState = testState.copyWith(currentWeek: 13, currentWeight: 70.0);
         final newCycleResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',

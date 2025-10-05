@@ -112,14 +112,8 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.linear);
-      expect(
-        progressionType.displayNameKey,
-        equals('progression.types.linear'),
-      );
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.linearDescription'),
-      );
+      expect(progressionType.displayNameKey, equals('progression.types.linear'));
+      expect(progressionType.descriptionKey, equals('progression.types.linearDescription'));
     });
 
     test('should identify undulating progression correctly', () {
@@ -128,14 +122,8 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.undulating);
-      expect(
-        progressionType.displayNameKey,
-        equals('progression.types.undulating'),
-      );
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.undulatingDescription'),
-      );
+      expect(progressionType.displayNameKey, equals('progression.types.undulating'));
+      expect(progressionType.descriptionKey, equals('progression.types.undulatingDescription'));
     });
 
     test('should identify stepped progression correctly', () {
@@ -144,14 +132,8 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.stepped);
-      expect(
-        progressionType.displayNameKey,
-        equals('progression.types.stepped'),
-      );
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.steppedDescription'),
-      );
+      expect(progressionType.displayNameKey, equals('progression.types.stepped'));
+      expect(progressionType.descriptionKey, equals('progression.types.steppedDescription'));
     });
 
     test('should identify double progression correctly', () {
@@ -160,14 +142,8 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.double);
-      expect(
-        progressionType.displayNameKey,
-        equals('progression.types.double'),
-      );
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.doubleDescription'),
-      );
+      expect(progressionType.displayNameKey, equals('progression.types.double'));
+      expect(progressionType.descriptionKey, equals('progression.types.doubleDescription'));
     });
 
     test('should identify wave progression correctly', () {
@@ -177,10 +153,7 @@ void main() {
       // Act & Assert
       expect(progressionType, ProgressionType.wave);
       expect(progressionType.displayNameKey, equals('progression.types.wave'));
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.waveDescription'),
-      );
+      expect(progressionType.descriptionKey, equals('progression.types.waveDescription'));
     });
 
     test('should identify static progression correctly', () {
@@ -189,14 +162,8 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.static);
-      expect(
-        progressionType.displayNameKey,
-        equals('progression.types.static'),
-      );
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.staticDescription'),
-      );
+      expect(progressionType.displayNameKey, equals('progression.types.static'));
+      expect(progressionType.descriptionKey, equals('progression.types.staticDescription'));
     });
 
     test('should identify reverse progression correctly', () {
@@ -205,14 +172,8 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.reverse);
-      expect(
-        progressionType.displayNameKey,
-        equals('progression.types.reverse'),
-      );
-      expect(
-        progressionType.descriptionKey,
-        equals('progression.types.reverseDescription'),
-      );
+      expect(progressionType.displayNameKey, equals('progression.types.reverse'));
+      expect(progressionType.descriptionKey, equals('progression.types.reverseDescription'));
     });
   });
 
@@ -223,10 +184,7 @@ void main() {
 
       // Act & Assert
       expect(progressionUnit, ProgressionUnit.session);
-      expect(
-        progressionUnit.displayNameKey,
-        equals('progression.units.session'),
-      );
+      expect(progressionUnit.displayNameKey, equals('progression.units.session'));
     });
 
     test('should identify week unit correctly', () {
@@ -246,10 +204,7 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.weight);
-      expect(
-        progressionTarget.displayNameKey,
-        equals('progression.targets.weight'),
-      );
+      expect(progressionTarget.displayNameKey, equals('progression.targets.weight'));
     });
 
     test('should identify reps target correctly', () {
@@ -258,10 +213,7 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.reps);
-      expect(
-        progressionTarget.displayNameKey,
-        equals('progression.targets.reps'),
-      );
+      expect(progressionTarget.displayNameKey, equals('progression.targets.reps'));
     });
 
     test('should identify sets target correctly', () {
@@ -270,10 +222,7 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.sets);
-      expect(
-        progressionTarget.displayNameKey,
-        equals('progression.targets.sets'),
-      );
+      expect(progressionTarget.displayNameKey, equals('progression.targets.sets'));
     });
 
     test('should identify volume target correctly', () {
@@ -282,10 +231,7 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.volume);
-      expect(
-        progressionTarget.displayNameKey,
-        equals('progression.targets.volume'),
-      );
+      expect(progressionTarget.displayNameKey, equals('progression.targets.volume'));
     });
   });
 
@@ -343,10 +289,7 @@ void main() {
 
       // Act - Test reps progression
       final newReps = currentReps < maxReps ? currentReps + 1 : minReps;
-      final newWeight =
-          currentReps >= maxReps
-              ? currentWeight + incrementValue
-              : currentWeight;
+      final newWeight = currentReps >= maxReps ? currentWeight + incrementValue : currentWeight;
 
       // Assert
       expect(newReps, 11); // Should increase reps
@@ -354,8 +297,7 @@ void main() {
 
       // Act - Test weight progression when at max reps
       final finalReps = 12 >= maxReps ? minReps : 12;
-      final finalWeight =
-          12 >= maxReps ? currentWeight + incrementValue : currentWeight;
+      final finalWeight = 12 >= maxReps ? currentWeight + incrementValue : currentWeight;
 
       // Assert
       expect(finalReps, minReps); // Should reset to min reps

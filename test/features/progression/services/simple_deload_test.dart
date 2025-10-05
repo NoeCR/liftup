@@ -19,31 +19,31 @@ void main() {
       // Test deload week calculation logic
       final cycleLength = 4;
       final deloadWeek = 4;
-      
+
       // Week 1: Not deload
       final week1 = 1;
       final weekInCycle1 = ((week1 - 1) % cycleLength) + 1;
       final isDeloadWeek1 = weekInCycle1 == deloadWeek;
       expect(isDeloadWeek1, isFalse);
-      
+
       // Week 2: Not deload
       final week2 = 2;
       final weekInCycle2 = ((week2 - 1) % cycleLength) + 1;
       final isDeloadWeek2 = weekInCycle2 == deloadWeek;
       expect(isDeloadWeek2, isFalse);
-      
+
       // Week 3: Not deload
       final week3 = 3;
       final weekInCycle3 = ((week3 - 1) % cycleLength) + 1;
       final isDeloadWeek3 = weekInCycle3 == deloadWeek;
       expect(isDeloadWeek3, isFalse);
-      
+
       // Week 4: DELOAD
       final week4 = 4;
       final weekInCycle4 = ((week4 - 1) % cycleLength) + 1;
       final isDeloadWeek4 = weekInCycle4 == deloadWeek;
       expect(isDeloadWeek4, isTrue);
-      
+
       // Week 5: New cycle, week 1 (not deload)
       final week5 = 5;
       final weekInCycle5 = ((week5 - 1) % cycleLength) + 1;
@@ -55,10 +55,10 @@ void main() {
     test('should validate deload percentage calculation', () {
       final baseWeight = 100.0;
       final deloadPercentage = 0.8;
-      
+
       final deloadWeight = baseWeight * deloadPercentage;
       expect(deloadWeight, equals(80.0));
-      
+
       // Test different deload percentages
       expect(100.0 * 0.7, equals(70.0));
       expect(100.0 * 0.75, equals(75.0));
@@ -69,10 +69,10 @@ void main() {
     test('should validate sets reduction during deload', () {
       final baseSets = 3;
       final setsReduction = 0.7;
-      
+
       final deloadSets = (baseSets * setsReduction).round();
       expect(deloadSets, equals(2));
-      
+
       // Test different set counts
       expect((4 * 0.7).round(), equals(3));
       expect((5 * 0.7).round(), equals(4));
@@ -81,19 +81,19 @@ void main() {
 
     test('should validate cycle continuation after deload', () {
       final cycleLength = 4;
-      
+
       // Test multiple cycles
       for (int week = 1; week <= 12; week++) {
         final weekInCycle = ((week - 1) % cycleLength) + 1;
         final isDeloadWeek = weekInCycle == 4;
-        
+
         // Every 4th week should be deload
         if (week % 4 == 0) {
           expect(isDeloadWeek, isTrue, reason: 'Week $week should be deload week');
         } else {
           expect(isDeloadWeek, isFalse, reason: 'Week $week should not be deload week');
         }
-        
+
         // Week in cycle should be 1-4
         expect(weekInCycle, inInclusiveRange(1, 4));
       }
@@ -159,11 +159,11 @@ void main() {
 
     test('should validate progression types support deload', () {
       final progressionTypes = ProgressionType.values;
-      
+
       for (final type in progressionTypes) {
         // All progression types should support deload
         expect(type, isNotNull);
-        
+
         // Test that we can create a config for each type
         final config = ProgressionConfig(
           id: 'test-${type.name}',
@@ -182,7 +182,7 @@ void main() {
           updatedAt: DateTime.now(),
           customParameters: {},
         );
-        
+
         expect(config.type, equals(type));
       }
     });
@@ -206,9 +206,9 @@ void main() {
         updatedAt: DateTime.now(),
         customParameters: {},
       );
-      
+
       expect(noDeloadConfig.deloadWeek, equals(0));
-      
+
       // Test very long cycles
       final longCycleConfig = ProgressionConfig(
         id: 'long-cycle',
@@ -227,7 +227,7 @@ void main() {
         updatedAt: DateTime.now(),
         customParameters: {},
       );
-      
+
       expect(longCycleConfig.cycleLength, equals(12));
       expect(longCycleConfig.deloadWeek, equals(12));
     });

@@ -3,25 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:liftup/features/progression/notifiers/progression_notifier.dart';
-import '../services/progression_service.dart';
 import '../../../common/enums/progression_type_enum.dart';
 import '../../../core/logging/logging.dart';
 
 class ProgressionConfigurationPage extends ConsumerStatefulWidget {
   final ProgressionType progressionType;
 
-  const ProgressionConfigurationPage({
-    super.key,
-    required this.progressionType,
-  });
+  const ProgressionConfigurationPage({super.key, required this.progressionType});
 
   @override
-  ConsumerState<ProgressionConfigurationPage> createState() =>
-      _ProgressionConfigurationPageState();
+  ConsumerState<ProgressionConfigurationPage> createState() => _ProgressionConfigurationPageState();
 }
 
-class _ProgressionConfigurationPageState
-    extends ConsumerState<ProgressionConfigurationPage> {
+class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfigurationPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Valores por defecto
@@ -120,26 +114,15 @@ class _ProgressionConfigurationPageState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'progression.configureProgression'.tr() +
-              ' ${context.tr(widget.progressionType.displayNameKey)}',
-        ),
+        title: Text('${'progression.configureProgression'.tr()} ${context.tr(widget.progressionType.displayNameKey)}'),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.restore),
-            tooltip: 'Restaurar plantillas',
-            onPressed: _restoreTemplates,
-          ),
+          IconButton(icon: const Icon(Icons.restore), tooltip: 'Restaurar plantillas', onPressed: _restoreTemplates),
           TextButton(
             onPressed: _isLoading ? null : _saveProgression,
             child:
                 _isLoading
-                    ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : Text('common.save'.tr()),
           ),
         ],
@@ -174,17 +157,9 @@ class _ProgressionConfigurationPageState
                   onPressed: _isLoading ? null : _saveProgression,
                   icon:
                       _isLoading
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                           : const Icon(Icons.save),
-                  label: Text(
-                    _isLoading
-                        ? 'progression.saving'.tr()
-                        : 'progression.saveProgression'.tr(),
-                  ),
+                  label: Text(_isLoading ? 'progression.saving'.tr() : 'progression.saveProgression'.tr()),
                 ),
               ),
             ],
@@ -210,30 +185,21 @@ class _ProgressionConfigurationPageState
                 const SizedBox(width: 8),
                 Text(
                   'progression.progressionConfiguration'.tr(),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12),
+            Text('progression.globalProgressionDescription'.tr(), style: theme.textTheme.bodyMedium),
+            const SizedBox(height: 4),
             Text(
-              'progression.globalProgressionDescription'.tr(),
+              '${'progression.types.${widget.progressionType.name}'.tr()}: ${context.tr(widget.progressionType.displayNameKey)}',
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'progression.types.${widget.progressionType.name}'.tr() +
-                  ': ${context.tr(widget.progressionType.displayNameKey)}',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'progression.types.${widget.progressionType.name}Description'
-                  .tr(),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              'progression.types.${widget.progressionType.name}Description'.tr(),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -252,9 +218,7 @@ class _ProgressionConfigurationPageState
           children: [
             Text(
               'progression.basicConfiguration'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
@@ -267,12 +231,7 @@ class _ProgressionConfigurationPageState
               ),
               items:
                   ProgressionUnit.values
-                      .map(
-                        (unit) => DropdownMenuItem(
-                          value: unit,
-                          child: Text(context.tr(unit.displayNameKey)),
-                        ),
-                      )
+                      .map((unit) => DropdownMenuItem(value: unit, child: Text(context.tr(unit.displayNameKey))))
                       .toList(),
               onChanged: (value) {
                 setState(() {
@@ -291,12 +250,7 @@ class _ProgressionConfigurationPageState
               ),
               items:
                   ProgressionTarget.values
-                      .map(
-                        (target) => DropdownMenuItem(
-                          value: target,
-                          child: Text(context.tr(target.displayNameKey)),
-                        ),
-                      )
+                      .map((target) => DropdownMenuItem(value: target, child: Text(context.tr(target.displayNameKey))))
                       .toList(),
               onChanged: (value) {
                 setState(() {
@@ -314,15 +268,9 @@ class _ProgressionConfigurationPageState
                 helperText: 'progression.secondaryTargetHelper'.tr(),
               ),
               items: [
-                DropdownMenuItem<ProgressionTarget?>(
-                  value: null,
-                  child: Text('progression.none'.tr()),
-                ),
+                DropdownMenuItem<ProgressionTarget?>(value: null, child: Text('progression.none'.tr())),
                 ...ProgressionTarget.values.map(
-                  (target) => DropdownMenuItem(
-                    value: target,
-                    child: Text(context.tr(target.displayNameKey)),
-                  ),
+                  (target) => DropdownMenuItem(value: target, child: Text(context.tr(target.displayNameKey))),
                 ),
               ],
               onChanged: (value) {
@@ -348,9 +296,7 @@ class _ProgressionConfigurationPageState
           children: [
             Text(
               'progression.advancedConfiguration'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
@@ -385,10 +331,7 @@ class _ProgressionConfigurationPageState
               decoration: InputDecoration(
                 labelText: 'progression.incrementFrequency'.tr(),
                 helperText: 'progression.incrementFrequencyHelper'.tr(),
-                suffixText:
-                    _unit == ProgressionUnit.session
-                        ? 'progression.sessions'.tr()
-                        : 'progression.weeks'.tr(),
+                suffixText: _unit == ProgressionUnit.session ? 'progression.sessions'.tr() : 'progression.weeks'.tr(),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -497,16 +440,12 @@ class _ProgressionConfigurationPageState
           children: [
             Text(
               'progression.customParameters'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'progression.customParameters'.tr(),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
 
@@ -566,10 +505,7 @@ class _ProgressionConfigurationPageState
           const SizedBox(height: 16),
           TextFormField(
             initialValue: _customParameters['rpe_range']?.toString() ?? '2',
-            decoration: const InputDecoration(
-              labelText: 'Rango de RPE',
-              helperText: 'Variación permitida en el RPE',
-            ),
+            decoration: const InputDecoration(labelText: 'Rango de RPE', helperText: 'Variación permitida en el RPE'),
             keyboardType: TextInputType.number,
             onSaved: (value) {
               _customParameters['rpe_range'] = int.parse(value!);
@@ -594,9 +530,7 @@ class _ProgressionConfigurationPageState
 
   Future<void> _restoreTemplates() async {
     try {
-      final progressionNotifier = ref.read(
-        progressionNotifierProvider.notifier,
-      );
+      final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
       await progressionNotifier.restoreTemplates();
 
       if (mounted) {
@@ -609,12 +543,9 @@ class _ProgressionConfigurationPageState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error restaurando plantillas: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error restaurando plantillas: $e'), backgroundColor: Colors.red));
       }
     }
   }
@@ -630,9 +561,7 @@ class _ProgressionConfigurationPageState
     });
 
     try {
-      final progressionNotifier = ref.read(
-        progressionNotifierProvider.notifier,
-      );
+      final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
 
       await progressionNotifier.setProgression(
         type: widget.progressionType,
@@ -647,19 +576,16 @@ class _ProgressionConfigurationPageState
         customParameters: _customParameters,
       );
 
-      LoggingService.instance.info(
-        'Global progression configuration saved successfully',
-        {'type': widget.progressionType.name},
-      );
+      LoggingService.instance.info('Global progression configuration saved successfully', {
+        'type': widget.progressionType.name,
+      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               'progression.progressionConfiguredSuccessfully'.tr(
-                namedArgs: {
-                  'type': context.tr(widget.progressionType.displayNameKey),
-                },
+                namedArgs: {'type': context.tr(widget.progressionType.displayNameKey)},
               ),
             ),
             backgroundColor: Colors.green,
@@ -669,20 +595,14 @@ class _ProgressionConfigurationPageState
         context.pop();
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error saving progression configuration',
-        e,
-        stackTrace,
-        {'type': widget.progressionType.name},
-      );
+      LoggingService.instance.error('Error saving progression configuration', e, stackTrace, {
+        'type': widget.progressionType.name,
+      });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al guardar la progresión: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al guardar la progresión: $e'), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {

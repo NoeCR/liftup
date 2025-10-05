@@ -37,14 +37,11 @@ enum ExportType {
   }
 
   /// Lista de todas las extensiones soportadas
-  static List<String> get supportedExtensions =>
-      ExportType.values.map((e) => e.extension).toList();
+  static List<String> get supportedExtensions => ExportType.values.map((e) => e.extension).toList();
 
   /// Lista de todos los tipos MIME soportados
-  static List<String> get supportedMimeTypes =>
-      ExportType.values.map((e) => e.mimeType).toList();
+  static List<String> get supportedMimeTypes => ExportType.values.map((e) => e.mimeType).toList();
 
   /// Lista de todos los nombres para mostrar
-  static List<String> get displayNames =>
-      ExportType.values.map((e) => e.displayName).toList();
+  static List<String> get displayNames => ExportType.values.map((e) => e.displayName).toList();
 }

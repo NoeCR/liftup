@@ -27,7 +27,7 @@ class SectionHeader extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Material(
-        color: colorScheme.surfaceVariant,
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: onToggleCollapsed,
@@ -38,9 +38,7 @@ class SectionHeader extends StatelessWidget {
               children: [
                 if (iconName != null || muscleGroup != null) ...[
                   Icon(
-                    _getIconData(
-                      iconName ?? muscleGroup?.iconName ?? 'fitness_center',
-                    ),
+                    _getIconData(iconName ?? muscleGroup?.iconName ?? 'fitness_center'),
                     color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
@@ -61,10 +59,7 @@ class SectionHeader extends StatelessWidget {
                 AnimatedRotation(
                   turns: isCollapsed ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  child: Icon(Icons.keyboard_arrow_down, color: colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

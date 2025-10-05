@@ -16,11 +16,7 @@ class CustomBottomNavigation extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
+          BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, -2)),
         ],
       ),
       child: SafeArea(
@@ -101,20 +97,14 @@ class CustomBottomNavigation extends StatelessWidget {
           children: [
             Icon(
               isActive ? activeIcon : icon,
-              color:
-                  isActive
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.onSurfaceVariant,
+              color: isActive ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
               size: 24,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color:
-                    isActive
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurfaceVariant,
+                color: isActive ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
               ),
             ),

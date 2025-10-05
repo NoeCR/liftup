@@ -6,6 +6,4 @@ final restVibrationEnabledProvider = StateProvider<bool>((ref) => true);
 
 enum RestSoundType { notification, alarm }
 
-final restSoundTypeProvider = StateProvider<RestSoundType>(
-  (ref) => RestSoundType.notification,
-);
+final restSoundTypeProvider = StateProvider<RestSoundType>((ref) => RestSoundType.notification);

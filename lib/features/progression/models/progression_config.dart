@@ -79,8 +79,7 @@ class ProgressionConfig extends Equatable {
     required this.updatedAt,
   });
 
-  factory ProgressionConfig.fromJson(Map<String, dynamic> json) =>
-      _$ProgressionConfigFromJson(json);
+  factory ProgressionConfig.fromJson(Map<String, dynamic> json) => _$ProgressionConfigFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionConfigToJson(this);
 
   ProgressionConfig copyWith({

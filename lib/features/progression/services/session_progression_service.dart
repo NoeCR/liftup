@@ -86,16 +86,14 @@ class SessionProgressionService extends _$SessionProgressionService {
             ProgressionState? progressionState = await progressionNotifier
                 .getExerciseProgressionState(exercise.exerciseId);
 
-            if (progressionState == null) {
-              // Inicializar progresión para este ejercicio
-              progressionState = await progressionNotifier
-                  .initializeExerciseProgression(
-                    exerciseId: exercise.exerciseId,
-                    baseWeight: exerciseModel.defaultWeight ?? 0.0,
-                    baseReps: exerciseModel.defaultReps ?? 10,
-                    baseSets: exerciseModel.defaultSets ?? 3,
-                  );
-            }
+            // Inicializar progresión para este ejercicio
+            progressionState ??= await progressionNotifier
+                .initializeExerciseProgression(
+                  exerciseId: exercise.exerciseId,
+                  baseWeight: exerciseModel.defaultWeight ?? 0.0,
+                  baseReps: exerciseModel.defaultReps ?? 10,
+                  baseSets: exerciseModel.defaultSets ?? 3,
+                );
 
             // Log del estado actual antes del cálculo
             LoggingService.instance

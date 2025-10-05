@@ -25,7 +25,7 @@ class RoutineSectionTemplateNotifier extends _$RoutineSectionTemplateNotifier {
   }) async {
     final service = ref.read(routineSectionTemplateServiceProvider.notifier);
     final currentTemplates = await future;
-    
+
     final newTemplate = RoutineSectionTemplate(
       id: _uuid.v4(),
       name: name,
@@ -45,7 +45,7 @@ class RoutineSectionTemplateNotifier extends _$RoutineSectionTemplateNotifier {
   Future<void> updateSectionTemplate(RoutineSectionTemplate template) async {
     final service = ref.read(routineSectionTemplateServiceProvider.notifier);
     final updatedTemplate = template.copyWith(updatedAt: DateTime.now());
-    
+
     await service.saveSectionTemplate(updatedTemplate);
     ref.invalidateSelf();
   }

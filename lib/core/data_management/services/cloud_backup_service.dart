@@ -66,7 +66,7 @@ class MockCloudBackupService implements CloudBackupService {
       );
 
       // Usar ExportFactory para crear el exportador JSON
-      final exporter = await ExportFactory.createExporter(
+      final exporter = ExportFactory.createExporter(
         type: ExportType.json,
         config: exportConfig,
         routines: routines,
@@ -76,7 +76,7 @@ class MockCloudBackupService implements CloudBackupService {
         userSettings: {},
         metadata: await MetadataService.instance.createExportMetadata(),
       );
-      
+
       final filePath = await exporter.export();
       final file = File(filePath);
       final sizeBytes = await file.length();
@@ -107,11 +107,7 @@ class MockCloudBackupService implements CloudBackupService {
       // Limpiar archivo temporal
       await file.delete();
 
-      return BackupResult.success(
-        backupId: backupId,
-        sizeBytes: sizeBytes,
-        completedAt: DateTime.now(),
-      );
+      return BackupResult.success(backupId: backupId, sizeBytes: sizeBytes, completedAt: DateTime.now());
     } catch (e) {
       return BackupResult.failure('Error al subir backup: $e');
     }
@@ -122,7 +118,7 @@ class MockCloudBackupService implements CloudBackupService {
     try {
       // Simular descarga desde la nube
       await Future.delayed(const Duration(seconds: 1));
-      
+
       return _backupData[backupId];
     } catch (e) {
       return null;
@@ -134,10 +130,8 @@ class MockCloudBackupService implements CloudBackupService {
     try {
       // Simular consulta a la nube
       await Future.delayed(const Duration(milliseconds: 500));
-      
-      return _backups.values
-          .where((backup) => backup.userId == userId)
-          .toList()
+
+      return _backups.values.where((backup) => backup.userId == userId).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       return [];
@@ -149,10 +143,10 @@ class MockCloudBackupService implements CloudBackupService {
     try {
       // Simular eliminación en la nube
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       _backups.remove(backupId);
       _backupData.remove(backupId);
-      
+
       return true;
     } catch (e) {
       return false;
@@ -164,7 +158,7 @@ class MockCloudBackupService implements CloudBackupService {
     try {
       // Simular consulta a la nube
       await Future.delayed(const Duration(milliseconds: 300));
-      
+
       return _backups[backupId];
     } catch (e) {
       return null;
@@ -185,18 +179,16 @@ class AutoBackupService {
   final BackupConfig _config;
   DateTime? _lastBackupTime;
 
-  AutoBackupService({
-    required CloudBackupService cloudService,
-    required BackupConfig config,
-  })  : _cloudService = cloudService,
-        _config = config;
+  AutoBackupService({required CloudBackupService cloudService, required BackupConfig config})
+    : _cloudService = cloudService,
+      _config = config;
 
   /// Verifica si es necesario hacer un backup
   bool shouldBackup() {
     if (!_config.enabled) return false;
-    
+
     if (_lastBackupTime == null) return true;
-    
+
     final timeSinceLastBackup = DateTime.now().difference(_lastBackupTime!);
     return timeSinceLastBackup.inHours >= _config.intervalHours;
   }
@@ -258,11 +250,11 @@ class AutoBackupService {
   /// Limpia backups antiguos
   Future<void> cleanupOldBackups(String userId) async {
     final backups = await _cloudService.listBackups(userId);
-    
+
     if (backups.length > _config.maxBackups) {
       // Ordenar por fecha de creación (más antiguos primero)
       backups.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      
+
       // Eliminar los más antiguos
       final toDelete = backups.take(backups.length - _config.maxBackups);
       for (final backup in toDelete) {

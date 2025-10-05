@@ -83,8 +83,7 @@ class ProgressionTemplate extends Equatable {
     required this.createdAt,
   });
 
-  factory ProgressionTemplate.fromJson(Map<String, dynamic> json) =>
-      _$ProgressionTemplateFromJson(json);
+  factory ProgressionTemplate.fromJson(Map<String, dynamic> json) => _$ProgressionTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionTemplateToJson(this);
 
   ProgressionTemplate copyWith({
@@ -131,23 +130,23 @@ class ProgressionTemplate extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        type,
-        defaultUnit,
-        defaultPrimaryTarget,
-        defaultSecondaryTarget,
-        defaultIncrementValue,
-        defaultIncrementFrequency,
-        defaultCycleLength,
-        defaultDeloadWeek,
-        defaultDeloadPercentage,
-        defaultParameters,
-        recommendedFor,
-        difficulty,
-        example,
-        isBuiltIn,
-        createdAt,
-      ];
+    id,
+    name,
+    description,
+    type,
+    defaultUnit,
+    defaultPrimaryTarget,
+    defaultSecondaryTarget,
+    defaultIncrementValue,
+    defaultIncrementFrequency,
+    defaultCycleLength,
+    defaultDeloadWeek,
+    defaultDeloadPercentage,
+    defaultParameters,
+    recommendedFor,
+    difficulty,
+    example,
+    isBuiltIn,
+    createdAt,
+  ];
 }

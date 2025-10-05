@@ -42,8 +42,7 @@ class ExerciseSet extends Equatable {
     required this.isCompleted,
   });
 
-  factory ExerciseSet.fromJson(Map<String, dynamic> json) =>
-      _$ExerciseSetFromJson(json);
+  factory ExerciseSet.fromJson(Map<String, dynamic> json) => _$ExerciseSetFromJson(json);
   Map<String, dynamic> toJson() => _$ExerciseSetToJson(this);
 
   ExerciseSet copyWith({
@@ -69,14 +68,5 @@ class ExerciseSet extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    exerciseId,
-    reps,
-    weight,
-    restTimeSeconds,
-    notes,
-    completedAt,
-    isCompleted,
-  ];
+  List<Object?> get props => [id, exerciseId, reps, weight, restTimeSeconds, notes, completedAt, isCompleted];
 }

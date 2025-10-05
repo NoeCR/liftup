@@ -1,8 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftup/common/enums/week_day_enum.dart';
-import 'package:liftup/features/progression/services/session_progression_service.dart';
 import 'package:liftup/features/progression/models/progression_config.dart';
-import 'package:liftup/features/progression/models/progression_state.dart';
 import 'package:liftup/features/home/models/routine.dart';
 import 'package:liftup/features/exercise/models/exercise.dart';
 import 'package:liftup/common/enums/progression_type_enum.dart';
@@ -10,15 +8,12 @@ import 'package:liftup/common/enums/muscle_group_enum.dart';
 
 void main() {
   group('Session Frequency Progression Tests', () {
-    late SessionProgressionService sessionProgressionService;
     late ProgressionConfig singleSessionConfig;
     late ProgressionConfig multiSessionConfig;
     late Routine testRoutine;
     late Exercise testExercise;
 
     setUp(() {
-      sessionProgressionService = SessionProgressionService();
-
       // Configuración para rutinas de 1 sesión por semana
       singleSessionConfig = ProgressionConfig(
         id: 'single-session-config',
@@ -128,18 +123,9 @@ void main() {
         expect(testExercise.restTimeSeconds, greaterThan(0));
 
         // Validar que los valores por defecto son realistas
-        expect(
-          testExercise.defaultWeight,
-          lessThan(500),
-        ); // Peso máximo razonable
-        expect(
-          testExercise.defaultSets,
-          lessThanOrEqualTo(10),
-        ); // Sets máximos razonables
-        expect(
-          testExercise.defaultReps,
-          lessThanOrEqualTo(50),
-        ); // Reps máximas razonables
+        expect(testExercise.defaultWeight, lessThan(500)); // Peso máximo razonable
+        expect(testExercise.defaultSets, lessThanOrEqualTo(10)); // Sets máximos razonables
+        expect(testExercise.defaultReps, lessThanOrEqualTo(50)); // Reps máximas razonables
       });
 
       test('should validate routine-exercise relationship', () {
@@ -164,35 +150,25 @@ void main() {
     });
 
     group('Single Session Per Week Logic', () {
-      test(
-        'should apply progression every session for single session routines',
-        () async {
-          // Simular que no hay progresión activa para evitar dependencias
-          // En un test real, esto se mockearía
+      test('should apply progression every session for single session routines', () async {
+        // Simular que no hay progresión activa para evitar dependencias
+        // En un test real, esto se mockearía
 
-          // Para rutinas de 1 sesión por semana, la progresión debería aplicarse
-          // en cada sesión ya que cada sesión representa una semana completa
+        // Para rutinas de 1 sesión por semana, la progresión debería aplicarse
+        // en cada sesión ya que cada sesión representa una semana completa
 
-          // Este test valida la lógica conceptual:
-          // - sessions_per_week = 1 → aplicar progresión siempre
-          // - sessions_per_week > 1 → aplicar progresión solo en primera sesión de semana
+        // Este test valida la lógica conceptual:
+        // - sessions_per_week = 1 → aplicar progresión siempre
+        // - sessions_per_week > 1 → aplicar progresión solo en primera sesión de semana
 
-          expect(
-            singleSessionConfig.customParameters['sessions_per_week'],
-            equals(1),
-          );
-          expect(
-            multiSessionConfig.customParameters['sessions_per_week'],
-            equals(3),
-          );
-        },
-      );
+        expect(singleSessionConfig.customParameters['sessions_per_week'], equals(1));
+        expect(multiSessionConfig.customParameters['sessions_per_week'], equals(3));
+      });
 
       test('should handle single session progression correctly', () {
         // Validar que la configuración de 1 sesión por semana
         // se identifica correctamente
-        final sessionsPerWeek =
-            singleSessionConfig.customParameters['sessions_per_week'] ?? 3;
+        final sessionsPerWeek = singleSessionConfig.customParameters['sessions_per_week'] ?? 3;
         expect(sessionsPerWeek, equals(1));
 
         // Para rutinas de 1 sesión, la lógica debería ser:
@@ -206,8 +182,7 @@ void main() {
       test('should handle multi session progression correctly', () {
         // Validar que la configuración de múltiples sesiones por semana
         // se identifica correctamente
-        final sessionsPerWeek =
-            multiSessionConfig.customParameters['sessions_per_week'] ?? 3;
+        final sessionsPerWeek = multiSessionConfig.customParameters['sessions_per_week'] ?? 3;
         expect(sessionsPerWeek, equals(3));
 
         // Para rutinas de múltiples sesiones, la lógica debería ser:
@@ -218,32 +193,14 @@ void main() {
 
       test('should validate session frequency parameters', () {
         // Validar que todas las configuraciones tienen el parámetro sessions_per_week
-        expect(
-          singleSessionConfig.customParameters.containsKey('sessions_per_week'),
-          isTrue,
-        );
-        expect(
-          multiSessionConfig.customParameters.containsKey('sessions_per_week'),
-          isTrue,
-        );
+        expect(singleSessionConfig.customParameters.containsKey('sessions_per_week'), isTrue);
+        expect(multiSessionConfig.customParameters.containsKey('sessions_per_week'), isTrue);
 
         // Validar valores válidos
-        expect(
-          singleSessionConfig.customParameters['sessions_per_week'],
-          isA<int>(),
-        );
-        expect(
-          multiSessionConfig.customParameters['sessions_per_week'],
-          isA<int>(),
-        );
-        expect(
-          singleSessionConfig.customParameters['sessions_per_week'],
-          greaterThan(0),
-        );
-        expect(
-          multiSessionConfig.customParameters['sessions_per_week'],
-          greaterThan(0),
-        );
+        expect(singleSessionConfig.customParameters['sessions_per_week'], isA<int>());
+        expect(multiSessionConfig.customParameters['sessions_per_week'], isA<int>());
+        expect(singleSessionConfig.customParameters['sessions_per_week'], greaterThan(0));
+        expect(multiSessionConfig.customParameters['sessions_per_week'], greaterThan(0));
       });
     });
 
@@ -270,25 +227,16 @@ void main() {
 
           // Validar que el tipo tiene una frecuencia definida
           expect(expectedFrequency, greaterThan(0));
-          expect(
-            expectedFrequency,
-            lessThanOrEqualTo(7),
-          ); // Máximo 7 días por semana
+          expect(expectedFrequency, lessThanOrEqualTo(7)); // Máximo 7 días por semana
 
           // Validar que la frecuencia es apropiada para el tipo
           if (type == ProgressionType.static) {
-            expect(
-              expectedFrequency,
-              equals(1),
-              reason:
-                  'Static progression should be for single session routines',
-            );
+            expect(expectedFrequency, equals(1), reason: 'Static progression should be for single session routines');
           } else {
             expect(
               expectedFrequency,
               greaterThanOrEqualTo(2),
-              reason:
-                  'Most progression types should support multiple sessions per week',
+              reason: 'Most progression types should support multiple sessions per week',
             );
           }
         }
@@ -298,24 +246,16 @@ void main() {
         // Validar que la semana de deload es compatible con la frecuencia de sesiones
 
         // Para rutinas de 1 sesión por semana
-        expect(
-          singleSessionConfig.deloadWeek,
-          lessThanOrEqualTo(singleSessionConfig.cycleLength),
-        );
+        expect(singleSessionConfig.deloadWeek, lessThanOrEqualTo(singleSessionConfig.cycleLength));
         expect(singleSessionConfig.deloadWeek, greaterThanOrEqualTo(0));
 
         // Para rutinas de múltiples sesiones por semana
-        expect(
-          multiSessionConfig.deloadWeek,
-          lessThanOrEqualTo(multiSessionConfig.cycleLength),
-        );
+        expect(multiSessionConfig.deloadWeek, lessThanOrEqualTo(multiSessionConfig.cycleLength));
         expect(multiSessionConfig.deloadWeek, greaterThanOrEqualTo(0));
 
         // El deload no debería ser más frecuente que la frecuencia de sesiones
-        final singleSessionDeloadFrequency =
-            singleSessionConfig.cycleLength / singleSessionConfig.deloadWeek;
-        final multiSessionDeloadFrequency =
-            multiSessionConfig.cycleLength / multiSessionConfig.deloadWeek;
+        final singleSessionDeloadFrequency = singleSessionConfig.cycleLength / singleSessionConfig.deloadWeek;
+        final multiSessionDeloadFrequency = multiSessionConfig.cycleLength / multiSessionConfig.deloadWeek;
 
         expect(singleSessionDeloadFrequency, greaterThanOrEqualTo(1.0));
         expect(multiSessionDeloadFrequency, greaterThanOrEqualTo(1.0));
@@ -343,8 +283,7 @@ void main() {
         );
 
         // Debería usar un valor por defecto
-        final sessionsPerWeek =
-            configWithoutFrequency.customParameters['sessions_per_week'] ?? 3;
+        final sessionsPerWeek = configWithoutFrequency.customParameters['sessions_per_week'] ?? 3;
         expect(sessionsPerWeek, equals(3)); // Valor por defecto
       });
 
@@ -407,8 +346,7 @@ void main() {
         ];
 
         for (final config in invalidConfigs) {
-          final sessionsPerWeek =
-              config.customParameters['sessions_per_week'] ?? 3;
+          final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
 
           // Validar que los valores inválidos se detectan correctamente
           if (sessionsPerWeek <= 0 || sessionsPerWeek > 7) {
@@ -423,8 +361,7 @@ void main() {
             expect(
               correctedValue,
               inInclusiveRange(1, 7),
-              reason:
-                  'Invalid sessions_per_week should be corrected to valid range',
+              reason: 'Invalid sessions_per_week should be corrected to valid range',
             );
           }
         }
@@ -432,75 +369,38 @@ void main() {
 
       test('should handle extreme session frequencies', () {
         // Frecuencia mínima (1 sesión por semana)
-        final minFrequencyConfig = singleSessionConfig.copyWith(
-          customParameters: {'sessions_per_week': 1},
-        );
-        expect(
-          minFrequencyConfig.customParameters['sessions_per_week'],
-          equals(1),
-        );
+        final minFrequencyConfig = singleSessionConfig.copyWith(customParameters: {'sessions_per_week': 1});
+        expect(minFrequencyConfig.customParameters['sessions_per_week'], equals(1));
 
         // Frecuencia máxima (7 sesiones por semana)
-        final maxFrequencyConfig = multiSessionConfig.copyWith(
-          customParameters: {'sessions_per_week': 7},
-        );
-        expect(
-          maxFrequencyConfig.customParameters['sessions_per_week'],
-          equals(7),
-        );
+        final maxFrequencyConfig = multiSessionConfig.copyWith(customParameters: {'sessions_per_week': 7});
+        expect(maxFrequencyConfig.customParameters['sessions_per_week'], equals(7));
 
         // Validar que ambos son válidos
-        expect(
-          minFrequencyConfig.customParameters['sessions_per_week'],
-          inInclusiveRange(1, 7),
-        );
-        expect(
-          maxFrequencyConfig.customParameters['sessions_per_week'],
-          inInclusiveRange(1, 7),
-        );
+        expect(minFrequencyConfig.customParameters['sessions_per_week'], inInclusiveRange(1, 7));
+        expect(maxFrequencyConfig.customParameters['sessions_per_week'], inInclusiveRange(1, 7));
       });
     });
 
     group('Integration with Progression Logic', () {
-      test(
-        'should correctly determine progression application based on frequency',
-        () {
-          // Simular la lógica de decisión
-          bool shouldApplyProgression(
-            int sessionsPerWeek,
-            bool isFirstSessionOfWeek,
-          ) {
-            if (sessionsPerWeek == 1) {
-              return true; // Aplicar siempre para rutinas de 1 sesión
-            } else {
-              return isFirstSessionOfWeek; // Solo primera sesión para múltiples sesiones
-            }
+      test('should correctly determine progression application based on frequency', () {
+        // Simular la lógica de decisión
+        bool shouldApplyProgression(int sessionsPerWeek, bool isFirstSessionOfWeek) {
+          if (sessionsPerWeek == 1) {
+            return true; // Aplicar siempre para rutinas de 1 sesión
+          } else {
+            return isFirstSessionOfWeek; // Solo primera sesión para múltiples sesiones
           }
+        }
 
-          // Casos de prueba
-          expect(
-            shouldApplyProgression(1, false),
-            isTrue,
-          ); // 1 sesión, no primera
-          expect(shouldApplyProgression(1, true), isTrue); // 1 sesión, primera
-          expect(
-            shouldApplyProgression(3, false),
-            isFalse,
-          ); // 3 sesiones, no primera
-          expect(
-            shouldApplyProgression(3, true),
-            isTrue,
-          ); // 3 sesiones, primera
-          expect(
-            shouldApplyProgression(5, false),
-            isFalse,
-          ); // 5 sesiones, no primera
-          expect(
-            shouldApplyProgression(5, true),
-            isTrue,
-          ); // 5 sesiones, primera
-        },
-      );
+        // Casos de prueba
+        expect(shouldApplyProgression(1, false), isTrue); // 1 sesión, no primera
+        expect(shouldApplyProgression(1, true), isTrue); // 1 sesión, primera
+        expect(shouldApplyProgression(3, false), isFalse); // 3 sesiones, no primera
+        expect(shouldApplyProgression(3, true), isTrue); // 3 sesiones, primera
+        expect(shouldApplyProgression(5, false), isFalse); // 5 sesiones, no primera
+        expect(shouldApplyProgression(5, true), isTrue); // 5 sesiones, primera
+      });
 
       test('should validate progression timing consistency', () {
         // Validar que la frecuencia de sesiones es consistente con otros parámetros
@@ -514,19 +414,11 @@ void main() {
         expect(multiSessionConfig.incrementFrequency, greaterThan(0));
 
         // El incrementFrequency debería ser compatible con sessions_per_week
-        final singleSessionFrequency =
-            singleSessionConfig.customParameters['sessions_per_week']!;
-        final multiSessionFrequency =
-            multiSessionConfig.customParameters['sessions_per_week']!;
+        final singleSessionFrequency = singleSessionConfig.customParameters['sessions_per_week']!;
+        final multiSessionFrequency = multiSessionConfig.customParameters['sessions_per_week']!;
 
-        expect(
-          singleSessionConfig.incrementFrequency,
-          lessThanOrEqualTo(singleSessionFrequency),
-        );
-        expect(
-          multiSessionConfig.incrementFrequency,
-          lessThanOrEqualTo(multiSessionFrequency),
-        );
+        expect(singleSessionConfig.incrementFrequency, lessThanOrEqualTo(singleSessionFrequency));
+        expect(multiSessionConfig.incrementFrequency, lessThanOrEqualTo(multiSessionFrequency));
       });
     });
   });

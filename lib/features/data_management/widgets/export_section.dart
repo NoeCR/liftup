@@ -130,18 +130,8 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                Text(title, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+                Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -166,10 +156,8 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final exercises = await ref.read(exerciseNotifierProvider.future);
       final routines = await ref.read(routineNotifierProvider.future);
 
-      // Crear metadatos reales
       final metadata = await MetadataService.instance.createExportMetadata();
 
-      // Crear exportador JSON
       final exporter = ExportFactory.createExporter(
         type: ExportType.json,
         config: exportConfig,
@@ -184,30 +172,21 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final filePath = await exporter.export();
       await exporter.share(filePath);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr('dataManagement.dataExportedToJsonSuccessfully'),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.dataExportedToJsonSuccessfully')),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr(
-                'dataManagement.exportError',
-                namedArgs: {'error': e.toString()},
-              ),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.exportError', namedArgs: {'error': e.toString()})),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -245,30 +224,21 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final filePath = await exporter.export();
       await exporter.share(filePath);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr('dataManagement.dataExportedToCsvSuccessfully'),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.dataExportedToCsvSuccessfully')),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr(
-                'dataManagement.exportError',
-                namedArgs: {'error': e.toString()},
-              ),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.exportError', namedArgs: {'error': e.toString()})),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -306,25 +276,18 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       final filePath = await exporter.export();
       await exporter.share(filePath);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.tr('dataManagement.pdfReportGeneratedSuccessfully'),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.pdfReportGeneratedSuccessfully')),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error al generar PDF: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('❌ Error al generar PDF: $e'), backgroundColor: Colors.red));
     }
   }
 }

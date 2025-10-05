@@ -525,13 +525,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       await databaseService.forceResetDatabase();
 
       // Limpiar el estado de series realizadas
-      this.ref.read(sessionNotifierProvider.notifier).clearPerformedSets();
+      ref.read(sessionNotifierProvider.notifier).clearPerformedSets();
 
       // Invalidar todos los providers para forzar la recarga
-      this.ref.invalidate(routineNotifierProvider);
-      this.ref.invalidate(exerciseNotifierProvider);
-      this.ref.invalidate(sessionNotifierProvider);
-      this.ref.invalidate(progressNotifierProvider);
+      ref.invalidate(routineNotifierProvider);
+      ref.invalidate(exerciseNotifierProvider);
+      ref.invalidate(sessionNotifierProvider);
+      ref.invalidate(progressNotifierProvider);
 
       // Esperar un momento para que se complete la invalidación
       await Future.delayed(const Duration(milliseconds: 500));
@@ -539,7 +539,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       // Mostrar SnackBar de éxito usando la clave global
       globalScaffoldKey.currentState?.showSnackBar(
         SnackBar(
-          content: Text(context.tr('settings.deleteAllDataSuccess')),
+          content: Text(
+            globalScaffoldKey.currentContext!.tr(
+              'settings.deleteAllDataSuccess',
+            ),
+          ),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 3),
         ),

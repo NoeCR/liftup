@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
@@ -13,16 +14,14 @@ part 'progression_service.g.dart';
 
 // Provider para uso en producción (usa DatabaseService real)
 @riverpod
-ProgressionService productionProgressionService(
-  ProductionProgressionServiceRef ref,
-) {
+ProgressionService productionProgressionService(Ref ref) {
   return ProgressionService();
 }
 
 // Provider para testing (permite inyección de dependencias)
 @riverpod
 ProgressionService testProgressionService(
-  TestProgressionServiceRef ref,
+  Ref ref,
   IDatabaseService databaseService,
 ) {
   return ProgressionService(databaseService: databaseService);

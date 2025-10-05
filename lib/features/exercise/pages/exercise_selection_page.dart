@@ -160,7 +160,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                               backgroundColor:
                                   isSelected
                                       ? colorScheme.primaryContainer
-                                      : colorScheme.surfaceVariant,
+                                      : colorScheme.surfaceContainerHighest,
                               child: Icon(
                                 isSelected ? Icons.check : Icons.fitness_center,
                                 color:
@@ -535,6 +535,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       },
     );
 
+    if (!context.mounted) return;
     if (confirmed != true) return;
 
     final parsedSets = int.tryParse(setsController.text.trim()) ?? _defaultSets;
@@ -580,6 +581,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           );
         }
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -592,10 +594,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     }
 
     // Navegación segura: volver si se puede, si no, ir a Home
+    if (!mounted) return;
     if (Navigator.canPop(context)) {
-      if (context.mounted) context.pop();
+      context.pop();
     } else {
-      if (context.mounted) context.go('/');
+      context.go('/');
     }
   }
 

@@ -52,10 +52,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
                     return ListTile(
                       leading: Text(flag, style: const TextStyle(fontSize: 24)),
                       title: Text(languageName),
-                      trailing:
-                          isSelected
-                              ? const Icon(Icons.check, color: Colors.blue)
-                              : null,
+                      trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
                       onTap: () {
                         Navigator.of(context).pop();
                         _changeLanguage(context, locale);
@@ -64,10 +61,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
                   }).toList(),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.cancel')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
             ],
           ),
     );
@@ -82,12 +76,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
         try {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                context.tr(
-                  'settings.languageChanged',
-                  namedArgs: {'language': _getLanguageName(locale)},
-                ),
-              ),
+              content: Text(context.tr('settings.languageChanged', namedArgs: {'language': _getLanguageName(locale)})),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),

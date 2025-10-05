@@ -33,7 +33,7 @@ class ImportFactory {
           existingRoutines: existingRoutines,
           existingProgressData: existingProgressData,
         );
-      
+
       case ExportType.csv:
         return CsvImporter(
           config: config,
@@ -42,7 +42,7 @@ class ImportFactory {
           existingRoutines: existingRoutines,
           existingProgressData: existingProgressData,
         );
-      
+
       case ExportType.pdf:
         throw ArgumentError('La importación desde PDF no está soportada');
     }
@@ -69,10 +69,7 @@ class ImportFactory {
 
   /// Obtiene la descripción de cada tipo de importación
   static Map<ExportType, String> getTypeDescriptions() {
-    return {
-      ExportType.json: 'Archivos JSON de respaldo completo',
-      ExportType.csv: 'Archivos CSV con datos tabulares',
-    };
+    return {ExportType.json: 'Archivos JSON de respaldo completo', ExportType.csv: 'Archivos CSV con datos tabulares'};
   }
 
   /// Valida si una extensión es soportada para importación

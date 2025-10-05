@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Ensuring dependencies..."
+flutter pub get >/dev/null
+
+echo "[pre-push] Running tests..."
+flutter test
+
+echo "[pre-push] Running flutter analyze (no fatal infos)..."
+flutter analyze --no-preamble --no-fatal-infos
+
+echo "[pre-push] All tests passed. Proceeding with push."
+
+
