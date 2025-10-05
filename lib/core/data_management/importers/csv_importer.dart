@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'import_builder.dart';
 
-/// Importador específico para formato CSV
+/// CSV-specific importer
 class CsvImporter extends ImportBuilder {
   CsvImporter({
     required super.config,
@@ -29,13 +29,13 @@ class CsvImporter extends ImportBuilder {
     final errors = <String>[];
     final warnings = <String>[];
 
-    // Por ahora, solo validamos el formato básico
+    // For now, validate only the basic file format
     if (lines.isEmpty) {
       return ImportResult.failure(errorMessage: 'CSV file is empty', errors: ['Empty CSV file']);
     }
 
-    // TODO: Implementar parsing completo de CSV
-    // Por ahora, solo validamos que el archivo no esté vacío
+    // TODO: Implement full CSV parsing
+    // For now, only validate the file is not empty
     warnings.add('CSV import not fully implemented yet');
     warnings.add('Only basic file format was validated');
 

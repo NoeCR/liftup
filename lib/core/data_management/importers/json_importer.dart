@@ -6,7 +6,7 @@ import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
 import '../../../features/statistics/models/progress_data.dart';
 
-/// Importador específico para formato JSON
+/// JSON-specific importer
 class JsonImporter extends ImportBuilder {
   JsonImporter({
     required super.config,
@@ -21,7 +21,7 @@ class JsonImporter extends ImportBuilder {
     try {
       final file = File(filePath);
 
-      // Validar tamaño del archivo
+      // Validate file size
       if (await file.length() > config.maxFileSize) {
         return ImportResult.failure(errorMessage: 'File is too large', errors: ['File exceeds maximum allowed size']);
       }
@@ -41,7 +41,7 @@ class JsonImporter extends ImportBuilder {
     }
   }
 
-  /// Procesa los datos JSON y los convierte a objetos
+  /// Processes JSON and converts it into domain objects
   Future<ImportResult> _processData(Map<String, dynamic> data) async {
     final importedSessions = <WorkoutSession>[];
     final importedExercises = <Exercise>[];
@@ -53,7 +53,7 @@ class JsonImporter extends ImportBuilder {
     int importedCount = 0;
     int skippedCount = 0;
 
-    // Importar sesiones
+    // Import sessions
     if (data.containsKey('sessions')) {
       final sessionsData = data['sessions'] as List;
       for (final sessionData in sessionsData) {
@@ -72,7 +72,7 @@ class JsonImporter extends ImportBuilder {
       }
     }
 
-    // Importar ejercicios
+    // Import exercises
     if (data.containsKey('exercises')) {
       final exercisesData = data['exercises'] as List;
       for (final exerciseData in exercisesData) {
@@ -91,7 +91,7 @@ class JsonImporter extends ImportBuilder {
       }
     }
 
-    // Importar rutinas
+    // Import routines
     if (data.containsKey('routines')) {
       final routinesData = data['routines'] as List;
       for (final routineData in routinesData) {
@@ -110,7 +110,7 @@ class JsonImporter extends ImportBuilder {
       }
     }
 
-    // Importar datos de progreso
+    // Import progress data
     if (data.containsKey('progressData')) {
       final progressData = data['progressData'] as List;
       for (final progressItem in progressData) {
@@ -129,9 +129,9 @@ class JsonImporter extends ImportBuilder {
       }
     }
 
-    // Agregar advertencias si hay datos duplicados
+    // Add warnings if there were duplicates
     if (skippedCount > 0) {
-      warnings.add('$skippedCount elementos fueron omitidos porque ya existen');
+      warnings.add('$skippedCount items were skipped because they already exist');
     }
 
     return ImportResult(

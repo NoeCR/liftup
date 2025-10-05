@@ -1,46 +1,46 @@
-// Este archivo es un ejemplo de configuración de Sentry
-// Copia este archivo como sentry_config.dart y reemplaza los valores
+// Example Sentry configuration file
+// Copy this file as sentry_config.dart and replace values as needed
 
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-/// Configuración de ejemplo para Sentry
+/// Example configuration for Sentry
 class SentryConfigExample {
-  // Reemplaza con tu DSN real de Sentry
+  // Replace with your real Sentry DSN
   static const String _dnsKey = 'https://your-dsn@sentry.io/project-id';
 
-  /// Configuración de Sentry para desarrollo
+  /// Development configuration
   static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(dsn: _dnsKey);
 
-  /// Configuración de Sentry para producción
+  /// Production configuration
   static final SentryFlutterOptions productionOptions = SentryFlutterOptions(dsn: _dnsKey);
 
-  /// Obtiene la configuración apropiada según el entorno
+  /// Gets the appropriate configuration based on environment
   static SentryFlutterOptions get options {
     return kDebugMode ? developmentOptions : productionOptions;
   }
 
-  /// Filtra eventos antes de enviarlos a Sentry
+  /// Filters events before sending them to Sentry
   static SentryEvent? _beforeSend(SentryEvent event, {Hint? hint}) {
-    // Filtrar eventos de desarrollo en producción
+    // Filter development events in production
     if (!kDebugMode && event.environment == 'development') {
       return null;
     }
 
-    // Filtrar eventos con información sensible
+    // Filter events with sensitive information
     if (_containsSensitiveData(event)) {
       return null;
     }
 
-    // Añadir información adicional del dispositivo
+    // Add additional device information
     event = event.copyWith(tags: {...?event.tags, 'app_name': 'LiftUp', 'platform': defaultTargetPlatform.name});
 
     return event;
   }
 
-  /// Filtra transacciones antes de enviarlas a Sentry
+  /// Filters transactions before sending them to Sentry
   static SentryTransaction? _beforeSendTransaction(SentryTransaction transaction, {Hint? hint}) {
-    // Filtrar transacciones de desarrollo en producción
+    // Filter development transactions in production
     if (!kDebugMode && transaction.environment == 'development') {
       return null;
     }
@@ -48,7 +48,7 @@ class SentryConfigExample {
     return transaction;
   }
 
-  /// Verifica si el evento contiene información sensible
+  /// Checks whether the event contains sensitive information
   static bool _containsSensitiveData(SentryEvent event) {
     final message = event.message?.formatted.toLowerCase() ?? '';
     final exception = event.exceptions?.firstOrNull?.value?.toLowerCase() ?? '';
@@ -58,72 +58,72 @@ class SentryConfigExample {
     return sensitiveKeywords.any((keyword) => message.contains(keyword) || exception.contains(keyword));
   }
 
-  /// Configuración inicial de Sentry
+  /// Sentry initialization
   static Future<void> initialize() async {
     await SentryFlutter.init(
       (options) {
-        // Configuración básica
+        // Basic configuration
         options.dsn = _dnsKey;
         options.debug = kDebugMode;
         options.environment = kDebugMode ? 'development' : 'production';
         options.release = 'liftup@1.0.0+1';
 
-        // Configuraciones de rendimiento
+        // Performance configuration
         options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
         options.profilesSampleRate = kDebugMode ? 1.0 : 0.1;
 
-        // Configuraciones de sesión
+        // Session configuration
         options.enableAutoSessionTracking = true;
         options.maxBreadcrumbs = kDebugMode ? 100 : 50;
 
-        // Filtros
+        // Filters
         options.beforeSend = _beforeSend as BeforeSendCallback?;
         options.beforeSendTransaction = _beforeSendTransaction as BeforeSendTransactionCallback?;
 
-        // Configuraciones adicionales
+        // Additional configuration
         options.attachScreenshot = true;
         options.attachViewHierarchy = true;
         options.enableUserInteractionTracing = true;
         options.enableAutoPerformanceTracing = true;
       },
       appRunner: () {
-        // La aplicación se ejecutará después de la inicialización
+        // The app will run after initialization
       },
     );
   }
 }
 
 /*
-INSTRUCCIONES DE CONFIGURACIÓN:
+SETUP INSTRUCTIONS:
 
-1. Crea una cuenta en Sentry.io
-2. Crea un nuevo proyecto para Flutter
-3. Copia el DSN del proyecto
-4. Reemplaza 'YOUR_SENTRY_DSN_HERE' con tu DSN real
-5. Opcionalmente, ajusta las configuraciones según tus necesidades:
-   - tracesSampleRate: Porcentaje de transacciones a rastrear (0.0 - 1.0)
-   - profilesSampleRate: Porcentaje de perfiles a rastrear (0.0 - 1.0)
-   - maxBreadcrumbs: Número máximo de breadcrumbs a mantener
-   - environment: Entorno de la aplicación (development, staging, production)
+1. Create an account at sentry.io
+2. Create a new Flutter project
+3. Copy the project's DSN
+4. Replace 'YOUR_SENTRY_DSN_HERE' with your real DSN
+5. Optionally tweak settings as needed:
+   - tracesSampleRate: Percentage of transactions to trace (0.0 - 1.0)
+   - profilesSampleRate: Percentage of profiles to trace (0.0 - 1.0)
+   - maxBreadcrumbs: Max number of breadcrumbs to keep
+   - environment: Application environment (development, staging, production)
 
-CONFIGURACIONES RECOMENDADAS:
+RECOMMENDED SETTINGS:
 
-Para desarrollo:
-- tracesSampleRate: 1.0 (rastrear todas las transacciones)
-- profilesSampleRate: 1.0 (rastrear todos los perfiles)
-- debug: true (mostrar logs de Sentry)
+Development:
+- tracesSampleRate: 1.0 (trace all transactions)
+- profilesSampleRate: 1.0 (trace all profiles)
+- debug: true (show Sentry logs)
 
-Para producción:
-- tracesSampleRate: 0.1 (rastrear 10% de las transacciones)
-- profilesSampleRate: 0.1 (rastrear 10% de los perfiles)
-- debug: false (no mostrar logs de Sentry)
+Production:
+- tracesSampleRate: 0.1 (trace 10% of transactions)
+- profilesSampleRate: 0.1 (trace 10% of profiles)
+- debug: false (no Sentry logs)
 
-FILTROS DE SEGURIDAD:
+SECURITY FILTERS:
 
-El sistema incluye filtros automáticos para:
-- Información sensible (passwords, tokens, etc.)
-- Eventos de desarrollo en producción
-- Datos personales del usuario
+The system includes automatic filters for:
+- Sensitive information (passwords, tokens, etc.)
+- Development-only events in production
+- User personal data
 
-Puedes personalizar estos filtros en los métodos _beforeSend y _containsSensitiveData.
+You can customize these filters in _beforeSend and _containsSensitiveData.
 */
