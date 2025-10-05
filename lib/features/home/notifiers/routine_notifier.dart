@@ -29,7 +29,7 @@ class RoutineNotifier extends _$RoutineNotifier {
   Future<void> addRoutine(Routine routine) async {
     final routineService = ref.read(routineServiceProvider);
 
-    // Obtener el siguiente orden disponible
+    // Compute next available display order
     final currentRoutines = await routineService.getAllRoutines();
     final nextOrder =
         currentRoutines.isEmpty ? 0 : (currentRoutines.map((r) => r.order ?? 0).reduce((a, b) => a > b ? a : b) + 1);
@@ -44,11 +44,11 @@ class RoutineNotifier extends _$RoutineNotifier {
     final routineService = ref.read(routineServiceProvider);
     final updatedRoutine = routine.copyWith(updatedAt: DateTime.now());
 
-    // Debug: Guardando rutina con secciones y ejercicios
+    // Persist routine with updated sections and exercises
 
     await routineService.saveRoutine(updatedRoutine);
     state = AsyncValue.data(await routineService.getAllRoutines());
-    // Debug: Rutina guardada exitosamente
+    // Routine saved successfully
   }
 
   Future<void> deleteRoutine(String routineId) async {
@@ -122,7 +122,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     // Esto permite mayor flexibilidad y personalización
   }
 
-  /// Reordena las rutinas manualmente
+  /// Reorders routines manually
   Future<void> reorderRoutines(List<String> routineIds) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) return;
@@ -141,7 +141,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     state = AsyncValue.data(await routineService.getAllRoutines());
   }
 
-  /// Mueve una rutina a una posición específica
+  /// Moves a routine to a specific position
   Future<void> moveRoutineToPosition(String routineId, int newPosition) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) return;
