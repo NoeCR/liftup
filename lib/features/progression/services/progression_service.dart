@@ -342,8 +342,8 @@ class ProgressionService extends _$ProgressionService {
 
     // Apply deload if current period matches deloadWeek
     if (isDeloadPeriod) {
-      // Deload proporcional: reduce un porcentaje del aumento logrado desde el peso base
-      // Ej.: base 100, actual 120, 90% => 100 + (20 * 0.9) = 118
+      // Proportional deload: reduce a percentage of the increase achieved over base weight
+      // Example: base 100, current 120, 90% => 100 + (20 * 0.9) = 118
       final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
       final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
@@ -467,14 +467,14 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular el índice actual en el ciclo según la unidad configurada
+    // Compute current position in the cycle based on the configured unit
     final currentInCycle =
         config.unit == ProgressionUnit.session
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
     final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
-    // Logs detallados para debugging
+    // Detailed logs for debugging
     LoggingService.instance.info('DOUBLE PROGRESSION CALCULATION', {
       'exerciseId': state.exerciseId,
       'currentWeek': state.currentWeek,
@@ -494,7 +494,7 @@ class ProgressionService extends _$ProgressionService {
       'deloadPercentage': config.deloadPercentage,
     });
 
-    // Si es período de deload, aplicar deload
+    // If it's a deload period, apply deload
     if (isDeloadPeriod) {
       final deloadWeight = state.baseWeight * config.deloadPercentage;
       final deloadSets = (currentSets * 0.7).round();
@@ -517,12 +517,12 @@ class ProgressionService extends _$ProgressionService {
       );
     }
 
-    // Progresión doble: primero aumenta repeticiones, luego peso
+    // Double progression: first increase reps, then weight
     final maxReps = config.customParameters['max_reps'] ?? 12;
     final minReps = config.customParameters['min_reps'] ?? 5;
 
     if (currentReps < maxReps) {
-      // Aumentar repeticiones
+      // Increase repetitions
       LoggingService.instance.info('DOUBLE PROGRESSION: INCREASING REPS', {
         'exerciseId': state.exerciseId,
         'unit': config.unit.name,
@@ -542,7 +542,7 @@ class ProgressionService extends _$ProgressionService {
         reason: 'Double progression: increasing reps (${config.unit.name} $currentInCycle of ${config.cycleLength})',
       );
     } else {
-      // Aumentar peso y resetear repeticiones
+      // Increase weight and reset repetitions
       final newWeight = currentWeight + config.incrementValue;
 
       LoggingService.instance.info('DOUBLE PROGRESSION: INCREASING WEIGHT & RESETTING REPS', {
@@ -576,11 +576,11 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Progresión por oleadas: usa el ciclo configurado
+    // Wave progression: uses the configured cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
 
     switch (weekInCycle) {
-      case 1: // Semana de alta intensidad
+      case 1: // High-intensity week
         return ProgressionCalculationResult(
           newWeight: currentWeight + config.incrementValue,
           newReps: (currentReps * 0.8).round(),
@@ -588,7 +588,7 @@ class ProgressionService extends _$ProgressionService {
           incrementApplied: true,
           reason: 'Wave progression: high intensity week (week $weekInCycle of ${config.cycleLength})',
         );
-      case 2: // Semana de alto volumen
+      case 2: // High-volume week
         return ProgressionCalculationResult(
           newWeight: currentWeight - (config.incrementValue * 0.2),
           newReps: (currentReps * 1.3).round(),
@@ -596,7 +596,7 @@ class ProgressionService extends _$ProgressionService {
           incrementApplied: true,
           reason: 'Wave progression: high volume week (week $weekInCycle of ${config.cycleLength})',
         );
-      case 3: // Semana de descarga
+      case 3: // Deload week
         return ProgressionCalculationResult(
           newWeight: state.baseWeight * config.deloadPercentage,
           newReps: currentReps,
@@ -605,7 +605,7 @@ class ProgressionService extends _$ProgressionService {
           reason: 'Wave progression: deload week (week $weekInCycle of ${config.cycleLength})',
         );
       default:
-        // Para ciclos más largos, aplicar progresión normal
+        // For longer cycles, apply normal progression
         return ProgressionCalculationResult(
           newWeight: currentWeight + config.incrementValue,
           newReps: currentReps,
@@ -623,7 +623,7 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Progresión estática: mantiene valores constantes
+    // Static progression: keep constant values
     return ProgressionCalculationResult(
       newWeight: currentWeight,
       newReps: currentReps,
@@ -640,7 +640,7 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Progresión inversa: reduce peso, aumenta repeticiones
+    // Reverse progression: decrease weight, increase reps
     return ProgressionCalculationResult(
       newWeight: currentWeight - config.incrementValue,
       newReps: currentReps + 1,
@@ -657,11 +657,11 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in the cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
     final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // If it's a deload week, apply deload
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
@@ -672,8 +672,8 @@ class ProgressionService extends _$ProgressionService {
       );
     }
 
-    // Progresión autoregulada: ajusta basado en RPE/RIR
-    // Calcula el RPE basado en las repeticiones realizadas vs objetivo
+    // Autoregulated progression: adjust based on RPE/RIR
+    // Estimate RPE based on performed reps vs target
 
     final targetRPE = config.customParameters['target_rpe'] ?? 8.0;
     final rpeThreshold = config.customParameters['rpe_threshold'] ?? 0.5;
@@ -681,19 +681,19 @@ class ProgressionService extends _$ProgressionService {
     final maxReps = config.customParameters['max_reps'] ?? 12;
     final minReps = config.customParameters['min_reps'] ?? 5;
 
-    // Obtener las repeticiones realizadas en la última sesión
+    // Get repetitions performed in the last session
     final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
     final performedReps = lastSessionData?['reps'] ?? currentReps;
 
-    // Calcular RPE estimado basado en repeticiones realizadas vs objetivo
-    // Si realizó más repeticiones de las objetivo, RPE fue bajo
-    // Si realizó menos repeticiones de las objetivo, RPE fue alto
+    // Calculate estimated RPE based on performed vs target reps
+    // If performed reps exceed target, RPE was low
+    // If performed reps are below target, RPE was high
     double estimatedRPE;
     if (performedReps >= targetReps) {
-      // RPE bajo: pudo hacer más repeticiones de las objetivo
+      // Low RPE: could do more than target reps
       estimatedRPE = targetRPE - ((performedReps - targetReps) * 0.5);
     } else {
-      // RPE alto: no pudo completar las repeticiones objetivo
+      // High RPE: could not complete target reps
       estimatedRPE = targetRPE + ((targetReps - performedReps) * 0.8);
     }
 
@@ -710,9 +710,9 @@ class ProgressionService extends _$ProgressionService {
         reason: 'Autoregulated progression: RPE too low (${estimatedRPE.toStringAsFixed(1)}), increasing weight',
       );
     }
-    // Si el RPE fue muy alto, reducir peso
+    // If RPE was too high, reduce weight
     else if (estimatedRPE > targetRPE + rpeThreshold) {
-      // Si las repeticiones están por debajo del mínimo, ajustarlas al mínimo
+      // If reps are below the minimum, adjust to the minimum
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
 
       return ProgressionCalculationResult(
@@ -726,9 +726,9 @@ class ProgressionService extends _$ProgressionService {
                 : 'Autoregulated progression: RPE too high (${estimatedRPE.toStringAsFixed(1)}), reducing weight',
       );
     }
-    // Si el RPE está en el rango objetivo, aumentar repeticiones (hasta el máximo)
+    // If RPE is within the target range, increase reps (up to the max)
     else {
-      // Asegurar que las repeticiones estén al menos en el mínimo
+      // Ensure reps are at least the minimum
       final baseReps = currentReps < minReps ? minReps : currentReps;
       final newReps = baseReps < maxReps ? baseReps + 1 : baseReps;
 
@@ -752,11 +752,11 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in the cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
     final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // If it's a deload week, apply deload
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
@@ -767,18 +767,18 @@ class ProgressionService extends _$ProgressionService {
       );
     }
 
-    // Progresión doble factor: balance entre fitness y fatiga
+    // Double factor progression: balance between fitness and fatigue
     final fitnessGain = config.customParameters['fitness_gain'] ?? 0.1;
     final fatigueDecay = config.customParameters['fatigue_decay'] ?? 0.05;
 
-    // Simular fitness y fatiga acumulados
+    // Simulate accumulated fitness and fatigue
     final currentFitness = state.customData['fitness'] ?? 1.0;
     final currentFatigue = state.customData['fatigue'] ?? 0.0;
 
     final newFitness = currentFitness + fitnessGain;
     final newFatigue = (currentFatigue + fitnessGain * 0.8) * (1 - fatigueDecay);
 
-    // Ajustar peso basado en la relación fitness/fatiga
+    // Adjust weight based on the fitness/fatigue ratio
     final fitnessFatigueRatio = newFitness / (1 + newFatigue);
     final weightMultiplier = fitnessFatigueRatio > 1.0 ? 1.05 : 0.95;
 
@@ -799,11 +799,11 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in the cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
     final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // If it's a deload week, apply deload
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
@@ -814,12 +814,12 @@ class ProgressionService extends _$ProgressionService {
       );
     }
 
-    // Sobrecarga progresiva: incremento gradual de volumen o intensidad
+    // Progressive overload: gradual increase of volume or intensity
     final overloadType = config.customParameters['overload_type'] ?? 'volume';
     final overloadRate = config.customParameters['overload_rate'] ?? 0.1;
 
     if (overloadType == 'volume') {
-      // Aumentar volumen (series)
+      // Increase volume (sets)
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
@@ -828,7 +828,7 @@ class ProgressionService extends _$ProgressionService {
         reason: 'Overload progression: increasing volume (sets) (week $weekInCycle of ${config.cycleLength})',
       );
     } else {
-      // Aumentar intensidad (peso)
+      // Increase intensity (weight)
       return ProgressionCalculationResult(
         newWeight: currentWeight * (1 + overloadRate),
         newReps: currentReps,
