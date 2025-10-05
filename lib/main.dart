@@ -9,6 +9,7 @@ import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
 import 'core/database/hive_adapters.dart';
 import 'core/logging/logging.dart';
+import 'features/progression/services/progression_template_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,26 @@ void _runApp() async {
   try {
     await DatabaseService.getInstance().initialize();
     LoggingService.instance.info('Database initialized successfully');
+
+    // Initialize progression templates
+    try {
+      final container = ProviderContainer();
+      final templateService = container.read(
+        progressionTemplateServiceProvider.notifier,
+      );
+      await templateService.initializeBuiltInTemplates();
+      container.dispose();
+      LoggingService.instance.info(
+        'Progression templates initialized successfully',
+      );
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error initializing progression templates',
+        e,
+        stackTrace,
+        {'component': 'progression_templates_initialization'},
+      );
+    }
   } catch (e, stackTrace) {
     LoggingService.instance.error(
       'Error initializing database',
@@ -72,7 +93,7 @@ void _runApp() async {
       supportedLocales: const [Locale('es'), Locale('en')],
       path: 'assets/locales',
       fallbackLocale: const Locale('es'),
-      child: const ProviderScope(child: const LiftUpApp()),
+      child: const ProviderScope(child: LiftUpApp()),
     ),
   );
 }

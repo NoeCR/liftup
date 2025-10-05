@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
@@ -54,8 +53,11 @@ class RoutineNotifier extends _$RoutineNotifier {
     final routineService = ref.read(routineServiceProvider);
     final updatedRoutine = routine.copyWith(updatedAt: DateTime.now());
 
+    // Debug: Guardando rutina con secciones y ejercicios
+
     await routineService.saveRoutine(updatedRoutine);
     state = AsyncValue.data(await routineService.getAllRoutines());
+    // Debug: Rutina guardada exitosamente
   }
 
   Future<void> deleteRoutine(String routineId) async {
