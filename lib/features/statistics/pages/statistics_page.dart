@@ -345,7 +345,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     );
   }
 
-  /// Calcula el intervalo óptimo para mostrar fechas sin solapamiento
+  /// Calculates an optimal interval to show dates without overlap
   double _calculateDateInterval(int totalSessions) {
     if (totalSessions <= 7) return 1.0; // Mostrar todas si son pocas
     if (totalSessions <= 14) return 2.0; // Cada 2 días
@@ -354,7 +354,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return (totalSessions / 7).ceilToDouble(); // Máximo 7 etiquetas
   }
 
-  /// Calcula el intervalo óptimo para el eje Y
+  /// Calculates an optimal interval for the Y axis
   double _calculateYInterval(double yRange) {
     if (yRange <= 50) return 10.0;
     if (yRange <= 100) return 20.0;
@@ -363,7 +363,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return (yRange / 5).ceilToDouble();
   }
 
-  /// Aplica algoritmo de suavizado avanzado para eliminar saltos y valores vacíos
+  /// Applies advanced smoothing to remove jumps and fill gaps
   List<FlSpot> _applyAdvancedSmoothing(List<FlSpot> rawSpots, List<WorkoutSession> sessions) {
     if (rawSpots.isEmpty) return rawSpots;
 
@@ -379,7 +379,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return finalSpots;
   }
 
-  /// Interpola valores faltantes entre sesiones usando interpolación lineal
+  /// Interpolates missing values between sessions using linear interpolation
   List<FlSpot> _interpolateMissingValues(List<FlSpot> rawSpots, List<WorkoutSession> sessions) {
     if (rawSpots.length < 2) return rawSpots;
 
@@ -420,7 +420,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return interpolatedSpots;
   }
 
-  /// Encuentra el valor anterior más cercano
+  /// Finds the nearest previous value
   _ValueAtDay? _findPreviousValue(int day, Map<int, double> valuesByDay) {
     for (int i = day - 1; i >= 0; i--) {
       if (valuesByDay.containsKey(i)) {
@@ -430,7 +430,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return null;
   }
 
-  /// Encuentra el valor siguiente más cercano
+  /// Finds the nearest next value
   _ValueAtDay? _findNextValue(int day, Map<int, double> valuesByDay) {
     final maxDay = valuesByDay.keys.reduce((a, b) => a > b ? a : b);
     for (int i = day + 1; i <= maxDay; i++) {
@@ -441,13 +441,13 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return null;
   }
 
-  /// Interpolación lineal entre dos puntos
+  /// Linear interpolation between two points
   double _linearInterpolation(int x1, double y1, int x2, double y2, int x) {
     if (x2 == x1) return y1;
     return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
   }
 
-  /// Aplica media móvil para suavizar la curva
+  /// Applies a moving average to smooth the curve
   List<FlSpot> _applyMovingAverage(List<FlSpot> spots) {
     if (spots.length < 3) return spots;
 
@@ -473,7 +473,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
     return smoothedSpots;
   }
 
-  /// Elimina saltos bruscos aplicando un filtro de suavizado adicional
+  /// Removes sharp jumps by applying an additional smoothing filter
   List<FlSpot> _removeSharpJumps(List<FlSpot> spots) {
     if (spots.length < 2) return spots;
 
@@ -505,7 +505,7 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
   }
 }
 
-/// Clase auxiliar para almacenar valor y día
+/// Helper class to store a value and its day
 class _ValueAtDay {
   final int day;
   final double value;

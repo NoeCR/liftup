@@ -55,7 +55,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   void initState() {
     super.initState();
 
-    // Inicializar controladores con valores por defecto
+    // Initialize controllers with default values
     _setsController.text = _formSets.toString();
     _repsController.text = _formReps.toString();
     _weightController.text = _formWeight.toStringAsFixed(1);
@@ -84,7 +84,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _formWeight = exercise.defaultWeight ?? 0.0;
     _formRestTimeSeconds = exercise.restTimeSeconds;
 
-    // Actualizar controladores con los valores por defecto del ejercicio
+    // Update controllers with exercise default values
     _setsController.text = _formSets.toString();
     _repsController.text = _formReps.toString();
     _weightController.text = _formWeight.toStringAsFixed(1);
@@ -751,7 +751,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                   Navigator.of(ctx).pop(null);
                   return;
                 }
-                // Recorte manual con paquete image
+                // Manual crop using image package
                 Uint8List croppedBytes;
                 final raw = state.rawImageData;
                 final rect = state.getCropRect();
@@ -868,7 +868,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         restTimeSeconds: _formRestTimeSeconds,
       );
 
-      // Debug: Guardando ejercicio con valores por defecto
+      // Debug: saving exercise with default values
 
       if (widget.exerciseToEdit != null) {
         await ref.read(exerciseNotifierProvider.notifier).updateExercise(exercise);
@@ -886,8 +886,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         }
       }
 
-      // Los valores de peso, series, repeticiones y tiempo de descanso ahora se guardan directamente en Exercise
-      // No necesitamos actualizar RoutineExercise ya que estos valores se leen desde Exercise
+      // Weight, sets, reps and rest time are stored directly in Exercise.
+      // RoutineExercise does not need updates because values are read from Exercise.
       // Debug: Valores guardados en Exercise
 
       if (mounted) {
@@ -931,7 +931,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         final croppedPath = await _openCropperDialog(tempFile.path);
         return croppedPath ?? tempFile.path;
       }
-      // Caso 2: imagen local seleccionada → copiar a app dir si no está dentro
+      // Case 2: local image selected → copy to app directory if needed
       if (_imagePath.isNotEmpty) {
         if (_imagePath.startsWith('assets/')) return _imagePath;
         final src = File(_imagePath.startsWith('file:') ? _imagePath.replaceFirst('file://', '') : _imagePath);

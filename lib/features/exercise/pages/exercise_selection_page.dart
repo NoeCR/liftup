@@ -31,7 +31,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   String _selectedCategory = 'Todos';
   final TextEditingController _searchController = TextEditingController();
 
-  // Valores por defecto para nuevas asignaciones en rutina
+  // Default values for new routine assignments
   int _defaultSets = 3;
   int _defaultReps = 10;
   double _defaultWeight = 0.0;
@@ -132,7 +132,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: filteredExercises.length + 1,
                       itemBuilder: (context, index) {
-                        // Primer ítem: crear nuevo ejercicio
+                        // First item: create a new exercise
                         if (index == 0) {
                           return _buildCreateExerciseItem(context, colorScheme);
                         }
@@ -275,7 +275,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            // Acción: Crear nuevo ejercicio
+            // Action: create new exercise
             FilledButton.icon(
               onPressed: () {
                 final queryParams = <String, String>{};
@@ -294,7 +294,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
               label: Text(context.tr('exercises.addExercise')),
             ),
             const SizedBox(height: 12),
-            // Acciones secundarias según contexto
+            // Secondary actions depending on context
             if (isSearching)
               OutlinedButton.icon(
                 onPressed: () {
@@ -384,7 +384,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   }
 
   Future<void> _confirmDefaultsAndAdd() async {
-    // Prefill con valores previamente usados si hay un único ejercicio seleccionado
+    // Prefill with previously used values when a single exercise is selected
     if (_selectedExercises.length == 1) {
       final exerciseId = _selectedExercises.first;
       final params = _findLastUsedParamsForExercise(exerciseId);
@@ -518,7 +518,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       }
     }
 
-    // Navegación segura: volver si se puede, si no, ir a Home
+    // Safe navigation: pop if possible, otherwise go to Home
     if (!mounted) return;
     if (Navigator.canPop(context)) {
       context.pop();
@@ -554,7 +554,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     routineAsync.whenData((routines) {
       final routine = routines.firstWhere((r) => r.id == routineId, orElse: () => throw Exception('Routine not found'));
 
-      // Create RoutineExercise objects (valores de peso/series/reps ahora se guardan en Exercise)
+      // Create RoutineExercise objects (weight/sets/reps now stored in Exercise)
       final routineExercises =
           exercises
               .map(
@@ -584,7 +584,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     });
   }
 
-  /// Busca los últimos parámetros usados para un ejercicio desde el modelo Exercise
+  /// Looks up last used parameters for an exercise from the Exercise model
   Map<String, Object>? _findLastUsedParamsForExercise(String exerciseId) {
     final exercises = ref.read(exerciseNotifierProvider).valueOrNull;
     if (exercises == null) return null;

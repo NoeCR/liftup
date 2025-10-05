@@ -2,11 +2,11 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'logging_service.dart';
 import 'performance_monitor.dart';
 
-/// Configuración de métricas para Sentry
+/// Sentry metrics configuration
 class SentryMetricsConfig {
   static bool _isInitialized = false;
 
-  /// Inicializa la configuración de métricas
+  /// Initializes metrics configuration
   static Future<void> initialize() async {
     if (_isInitialized) {
       LoggingService.instance.info('SentryMetricsConfig already initialized, skipping');
@@ -37,7 +37,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Configura métricas de rendimiento
+  /// Configures performance metrics
   static void _setupPerformanceMetrics() {
     LoggingService.instance.setContext('performance_metrics', {
       'app_startup_time': 'tracked',
@@ -49,7 +49,7 @@ class SentryMetricsConfig {
     });
   }
 
-  /// Configura métricas de uso
+  /// Configures usage metrics
   static void _setupUsageMetrics() {
     LoggingService.instance.setContext('usage_metrics', {
       'sessions_created': 'tracked',
@@ -61,7 +61,7 @@ class SentryMetricsConfig {
     });
   }
 
-  /// Configura métricas de errores
+  /// Configures error metrics
   static void _setupErrorMetrics() {
     LoggingService.instance.setContext('error_metrics', {
       'error_rate': 'tracked',
@@ -73,7 +73,7 @@ class SentryMetricsConfig {
     });
   }
 
-  /// Configura métricas de base de datos
+  /// Configures database metrics
   static void _setupDatabaseMetrics() {
     LoggingService.instance.setContext('database_metrics', {
       'operation_times': 'tracked',
@@ -84,7 +84,7 @@ class SentryMetricsConfig {
     });
   }
 
-  /// Registra métrica de tiempo de inicio de la aplicación
+  /// Records app startup time metric
   static void trackAppStartupTime(int startupTimeMs) {
     try {
       LoggingService.instance.info('App startup time tracked', {
@@ -109,7 +109,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Registra métrica de operación de base de datos
+  /// Records database operation metric
   static void trackDatabaseOperation({
     required String operation,
     required int durationMs,
@@ -150,7 +150,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Registra métrica de operación de importación/exportación
+  /// Records import/export operation metric
   static void trackImportExportOperation({
     required String operation,
     required String fileType,
@@ -198,7 +198,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Registra métrica de sesión de entrenamiento
+  /// Records workout session metric
   static void trackWorkoutSession({
     required String sessionId,
     required int durationMs,
@@ -240,7 +240,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Registra métrica de uso de memoria
+  /// Records memory usage metric
   static void trackMemoryUsage({
     required int currentMemoryMB,
     required int peakMemoryMB,
@@ -278,7 +278,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Registra métrica de error
+  /// Records error metric
   static void trackError({
     required String errorType,
     required String component,
@@ -324,7 +324,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Registra métrica de uso de funcionalidad
+  /// Records feature usage metric
   static void trackFeatureUsage({
     required String feature,
     required String action,
@@ -356,7 +356,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Obtiene estadísticas de rendimiento del PerformanceMonitor
+  /// Retrieves performance statistics from PerformanceMonitor
   static Map<String, dynamic> getPerformanceStats() {
     try {
       final stats = PerformanceMonitor.instance.getAllStats();
@@ -375,7 +375,7 @@ class SentryMetricsConfig {
     }
   }
 
-  /// Envía reporte de métricas a Sentry
+  /// Sends metrics report to Sentry
   static void sendMetricsReport() {
     try {
       final performanceStats = getPerformanceStats();
