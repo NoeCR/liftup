@@ -334,8 +334,8 @@ class ProgressionMockFactory {
         .map(
           (type) => createProgressionTemplate(
             type: type,
-            name: '${type.displayName} Template',
-            description: 'Template for ${type.displayName} progression',
+            name: '${type.displayNameKey} Template',
+            description: 'Template for ${type.displayNameKey} progression',
             difficulty: _getDifficultyForType(type),
           ),
         )

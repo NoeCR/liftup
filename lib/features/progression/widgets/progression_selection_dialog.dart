@@ -38,40 +38,40 @@ class _ProgressionSelectionDialogState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-           children: [
-             Text(
-               'progression.configureProgressionQuestion'.tr(),
-               style: theme.textTheme.bodyMedium,
-             ),
-             const SizedBox(height: 16),
+          children: [
+            Text(
+              'progression.configureProgressionQuestion'.tr(),
+              style: theme.textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
 
-             // Opción de entrenamiento libre
-             _buildOptionCard(
-               title: 'progression.freeTraining'.tr(),
-               description: 'progression.freeTrainingDescription'.tr(),
-               icon: Icons.fitness_center,
-               isSelected: _selectedType == ProgressionType.none,
-               onTap: () {
-                 setState(() {
-                   _selectedType = ProgressionType.none;
-                 });
-               },
-             ),
+            // Opción de entrenamiento libre
+            _buildOptionCard(
+              title: 'progression.freeTraining'.tr(),
+              description: 'progression.freeTrainingDescription'.tr(),
+              icon: Icons.fitness_center,
+              isSelected: _selectedType == ProgressionType.none,
+              onTap: () {
+                setState(() {
+                  _selectedType = ProgressionType.none;
+                });
+              },
+            ),
 
-             const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-             // Opción de progresión automática
-             _buildOptionCard(
-               title: 'progression.automaticProgression'.tr(),
-               description: 'progression.automaticProgressionDescription'.tr(),
-               icon: Icons.auto_graph,
-               isSelected:
-                   _selectedType != null &&
-                   _selectedType != ProgressionType.none,
-               onTap: () {
-                 _showProgressionTypes();
-               },
-             ),
+            // Opción de progresión automática
+            _buildOptionCard(
+              title: 'progression.automaticProgression'.tr(),
+              description: 'progression.automaticProgressionDescription'.tr(),
+              icon: Icons.auto_graph,
+              isSelected:
+                  _selectedType != null &&
+                  _selectedType != ProgressionType.none,
+              onTap: () {
+                _showProgressionTypes();
+              },
+            ),
 
             if (_selectedType != null &&
                 _selectedType != ProgressionType.none) ...[
@@ -93,15 +93,19 @@ class _ProgressionSelectionDialogState
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                     Expanded(
-                       child: Text(
-                         'progression.selectedProgression'.tr(namedArgs: {'type': _selectedType!.displayName}),
-                         style: theme.textTheme.bodySmall?.copyWith(
-                           color: colorScheme.primary,
-                           fontWeight: FontWeight.w500,
-                         ),
-                       ),
-                     ),
+                    Expanded(
+                      child: Text(
+                        'progression.selectedProgression'.tr(
+                          namedArgs: {
+                            'type': context.tr(_selectedType!.displayNameKey),
+                          },
+                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -109,28 +113,28 @@ class _ProgressionSelectionDialogState
           ],
         ),
       ),
-       actions: [
-         TextButton(
-           onPressed:
-               _isLoading
-                   ? null
-                   : () {
-                     Navigator.of(context).pop();
-                   },
-           child: Text('common.cancel'.tr()),
-         ),
-         FilledButton(
-           onPressed: _isLoading ? null : _handleSelection,
-           child:
-               _isLoading
-                   ? const SizedBox(
-                     width: 16,
-                     height: 16,
-                     child: CircularProgressIndicator(strokeWidth: 2),
-                   )
-                   : Text('progression.continue'.tr()),
-         ),
-       ],
+      actions: [
+        TextButton(
+          onPressed:
+              _isLoading
+                  ? null
+                  : () {
+                    Navigator.of(context).pop();
+                  },
+          child: Text('common.cancel'.tr()),
+        ),
+        FilledButton(
+          onPressed: _isLoading ? null : _handleSelection,
+          child:
+              _isLoading
+                  ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                  : Text('progression.continue'.tr()),
+        ),
+      ],
     );
   }
 
@@ -269,16 +273,15 @@ class _ProgressionTypeSelectionDialogState
 
   @override
   Widget build(BuildContext context) {
-
     return AlertDialog(
       title: Text('progression.selectProgressionType'.tr()),
       content: SizedBox(
         width: double.maxFinite,
         child: Consumer(
           builder: (context, ref, child) {
-             final templatesAsync = ref.watch(
-               progressionTemplateServiceProvider,
-             );
+            final templatesAsync = ref.watch(
+              progressionTemplateServiceProvider,
+            );
 
             return templatesAsync.when(
               data: (templates) {
@@ -305,24 +308,24 @@ class _ProgressionTypeSelectionDialogState
           },
         ),
       ),
-       actions: [
-         TextButton(
-           onPressed: () {
-             Navigator.of(context).pop();
-           },
-           child: Text('common.cancel'.tr()),
-         ),
-         FilledButton(
-           onPressed:
-               _selectedType != null
-                   ? () {
-                     widget.onTypeSelected(_selectedType!);
-                     Navigator.of(context).pop();
-                   }
-                   : null,
-           child: const Text('Seleccionar'),
-         ),
-       ],
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('common.cancel'.tr()),
+        ),
+        FilledButton(
+          onPressed:
+              _selectedType != null
+                  ? () {
+                    widget.onTypeSelected(_selectedType!);
+                    Navigator.of(context).pop();
+                  }
+                  : null,
+          child: const Text('Seleccionar'),
+        ),
+      ],
     );
   }
 
@@ -383,7 +386,7 @@ class _ProgressionTypeSelectionDialogState
                   ),
                   const SizedBox(width: 8),
                   _buildInfoChip(
-                    template.type.displayName,
+                    context.tr(template.type.displayNameKey),
                     colorScheme.secondary,
                   ),
                 ],

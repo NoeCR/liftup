@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../core/navigation/app_router.dart';
 import '../../../core/database/database_service.dart';
@@ -13,7 +14,6 @@ import '../../sessions/notifiers/session_notifier.dart';
 import '../../statistics/notifiers/progress_notifier.dart';
 import '../../progression/notifiers/progression_notifier.dart';
 import '../widgets/language_selector.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 // Clave global para el ScaffoldMessenger
 final GlobalKey<ScaffoldMessengerState> globalScaffoldKey =
@@ -271,8 +271,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               children: [
                 ListTile(
                   leading: Icon(Icons.trending_up, color: colorScheme.primary),
-                  title: Text('Progresión: ${config.type.displayName}'),
-                  subtitle: Text(config.type.description),
+                  title: Text(
+                    'Progresión: ${context.tr(config.type.displayNameKey)}',
+                  ),
+                  subtitle: Text(context.tr(config.type.descriptionKey)),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/progression-selection'),
                 ),

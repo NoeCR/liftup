@@ -220,3 +220,4 @@ Las pruebas cubren:
 4. **Datos realistas**: Los datos de prueba son realistas y representativos
 5. **Cobertura completa**: Se prueban todos los tipos de progresión y casos edge
 
+

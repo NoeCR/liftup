@@ -35,21 +35,20 @@ class SessionProgressionService extends _$SessionProgressionService {
         return _getAllExercisesFromRoutine(routine);
       }
 
-      // Verificar si es la primera sesión de la semana para esta rutina
-      if (!await _isFirstSessionOfWeekForRoutine(routine)) {
+      // Verificar si se debe aplicar progresión basado en la frecuencia de la rutina
+      if (!await _shouldApplyProgressionForRoutine(routine)) {
         LoggingService.instance.debug(
-          'Not first session of week for routine, returning routine as-is',
+          'Progression not needed for this session, returning routine as-is',
           {'routineId': routine.id, 'routineName': routine.name},
         );
         return _getAllExercisesFromRoutine(routine);
       }
 
-      LoggingService.instance
-          .info('Applying progression to routine (first session of week)', {
-            'routineId': routine.id,
-            'routineName': routine.name,
-            'progressionType': progressionNotifier.activeProgressionType?.name,
-          });
+      LoggingService.instance.info('Applying progression to routine', {
+        'routineId': routine.id,
+        'routineName': routine.name,
+        'progressionType': progressionNotifier.activeProgressionType?.name,
+      });
 
       final updatedExercises = <RoutineExercise>[];
       final processedExerciseIds = <String>{}; // Track processed exercises
@@ -276,7 +275,7 @@ class SessionProgressionService extends _$SessionProgressionService {
 
       return ProgressionInfo(
         type: config.type,
-        description: config.type.description,
+        description: config.type.descriptionKey,
         isActive: config.isActive,
         startDate: config.startDate,
       );
@@ -287,6 +286,43 @@ class SessionProgressionService extends _$SessionProgressionService {
         stackTrace,
       );
       return null;
+    }
+  }
+
+  /// Verifica si se debe aplicar progresión basado en la frecuencia de la rutina
+  Future<bool> _shouldApplyProgressionForRoutine(Routine routine) async {
+    try {
+      final progressionNotifier = ref.read(
+        progressionNotifierProvider.notifier,
+      );
+
+      // Obtener la configuración de progresión activa
+      final config = await progressionNotifier.future;
+      if (config == null) return false;
+
+      // Obtener la frecuencia de sesiones por semana de la configuración
+      final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
+
+      // Si es una rutina de un solo día por semana, aplicar progresión en cada sesión
+      if (sessionsPerWeek == 1) {
+        LoggingService.instance.debug(
+          'Single session per week routine - applying progression every session',
+          {'routineId': routine.id, 'sessionsPerWeek': sessionsPerWeek},
+        );
+        return true;
+      }
+
+      // Para rutinas de múltiples días, solo aplicar en la primera sesión de la semana
+      return await _isFirstSessionOfWeekForRoutine(routine);
+    } catch (e) {
+      LoggingService.instance.error(
+        'Error checking if should apply progression for routine',
+        e,
+        null,
+        {'routineId': routine.id},
+      );
+      // En caso de error, aplicar progresión para ser conservador
+      return true;
     }
   }
 

@@ -2,8 +2,12 @@ import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import '../logging/logging.dart';
+import 'i_database_service.dart';
+import '../../features/progression/models/progression_config.dart';
+import '../../features/progression/models/progression_state.dart';
+import '../../features/progression/models/progression_template.dart';
 
-class DatabaseService {
+class DatabaseService implements IDatabaseService {
   static DatabaseService? _instance;
   static const String _exercisesBox = 'exercises';
   static const String _routinesBox = 'routines';
@@ -17,6 +21,9 @@ class DatabaseService {
 
   bool _isInitialized = false;
 
+  @override
+  bool get isInitialized => _isInitialized;
+
   // Private constructor to prevent instantiation
   DatabaseService._();
 
@@ -29,6 +36,7 @@ class DatabaseService {
   }
 
   // Initialize the database service
+  @override
   Future<void> initialize() async {
     if (!_isInitialized) {
       return await PerformanceMonitor.instance.monitorAsync(
@@ -192,25 +200,28 @@ class DatabaseService {
     return Hive.box(_routineSectionTemplatesBox);
   }
 
-  Box get progressionConfigsBox {
+  @override
+  Box<ProgressionConfig> get progressionConfigsBox {
     if (!_isInitialized) {
       throw Exception('DatabaseService not initialized');
     }
-    return Hive.box(_progressionConfigsBox);
+    return Hive.box<ProgressionConfig>(_progressionConfigsBox);
   }
 
-  Box get progressionStatesBox {
+  @override
+  Box<ProgressionState> get progressionStatesBox {
     if (!_isInitialized) {
       throw Exception('DatabaseService not initialized');
     }
-    return Hive.box(_progressionStatesBox);
+    return Hive.box<ProgressionState>(_progressionStatesBox);
   }
 
-  Box get progressionTemplatesBox {
+  @override
+  Box<ProgressionTemplate> get progressionTemplatesBox {
     if (!_isInitialized) {
       throw Exception('DatabaseService not initialized');
     }
-    return Hive.box(_progressionTemplatesBox);
+    return Hive.box<ProgressionTemplate>(_progressionTemplatesBox);
   }
 
   Future<void> clearAllData() async {
@@ -317,6 +328,7 @@ class DatabaseService {
     }
   }
 
+  @override
   Future<void> close() async {
     try {
       LoggingService.instance.info('Closing DatabaseService');

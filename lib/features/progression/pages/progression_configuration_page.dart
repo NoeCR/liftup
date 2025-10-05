@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:liftup/features/progression/notifiers/progression_notifier.dart';
 import '../services/progression_service.dart';
 import '../../../common/enums/progression_type_enum.dart';
 import '../../../core/logging/logging.dart';
@@ -118,9 +120,17 @@ class _ProgressionConfigurationPageState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Configurar ${widget.progressionType.displayName}'),
+        title: Text(
+          'progression.configureProgression'.tr() +
+              ' ${context.tr(widget.progressionType.displayNameKey)}',
+        ),
         backgroundColor: colorScheme.surface,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.restore),
+            tooltip: 'Restaurar plantillas',
+            onPressed: _restoreTemplates,
+          ),
           TextButton(
             onPressed: _isLoading ? null : _saveProgression,
             child:
@@ -130,7 +140,7 @@ class _ProgressionConfigurationPageState
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                    : const Text('Guardar'),
+                    : Text('common.save'.tr()),
           ),
         ],
       ),
@@ -171,7 +181,9 @@ class _ProgressionConfigurationPageState
                           )
                           : const Icon(Icons.save),
                   label: Text(
-                    _isLoading ? 'Guardando...' : 'Guardar Progresión',
+                    _isLoading
+                        ? 'progression.saving'.tr()
+                        : 'progression.saveProgression'.tr(),
                   ),
                 ),
               ),
@@ -197,7 +209,7 @@ class _ProgressionConfigurationPageState
                 Icon(Icons.info_outline, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Información de la Progresión',
+                  'progression.progressionConfiguration'.tr(),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -206,17 +218,19 @@ class _ProgressionConfigurationPageState
             ),
             const SizedBox(height: 12),
             Text(
-              'Aplicación: Global (todas las rutinas)',
+              'progression.globalProgressionDescription'.tr(),
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'Tipo: ${widget.progressionType.displayName}',
+              'progression.types.${widget.progressionType.name}'.tr() +
+                  ': ${context.tr(widget.progressionType.displayNameKey)}',
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 4),
             Text(
-              'Descripción: ${widget.progressionType.description}',
+              'progression.types.${widget.progressionType.name}Description'
+                  .tr(),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -237,7 +251,7 @@ class _ProgressionConfigurationPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Configuración Básica',
+              'progression.basicConfiguration'.tr(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -247,16 +261,16 @@ class _ProgressionConfigurationPageState
             // Unidad de progresión
             DropdownButtonFormField<ProgressionUnit>(
               value: _unit,
-              decoration: const InputDecoration(
-                labelText: 'Unidad de progresión',
-                helperText: '¿Cada cuánto se aplica la progresión?',
+              decoration: InputDecoration(
+                labelText: 'progression.progressionUnit'.tr(),
+                helperText: 'progression.progressionUnitHelper'.tr(),
               ),
               items:
                   ProgressionUnit.values
                       .map(
                         (unit) => DropdownMenuItem(
                           value: unit,
-                          child: Text(unit.displayName),
+                          child: Text(context.tr(unit.displayNameKey)),
                         ),
                       )
                       .toList(),
@@ -271,16 +285,16 @@ class _ProgressionConfigurationPageState
             // Objetivo principal
             DropdownButtonFormField<ProgressionTarget>(
               value: _primaryTarget,
-              decoration: const InputDecoration(
-                labelText: 'Objetivo principal',
-                helperText: '¿Qué se incrementa principalmente?',
+              decoration: InputDecoration(
+                labelText: 'progression.primaryTarget'.tr(),
+                helperText: 'progression.primaryTargetHelper'.tr(),
               ),
               items:
                   ProgressionTarget.values
                       .map(
                         (target) => DropdownMenuItem(
                           value: target,
-                          child: Text(target.displayName),
+                          child: Text(context.tr(target.displayNameKey)),
                         ),
                       )
                       .toList(),
@@ -295,19 +309,19 @@ class _ProgressionConfigurationPageState
             // Objetivo secundario (opcional)
             DropdownButtonFormField<ProgressionTarget?>(
               value: _secondaryTarget,
-              decoration: const InputDecoration(
-                labelText: 'Objetivo secundario (opcional)',
-                helperText: 'Objetivo adicional para progresiones complejas',
+              decoration: InputDecoration(
+                labelText: 'progression.secondaryTarget'.tr(),
+                helperText: 'progression.secondaryTargetHelper'.tr(),
               ),
               items: [
-                const DropdownMenuItem<ProgressionTarget?>(
+                DropdownMenuItem<ProgressionTarget?>(
                   value: null,
-                  child: Text('Ninguno'),
+                  child: Text('progression.none'.tr()),
                 ),
                 ...ProgressionTarget.values.map(
                   (target) => DropdownMenuItem(
                     value: target,
-                    child: Text(target.displayName),
+                    child: Text(context.tr(target.displayNameKey)),
                   ),
                 ),
               ],
@@ -333,7 +347,7 @@ class _ProgressionConfigurationPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Configuración Avanzada',
+              'progression.advancedConfiguration'.tr(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -343,9 +357,9 @@ class _ProgressionConfigurationPageState
             // Valor de incremento
             TextFormField(
               initialValue: _incrementValue.toString(),
-              decoration: const InputDecoration(
-                labelText: 'Valor de incremento',
-                helperText: 'Cuánto se incrementa cada vez (kg, reps, etc.)',
+              decoration: InputDecoration(
+                labelText: 'progression.incrementValue'.tr(),
+                helperText: 'progression.incrementValueHelper'.tr(),
                 suffixText: 'kg',
               ),
               keyboardType: TextInputType.number,
@@ -369,10 +383,12 @@ class _ProgressionConfigurationPageState
             TextFormField(
               initialValue: _incrementFrequency.toString(),
               decoration: InputDecoration(
-                labelText: 'Frecuencia de incremento',
-                helperText: 'Cada cuántas sesiones/semanas se incrementa',
+                labelText: 'progression.incrementFrequency'.tr(),
+                helperText: 'progression.incrementFrequencyHelper'.tr(),
                 suffixText:
-                    _unit == ProgressionUnit.session ? 'sesiones' : 'semanas',
+                    _unit == ProgressionUnit.session
+                        ? 'progression.sessions'.tr()
+                        : 'progression.weeks'.tr(),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -394,10 +410,10 @@ class _ProgressionConfigurationPageState
             // Longitud del ciclo
             TextFormField(
               initialValue: _cycleLength.toString(),
-              decoration: const InputDecoration(
-                labelText: 'Longitud del ciclo',
-                helperText: 'Duración total del ciclo de progresión',
-                suffixText: 'semanas',
+              decoration: InputDecoration(
+                labelText: 'progression.cycleLength'.tr(),
+                helperText: 'progression.cycleLengthHelper'.tr(),
+                suffixText: 'progression.weeks'.tr(),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -419,11 +435,10 @@ class _ProgressionConfigurationPageState
             // Semana de deload
             TextFormField(
               initialValue: _deloadWeek.toString(),
-              decoration: const InputDecoration(
-                labelText: 'Semana de deload',
-                helperText:
-                    'En qué semana del ciclo se reduce la carga (0 = sin deload)',
-                suffixText: 'semana',
+              decoration: InputDecoration(
+                labelText: 'progression.deloadWeek'.tr(),
+                helperText: 'progression.deloadWeekHelper'.tr(),
+                suffixText: 'progression.week'.tr(),
               ),
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -445,9 +460,9 @@ class _ProgressionConfigurationPageState
             // Porcentaje de deload
             TextFormField(
               initialValue: (_deloadPercentage * 100).toString(),
-              decoration: const InputDecoration(
-                labelText: 'Porcentaje de deload',
-                helperText: 'Porcentaje de la carga normal durante el deload',
+              decoration: InputDecoration(
+                labelText: 'progression.deloadPercentage'.tr(),
+                helperText: 'progression.deloadPercentageHelper'.tr(),
                 suffixText: '%',
               ),
               keyboardType: TextInputType.number,
@@ -481,14 +496,14 @@ class _ProgressionConfigurationPageState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Parámetros Personalizados',
+              'progression.customParameters'.tr(),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Configuraciones específicas para este tipo de progresión',
+              'progression.customParameters'.tr(),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -512,10 +527,9 @@ class _ProgressionConfigurationPageState
         widgets.addAll([
           TextFormField(
             initialValue: _customParameters['min_reps']?.toString() ?? '8',
-            decoration: const InputDecoration(
-              labelText: 'Repeticiones mínimas',
-              helperText:
-                  'Número mínimo de repeticiones antes de incrementar peso',
+            decoration: InputDecoration(
+              labelText: 'progression.minReps'.tr(),
+              helperText: 'progression.minRepsHelper'.tr(),
             ),
             keyboardType: TextInputType.number,
             onSaved: (value) {
@@ -525,10 +539,9 @@ class _ProgressionConfigurationPageState
           const SizedBox(height: 16),
           TextFormField(
             initialValue: _customParameters['max_reps']?.toString() ?? '12',
-            decoration: const InputDecoration(
-              labelText: 'Repeticiones máximas',
-              helperText:
-                  'Número máximo de repeticiones antes de incrementar peso',
+            decoration: InputDecoration(
+              labelText: 'progression.maxReps'.tr(),
+              helperText: 'progression.maxRepsHelper'.tr(),
             ),
             keyboardType: TextInputType.number,
             onSaved: (value) {
@@ -579,6 +592,33 @@ class _ProgressionConfigurationPageState
     return widgets;
   }
 
+  Future<void> _restoreTemplates() async {
+    try {
+      final progressionNotifier = ref.read(
+        progressionNotifierProvider.notifier,
+      );
+      await progressionNotifier.restoreTemplates();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Plantillas de progresión restauradas exitosamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error restaurando plantillas: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _saveProgression() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -590,9 +630,11 @@ class _ProgressionConfigurationPageState
     });
 
     try {
-      final progressionService = ref.read(progressionServiceProvider.notifier);
+      final progressionNotifier = ref.read(
+        progressionNotifierProvider.notifier,
+      );
 
-      final config = await progressionService.initializeProgression(
+      await progressionNotifier.setProgression(
         type: widget.progressionType,
         unit: _unit,
         primaryTarget: _primaryTarget,
@@ -607,14 +649,18 @@ class _ProgressionConfigurationPageState
 
       LoggingService.instance.info(
         'Global progression configuration saved successfully',
-        {'configId': config.id, 'type': widget.progressionType.name},
+        {'type': widget.progressionType.name},
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Progresión ${widget.progressionType.displayName} configurada exitosamente',
+              'progression.progressionConfiguredSuccessfully'.tr(
+                namedArgs: {
+                  'type': context.tr(widget.progressionType.displayNameKey),
+                },
+              ),
             ),
             backgroundColor: Colors.green,
           ),

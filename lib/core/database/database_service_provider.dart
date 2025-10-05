@@ -8,3 +8,4 @@ part 'database_service_provider.g.dart';
 DatabaseService databaseService(DatabaseServiceRef ref) {
   return DatabaseService.getInstance();
 }
+

@@ -30,12 +30,8 @@ class ProgressionStatusWidget extends ConsumerWidget {
       },
       loading: () => const SizedBox.shrink(),
       error:
-          (error, stack) => _buildErrorState(
-            context,
-            theme,
-            colorScheme,
-            error.toString(),
-          ),
+          (error, stack) =>
+              _buildErrorState(context, theme, colorScheme, error.toString()),
     );
   }
 
@@ -109,14 +105,16 @@ class ProgressionStatusWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'progression.activeProgression'.tr(namedArgs: {'type': config.type.displayName}),
+                  'progression.activeProgression'.tr(
+                    namedArgs: {'type': context.tr(config.type.displayNameKey)},
+                  ),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 Text(
-                  config.type.description,
+                  context.tr(config.type.descriptionKey),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     fontSize: 11,
@@ -186,7 +184,9 @@ class ProgressionStatusWidget extends ConsumerWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'progression.errorLoadingProgression'.tr(namedArgs: {'error': error}),
+              'progression.errorLoadingProgression'.tr(
+                namedArgs: {'error': error},
+              ),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: colorScheme.error,
               ),
@@ -236,7 +236,9 @@ class ProgressionStatusWidget extends ConsumerWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'progression.errorDisablingProgression'.tr(namedArgs: {'error': e.toString()}),
+                            'progression.errorDisablingProgression'.tr(
+                              namedArgs: {'error': e.toString()},
+                            ),
                           ),
                           backgroundColor: Colors.red,
                         ),

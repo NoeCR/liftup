@@ -193,6 +193,16 @@ class MockProgressionService extends _i1.Mock
       ) as _i6.Future<void>);
 
   @override
+  _i6.Future<void> cleanupInactiveProgressionStates() => (super.noSuchMethod(
+        Invocation.method(
+          #cleanupInactiveProgressionStates,
+          [],
+        ),
+        returnValue: _i6.Future<void>.value(),
+        returnValueForMissingStub: _i6.Future<void>.value(),
+      ) as _i6.Future<void>);
+
+  @override
   _i6.Future<void> saveProgressionState(_i5.ProgressionState? state) =>
       (super.noSuchMethod(
         Invocation.method(

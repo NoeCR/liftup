@@ -25,12 +25,12 @@ void main() {
       // Assert - Verificar que cada tipo tiene displayName y description
       for (final type in types) {
         expect(
-          type.displayName,
+          type.displayNameKey,
           isNotEmpty,
           reason: '${type.name} should have displayName',
         );
         expect(
-          type.description,
+          type.descriptionKey,
           isNotEmpty,
           reason: '${type.name} should have description',
         );
@@ -44,7 +44,7 @@ void main() {
       // Assert - Verificar que cada unidad tiene displayName
       for (final unit in units) {
         expect(
-          unit.displayName,
+          unit.displayNameKey,
           isNotEmpty,
           reason: '${unit.name} should have displayName',
         );
@@ -58,7 +58,7 @@ void main() {
       // Assert - Verificar que cada objetivo tiene displayName
       for (final target in targets) {
         expect(
-          target.displayName,
+          target.displayNameKey,
           isNotEmpty,
           reason: '${target.name} should have displayName',
         );
@@ -68,8 +68,8 @@ void main() {
     test('should validate progression type uniqueness', () {
       // Arrange & Act
       final types = ProgressionType.values;
-      final displayNames = types.map((t) => t.displayName).toList();
-      final descriptions = types.map((t) => t.description).toList();
+      final displayNames = types.map((t) => t.displayNameKey).toList();
+      final descriptions = types.map((t) => t.descriptionKey).toList();
 
       // Assert - Verificar que no hay duplicados
       expect(
@@ -87,7 +87,7 @@ void main() {
     test('should validate progression unit uniqueness', () {
       // Arrange & Act
       final units = ProgressionUnit.values;
-      final displayNames = units.map((u) => u.displayName).toList();
+      final displayNames = units.map((u) => u.displayNameKey).toList();
 
       // Assert - Verificar que no hay duplicados
       expect(
@@ -100,7 +100,7 @@ void main() {
     test('should validate progression target uniqueness', () {
       // Arrange & Act
       final targets = ProgressionTarget.values;
-      final displayNames = targets.map((t) => t.displayName).toList();
+      final displayNames = targets.map((t) => t.displayNameKey).toList();
 
       // Assert - Verificar que no hay duplicados
       expect(
@@ -158,54 +158,54 @@ void main() {
 
     test('should validate progression type display names in Spanish', () {
       // Arrange & Act
-      final linearDisplayName = ProgressionType.linear.displayName;
-      final undulatingDisplayName = ProgressionType.undulating.displayName;
-      final steppedDisplayName = ProgressionType.stepped.displayName;
-      final doubleDisplayName = ProgressionType.double.displayName;
-      final waveDisplayName = ProgressionType.wave.displayName;
-      final staticDisplayName = ProgressionType.static.displayName;
-      final reverseDisplayName = ProgressionType.reverse.displayName;
+      final linearDisplayName = ProgressionType.linear.displayNameKey;
+      final undulatingDisplayName = ProgressionType.undulating.displayNameKey;
+      final steppedDisplayName = ProgressionType.stepped.displayNameKey;
+      final doubleDisplayName = ProgressionType.double.displayNameKey;
+      final waveDisplayName = ProgressionType.wave.displayNameKey;
+      final staticDisplayName = ProgressionType.static.displayNameKey;
+      final reverseDisplayName = ProgressionType.reverse.displayNameKey;
 
       // Assert - Verificar que están en español
-      expect(linearDisplayName, contains('Lineal'));
-      expect(undulatingDisplayName, contains('Ondulante'));
-      expect(steppedDisplayName, contains('Escalonada'));
-      expect(doubleDisplayName, contains('Doble'));
-      expect(waveDisplayName, contains('Oleadas'));
-      expect(staticDisplayName, contains('Estática'));
-      expect(reverseDisplayName, contains('Inversa'));
+      expect(linearDisplayName, equals('progression.types.linear'));
+      expect(undulatingDisplayName, equals('progression.types.undulating'));
+      expect(steppedDisplayName, equals('progression.types.stepped'));
+      expect(doubleDisplayName, equals('progression.types.double'));
+      expect(waveDisplayName, equals('progression.types.wave'));
+      expect(staticDisplayName, equals('progression.types.static'));
+      expect(reverseDisplayName, equals('progression.types.reverse'));
     });
 
     test('should validate progression unit display names in Spanish', () {
       // Arrange & Act
-      final sessionDisplayName = ProgressionUnit.session.displayName;
-      final weekDisplayName = ProgressionUnit.week.displayName;
+      final sessionDisplayName = ProgressionUnit.session.displayNameKey;
+      final weekDisplayName = ProgressionUnit.week.displayNameKey;
 
       // Assert - Verificar que están en español
-      expect(sessionDisplayName, contains('sesión'));
-      expect(weekDisplayName, contains('semana'));
+      expect(sessionDisplayName, equals('progression.units.session'));
+      expect(weekDisplayName, equals('progression.units.week'));
 
       // Test cycle unit
-      final cycleDisplayName = ProgressionUnit.cycle.displayName;
-      expect(cycleDisplayName, contains('ciclo'));
+      final cycleDisplayName = ProgressionUnit.cycle.displayNameKey;
+      expect(cycleDisplayName, equals('progression.units.cycle'));
     });
 
     test('should validate progression target display names in Spanish', () {
       // Arrange & Act
-      final weightDisplayName = ProgressionTarget.weight.displayName;
-      final repsDisplayName = ProgressionTarget.reps.displayName;
-      final setsDisplayName = ProgressionTarget.sets.displayName;
-      final volumeDisplayName = ProgressionTarget.volume.displayName;
+      final weightDisplayName = ProgressionTarget.weight.displayNameKey;
+      final repsDisplayName = ProgressionTarget.reps.displayNameKey;
+      final setsDisplayName = ProgressionTarget.sets.displayNameKey;
+      final volumeDisplayName = ProgressionTarget.volume.displayNameKey;
 
       // Assert - Verificar que están en español
-      expect(weightDisplayName, contains('Peso'));
-      expect(repsDisplayName, contains('Repeticiones'));
-      expect(setsDisplayName, contains('Series'));
-      expect(volumeDisplayName, contains('Volumen'));
+      expect(weightDisplayName, equals('progression.targets.weight'));
+      expect(repsDisplayName, equals('progression.targets.reps'));
+      expect(setsDisplayName, equals('progression.targets.sets'));
+      expect(volumeDisplayName, equals('progression.targets.volume'));
 
       // Test intensity target
-      final intensityDisplayName = ProgressionTarget.intensity.displayName;
-      expect(intensityDisplayName, contains('Intensidad'));
+      final intensityDisplayName = ProgressionTarget.intensity.displayNameKey;
+      expect(intensityDisplayName, equals('progression.targets.intensity'));
     });
 
     test('should validate progression type descriptions are informative', () {
@@ -215,7 +215,7 @@ void main() {
       // Assert - Verificar que las descripciones son informativas (más de 10 caracteres)
       for (final type in types) {
         expect(
-          type.description.length,
+          type.descriptionKey.length,
           greaterThan(10),
           reason: '${type.name} description should be informative',
         );
@@ -226,22 +226,40 @@ void main() {
       'should validate progression type descriptions contain key concepts',
       () {
         // Arrange & Act
-        final linearDescription = ProgressionType.linear.description;
-        final undulatingDescription = ProgressionType.undulating.description;
-        final steppedDescription = ProgressionType.stepped.description;
-        final doubleDescription = ProgressionType.double.description;
-        final waveDescription = ProgressionType.wave.description;
-        final staticDescription = ProgressionType.static.description;
-        final reverseDescription = ProgressionType.reverse.description;
+        final linearDescription = ProgressionType.linear.descriptionKey;
+        final undulatingDescription = ProgressionType.undulating.descriptionKey;
+        final steppedDescription = ProgressionType.stepped.descriptionKey;
+        final doubleDescription = ProgressionType.double.descriptionKey;
+        final waveDescription = ProgressionType.wave.descriptionKey;
+        final staticDescription = ProgressionType.static.descriptionKey;
+        final reverseDescription = ProgressionType.reverse.descriptionKey;
 
         // Assert - Verificar que contienen conceptos clave
-        expect(linearDescription.toLowerCase(), contains('incremento'));
-        expect(undulatingDescription.toLowerCase(), contains('variación'));
-        expect(steppedDescription.toLowerCase(), contains('deload'));
-        expect(doubleDescription.toLowerCase(), contains('repeticiones'));
-        expect(waveDescription.toLowerCase(), contains('ciclos'));
-        expect(staticDescription.toLowerCase(), contains('constante'));
-        expect(reverseDescription.toLowerCase(), contains('reduce'));
+        expect(
+          linearDescription,
+          equals('progression.types.linearDescription'),
+        );
+        expect(
+          undulatingDescription,
+          equals('progression.types.undulatingDescription'),
+        );
+        expect(
+          steppedDescription,
+          equals('progression.types.steppedDescription'),
+        );
+        expect(
+          doubleDescription,
+          equals('progression.types.doubleDescription'),
+        );
+        expect(waveDescription, equals('progression.types.waveDescription'));
+        expect(
+          staticDescription,
+          equals('progression.types.staticDescription'),
+        );
+        expect(
+          reverseDescription,
+          equals('progression.types.reverseDescription'),
+        );
       },
     );
 
@@ -334,8 +352,8 @@ void main() {
       for (final type in types) {
         expect(type, isNotNull);
         expect(type.name, isNotEmpty);
-        expect(type.displayName, isNotEmpty);
-        expect(type.description, isNotEmpty);
+        expect(type.displayNameKey, isNotEmpty);
+        expect(type.descriptionKey, isNotEmpty);
       }
     });
   });

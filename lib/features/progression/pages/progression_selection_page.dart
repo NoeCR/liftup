@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/progression_template.dart';
 import '../services/progression_template_service.dart';
 import '../../../common/enums/progression_type_enum.dart';
@@ -102,9 +103,7 @@ class _ProgressionSelectionPageState
   Widget _buildTemplatesList() {
     return Consumer(
       builder: (context, ref, child) {
-         final templatesAsync = ref.watch(
-           progressionTemplateServiceProvider,
-         );
+        final templatesAsync = ref.watch(progressionTemplateServiceProvider);
 
         return templatesAsync.when(
           data: (templates) {
@@ -202,7 +201,7 @@ class _ProgressionSelectionPageState
                     _getDifficultyColor(template.difficulty),
                   ),
                   _buildInfoChip(
-                    template.type.displayName,
+                    context.tr(template.type.displayNameKey),
                     colorScheme.secondary,
                   ),
                   ...template.recommendedFor.map(

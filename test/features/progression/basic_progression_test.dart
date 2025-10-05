@@ -20,13 +20,13 @@ void main() {
 
     test('should have correct display names for progression types', () {
       // Arrange & Act
-      final linearDisplayName = ProgressionType.linear.displayName;
-      final undulatingDisplayName = ProgressionType.undulating.displayName;
-      final steppedDisplayName = ProgressionType.stepped.displayName;
-      final doubleDisplayName = ProgressionType.double.displayName;
-      final waveDisplayName = ProgressionType.wave.displayName;
-      final staticDisplayName = ProgressionType.static.displayName;
-      final reverseDisplayName = ProgressionType.reverse.displayName;
+      final linearDisplayName = ProgressionType.linear.displayNameKey;
+      final undulatingDisplayName = ProgressionType.undulating.displayNameKey;
+      final steppedDisplayName = ProgressionType.stepped.displayNameKey;
+      final doubleDisplayName = ProgressionType.double.displayNameKey;
+      final waveDisplayName = ProgressionType.wave.displayNameKey;
+      final staticDisplayName = ProgressionType.static.displayNameKey;
+      final reverseDisplayName = ProgressionType.reverse.displayNameKey;
 
       // Assert
       expect(linearDisplayName, isNotEmpty);
@@ -40,13 +40,13 @@ void main() {
 
     test('should have correct descriptions for progression types', () {
       // Arrange & Act
-      final linearDescription = ProgressionType.linear.description;
-      final undulatingDescription = ProgressionType.undulating.description;
-      final steppedDescription = ProgressionType.stepped.description;
-      final doubleDescription = ProgressionType.double.description;
-      final waveDescription = ProgressionType.wave.description;
-      final staticDescription = ProgressionType.static.description;
-      final reverseDescription = ProgressionType.reverse.description;
+      final linearDescription = ProgressionType.linear.descriptionKey;
+      final undulatingDescription = ProgressionType.undulating.descriptionKey;
+      final steppedDescription = ProgressionType.stepped.descriptionKey;
+      final doubleDescription = ProgressionType.double.descriptionKey;
+      final waveDescription = ProgressionType.wave.descriptionKey;
+      final staticDescription = ProgressionType.static.descriptionKey;
+      final reverseDescription = ProgressionType.reverse.descriptionKey;
 
       // Assert
       expect(linearDescription, isNotEmpty);
@@ -70,8 +70,8 @@ void main() {
 
     test('should have correct display names for progression units', () {
       // Arrange & Act
-      final sessionDisplayName = ProgressionUnit.session.displayName;
-      final weekDisplayName = ProgressionUnit.week.displayName;
+      final sessionDisplayName = ProgressionUnit.session.displayNameKey;
+      final weekDisplayName = ProgressionUnit.week.displayNameKey;
 
       // Assert
       expect(sessionDisplayName, isNotEmpty);
@@ -92,10 +92,10 @@ void main() {
 
     test('should have correct display names for progression targets', () {
       // Arrange & Act
-      final weightDisplayName = ProgressionTarget.weight.displayName;
-      final repsDisplayName = ProgressionTarget.reps.displayName;
-      final setsDisplayName = ProgressionTarget.sets.displayName;
-      final volumeDisplayName = ProgressionTarget.volume.displayName;
+      final weightDisplayName = ProgressionTarget.weight.displayNameKey;
+      final repsDisplayName = ProgressionTarget.reps.displayNameKey;
+      final setsDisplayName = ProgressionTarget.sets.displayNameKey;
+      final volumeDisplayName = ProgressionTarget.volume.displayNameKey;
 
       // Assert
       expect(weightDisplayName, isNotEmpty);
@@ -112,8 +112,14 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.linear);
-      expect(progressionType.displayName, contains('Lineal'));
-      expect(progressionType.description, contains('Incremento'));
+      expect(
+        progressionType.displayNameKey,
+        equals('progression.types.linear'),
+      );
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.linearDescription'),
+      );
     });
 
     test('should identify undulating progression correctly', () {
@@ -122,8 +128,14 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.undulating);
-      expect(progressionType.displayName, contains('Ondulante'));
-      expect(progressionType.description, contains('Variación'));
+      expect(
+        progressionType.displayNameKey,
+        equals('progression.types.undulating'),
+      );
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.undulatingDescription'),
+      );
     });
 
     test('should identify stepped progression correctly', () {
@@ -132,8 +144,14 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.stepped);
-      expect(progressionType.displayName, contains('Escalonada'));
-      expect(progressionType.description, contains('deload'));
+      expect(
+        progressionType.displayNameKey,
+        equals('progression.types.stepped'),
+      );
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.steppedDescription'),
+      );
     });
 
     test('should identify double progression correctly', () {
@@ -142,8 +160,14 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.double);
-      expect(progressionType.displayName, contains('Doble'));
-      expect(progressionType.description, contains('repeticiones'));
+      expect(
+        progressionType.displayNameKey,
+        equals('progression.types.double'),
+      );
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.doubleDescription'),
+      );
     });
 
     test('should identify wave progression correctly', () {
@@ -152,8 +176,11 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.wave);
-      expect(progressionType.displayName, contains('Oleadas'));
-      expect(progressionType.description, contains('Ciclos'));
+      expect(progressionType.displayNameKey, equals('progression.types.wave'));
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.waveDescription'),
+      );
     });
 
     test('should identify static progression correctly', () {
@@ -162,8 +189,14 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.static);
-      expect(progressionType.displayName, contains('Estática'));
-      expect(progressionType.description, contains('constante'));
+      expect(
+        progressionType.displayNameKey,
+        equals('progression.types.static'),
+      );
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.staticDescription'),
+      );
     });
 
     test('should identify reverse progression correctly', () {
@@ -172,8 +205,14 @@ void main() {
 
       // Act & Assert
       expect(progressionType, ProgressionType.reverse);
-      expect(progressionType.displayName, contains('Inversa'));
-      expect(progressionType.description, contains('reduce'));
+      expect(
+        progressionType.displayNameKey,
+        equals('progression.types.reverse'),
+      );
+      expect(
+        progressionType.descriptionKey,
+        equals('progression.types.reverseDescription'),
+      );
     });
   });
 
@@ -184,7 +223,10 @@ void main() {
 
       // Act & Assert
       expect(progressionUnit, ProgressionUnit.session);
-      expect(progressionUnit.displayName, contains('sesión'));
+      expect(
+        progressionUnit.displayNameKey,
+        equals('progression.units.session'),
+      );
     });
 
     test('should identify week unit correctly', () {
@@ -193,7 +235,7 @@ void main() {
 
       // Act & Assert
       expect(progressionUnit, ProgressionUnit.week);
-      expect(progressionUnit.displayName, contains('semana'));
+      expect(progressionUnit.displayNameKey, equals('progression.units.week'));
     });
   });
 
@@ -204,7 +246,10 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.weight);
-      expect(progressionTarget.displayName, contains('Peso'));
+      expect(
+        progressionTarget.displayNameKey,
+        equals('progression.targets.weight'),
+      );
     });
 
     test('should identify reps target correctly', () {
@@ -213,7 +258,10 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.reps);
-      expect(progressionTarget.displayName, contains('Repeticiones'));
+      expect(
+        progressionTarget.displayNameKey,
+        equals('progression.targets.reps'),
+      );
     });
 
     test('should identify sets target correctly', () {
@@ -222,7 +270,10 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.sets);
-      expect(progressionTarget.displayName, contains('Series'));
+      expect(
+        progressionTarget.displayNameKey,
+        equals('progression.targets.sets'),
+      );
     });
 
     test('should identify volume target correctly', () {
@@ -231,7 +282,10 @@ void main() {
 
       // Act & Assert
       expect(progressionTarget, ProgressionTarget.volume);
-      expect(progressionTarget.displayName, contains('Volumen'));
+      expect(
+        progressionTarget.displayNameKey,
+        equals('progression.targets.volume'),
+      );
     });
   });
 

@@ -5,42 +5,54 @@ part 'progression_type_enum.g.dart';
 @HiveType(typeId: 20)
 enum ProgressionType {
   @HiveField(0)
-  none('Sin progresión', 'Entrenamiento libre sin progresión automática'),
-  
+  none('progression.types.none', 'progression.types.noneDescription'),
+
   @HiveField(1)
-  linear('Progresión Lineal', 'Incremento constante de peso cada sesión/semana'),
-  
+  linear('progression.types.linear', 'progression.types.linearDescription'),
+
   @HiveField(2)
-  undulating('Progresión Ondulante', 'Variación de intensidad y volumen por sesión'),
-  
+  undulating(
+    'progression.types.undulating',
+    'progression.types.undulatingDescription',
+  ),
+
   @HiveField(3)
-  stepped('Progresión Escalonada', 'Acumulación de carga con deload periódico'),
-  
+  stepped('progression.types.stepped', 'progression.types.steppedDescription'),
+
   @HiveField(4)
-  double('Progresión Doble', 'Aumento de repeticiones primero, luego peso'),
-  
+  double('progression.types.double', 'progression.types.doubleDescription'),
+
   @HiveField(5)
-  autoregulated('Progresión Autoregulada', 'Ajuste basado en RPE/RIR'),
-  
+  autoregulated(
+    'progression.types.autoregulated',
+    'progression.types.autoregulatedDescription',
+  ),
+
   @HiveField(6)
-  doubleFactor('Progresión Doble Factor', 'Balance entre fitness y fatiga'),
-  
+  doubleFactor(
+    'progression.types.doubleFactor',
+    'progression.types.doubleFactorDescription',
+  ),
+
   @HiveField(7)
-  overload('Sobrecarga Progresiva', 'Incremento gradual de volumen o intensidad'),
-  
+  overload(
+    'progression.types.overload',
+    'progression.types.overloadDescription',
+  ),
+
   @HiveField(8)
-  wave('Progresión por Oleadas', 'Ciclos de 3 semanas con diferentes énfasis'),
-  
+  wave('progression.types.wave', 'progression.types.waveDescription'),
+
   @HiveField(9)
-  static('Progresión Estática', 'Mantiene carga constante durante el bloque'),
-  
+  static('progression.types.static', 'progression.types.staticDescription'),
+
   @HiveField(10)
-  reverse('Progresión Inversa', 'Inicia con alta intensidad, reduce progresivamente');
+  reverse('progression.types.reverse', 'progression.types.reverseDescription');
 
-  const ProgressionType(this.displayName, this.description);
+  const ProgressionType(this.displayNameKey, this.descriptionKey);
 
-  final String displayName;
-  final String description;
+  final String displayNameKey;
+  final String descriptionKey;
 
   static ProgressionType fromString(String value) {
     return ProgressionType.values.firstWhere(
@@ -53,37 +65,37 @@ enum ProgressionType {
 @HiveType(typeId: 21)
 enum ProgressionUnit {
   @HiveField(0)
-  session('Por sesión'),
-  
+  session('progression.units.session'),
+
   @HiveField(1)
-  week('Por semana'),
-  
+  week('progression.units.week'),
+
   @HiveField(2)
-  cycle('Por ciclo');
+  cycle('progression.units.cycle');
 
-  const ProgressionUnit(this.displayName);
+  const ProgressionUnit(this.displayNameKey);
 
-  final String displayName;
+  final String displayNameKey;
 }
 
 @HiveType(typeId: 22)
 enum ProgressionTarget {
   @HiveField(0)
-  weight('Peso'),
-  
+  weight('progression.targets.weight'),
+
   @HiveField(1)
-  reps('Repeticiones'),
-  
+  reps('progression.targets.reps'),
+
   @HiveField(2)
-  sets('Series'),
-  
+  sets('progression.targets.sets'),
+
   @HiveField(3)
-  volume('Volumen'),
-  
+  volume('progression.targets.volume'),
+
   @HiveField(4)
-  intensity('Intensidad');
+  intensity('progression.targets.intensity');
 
-  const ProgressionTarget(this.displayName);
+  const ProgressionTarget(this.displayNameKey);
 
-  final String displayName;
+  final String displayNameKey;
 }

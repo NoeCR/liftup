@@ -35,6 +35,28 @@ class ProgressionNotifier extends _$ProgressionNotifier {
     }
   }
 
+  /// Restaura todas las plantillas integradas (útil después de limpiar la base de datos)
+  Future<void> restoreTemplates() async {
+    try {
+      final templateService = ref.read(
+        progressionTemplateServiceProvider.notifier,
+      );
+      await templateService.restoreBuiltInTemplates();
+
+      // Invalidar el provider para que se recarguen las plantillas
+      ref.invalidate(progressionTemplateServiceProvider);
+
+      LoggingService.instance.info('Progression templates restored');
+    } catch (e, stackTrace) {
+      LoggingService.instance.error(
+        'Error restoring progression templates',
+        e,
+        stackTrace,
+      );
+      rethrow;
+    }
+  }
+
   /// Configura una nueva progresión global
   Future<void> setProgression({
     required ProgressionType type,
@@ -77,6 +99,9 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         deloadPercentage: deloadPercentage,
         customParameters: customParameters,
       );
+
+      // Limpiar estados de configuraciones inactivas
+      await progressionService.cleanupInactiveProgressionStates();
 
       // Actualizar estado
       state = AsyncValue.data(newConfig);
@@ -226,7 +251,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
 
   /// Verifica si hay una progresión activa
   bool get hasActiveProgression {
-    return state.hasValue && state.value != null;
+    return state.hasValue && state.value != null && state.value!.isActive;
   }
 
   /// Obtiene el tipo de progresión activa
