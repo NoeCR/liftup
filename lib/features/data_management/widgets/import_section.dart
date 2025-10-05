@@ -23,12 +23,12 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Opciones de importación
+        // Import options
         _buildImportOptions(),
 
         const SizedBox(height: 16),
 
-        // Botones de importación
+        // Import actions
         Row(
           children: [
             Expanded(
@@ -112,10 +112,10 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
 
   Future<void> _importFromFile(BuildContext context) async {
     try {
-      // Obtener extensiones soportadas dinámicamente
+      // Resolve supported extensions dynamically
       final supportedExtensions = ImportFactory.getSupportedExtensions();
 
-      // Mostrar diálogo de selección de archivo con validación
+      // Show file picker with validation
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: supportedExtensions.map((ext) => ext.replaceAll('.', '')).toList(),
@@ -123,19 +123,19 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
       );
 
       if (result == null || result.files.isEmpty) {
-        return; // Usuario canceló
+        return; // User cancelled
       }
 
       final file = result.files.first;
       if (file.path == null) {
-        throw Exception('No se pudo acceder al archivo');
+        throw Exception('Unable to access the selected file');
       }
 
-      // Validaciones adicionales del archivo
+      // Additional file validations
       await _validateFile(file);
 
       if (!context.mounted) return;
-      // Mostrar indicador de progreso
+      // Show progress indicator
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -145,7 +145,7 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
             ),
       );
 
-      // Configurar importación
+      // Build import configuration
       final importConfig = ImportConfig(
         mergeData: _mergeData,
         overwriteExisting: _overwriteExisting,
@@ -155,14 +155,14 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
         maxFileSize: 10 * 1024 * 1024, // 10MB
       );
 
-      // Realizar importación usando el servicio
+      // Perform import using the service
       final importResult = await ImportService.instance.importFromFile(filePath: file.path!, config: importConfig);
 
-      // Cerrar indicador de progreso
+      // Close progress indicator
       if (!context.mounted) return;
       Navigator.of(context).pop();
 
-      // Mostrar resultado
+      // Show result
       if (!context.mounted) return;
       if (importResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -177,12 +177,12 @@ class _ImportSectionState extends ConsumerState<ImportSection> {
         );
       }
     } catch (e) {
-      // Cerrar indicador de progreso si está abierto
+      // Close progress indicator if open
       if (!mounted) return;
       Navigator.of(context).pop();
 
       if (!mounted) return;
-      // Mostrar error específico con más detalles
+      // Show error with details
       _showImportError(context, e.toString());
     }
   }
@@ -199,29 +199,29 @@ void _showImportHelp(BuildContext context) {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Formatos Soportados:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Supported Formats:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                Text('• JSON: Archivos de respaldo completos'),
+                Text('• JSON: Full backup files'),
                 Text('• CSV: Tabular data for analysis'),
                 SizedBox(height: 16),
-                Text('Recomendaciones:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Recommendations:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                Text('• Siempre crea un respaldo antes de importar'),
-                Text('• Valida los datos para evitar errores'),
+                Text('• Always create a backup before importing'),
+                Text('• Validate data to avoid errors'),
                 Text('• Use "Merge data" to keep existing information'),
                 SizedBox(height: 16),
                 Text('Maximum Size:', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
-                Text('• 10MB por archivo'),
+                Text('• 10MB per file'),
               ],
             ),
           ),
-          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido'))],
+          actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK'))],
         ),
   );
 }
 
-/// Muestra un diálogo de error detallado para problemas de importación
+/// Shows a detailed error dialog for import problems
 void _showImportError(BuildContext context, String errorMessage) {
   showDialog(
     context: context,
@@ -232,10 +232,7 @@ void _showImportError(BuildContext context, String errorMessage) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'No se pudo importar el archivo. Detalles del error:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Could not import the file. Error details:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -247,22 +244,22 @@ void _showImportError(BuildContext context, String errorMessage) {
                 child: Text(errorMessage, style: TextStyle(color: Colors.red.shade800, fontFamily: 'monospace')),
               ),
               const SizedBox(height: 12),
-              const Text('Sugerencias:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('Suggestions:', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               const Text('• Verify that the file is not corrupted'),
               const Text('• Make sure the format is correct'),
-              const Text('• Comprueba que el archivo no exceda 10MB'),
-              const Text('• Intenta con un archivo de respaldo diferente'),
+              const Text('• Ensure the file is under 10MB'),
+              const Text('• Try with a different backup file'),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Entendido')),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('OK')),
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _showImportHelp(context);
               },
-              child: const Text('Ver Ayuda'),
+              child: const Text('View Help'),
             ),
           ],
         ),

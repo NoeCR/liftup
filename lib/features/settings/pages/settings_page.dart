@@ -15,7 +15,7 @@ import '../../statistics/notifiers/progress_notifier.dart';
 import '../../progression/notifiers/progression_notifier.dart';
 import '../widgets/language_selector.dart';
 
-// Clave global para el ScaffoldMessenger
+// Global key for ScaffoldMessenger
 final GlobalKey<ScaffoldMessengerState> globalScaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 class SettingsPage extends ConsumerStatefulWidget {
@@ -53,7 +53,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 context,
                 icon: Icons.settings_suggest,
                 title: context.tr('routine.configureSections'),
-                subtitle: 'Personalizar secciones de entrenamiento',
+                subtitle: 'Customize training sections',
                 onTap: () => context.push(AppRouter.sectionTemplates),
               ),
             ]),
@@ -62,8 +62,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               _buildSettingsTile(
                 context,
                 icon: Icons.palette,
-                title: 'Tema',
-                subtitle: 'Cambiar tema claro/oscuro',
+                title: 'Theme',
+                subtitle: 'Switch light/dark mode',
                 onTap: () {
                   // Theme selection functionality
                 },
@@ -71,7 +71,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               const LanguageSelector(),
             ]),
             const SizedBox(height: 24),
-            _buildSettingsSection(context, 'Progresión', [_buildProgressionSettings()]),
+            _buildSettingsSection(context, 'Progression', [_buildProgressionSettings()]),
             const SizedBox(height: 24),
             _buildSettingsSection(context, context.tr('settings.training'), [
               SwitchListTile(
@@ -149,14 +149,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 context,
                 icon: Icons.storage,
                 title: context.tr('settings.dataManagement'),
-                subtitle: 'Exportar, importar, backup y compartir',
+                subtitle: 'Export, import, backup and sharing',
                 onTap: () => context.push(AppRouter.dataManagement),
               ),
               _buildSettingsTile(
                 context,
                 icon: Icons.delete_forever,
                 title: context.tr('settings.deleteAllData'),
-                subtitle: 'Eliminar todas las rutinas y progreso',
+                subtitle: 'Delete all routines and progress',
                 onTap: () => _showClearDatabaseDialog(context),
                 isDestructive: true,
               ),

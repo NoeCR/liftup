@@ -3,10 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-/// Niveles de logging disponibles
+/// Available logging levels
 enum LogLevel { debug, info, warning, error, fatal }
 
-/// Servicio centralizado de logging que integra Logger y Sentry
+/// Centralized logging service that integrates Logger and Sentry
 class LoggingService {
   static LoggingService? _instance;
   static LoggingService get instance => _instance ??= LoggingService._();
@@ -16,7 +16,7 @@ class LoggingService {
   late final Logger _logger;
   bool _isInitialized = false;
 
-  /// Inicializa el servicio de logging
+  /// Initializes the logging service
   void initialize({bool enableConsoleLogging = kDebugMode, bool enableSentryLogging = true}) {
     if (_isInitialized) return;
 
@@ -40,32 +40,32 @@ class LoggingService {
     });
   }
 
-  /// Log de nivel debug - información detallada para desarrollo
+  /// Debug level log - detailed information for development
   void debug(String message, [Map<String, dynamic>? context]) {
     _log(LogLevel.debug, message, context);
   }
 
-  /// Log de nivel info - información general de la aplicación
+  /// Info level log - general application information
   void info(String message, [Map<String, dynamic>? context]) {
     _log(LogLevel.info, message, context);
   }
 
-  /// Log de nivel warning - situaciones que requieren atención
+  /// Warning level log - situations that require attention
   void warning(String message, [Map<String, dynamic>? context]) {
     _log(LogLevel.warning, message, context);
   }
 
-  /// Log de nivel error - errores que no detienen la aplicación
+  /// Error level log - errors that do not stop the application
   void error(String message, [Object? error, StackTrace? stackTrace, Map<String, dynamic>? context]) {
     _log(LogLevel.error, message, context, error, stackTrace);
   }
 
-  /// Log de nivel fatal - errores críticos que pueden detener la aplicación
+  /// Fatal level log - critical errors that may stop the application
   void fatal(String message, [Object? error, StackTrace? stackTrace, Map<String, dynamic>? context]) {
     _log(LogLevel.fatal, message, context, error, stackTrace);
   }
 
-  /// Método interno para manejar todos los logs
+  /// Internal method to handle all logs
   void _log(LogLevel level, String message, [Map<String, dynamic>? context, Object? error, StackTrace? stackTrace]) {
     if (!_isInitialized) {
       developer.log('LoggingService not initialized. Message: $message');
@@ -74,7 +74,7 @@ class LoggingService {
 
     final logMessage = _formatMessage(message, context);
 
-    // Log local con Logger
+    // Local log with Logger
     switch (level) {
       case LogLevel.debug:
         _logger.d(logMessage);
@@ -93,13 +93,13 @@ class LoggingService {
         break;
     }
 
-    // Envío a Sentry para errores y warnings
+    // Send to Sentry for error/fatal
     if (level == LogLevel.error || level == LogLevel.fatal) {
       _sendToSentry(level, message, context, error, stackTrace);
     }
   }
 
-  /// Envía logs críticos a Sentry
+  /// Sends critical logs to Sentry
   void _sendToSentry(
     LogLevel level,
     String message,
@@ -109,7 +109,7 @@ class LoggingService {
   ) {
     try {
       if (error != null) {
-        // Capturar excepción
+        // Capture exception
         Sentry.captureException(
           error,
           stackTrace: stackTrace,
@@ -120,7 +120,7 @@ class LoggingService {
           },
         );
       } else {
-        // Capturar mensaje
+        // Capture message
         Sentry.captureMessage(
           message,
           level: level == LogLevel.fatal ? SentryLevel.fatal : SentryLevel.error,
@@ -131,12 +131,12 @@ class LoggingService {
         );
       }
     } catch (e) {
-      // Fallback si Sentry falla
+      // Fallback if Sentry fails
       developer.log('Failed to send log to Sentry: $e');
     }
   }
 
-  /// Formatea el mensaje con contexto
+  /// Formats message with context
   String _formatMessage(String message, Map<String, dynamic>? context) {
     if (context == null || context.isEmpty) {
       return message;
@@ -147,7 +147,7 @@ class LoggingService {
     return '$message | Context: $contextString';
   }
 
-  /// Añade breadcrumb para Sentry
+  /// Adds a breadcrumb to Sentry
   void addBreadcrumb(
     String message, {
     String? category,
@@ -163,7 +163,7 @@ class LoggingService {
     }
   }
 
-  /// Configura contexto de usuario para Sentry
+  /// Sets user context for Sentry
   void setUserContext({String? userId, String? username, String? email, Map<String, dynamic>? extra}) {
     try {
       Sentry.configureScope((scope) {
@@ -174,7 +174,7 @@ class LoggingService {
     }
   }
 
-  /// Configura tags personalizados para Sentry
+  /// Sets custom tags for Sentry
   void setTag(String key, String value) {
     try {
       Sentry.configureScope((scope) {
@@ -185,13 +185,13 @@ class LoggingService {
     }
   }
 
-  /// Configura contexto adicional para Sentry
+  /// Sets additional context for Sentry
   void setContext(String key, Map<String, dynamic> context) {
     try {
       Sentry.configureScope((scope) {
         scope.setContexts(key, context);
       });
-      // Solo log en modo debug para evitar spam
+      // Log only in debug mode to avoid noise
       if (kDebugMode) {
         developer.log('Context set for Sentry: $key');
       }
