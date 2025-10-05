@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/auto_routine_selection_notifier.dart';
 import '../../../common/enums/week_day_enum.dart';
 
-/// Widget que muestra información sobre la selección automática de rutinas
+/// Widget that shows information about automatic routine selection
 class AutoSelectionInfoCard extends ConsumerWidget {
   const AutoSelectionInfoCard({super.key});
 
@@ -29,7 +29,7 @@ class AutoSelectionInfoCard extends ConsumerWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  autoSelectionInfo.hasSelection ? 'Rutina Sugerida' : 'Information',
+                  autoSelectionInfo.hasSelection ? 'Suggested Routine' : 'Information',
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.bold,
@@ -49,7 +49,7 @@ class AutoSelectionInfoCard extends ConsumerWidget {
             if (autoSelectionInfo.hasSelection && autoSelectionInfo.availableRoutines.length > 1) ...[
               const SizedBox(height: 8),
               Text(
-                '${autoSelectionInfo.availableRoutines.length} rutinas disponibles para ${autoSelectionInfo.currentDay.displayName}',
+                '${autoSelectionInfo.availableRoutines.length} routines available for ${autoSelectionInfo.currentDay.displayName}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
