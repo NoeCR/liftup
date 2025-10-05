@@ -98,6 +98,9 @@ dev_dependencies:
   json_serializable: ^6.7.1
   hive_generator: ^2.0.1
 
+  # App icons
+  flutter_launcher_icons: ^0.13.1
+
   # Testing
   mockito: ^5.4.4
   integration_test:
@@ -125,7 +128,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/animations/
     - assets/locales/
     - .env
     - .env.development
@@ -159,3 +161,10 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 dependency_overrides:
+
+# Launcher icons configuration
+flutter_launcher_icons:
+  image_path: assets/icons/app_icon.png
+  android: true
+  ios: true
+  min_sdk_android: 21
