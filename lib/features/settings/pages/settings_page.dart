@@ -402,7 +402,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                               try {
                                 await _clearAllData();
-                                // Cerrar el diálogo
+                                // Close dialog
                                 if (context.mounted) {
                                   Navigator.of(context).pop();
                                 }
@@ -454,10 +454,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ref.invalidate(sessionNotifierProvider);
       ref.invalidate(progressNotifierProvider);
 
-      // Esperar un momento para que se complete la invalidación
+      // Wait a moment so the invalidation completes
       await Future.delayed(const Duration(milliseconds: 500));
 
-      // Mostrar SnackBar de éxito usando la clave global
+      // Show success SnackBar using the global key
       globalScaffoldKey.currentState?.showSnackBar(
         SnackBar(
           content: Text(globalScaffoldKey.currentContext!.tr('settings.deleteAllDataSuccess')),
@@ -479,7 +479,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
       );
 
-      // Re-lanzar el error para que el diálogo pueda manejarlo
+      // Re-throw the error so the dialog can handle it
       rethrow;
     }
   }

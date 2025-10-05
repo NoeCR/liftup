@@ -70,7 +70,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
   void _changeLanguage(BuildContext context, Locale locale) {
     context.setLocale(locale);
 
-    // Mostrar mensaje de éxito de forma segura
+    // Safely show success message
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && context.mounted) {
         try {
@@ -83,7 +83,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
           );
         } catch (e) {
           // Si no hay Scaffold disponible, no mostrar el SnackBar
-          // El cambio de idioma ya se aplicó correctamente
+          // The language change was already applied correctly
         }
       }
     });

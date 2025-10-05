@@ -10,9 +10,9 @@ import '../../../features/exercise/models/exercise.dart';
 import '../../../features/home/models/routine.dart';
 import '../../../features/statistics/models/progress_data.dart';
 
-/// Servicio para backup en la nube
+/// Cloud backup service
 abstract class CloudBackupService {
-  /// Sube un backup a la nube
+  /// Uploads a backup to the cloud
   Future<BackupResult> uploadBackup({
     required String userId,
     required List<WorkoutSession> sessions,
@@ -24,20 +24,20 @@ abstract class CloudBackupService {
     BackupConfig? config,
   });
 
-  /// Descarga un backup desde la nube
+  /// Downloads a backup from the cloud
   Future<Map<String, dynamic>?> downloadBackup(String backupId);
 
-  /// Lista los backups del usuario
+  /// Lists user's backups
   Future<List<CloudBackup>> listBackups(String userId);
 
-  /// Elimina un backup
+  /// Deletes a backup
   Future<bool> deleteBackup(String backupId);
 
-  /// Obtiene información de un backup
+  /// Gets backup information
   Future<CloudBackup?> getBackupInfo(String backupId);
 }
 
-/// Implementación simulada del servicio de backup en la nube
+/// Simulated implementation of the cloud backup service
 class MockCloudBackupService implements CloudBackupService {
   final Map<String, CloudBackup> _backups = {};
   final Map<String, Map<String, dynamic>> _backupData = {};
@@ -54,7 +54,7 @@ class MockCloudBackupService implements CloudBackupService {
     BackupConfig? config,
   }) async {
     try {
-      // Configurar exportación
+      // Configure export
       final exportConfig = ExportConfig(
         includeSessions: config?.includeDataTypes.contains('sessions') ?? true,
         includeExercises: config?.includeDataTypes.contains('exercises') ?? true,
@@ -65,7 +65,7 @@ class MockCloudBackupService implements CloudBackupService {
         includeMetadata: true,
       );
 
-      // Usar ExportFactory para crear el exportador JSON
+      // Use ExportFactory to create the JSON exporter
       final exporter = ExportFactory.createExporter(
         type: ExportType.json,
         config: exportConfig,
@@ -81,7 +81,7 @@ class MockCloudBackupService implements CloudBackupService {
       final file = File(filePath);
       final sizeBytes = await file.length();
 
-      // Simular subida a la nube
+      // Simulate cloud upload
       await Future.delayed(const Duration(seconds: 2));
 
       final backupId = 'backup_${DateTime.now().millisecondsSinceEpoch}';
@@ -104,19 +104,19 @@ class MockCloudBackupService implements CloudBackupService {
       _backups[backupId] = backup;
       _backupData[backupId] = await _loadBackupData(filePath);
 
-      // Limpiar archivo temporal
+      // Clean up temp file
       await file.delete();
 
       return BackupResult.success(backupId: backupId, sizeBytes: sizeBytes, completedAt: DateTime.now());
     } catch (e) {
-      return BackupResult.failure('Error al subir backup: $e');
+      return BackupResult.failure('Error uploading backup: $e');
     }
   }
 
   @override
   Future<Map<String, dynamic>?> downloadBackup(String backupId) async {
     try {
-      // Simular descarga desde la nube
+      // Simulate cloud download
       await Future.delayed(const Duration(seconds: 1));
 
       return _backupData[backupId];
@@ -128,7 +128,7 @@ class MockCloudBackupService implements CloudBackupService {
   @override
   Future<List<CloudBackup>> listBackups(String userId) async {
     try {
-      // Simular consulta a la nube
+      // Simulate cloud query
       await Future.delayed(const Duration(milliseconds: 500));
 
       return _backups.values.where((backup) => backup.userId == userId).toList()
@@ -141,7 +141,7 @@ class MockCloudBackupService implements CloudBackupService {
   @override
   Future<bool> deleteBackup(String backupId) async {
     try {
-      // Simular eliminación en la nube
+      // Simulate cloud deletion
       await Future.delayed(const Duration(milliseconds: 500));
 
       _backups.remove(backupId);
@@ -156,7 +156,7 @@ class MockCloudBackupService implements CloudBackupService {
   @override
   Future<CloudBackup?> getBackupInfo(String backupId) async {
     try {
-      // Simular consulta a la nube
+      // Simulate cloud query
       await Future.delayed(const Duration(milliseconds: 300));
 
       return _backups[backupId];
@@ -165,7 +165,7 @@ class MockCloudBackupService implements CloudBackupService {
     }
   }
 
-  /// Carga los datos del backup desde el archivo
+  /// Loads backup data from file
   Future<Map<String, dynamic>> _loadBackupData(String filePath) async {
     final file = File(filePath);
     final jsonString = await file.readAsString();
@@ -173,7 +173,7 @@ class MockCloudBackupService implements CloudBackupService {
   }
 }
 
-/// Servicio de backup automático
+/// Automatic backup service
 class AutoBackupService {
   final CloudBackupService _cloudService;
   final BackupConfig _config;
@@ -183,7 +183,7 @@ class AutoBackupService {
     : _cloudService = cloudService,
       _config = config;
 
-  /// Verifica si es necesario hacer un backup
+  /// Checks whether a backup is needed
   bool shouldBackup() {
     if (!_config.enabled) return false;
 
@@ -193,7 +193,7 @@ class AutoBackupService {
     return timeSinceLastBackup.inHours >= _config.intervalHours;
   }
 
-  /// Ejecuta un backup automático si es necesario
+  /// Runs an automatic backup if needed
   Future<BackupResult?> executeAutoBackup({
     required String userId,
     required List<WorkoutSession> sessions,
@@ -205,7 +205,7 @@ class AutoBackupService {
   }) async {
     if (!shouldBackup()) return null;
 
-    // Verificar conexión WiFi si es requerido
+    // Check WiFi connection if required
     if (_config.backupOnWifiOnly && !await _isWifiConnected()) {
       return BackupResult.failure('Backup requires WiFi connection');
     }
@@ -228,14 +228,14 @@ class AutoBackupService {
     return result;
   }
 
-  /// Verifica si hay conexión WiFi (simulado)
+  /// Checks if there is WiFi connection (simulated)
   Future<bool> _isWifiConnected() async {
-    // En una implementación real, verificarías la conexión de red
+    // In a real implementation, you'd check the network connection
     await Future.delayed(const Duration(milliseconds: 100));
-    return true; // Simular conexión WiFi
+    return true; // Simulate WiFi connection
   }
 
-  /// Actualiza la configuración de backup
+  /// Updates backup configuration
   void updateConfig(BackupConfig newConfig) {
     _config.copyWith(
       enabled: newConfig.enabled,
@@ -247,15 +247,15 @@ class AutoBackupService {
     );
   }
 
-  /// Limpia backups antiguos
+  /// Cleans up old backups
   Future<void> cleanupOldBackups(String userId) async {
     final backups = await _cloudService.listBackups(userId);
 
     if (backups.length > _config.maxBackups) {
-      // Ordenar por fecha de creación (más antiguos primero)
+      // Sort by creation date (oldest first)
       backups.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-      // Eliminar los más antiguos
+      // Delete the oldest ones
       final toDelete = backups.take(backups.length - _config.maxBackups);
       for (final backup in toDelete) {
         await _cloudService.deleteBackup(backup.id);

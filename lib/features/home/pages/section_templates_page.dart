@@ -318,7 +318,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Organizar íconos por categorías
+    // Organize icons by categories
     final iconCategories = {
       'Calentamiento/Enfriamiento': ['warm_up', 'self_improvement', 'spa', 'air', 'thermostat'],
       'Pecho/Torso': [

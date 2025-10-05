@@ -40,7 +40,7 @@ class _ProgressionSelectionDialogState extends ConsumerState<ProgressionSelectio
             Text('progression.configureProgressionQuestion'.tr(), style: theme.textTheme.bodyMedium),
             const SizedBox(height: 16),
 
-            // Opción de entrenamiento libre
+            // Free training option
             _buildOptionCard(
               title: 'progression.freeTraining'.tr(),
               description: 'progression.freeTrainingDescription'.tr(),
@@ -55,7 +55,7 @@ class _ProgressionSelectionDialogState extends ConsumerState<ProgressionSelectio
 
             const SizedBox(height: 12),
 
-            // Opción de progresión automática
+            // Automatic progression option
             _buildOptionCard(
               title: 'progression.automaticProgression'.tr(),
               description: 'progression.automaticProgressionDescription'.tr(),
@@ -192,10 +192,10 @@ class _ProgressionSelectionDialogState extends ConsumerState<ProgressionSelectio
 
     try {
       if (_selectedType == ProgressionType.none) {
-        // Desactivar progresión actual si existe
+        // Disable current progression if it exists
         await ref.read(progressionNotifierProvider.notifier).disableProgression();
       } else {
-        // Navegar a configuración de progresión
+        // Navigate to progression configuration
         if (mounted) {
           Navigator.of(context).pop();
           context.push('/progression-configuration', extra: {'progressionType': _selectedType!});
@@ -235,14 +235,14 @@ class _ProgressionTypeSelectionDialogState extends ConsumerState<_ProgressionTyp
   @override
   void initState() {
     super.initState();
-    // Asegurar que las plantillas integradas existan al abrir el diálogo
+    // Ensure built-in templates exist when opening the dialog
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         final notifier = ref.read(progressionTemplateServiceProvider.notifier);
         await notifier.initializeBuiltInTemplates();
         ref.invalidate(progressionTemplateServiceProvider);
       } catch (_) {
-        // Silenciar errores aquí; el builder mostrará el estado adecuado
+        // Silence errors here; the builder will show the proper state
       }
     });
   }
@@ -259,7 +259,7 @@ class _ProgressionTypeSelectionDialogState extends ConsumerState<_ProgressionTyp
 
             return templatesAsync.when(
               data: (templates) {
-                // Filtrar solo los tipos de progresión (excluir 'none')
+                // Filter only progression types (exclude 'none')
                 final progressionTemplates =
                     templates.where((template) => template.type != ProgressionType.none).toList();
 

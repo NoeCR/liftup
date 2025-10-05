@@ -19,7 +19,7 @@ class SessionSummaryPage extends ConsumerWidget {
 
     return sessionsAsync.when(
       data: (sessions) {
-        // Escoger sesión específica si sessionId viene; si no, tomar la última completada
+        // Pick specific session if sessionId provided; otherwise, take the last completed
         WorkoutSession? session;
         if (sessionId != null) {
           try {
@@ -62,7 +62,7 @@ class SessionSummaryPage extends ConsumerWidget {
                                   setsByExercise.putIfAbsent(set.exerciseId, () => <ExerciseSet>[]).add(set);
                                 }
 
-                                // Construir breakdown por sección si hay rutina
+                                // Build per-section breakdown if routine exists
                                 final sections = routine?.sections ?? <RoutineSection>[];
 
                                 return ListView(

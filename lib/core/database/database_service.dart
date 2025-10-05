@@ -42,10 +42,10 @@ class DatabaseService implements IDatabaseService {
         _isInitialized = true;
         LoggingService.instance.info('DatabaseService initialized successfully');
 
-        // Registrar métrica de inicialización exitosa
+        // Record successful initialization metric
         SentryMetricsConfig.trackDatabaseOperation(
           operation: 'initialize',
-          durationMs: 0, // Se calculará automáticamente por PerformanceMonitor
+          durationMs: 0, // Will be computed automatically by PerformanceMonitor
           success: true,
         );
       }, context: {'component': 'database_service'});

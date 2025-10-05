@@ -118,8 +118,8 @@ class RoutineNotifier extends _$RoutineNotifier {
   }
 
   Future<void> _loadInitialRoutine() async {
-    // No crear rutinas automáticamente - el usuario las creará manualmente
-    // Esto permite mayor flexibilidad y personalización
+    // Do not create routines automatically — the user will create them manually
+    // This allows greater flexibility and customization
   }
 
   /// Reorders routines manually

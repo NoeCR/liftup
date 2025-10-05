@@ -15,7 +15,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Información sobre historial
+        // History information
         _buildHistoryInfo(),
 
         const SizedBox(height: 16),
@@ -43,7 +43,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
 
         const SizedBox(height: 8),
 
-        // Botón para limpiar historial
+        // Button to clear history
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
@@ -350,8 +350,8 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
             ),
       );
 
-      // TODO: Implementar exportación de historial
-      // Simular tiempo de exportación
+      // TODO: Implement history export
+      // Simulate export time
       await Future.delayed(const Duration(seconds: 2));
 
       // Cerrar indicador de progreso
@@ -366,7 +366,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
         ),
       );
     } catch (e) {
-      // Cerrar indicador de progreso si está abierto
+      // Close progress indicator if open
       if (!context.mounted) return;
       Navigator.of(context).pop();
 
@@ -431,7 +431,7 @@ class _HistorySectionState extends ConsumerState<HistorySection> {
         context,
       ).showSnackBar(const SnackBar(content: Text('✅ Historial limpiado exitosamente'), backgroundColor: Colors.green));
     } catch (e) {
-      // Cerrar indicador de progreso si está abierto
+      // Close progress indicator if open
       if (!context.mounted) return;
       Navigator.of(context).pop();
 

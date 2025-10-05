@@ -28,7 +28,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
   int _deloadWeek = 4;
   double _deloadPercentage = 0.9;
 
-  // Parámetros personalizados
+  // Custom parameters
   final Map<String, dynamic> _customParameters = {};
 
   bool _isLoading = false;
@@ -40,7 +40,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
   }
 
   void _loadTemplateDefaults() {
-    // Cargar valores por defecto basados en el tipo de progresión
+    // Load defaults based on progression type
     switch (widget.progressionType) {
       case ProgressionType.linear:
         _incrementValue = 2.5;
@@ -134,23 +134,23 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Información de la progresión
+              // Progression information
               _buildProgressionInfo(),
               const SizedBox(height: 24),
 
-              // Configuración básica
+              // Basic configuration
               _buildBasicConfiguration(),
               const SizedBox(height: 24),
 
-              // Configuración avanzada
+              // Advanced configuration
               _buildAdvancedConfiguration(),
               const SizedBox(height: 24),
 
-              // Parámetros personalizados
+              // Custom parameters
               _buildCustomParameters(),
               const SizedBox(height: 24),
 
-              // Botón de guardar
+              // Save button
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -222,7 +222,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             ),
             const SizedBox(height: 16),
 
-            // Unidad de progresión
+            // Progression unit
             DropdownButtonFormField<ProgressionUnit>(
               value: _unit,
               decoration: InputDecoration(
@@ -449,7 +449,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             ),
             const SizedBox(height: 16),
 
-            // Mostrar parámetros específicos según el tipo
+            // Show type-specific parameters
             ..._buildTypeSpecificParameters(),
           ],
         ),

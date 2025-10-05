@@ -29,7 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
 
   @override
   void didPopNext() {
-    // Se ejecuta cuando se vuelve a esta página desde otra
+    // Runs when returning to this page from another
     super.didPopNext();
     // Invalidar el estado para forzar la recarga
     ref.invalidate(routineNotifierProvider);
@@ -301,7 +301,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                   itemCount: exerciseCards.length + 1,
                   itemBuilder: (context, index) {
                     if (index == exerciseCards.length) {
-                      // Último elemento: tarjeta para agregar ejercicios
+                      // Last item: card to add exercises
                       return SizedBox(width: 320, child: _buildEmptySection(section.name, routine, section));
                     }
                     return SizedBox(width: 320, child: exerciseCards[index]);
@@ -449,7 +449,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     );
   }
 
-  // Tile persistente eliminado según la nueva UX de carrusel + tarjeta vacía
+  // Persistent tile removed per new carousel + empty card UX
 
   Widget _buildErrorState(String error) {
     final theme = Theme.of(context);
@@ -546,7 +546,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       // Cerrar indicador de progreso
       if (mounted) Navigator.of(context).pop();
 
-      // Mostrar mensaje de éxito
+      // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

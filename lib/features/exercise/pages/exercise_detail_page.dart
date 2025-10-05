@@ -105,7 +105,7 @@ class ExerciseDetailPage extends ConsumerWidget {
           // Common Mistakes
           _buildCommonMistakes(exercise, context),
 
-          // Video Section / CTA añadir
+          // Video section / CTA add
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             child:
@@ -227,7 +227,7 @@ class ExerciseDetailPage extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Parámetros de entrenamiento (leer desde RoutineExercise)
+          // Training parameters (read from RoutineExercise)
           // Mostrar valores directamente del ejercicio
           Builder(
             builder: (context) {

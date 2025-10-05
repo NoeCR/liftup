@@ -95,7 +95,7 @@ class _ProgressionSelectionPageState extends ConsumerState<ProgressionSelectionP
 
         return templatesAsync.when(
           data: (templates) {
-            // Filtrar plantillas por dificultad si está seleccionada
+            // Filter templates by difficulty if selected
             final filteredTemplates =
                 _selectedDifficulty != null
                     ? templates.where((t) => t.difficulty == _selectedDifficulty).toList()
@@ -170,7 +170,7 @@ class _ProgressionSelectionPageState extends ConsumerState<ProgressionSelectionP
               ),
               const SizedBox(height: 12),
 
-              // Información adicional
+              // Additional information
               Wrap(
                 spacing: 8,
                 runSpacing: 4,

@@ -27,12 +27,12 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Opciones de exportación
+        // Export options
         _buildExportOptions(),
 
         const SizedBox(height: 16),
 
-        // Botones de exportación
+        // Export buttons
         Row(
           children: [
             Expanded(

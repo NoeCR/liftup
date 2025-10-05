@@ -16,16 +16,16 @@ class SentryMetricsConfig {
     try {
       LoggingService.instance.info('Initializing Sentry metrics configuration');
 
-      // Configurar métricas de rendimiento
+      // Configure performance metrics
       _setupPerformanceMetrics();
 
-      // Configurar métricas de uso
+      // Configure usage metrics
       _setupUsageMetrics();
 
-      // Configurar métricas de errores
+      // Configure error metrics
       _setupErrorMetrics();
 
-      // Configurar métricas de base de datos
+      // Configure database metrics
       _setupDatabaseMetrics();
 
       _isInitialized = true;
@@ -95,7 +95,7 @@ class SentryMetricsConfig {
         'is_slow': startupTimeMs > 3000,
       });
 
-      // Enviar transacción a Sentry
+      // Send transaction to Sentry
       Sentry.addBreadcrumb(
         Breadcrumb(
           message: 'App startup completed',
@@ -387,7 +387,7 @@ class SentryMetricsConfig {
         'metric_name': 'metrics_report',
       });
 
-      // Enviar breadcrumb con resumen de métricas
+      // Send breadcrumb with metrics summary
       Sentry.addBreadcrumb(
         Breadcrumb(
           message: 'Metrics report sent',

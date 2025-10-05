@@ -62,7 +62,7 @@ class _ExerciseVideoPlayerState extends State<ExerciseVideoPlayer> {
     }
 
     if (!_started) {
-      // Placeholder con botón de reproducir para iniciar la carga
+      // Placeholder with play button to start loading
       return Padding(
         padding: const EdgeInsets.only(bottom: 24),
         child: AspectRatio(

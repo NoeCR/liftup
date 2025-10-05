@@ -11,7 +11,7 @@ import '../../../core/navigation/app_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class CreateRoutinePage extends ConsumerStatefulWidget {
-  final Routine? routineToEdit; // Para edición de rutinas existentes
+  final Routine? routineToEdit; // For editing existing routines
 
   const CreateRoutinePage({super.key, this.routineToEdit});
 
@@ -41,14 +41,14 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       _selectedSectionIds.addAll(widget.routineToEdit!.sections.map((section) => section.sectionTemplateId ?? ''));
     }
 
-    // Añadir listeners para actualizar el estado del botón
+    // Add listeners to update button state
     _nameController.addListener(_updateButtonState);
     _descriptionController.addListener(_updateButtonState);
   }
 
   void _updateButtonState() {
     setState(() {
-      // Esto forzará la reconstrucción del widget y actualizará el botón
+      // This will force rebuild and update the button
     });
   }
 
@@ -192,7 +192,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
               return _buildEmptySectionsState();
             }
 
-            // Agrupar por categorías
+            // Group by categories
             final groupedTemplates = <String, List<RoutineSectionTemplate>>{};
             for (final template in templates) {
               final category = _getCategoryName(template.muscleGroup);
@@ -375,7 +375,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
       // Cerrar indicador de carga
       if (mounted) Navigator.of(context).pop();
 
-      // Mostrar mensaje de éxito
+      // Show success message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -395,7 +395,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
         }
       }
     } catch (e) {
-      // Cerrar indicador de carga si está abierto
+      // Close loading indicator if open
       if (mounted) Navigator.of(context).pop();
 
       // Mostrar error
@@ -412,7 +412,7 @@ class _CreateRoutinePageState extends ConsumerState<CreateRoutinePage> {
   }
 
   Future<void> _createNewRoutine() async {
-    // Crear rutina básica primero
+    // Create basic routine first
     final routine = Routine(
       id: _routineId,
       name: _nameController.text.trim(),

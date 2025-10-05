@@ -54,7 +54,7 @@ class AutoRoutineSelectionService {
         return null;
       }
 
-      // Ordenar por orden (ascendente), luego por fecha de creación (ascendente)
+      // Sort by order (ascending), then by creation date (ascending)
       todayRoutines.sort((a, b) {
         // Primero por orden
         final orderA = a.order ?? 999;
@@ -62,7 +62,7 @@ class AutoRoutineSelectionService {
         if (orderA != orderB) {
           return orderA.compareTo(orderB);
         }
-        // Luego por fecha de creación
+        // Then by creation date
         return a.createdAt.compareTo(b.createdAt);
       });
 

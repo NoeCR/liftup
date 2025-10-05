@@ -145,7 +145,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
             final int clamped = newValue.clamp(0, totalSets).toInt();
             ref.read(performedSetsNotifierProvider.notifier).setCount(widget.routineExercise.id, clamped);
 
-            // Lanzar temporizador de descanso si incrementa y no es la última serie
+            // Launch rest timer if it increments and it's not the last set
             if (clamped > previous && clamped < totalSets) {
               final rest = widget.exercise.restTimeSeconds ?? 60;
               if (rest > 0) {
@@ -192,7 +192,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
             ),
           ),
 
-        // Botón de detener cuando el sonido está reproduciéndose (tras finalizar timer)
+        // Stop button when sound is playing (after timer finishes)
         if (_isRingtonePlaying)
           Positioned(
             top: 8,

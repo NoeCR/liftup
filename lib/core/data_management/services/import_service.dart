@@ -8,7 +8,7 @@ import '../../../features/statistics/models/progress_data.dart';
 import '../../../core/database/database_service.dart';
 import '../../logging/logging.dart';
 
-/// Servicio para manejar la importación de datos a la base de datos Hive
+/// Service to handle data import into the Hive database
 class ImportService {
   static ImportService? _instance;
   static ImportService get instance => _instance ??= ImportService._();
@@ -48,7 +48,7 @@ class ImportService {
           'importer_type': importer.runtimeType.toString(),
         });
 
-        // Realizar importación
+        // Perform import
         final result = await importer.import(filePath);
 
         LoggingService.instance.info('Import completed', {
@@ -57,17 +57,17 @@ class ImportService {
           'errors_count': result.errors.length,
         });
 
-        // Registrar métrica de importación
+        // Record import metric
         SentryMetricsConfig.trackImportExportOperation(
           operation: 'import',
           fileType: fileExtension,
-          durationMs: 0, // Se calculará automáticamente por PerformanceMonitor
+          durationMs: 0, // Will be computed automatically by PerformanceMonitor
           success: result.success,
           dataSize: result.importedCount,
           error: result.success ? null : result.errorMessage,
         );
 
-        // Si la importación fue exitosa, guardar en Hive
+        // If import was successful, persist to Hive
         if (result.success && result.importedCount > 0) {
           await _saveToHive(result);
           LoggingService.instance.info('Data saved to Hive successfully');
@@ -140,8 +140,8 @@ class ImportService {
   /// Crea un respaldo antes de importar
   Future<String?> createBackup() async {
     try {
-      // TODO: Implementar creación de respaldo
-      // Por ahora, solo retornamos null para indicar que no se creó respaldo
+      // TODO: Implement backup creation
+      // For now, just return null to indicate no backup was created
       return null;
     } catch (e) {
       return null;
@@ -151,7 +151,7 @@ class ImportService {
   /// Restaura desde un respaldo
   Future<bool> restoreFromBackup(String backupPath) async {
     try {
-      // TODO: Implementar restauración desde respaldo
+      // TODO: Implement restore from backup
       return false;
     } catch (e) {
       return false;

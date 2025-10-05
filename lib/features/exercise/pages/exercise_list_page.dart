@@ -213,7 +213,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Determinar el contexto del estado vacío
+    // Determine empty state context
     final bool isSearching = _searchController.text.isNotEmpty;
     final bool isFiltering = _selectedCategory != null;
 

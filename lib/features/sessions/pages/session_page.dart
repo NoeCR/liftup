@@ -77,7 +77,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
           return sessionAsync.when(
             data: (sessions) {
               if (_sessionJustCompleted) {
-                // Mostrar estado sin sesión inmediatamente tras finalizar
+                // Show no-session state immediately after finishing
                 _stopTicker();
                 _elapsedSeconds = 0;
                 _isManuallyPaused = false;
@@ -103,13 +103,13 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 return _buildNoActiveSession();
               }
 
-              // Si está activo y no hay ticker, calcular base limpia y arrancar
+              // If active and no ticker, compute clean base and start
               if (_ticker == null && activeSession.status == SessionStatus.active && !_isManuallyPaused) {
                 final notifier = ref.read(sessionNotifierProvider.notifier);
                 _elapsedSeconds = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
                 _startTicker();
               }
-              // Si está pausado, detener el ticker y conservar _elapsedSeconds mostrado
+              // If paused, stop ticker and keep displayed _elapsedSeconds
               if (activeSession.status == SessionStatus.paused) {
                 _stopTicker();
                 final notifier = ref.read(sessionNotifierProvider.notifier);
@@ -343,7 +343,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
     return Column(
       children: [
-        // Widget de estado de progresión
+        // Progression status widget
         const ProgressionStatusWidget(),
 
         // Contenido principal

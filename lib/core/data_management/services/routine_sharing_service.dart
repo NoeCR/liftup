@@ -39,7 +39,7 @@ abstract class RoutineSharingService {
   Future<void> incrementDownloadCount(String shareId);
 }
 
-/// Implementación simulada del servicio de compartición
+/// Simulated implementation of the sharing service
 class MockRoutineSharingService implements RoutineSharingService {
   final Map<String, SharedRoutine> _sharedRoutines = {};
   final Map<String, Map<String, dynamic>> _sharedData = {};
@@ -53,7 +53,7 @@ class MockRoutineSharingService implements RoutineSharingService {
     required List<Exercise> exercises,
   }) async {
     try {
-      // Configurar exportación solo para rutinas y ejercicios
+      // Configure export for routines and exercises only
       final exportConfig = const ExportConfig(
         includeSessions: false,
         includeExercises: true,
@@ -100,7 +100,7 @@ class MockRoutineSharingService implements RoutineSharingService {
       _sharedRoutines[shareId] = sharedRoutine;
       _sharedData[shareId] = await _loadSharedData(filePath);
 
-      // Generar URL de compartición
+      // Generate sharing URL
       final shareUrl = 'https://liftup.app/share/$shareId';
 
       // Limpiar archivo temporal
@@ -146,7 +146,7 @@ class MockRoutineSharingService implements RoutineSharingService {
   @override
   Future<bool> updateSharedRoutine(String shareId, ShareConfig config) async {
     try {
-      // Simular actualización en la nube
+      // Simulate cloud update
       await Future.delayed(const Duration(milliseconds: 500));
 
       final existingRoutine = _sharedRoutines[shareId];
@@ -175,7 +175,7 @@ class MockRoutineSharingService implements RoutineSharingService {
   @override
   Future<bool> deleteSharedRoutine(String shareId) async {
     try {
-      // Simular eliminación en la nube
+      // Simulate cloud deletion
       await Future.delayed(const Duration(milliseconds: 500));
 
       _sharedRoutines.remove(shareId);
@@ -232,7 +232,7 @@ class SharedRoutineImportService {
   /// Importa una rutina compartida
   Future<ImportResult> importSharedRoutine(String shareId) async {
     try {
-      // Obtener información de la rutina compartida
+      // Obtain shared routine info
       final sharedRoutine = await _sharingService.getSharedRoutine(shareId);
       if (sharedRoutine == null) {
         return ImportResult(
@@ -300,7 +300,7 @@ class SharedRoutineImportService {
             final routine = Routine.fromJson(routineData as Map<String, dynamic>);
             importedRoutines.add(routine);
           } catch (e) {
-            // Error al importar rutina específica
+            // Error importing specific routine
           }
         }
       }
@@ -312,7 +312,7 @@ class SharedRoutineImportService {
             final exercise = Exercise.fromJson(exerciseData as Map<String, dynamic>);
             importedExercises.add(exercise);
           } catch (e) {
-            // Error al importar ejercicio específico
+            // Error importing specific exercise
           }
         }
       }

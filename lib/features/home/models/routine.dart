@@ -19,10 +19,10 @@ class Routine extends Equatable {
   final String description;
 
   @HiveField(3)
-  final List<WeekDay> days; // Solo los días de la semana, sin secciones
+  final List<WeekDay> days; // Week days only, no sections
 
   @HiveField(4)
-  final List<RoutineSection> sections; // Las secciones están en la rutina
+  final List<RoutineSection> sections; // Sections belong to the routine
 
   @HiveField(5)
   final DateTime createdAt;
@@ -34,7 +34,7 @@ class Routine extends Equatable {
   final String? imageUrl;
 
   @HiveField(8)
-  final int? order; // Orden manual para controlar la posición en la lista
+  final int? order; // Manual order to control position in list
 
   const Routine({
     required this.id,

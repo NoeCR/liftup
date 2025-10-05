@@ -21,7 +21,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Configuración de backup automático
+        // Automatic backup configuration
         _buildBackupConfig(),
 
         const SizedBox(height: 16),
@@ -81,7 +81,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
             ],
           ),
 
-          // Máximo de backups
+          // Maximum number of backups
           Row(
             children: [
               Expanded(child: Text('Máximo backups: $_maxBackups', style: Theme.of(context).textTheme.bodyMedium)),
@@ -181,7 +181,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
         SnackBar(content: Text(context.tr('dataManagement.backupCreatedSuccessfully')), backgroundColor: Colors.green),
       );
     } catch (e) {
-      // Cerrar indicador de progreso si está abierto y mostrar error
+      // Close progress indicator if open and show error
       if (!context.mounted) return;
       Navigator.of(context).pop();
 

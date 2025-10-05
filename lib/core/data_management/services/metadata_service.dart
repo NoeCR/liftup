@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../models/export_config.dart';
 
-/// Servicio para obtener metadatos reales de la aplicación y dispositivo
+/// Service to obtain real app and device metadata
 class MetadataService {
   static MetadataService? _instance;
   static MetadataService get instance => _instance ??= MetadataService._();
@@ -16,7 +16,7 @@ class MetadataService {
     _packageInfo = await PackageInfo.fromPlatform();
   }
 
-  /// Crea metadatos de exportación con datos reales
+  /// Creates export metadata with real data
   Future<ExportMetadata> createExportMetadata({Map<String, dynamic>? customData}) async {
     if (_packageInfo == null) {
       await initialize();
@@ -25,7 +25,7 @@ class MetadataService {
     final deviceId = await _getDeviceId();
 
     return ExportMetadata(
-      version: '1.0', // Versión del formato de exportación
+      version: '1.0', // Export format version
       exportDate: DateTime.now(),
       appVersion: _packageInfo?.version ?? '1.0.0',
       deviceId: deviceId,
@@ -33,7 +33,7 @@ class MetadataService {
     );
   }
 
-  /// Obtiene un ID único del dispositivo
+  /// Gets a unique device ID
   Future<String> _getDeviceId() async {
     try {
       // Por ahora, generar un ID basado en la plataforma y timestamp
@@ -46,6 +46,6 @@ class MetadataService {
     }
   }
 
-  /// Obtiene información del paquete
+  /// Gets package information
   PackageInfo? get packageInfo => _packageInfo;
 }
