@@ -5,13 +5,13 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i6;
 
+import 'package:flutter_riverpod/flutter_riverpod.dart' as _i2;
 import 'package:liftup/common/enums/progression_type_enum.dart' as _i8;
 import 'package:liftup/features/progression/models/progression_config.dart' as _i4;
 import 'package:liftup/features/progression/models/progression_state.dart' as _i5;
 import 'package:liftup/features/progression/models/progression_template.dart' as _i7;
 import 'package:liftup/features/progression/services/progression_service.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
