@@ -595,7 +595,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     );
 
     return <String, Object>{
-      'sets': exercise.defaultSets ?? 3,
+      'sets': exercise.defaultSets ?? 4,
       'reps': exercise.defaultReps ?? 10,
       'weight': exercise.defaultWeight ?? 0.0,
       'rest': exercise.restTimeSeconds ?? _defaultRestSeconds,

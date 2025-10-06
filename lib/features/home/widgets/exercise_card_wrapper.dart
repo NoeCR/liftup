@@ -142,7 +142,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           onWeightChanged: null,
           onRepsChanged: (newValue) {
             // Contador de series realizadas
-            final totalSets = widget.exercise.defaultSets ?? 3;
+            final totalSets = widget.exercise.defaultSets ?? 4;
             final previous = ref.read(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
             final int clamped = newValue.clamp(0, totalSets).toInt();
             ref.read(performedSetsNotifierProvider.notifier).setCount(widget.routineExercise.id, clamped);

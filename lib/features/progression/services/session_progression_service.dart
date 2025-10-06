@@ -10,7 +10,12 @@ import '../../../common/enums/progression_type_enum.dart';
 import '../../settings/notifiers/rest_prefs.dart';
 part 'session_progression_service.g.dart';
 
-int computeAdjustedSets({required int currentConfiguredSets, required int previousSetsInState, required int newSetsFromCalculation, required int maxSets}) {
+int computeAdjustedSets({
+  required int currentConfiguredSets,
+  required int previousSetsInState,
+  required int newSetsFromCalculation,
+  required int maxSets,
+}) {
   final delta = newSetsFromCalculation - previousSetsInState;
   final adjusted = currentConfiguredSets + delta;
   if (adjusted < 1) return 1;
@@ -99,7 +104,7 @@ class SessionProgressionService extends _$SessionProgressionService {
                   exerciseId: exercise.exerciseId,
                   baseWeight: exerciseModel.defaultWeight ?? 0.0,
                   baseReps: exerciseModel.defaultReps ?? 10,
-                  baseSets: exerciseModel.defaultSets ?? 3,
+                  baseSets: exerciseModel.defaultSets ?? 4,
                 );
 
             // Log current state before calculation
@@ -142,7 +147,7 @@ class SessionProgressionService extends _$SessionProgressionService {
 
               // Update Exercise defaults with calculated values
               // Ajuste progresivo de series: aplicar delta sobre la configuración actual del usuario
-              final currentConfiguredSets = exerciseModel.defaultSets ?? 3;
+              final currentConfiguredSets = exerciseModel.defaultSets ?? 4;
               final previousSetsInState = progressionState.currentSets;
               final maxSets = ref.read(maxSetsPerExerciseProvider);
               final int adjustedSets = computeAdjustedSets(
@@ -241,7 +246,7 @@ class SessionProgressionService extends _$SessionProgressionService {
         );
 
         // Create sets based on exercise defaults
-        final sets = exerciseModel.defaultSets ?? 3;
+        final sets = exerciseModel.defaultSets ?? 4;
         final reps = exerciseModel.defaultReps ?? 10;
         final weight = exerciseModel.defaultWeight ?? 0.0;
         final restTime = exerciseModel.restTimeSeconds ?? 60;
