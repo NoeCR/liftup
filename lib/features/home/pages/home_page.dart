@@ -151,7 +151,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             ) ==
         true;
     return Container(
-      height: 60,
+      height: 120,
       margin: const EdgeInsets.symmetric(vertical: AppTheme.spacingS),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -162,26 +162,87 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           final isSelected = _selectedMenuOption == option;
 
           return Padding(
-            padding: const EdgeInsets.only(right: AppTheme.spacingS),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 120),
-              child: FilterChip(
-                label: Text(option, overflow: TextOverflow.ellipsis, maxLines: 1),
-                selected: isSelected,
-                onSelected:
-                    hasActiveSession
-                        ? null
-                        : (selected) {
-                          setState(() {
-                            _selectedMenuOption = option;
-                          });
-                          // sync to provider
-                          final routines = ref.read(routineNotifierProvider).value;
-                          final routine = routines?.firstWhere((r) => r.name == option, orElse: () => routines.first);
-                          ref.read(selectedRoutineIdProvider.notifier).state = routine?.id;
-                        },
-                selectedColor: colorScheme.primaryContainer,
-                checkmarkColor: colorScheme.onPrimaryContainer,
+            padding: const EdgeInsets.only(right: AppTheme.spacingM),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppTheme.radiusL),
+              onTap: hasActiveSession
+                  ? null
+                  : () {
+                      setState(() {
+                        _selectedMenuOption = option;
+                      });
+                      final routines = ref.read(routineNotifierProvider).value;
+                      final routine = routines?.firstWhere((r) => r.name == option, orElse: () => routines.first);
+                      ref.read(selectedRoutineIdProvider.notifier).state = routine?.id;
+                    },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
+                width: 220,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? colorScheme.primaryContainer
+                      : colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusL),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withValues(alpha: 0.08),
+                      blurRadius: AppTheme.elevationXL,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: isSelected
+                        ? colorScheme.primary.withValues(alpha: 0.35)
+                        : colorScheme.outline.withValues(alpha: 0.20),
+                  ),
+                ),
+                padding: const EdgeInsets.all(AppTheme.spacingM),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: isSelected ? colorScheme.primary : colorScheme.secondary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusM),
+                      ),
+                      child: Icon(
+                        isSelected ? Icons.check_rounded : Icons.fitness_center_rounded,
+                        color: isSelected ? colorScheme.onPrimary : colorScheme.secondary,
+                      ),
+                    ),
+                    const SizedBox(width: AppTheme.spacingM),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            option,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            hasActiveSession ? context.tr('session.pause') : context.tr('session.train'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: isSelected ? colorScheme.onPrimaryContainer.withValues(alpha: 0.8) : colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

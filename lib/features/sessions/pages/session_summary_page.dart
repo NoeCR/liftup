@@ -31,13 +31,8 @@ class SessionSummaryPage extends ConsumerWidget {
         session ??=
             (() {
               final completed =
-                  sessions
-                      .where((s) => s.status == SessionStatus.completed)
-                      .toList()
-                    ..sort(
-                      (a, b) =>
-                          b.endTime?.compareTo(a.endTime ?? DateTime(0)) ?? 0,
-                    );
+                  sessions.where((s) => s.status == SessionStatus.completed).toList()
+                    ..sort((a, b) => b.endTime?.compareTo(a.endTime ?? DateTime(0)) ?? 0);
               return completed.isNotEmpty ? completed.first : null;
             })();
 
@@ -45,48 +40,30 @@ class SessionSummaryPage extends ConsumerWidget {
           appBar: AppBar(title: Text(context.tr('sessionSummary.title'))),
           body:
               session == null
-                  ? Center(
-                    child: Text(context.tr('session.noCompletedSession')),
-                  )
+                  ? Center(child: Text(context.tr('session.noCompletedSession')))
                   : Padding(
                     padding: const EdgeInsets.all(16),
                     child: Consumer(
                       builder: (context, ref, _) {
                         final s = session!;
-                        final routinesAsync = ref.watch(
-                          routineNotifierProvider,
-                        );
-                        final exercisesAsync = ref.watch(
-                          exerciseNotifierProvider,
-                        );
+                        final routinesAsync = ref.watch(routineNotifierProvider);
+                        final exercisesAsync = ref.watch(exerciseNotifierProvider);
 
                         return routinesAsync.when(
                           data: (routines) {
-                            final routine =
-                                s.routineId == null
-                                    ? null
-                                    : _findRoutine(routines, s.routineId!);
+                            final routine = s.routineId == null ? null : _findRoutine(routines, s.routineId!);
                             return exercisesAsync.when(
                               data: (exercises) {
-                                final exerciseMap = {
-                                  for (final e in exercises) e.id: e,
-                                };
+                                final exerciseMap = {for (final e in exercises) e.id: e};
 
                                 // Agrupar sets por ejercicio
-                                final setsByExercise =
-                                    <String, List<ExerciseSet>>{};
+                                final setsByExercise = <String, List<ExerciseSet>>{};
                                 for (final set in s.exerciseSets) {
-                                  setsByExercise
-                                      .putIfAbsent(
-                                        set.exerciseId,
-                                        () => <ExerciseSet>[],
-                                      )
-                                      .add(set);
+                                  setsByExercise.putIfAbsent(set.exerciseId, () => <ExerciseSet>[]).add(set);
                                 }
 
                                 // Build per-section breakdown if routine exists
-                                final sections =
-                                    routine?.sections ?? <RoutineSection>[];
+                                final sections = routine?.sections ?? <RoutineSection>[];
 
                                 return ListView(
                                   children: [
@@ -102,31 +79,18 @@ class SessionSummaryPage extends ConsumerWidget {
                                     const SizedBox(height: 8),
                                     _SummaryTile(
                                       title: context.tr('session.duration'),
-                                      value: _formatDuration(
-                                        (s.endTime ?? DateTime.now())
-                                            .difference(s.startTime),
-                                      ),
+                                      value: _formatDuration((s.endTime ?? DateTime.now()).difference(s.startTime)),
                                     ),
                                     const SizedBox(height: 8),
-                                    _SummaryTile(
-                                      title: context.tr('session.totalReps'),
-                                      value: '${s.totalReps ?? 0}',
-                                    ),
+                                    _SummaryTile(title: context.tr('session.totalReps'), value: '${s.totalReps ?? 0}'),
                                     const SizedBox(height: 8),
                                     _SummaryTile(
                                       title: context.tr('session.totalWeight'),
-                                      value: (s.totalWeight ?? 0)
-                                          .toStringAsFixed(1),
+                                      value: (s.totalWeight ?? 0).toStringAsFixed(1),
                                     ),
                                     const SizedBox(height: 16),
                                     if (sections.isNotEmpty)
-                                      Text(
-                                        'Detalle por sección',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium,
-                                      ),
+                                      Text('Detalle por sección', style: Theme.of(context).textTheme.titleMedium),
                                     const SizedBox(height: 8),
                                     for (final sec in sections) ...[
                                       _SectionSummary(
@@ -136,47 +100,27 @@ class SessionSummaryPage extends ConsumerWidget {
                                       ),
                                       const SizedBox(height: 12),
                                     ],
-                                    if (sections.isEmpty &&
-                                        setsByExercise.isNotEmpty) ...[
-                                      Text(
-                                        'Ejercicios',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium,
-                                      ),
+                                    if (sections.isEmpty && setsByExercise.isNotEmpty) ...[
+                                      Text('Ejercicios', style: Theme.of(context).textTheme.titleMedium),
                                       const SizedBox(height: 8),
-                                      for (final entry
-                                          in setsByExercise.entries) ...[
-                                        _ExerciseSummaryRow(
-                                          exercise: exerciseMap[entry.key],
-                                          sets: entry.value,
-                                        ),
+                                      for (final entry in setsByExercise.entries) ...[
+                                        _ExerciseSummaryRow(exercise: exerciseMap[entry.key], sets: entry.value),
                                         const Divider(height: 12),
                                       ],
                                     ],
                                   ],
                                 );
                               },
-                              loading:
-                                  () => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
+                              loading: () => const Center(child: CircularProgressIndicator()),
                               error:
                                   (e, _) => Center(
                                     child: Text(
-                                      context.tr(
-                                        'errors.errorLoadingData',
-                                        namedArgs: {'error': e.toString()},
-                                      ),
+                                      context.tr('errors.errorLoadingData', namedArgs: {'error': e.toString()}),
                                     ),
                                   ),
                             );
                           },
-                          loading:
-                              () => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
+                          loading: () => const Center(child: CircularProgressIndicator()),
                           error: (e, _) => Center(child: Text('Error: $e')),
                         );
                       },
@@ -184,19 +128,10 @@ class SessionSummaryPage extends ConsumerWidget {
                   ),
         );
       },
-      loading:
-          () =>
-              const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error:
           (e, _) => Scaffold(
-            body: Center(
-              child: Text(
-                context.tr(
-                  'errors.errorLoadingData',
-                  namedArgs: {'error': e.toString()},
-                ),
-              ),
-            ),
+            body: Center(child: Text(context.tr('errors.errorLoadingData', namedArgs: {'error': e.toString()}))),
           ),
     );
   }
@@ -219,11 +154,7 @@ class _SectionSummary extends StatelessWidget {
   final RoutineSection section;
   final Map<String, Exercise> exerciseMap;
   final Map<String, List<ExerciseSet>> setsByExercise;
-  const _SectionSummary({
-    required this.section,
-    required this.exerciseMap,
-    required this.setsByExercise,
-  });
+  const _SectionSummary({required this.section, required this.exerciseMap, required this.setsByExercise});
 
   @override
   Widget build(BuildContext context) {
@@ -241,22 +172,12 @@ class _SectionSummary extends StatelessWidget {
           Text(section.name, style: theme.textTheme.titleMedium),
           const SizedBox(height: 8),
           if (section.exercises.isEmpty)
-            Text(
-              'Sin ejercicios',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.hintColor,
-              ),
-            )
+            Text('Sin ejercicios', style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor))
           else
             ...section.exercises.map((re) {
               final ex = exerciseMap[re.exerciseId];
-              final sets =
-                  setsByExercise[re.exerciseId] ?? const <ExerciseSet>[];
-              return _ExerciseSummaryRow(
-                exercise: ex,
-                sets: sets,
-                plannedSets: ex?.defaultSets ?? 4,
-              );
+              final sets = setsByExercise[re.exerciseId] ?? const <ExerciseSet>[];
+              return _ExerciseSummaryRow(exercise: ex, sets: sets, plannedSets: ex?.defaultSets ?? 4);
             }),
         ],
       ),
@@ -268,11 +189,7 @@ class _ExerciseSummaryRow extends StatelessWidget {
   final Exercise? exercise;
   final List<ExerciseSet> sets;
   final int? plannedSets;
-  const _ExerciseSummaryRow({
-    required this.exercise,
-    required this.sets,
-    this.plannedSets,
-  });
+  const _ExerciseSummaryRow({required this.exercise, required this.sets, this.plannedSets});
 
   @override
   Widget build(BuildContext context) {
@@ -280,41 +197,26 @@ class _ExerciseSummaryRow extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final completed = sets.length;
     final totalReps = sets.fold<int>(0, (sum, s) => sum + s.reps);
-    final totalWeight = sets.fold<double>(
-      0,
-      (sum, s) => sum + s.weight * s.reps,
-    );
+    final totalWeight = sets.fold<double>(0, (sum, s) => sum + s.weight * s.reps);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(12)),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  exercise?.name ?? 'Ejercicio',
-                  style: theme.textTheme.titleSmall,
-                ),
+                Text(exercise?.name ?? 'Ejercicio', style: theme.textTheme.titleSmall),
                 const SizedBox(height: 4),
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,
                   children: [
-                    _chip(
-                      context,
-                      'Series: $completed${plannedSets != null ? '/$plannedSets' : ''}',
-                    ),
+                    _chip(context, 'Series: $completed${plannedSets != null ? '/$plannedSets' : ''}'),
                     _chip(context, 'Reps: $totalReps'),
-                    _chip(
-                      context,
-                      'Peso: ${totalWeight.toStringAsFixed(1)} kg',
-                    ),
+                    _chip(context, 'Peso: ${totalWeight.toStringAsFixed(1)} kg'),
                   ],
                 ),
               ],
@@ -329,10 +231,7 @@ class _ExerciseSummaryRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      decoration: BoxDecoration(color: cs.surfaceContainerHighest, borderRadius: BorderRadius.circular(8)),
       child: Text(text, style: Theme.of(context).textTheme.bodySmall),
     );
   }
@@ -357,12 +256,7 @@ class _SummaryTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: theme.textTheme.bodyLarge),
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text(value, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
         ],
       ),
     );
