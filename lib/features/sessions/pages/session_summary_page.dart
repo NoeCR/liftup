@@ -37,7 +37,7 @@ class SessionSummaryPage extends ConsumerWidget {
             })();
 
         return Scaffold(
-          appBar: AppBar(title: Text(context.tr('session.summary'))),
+          appBar: AppBar(title: Text(context.tr('sessionSummary.title'))),
           body:
               session == null
                   ? Center(child: Text(context.tr('session.noCompletedSession')))
