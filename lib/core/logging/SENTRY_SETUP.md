@@ -14,7 +14,7 @@ Este documento explica cómo configurar Sentry para el monitoreo de errores y re
 
 1. En el dashboard de Sentry, haz clic en "Create Project"
 2. Selecciona "Flutter" como plataforma
-3. Asigna un nombre al proyecto (ej: "liftup-app")
+3. Asigna un nombre al proyecto (ej: "liftly-app")
 4. Selecciona tu organización
 5. Haz clic en "Create Project"
 
