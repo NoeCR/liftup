@@ -1,4 +1,4 @@
-package com.example.liftup
+package com.noecr.liftly
 
 import io.flutter.embedding.android.FlutterActivity
 
