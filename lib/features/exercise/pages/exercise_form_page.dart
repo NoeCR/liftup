@@ -79,7 +79,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _imagePath = exercise.imageUrl;
 
     // Usar valores por defecto del ejercicio
-    _formSets = exercise.defaultSets ?? 3;
+    _formSets = exercise.defaultSets ?? 4;
     _formReps = exercise.defaultReps ?? 10;
     _formWeight = exercise.defaultWeight ?? 0.0;
     _formRestTimeSeconds = exercise.restTimeSeconds;

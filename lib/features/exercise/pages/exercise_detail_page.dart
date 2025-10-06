@@ -231,7 +231,7 @@ class ExerciseDetailPage extends ConsumerWidget {
           // Mostrar valores directamente del ejercicio
           Builder(
             builder: (context) {
-              final sets = exercise.defaultSets ?? 3;
+              final sets = exercise.defaultSets ?? 4;
               final reps = exercise.defaultReps ?? 10;
               final weight = exercise.defaultWeight ?? 0.0;
               final restTime = exercise.restTimeSeconds;

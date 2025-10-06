@@ -177,7 +177,7 @@ class _SectionSummary extends StatelessWidget {
             ...section.exercises.map((re) {
               final ex = exerciseMap[re.exerciseId];
               final sets = setsByExercise[re.exerciseId] ?? const <ExerciseSet>[];
-              return _ExerciseSummaryRow(exercise: ex, sets: sets, plannedSets: ex?.defaultSets ?? 3);
+              return _ExerciseSummaryRow(exercise: ex, sets: sets, plannedSets: ex?.defaultSets ?? 4);
             }),
         ],
       ),
