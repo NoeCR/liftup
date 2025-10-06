@@ -33,16 +33,19 @@ void main() {
     ),
   );
 
-  testWidgets('SessionPage: ListView tiene padding inferior con kBottomNavigationBarHeight', (tester) async {
-    // Renderizamos la página sin providers reales; el test valida estructura básica.
-    await tester.pumpWidget(wrap(const SessionPage()));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'SessionPage: ListView tiene padding inferior con kBottomNavigationBarHeight',
+    (tester) async {
+      // Renderizamos la página sin providers reales; el test valida estructura básica.
+      await tester.pumpWidget(wrap(const SessionPage()));
+      await tester.pumpAndSettle();
 
-    // Confirma que el Scaffold tiene bottomNavigationBar configurada
-    final scaffoldFinder = find.byType(Scaffold);
-    expect(scaffoldFinder, findsWidgets);
-    final scaffolds = tester.widgetList<Scaffold>(scaffoldFinder).toList();
-    // Tomamos el último Scaffold renderizado (contenido de la página)
-    expect(scaffolds.last.bottomNavigationBar, isNotNull);
-  });
+      // Confirma que el Scaffold tiene bottomNavigationBar configurada
+      final scaffoldFinder = find.byType(Scaffold);
+      expect(scaffoldFinder, findsWidgets);
+      final scaffolds = tester.widgetList<Scaffold>(scaffoldFinder).toList();
+      // Tomamos el último Scaffold renderizado (contenido de la página)
+      expect(scaffolds.last.bottomNavigationBar, isNotNull);
+    },
+  );
 }
