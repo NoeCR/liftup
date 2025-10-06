@@ -18,7 +18,7 @@ class CsvExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_export_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final fileName = 'liftly_export_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${directory.path}/$fileName');
 
     final csvContent = StringBuffer();

@@ -17,9 +17,7 @@ void main() {
       mockProgressionService = MockProgressionService();
 
       // Setup intelligent mock that returns appropriate values based on test expectations
-      when(
-        mockProgressionService.calculateProgression(any, any, any, any, any),
-      ).thenAnswer((invocation) async {
+      when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
         final args = invocation.positionalArguments;
         final currentWeight = args[2] as double;
         final currentReps = args[3] as int;
@@ -55,9 +53,7 @@ void main() {
         );
 
         // Override mock for this specific test
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 102.5, // 100.0 + 2.5
             newReps: 10,
@@ -84,93 +80,83 @@ void main() {
         expect(result.reason, contains('Linear'));
       });
 
-      test(
-        'should not increase weight if increment frequency not met',
-        () async {
-          // Arrange
-          final config = ProgressionMockFactory.createProgressionConfig(
-            type: ProgressionType.linear,
-            incrementValue: 2.5,
-            incrementFrequency: 2, // Every 2 sessions
-          );
-          final state = ProgressionMockFactory.createProgressionState(
-            currentWeight: 100.0,
-            currentReps: 10,
-            currentSets: 3,
-            currentSession: 1, // First session, frequency not met
-          );
+      test('should not increase weight if increment frequency not met', () async {
+        // Arrange
+        final config = ProgressionMockFactory.createProgressionConfig(
+          type: ProgressionType.linear,
+          incrementValue: 2.5,
+          incrementFrequency: 2, // Every 2 sessions
+        );
+        final state = ProgressionMockFactory.createProgressionState(
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 3,
+          currentSession: 1, // First session, frequency not met
+        );
 
-          // Override mock for this specific test
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
-            (_) async => ProgressionCalculationResult(
-              newWeight: 100.0, // No change
-              newReps: 10,
-              newSets: 3,
-              incrementApplied: false,
-              reason: 'Frequency not met',
-            ),
-          );
+        // Override mock for this specific test
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
+          (_) async => ProgressionCalculationResult(
+            newWeight: 100.0, // No change
+            newReps: 10,
+            newSets: 3,
+            incrementApplied: false,
+            reason: 'Frequency not met',
+          ),
+        );
 
-          // Act
-          final result = await mockProgressionService.calculateProgression(
-            config.id,
-            state.exerciseId,
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
+        // Act
+        final result = await mockProgressionService.calculateProgression(
+          config.id,
+          state.exerciseId,
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
 
-          // Assert
-          expect(result.newWeight, 100.0);
-          expect(result.incrementApplied, isFalse);
-        },
-      );
+        // Assert
+        expect(result.newWeight, 100.0);
+        expect(result.incrementApplied, isFalse);
+      });
 
-      test(
-        'should increase weight on second session with frequency 2',
-        () async {
-          // Arrange
-          final config = ProgressionMockFactory.createProgressionConfig(
-            type: ProgressionType.linear,
-            incrementValue: 2.5,
-            incrementFrequency: 2,
-          );
-          final state = ProgressionMockFactory.createProgressionState(
-            currentWeight: 100.0,
-            currentReps: 10,
-            currentSets: 3,
-            currentSession: 2, // Second session, frequency met
-          );
+      test('should increase weight on second session with frequency 2', () async {
+        // Arrange
+        final config = ProgressionMockFactory.createProgressionConfig(
+          type: ProgressionType.linear,
+          incrementValue: 2.5,
+          incrementFrequency: 2,
+        );
+        final state = ProgressionMockFactory.createProgressionState(
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 3,
+          currentSession: 2, // Second session, frequency met
+        );
 
-          // Override mock for this specific test
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
-            (_) async => ProgressionCalculationResult(
-              newWeight: 102.5, // 100.0 + 2.5
-              newReps: 10,
-              newSets: 3,
-              incrementApplied: true,
-              reason: 'Linear progression applied',
-            ),
-          );
+        // Override mock for this specific test
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
+          (_) async => ProgressionCalculationResult(
+            newWeight: 102.5, // 100.0 + 2.5
+            newReps: 10,
+            newSets: 3,
+            incrementApplied: true,
+            reason: 'Linear progression applied',
+          ),
+        );
 
-          // Act
-          final result = await mockProgressionService.calculateProgression(
-            config.id,
-            state.exerciseId,
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
+        // Act
+        final result = await mockProgressionService.calculateProgression(
+          config.id,
+          state.exerciseId,
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
 
-          // Assert
-          expect(result.newWeight, 102.5);
-          expect(result.incrementApplied, isTrue);
-        },
-      );
+        // Assert
+        expect(result.newWeight, 102.5);
+        expect(result.incrementApplied, isTrue);
+      });
     });
 
     group('Undulating Progression', () {
@@ -180,16 +166,11 @@ void main() {
           type: ProgressionType.undulating,
           incrementValue: 10.0,
           incrementFrequency: 1,
-          customParameters: {
-            'heavy_day_multiplier': 1.1,
-            'light_day_multiplier': 0.9,
-          },
+          customParameters: {'heavy_day_multiplier': 1.1, 'light_day_multiplier': 0.9},
         );
 
         // Setup specific mocks for undulating progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 8, 4),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 8, 4)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 110.0, // 100.0 * 1.1
             newReps: 8,
@@ -199,9 +180,7 @@ void main() {
           ),
         );
 
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 90.0, // 100.0 * 0.9
             newReps: 10,
@@ -269,9 +248,7 @@ void main() {
         );
 
         // Setup specific mocks for stepped progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 102.5, // Normal week increment
             newReps: 10,
@@ -300,9 +277,7 @@ void main() {
         );
 
         // Override mock for deload week
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 85.0, // Deload week: 100.0 * 0.85
             newReps: 10,
@@ -350,9 +325,7 @@ void main() {
         );
 
         // Setup specific mocks for double progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // No weight change
             newReps: 11, // Increase reps
@@ -362,9 +335,7 @@ void main() {
           ),
         );
 
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 12, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 12, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 102.5, // Increase weight, reset reps
             newReps: 8, // Reset to min reps
@@ -420,17 +391,11 @@ void main() {
           type: ProgressionType.wave,
           incrementValue: 2.5,
           cycleLength: 3,
-          customParameters: {
-            'week_1_multiplier': 1.0,
-            'week_2_multiplier': 1.05,
-            'week_3_multiplier': 1.1,
-          },
+          customParameters: {'week_1_multiplier': 1.0, 'week_2_multiplier': 1.05, 'week_3_multiplier': 1.1},
         );
 
         // Setup specific mocks for wave progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // Week 1: no change
             newReps: 10,
@@ -459,9 +424,7 @@ void main() {
         );
 
         // Override mock for week 2
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 105.0, // Week 2: 100.0 * 1.05
             newReps: 10,
@@ -490,9 +453,7 @@ void main() {
         );
 
         // Override mock for week 3
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 110.0, // Week 3: 100.0 * 1.1
             newReps: 10,
@@ -549,9 +510,7 @@ void main() {
         );
 
         // Setup specific mock for static progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // No change
             newReps: 10,
@@ -593,9 +552,7 @@ void main() {
         );
 
         // Setup specific mock for reverse progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 97.5, // 100.0 - 2.5
             newReps: 10,
@@ -636,9 +593,7 @@ void main() {
         );
 
         // Setup specific mock for zero increment
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // No change
             newReps: 10,
@@ -675,9 +630,7 @@ void main() {
         );
 
         // Setup specific mock for negative weight
-        when(
-          mockProgressionService.calculateProgression(any, any, -10.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, -10.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: -7.5, // -10.0 + 2.5
             newReps: 10,
@@ -714,9 +667,7 @@ void main() {
         );
 
         // Setup specific mock for high increment
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 200.0, // 100.0 + 100.0
             newReps: 10,
@@ -754,9 +705,7 @@ void main() {
         );
 
         // Setup specific mock for missing parameters
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // No change due to missing parameters
             newReps: 10,
@@ -796,9 +745,7 @@ void main() {
         );
 
         // Setup specific mock for weight target
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 102.5, // Weight increased
             newReps: 10, // Reps unchanged
@@ -837,9 +784,7 @@ void main() {
         );
 
         // Setup specific mock for reps target
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // Weight unchanged
             newReps: 11, // Reps increased
@@ -878,9 +823,7 @@ void main() {
         );
 
         // Setup specific mock for sets target
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // Weight unchanged
             newReps: 10, // Reps unchanged
@@ -919,9 +862,7 @@ void main() {
         );
 
         // Setup specific mock for volume target
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // Weight unchanged
             newReps: 10, // Reps unchanged
@@ -949,57 +890,52 @@ void main() {
     });
 
     group('Deload Functionality', () {
-      test(
-        'should apply deload in stepped progression when reaching deload week',
-        () async {
-          // Arrange
-          final config = ProgressionMockFactory.createProgressionConfig(
-            type: ProgressionType.stepped,
-            deloadWeek: 2, // Deload en la semana 2
-            deloadPercentage: 0.8, // 80% del peso base
-            customParameters: {
-              'sessions_per_week': 3, // 3 sesiones por semana
-            },
-          );
-          final state = ProgressionMockFactory.createProgressionState(
-            currentWeight: 100.0,
-            currentReps: 10,
-            currentSets: 3,
-            currentWeek: 2, // Semana 2 = deload
-            currentSession: 4, // Sesión 4 (semana 2)
-            baseWeight: 100.0,
-          );
+      test('should apply deload in stepped progression when reaching deload week', () async {
+        // Arrange
+        final config = ProgressionMockFactory.createProgressionConfig(
+          type: ProgressionType.stepped,
+          deloadWeek: 2, // Deload en la semana 2
+          deloadPercentage: 0.8, // 80% del peso base
+          customParameters: {
+            'sessions_per_week': 3, // 3 sesiones por semana
+          },
+        );
+        final state = ProgressionMockFactory.createProgressionState(
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 3,
+          currentWeek: 2, // Semana 2 = deload
+          currentSession: 4, // Sesión 4 (semana 2)
+          baseWeight: 100.0,
+        );
 
-          // Setup specific mock for stepped progression deload
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
-            (_) async => ProgressionCalculationResult(
-              newWeight: 80.0, // 80% del peso base (100 * 0.8)
-              newReps: 10,
-              newSets: 2, // 70% de las series (3 * 0.7 = 2.1 ≈ 2)
-              incrementApplied: true,
-              reason: 'Stepped progression: deload week',
-            ),
-          );
+        // Setup specific mock for stepped progression deload
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
+          (_) async => ProgressionCalculationResult(
+            newWeight: 80.0, // 80% del peso base (100 * 0.8)
+            newReps: 10,
+            newSets: 2, // 70% de las series (3 * 0.7 = 2.1 ≈ 2)
+            incrementApplied: true,
+            reason: 'Stepped progression: deload week',
+          ),
+        );
 
-          // Act
-          final result = await mockProgressionService.calculateProgression(
-            config.id,
-            state.exerciseId,
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
+        // Act
+        final result = await mockProgressionService.calculateProgression(
+          config.id,
+          state.exerciseId,
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
 
-          // Assert
-          expect(result.newWeight, lessThan(state.currentWeight));
-          expect(result.newReps, equals(state.currentReps));
-          expect(result.newSets, lessThan(state.currentSets));
-          expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('deload week'));
-        },
-      );
+        // Assert
+        expect(result.newWeight, lessThan(state.currentWeight));
+        expect(result.newReps, equals(state.currentReps));
+        expect(result.newSets, lessThan(state.currentSets));
+        expect(result.incrementApplied, isTrue);
+        expect(result.reason, contains('deload week'));
+      });
 
       test('should apply deload in wave progression on week 3', () async {
         // Arrange
@@ -1017,9 +953,7 @@ void main() {
         );
 
         // Setup specific mock for wave progression deload
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 85.0, // 85% del peso (100 * 0.85)
             newReps: 10,
@@ -1066,9 +1000,7 @@ void main() {
         );
 
         // Setup specific mock for first session of week
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 102.5, // Increased weight
             newReps: 10,
@@ -1111,9 +1043,7 @@ void main() {
         );
 
         // Setup specific mock for second session of week (no progression)
-        when(
-          mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // No change
             newReps: 10,
@@ -1140,71 +1070,64 @@ void main() {
     });
 
     group('Edge Cases and Error Handling', () {
-      test(
-        'should handle duplicate exercises in same routine gracefully',
-        () async {
-          // Arrange
-          final config = ProgressionMockFactory.createProgressionConfig(
-            type: ProgressionType.linear,
-            incrementValue: 2.5,
-          );
-          final state = ProgressionMockFactory.createProgressionState(
-            currentWeight: 100.0,
-            currentReps: 10,
-            currentSets: 3,
-            currentSession: 1,
-          );
+      test('should handle duplicate exercises in same routine gracefully', () async {
+        // Arrange
+        final config = ProgressionMockFactory.createProgressionConfig(
+          type: ProgressionType.linear,
+          incrementValue: 2.5,
+        );
+        final state = ProgressionMockFactory.createProgressionState(
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 3,
+          currentSession: 1,
+        );
 
-          // Setup mock for first calculation
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
-            (_) async => ProgressionCalculationResult(
-              newWeight: 102.5,
-              newReps: 10,
-              newSets: 3,
-              incrementApplied: true,
-              reason: 'Linear progression: weight increased by 2.5kg',
-            ),
-          );
+        // Setup mock for first calculation
+        when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
+          (_) async => ProgressionCalculationResult(
+            newWeight: 102.5,
+            newReps: 10,
+            newSets: 3,
+            incrementApplied: true,
+            reason: 'Linear progression: weight increased by 2.5kg',
+          ),
+        );
 
-          // Setup mock for second calculation with updated weight
-          when(
-            mockProgressionService.calculateProgression(any, any, 102.5, 10, 3),
-          ).thenAnswer(
-            (_) async => ProgressionCalculationResult(
-              newWeight: 105.0,
-              newReps: 10,
-              newSets: 3,
-              incrementApplied: true,
-              reason: 'Linear progression: weight increased by 2.5kg',
-            ),
-          );
+        // Setup mock for second calculation with updated weight
+        when(mockProgressionService.calculateProgression(any, any, 102.5, 10, 3)).thenAnswer(
+          (_) async => ProgressionCalculationResult(
+            newWeight: 105.0,
+            newReps: 10,
+            newSets: 3,
+            incrementApplied: true,
+            reason: 'Linear progression: weight increased by 2.5kg',
+          ),
+        );
 
-          // Act - Simulate same exercise processed multiple times
-          final result1 = await mockProgressionService.calculateProgression(
-            config.id,
-            state.exerciseId,
-            state.currentWeight,
-            state.currentReps,
-            state.currentSets,
-          );
+        // Act - Simulate same exercise processed multiple times
+        final result1 = await mockProgressionService.calculateProgression(
+          config.id,
+          state.exerciseId,
+          state.currentWeight,
+          state.currentReps,
+          state.currentSets,
+        );
 
-          final result2 = await mockProgressionService.calculateProgression(
-            config.id,
-            state.exerciseId,
-            result1.newWeight, // Use result from first calculation
-            result1.newReps,
-            result1.newSets,
-          );
+        final result2 = await mockProgressionService.calculateProgression(
+          config.id,
+          state.exerciseId,
+          result1.newWeight, // Use result from first calculation
+          result1.newReps,
+          result1.newSets,
+        );
 
-          // Assert - Second calculation should be based on updated values
-          expect(result1.newWeight, equals(102.5));
-          expect(result2.newWeight, equals(105.0)); // 102.5 + 2.5
-          expect(result1.incrementApplied, isTrue);
-          expect(result2.incrementApplied, isTrue);
-        },
-      );
+        // Assert - Second calculation should be based on updated values
+        expect(result1.newWeight, equals(102.5));
+        expect(result2.newWeight, equals(105.0)); // 102.5 + 2.5
+        expect(result1.incrementApplied, isTrue);
+        expect(result2.incrementApplied, isTrue);
+      });
 
       test('should handle missing exercise gracefully', () async {
         // Arrange
@@ -1251,9 +1174,7 @@ void main() {
         );
 
         // Setup mock for negative progression
-        when(
-          mockProgressionService.calculateProgression(any, any, 10.0, 1, 1),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, any, 10.0, 1, 1)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 5.0, // Reduced weight
             newReps: 1,
@@ -1309,15 +1230,7 @@ void main() {
         );
 
         // Setup mock for session 2 (no progression) - using different exercise ID
-        when(
-          mockProgressionService.calculateProgression(
-            any,
-            state1.exerciseId,
-            100.0,
-            10,
-            3,
-          ),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, state1.exerciseId, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 100.0, // No change for session 2
             newReps: 10,
@@ -1328,15 +1241,7 @@ void main() {
         );
 
         // Setup mock for session 3 (with progression) - using different exercise ID
-        when(
-          mockProgressionService.calculateProgression(
-            any,
-            state2.exerciseId,
-            100.0,
-            10,
-            3,
-          ),
-        ).thenAnswer(
+        when(mockProgressionService.calculateProgression(any, state2.exerciseId, 100.0, 10, 3)).thenAnswer(
           (_) async => ProgressionCalculationResult(
             newWeight: 102.5, // Change for session 3
             newReps: 10,
@@ -1398,16 +1303,13 @@ void main() {
           );
 
           // Setup specific mock for autoregulated progression
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
             (_) async => ProgressionCalculationResult(
               newWeight: 102.5, // Increased weight
               newReps: 10,
               newSets: 3,
               incrementApplied: true,
-              reason:
-                  'Autoregulated progression: RPE too low (7.0), increasing weight',
+              reason: 'Autoregulated progression: RPE too low (7.0), increasing weight',
             ),
           );
 
@@ -1454,16 +1356,13 @@ void main() {
           );
 
           // Setup specific mock for autoregulated progression
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
             (_) async => ProgressionCalculationResult(
               newWeight: 98.75, // Reduced weight
               newReps: 10, // Reps stay the same (above minReps)
               newSets: 3,
               incrementApplied: true,
-              reason:
-                  'Autoregulated progression: RPE too high (10.4), reducing weight',
+              reason: 'Autoregulated progression: RPE too high (10.4), reducing weight',
             ),
           );
 
@@ -1510,16 +1409,13 @@ void main() {
           );
 
           // Setup specific mock for autoregulated progression
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
             (_) async => ProgressionCalculationResult(
               newWeight: 100.0, // Weight unchanged
               newReps: 11, // Increased reps
               newSets: 3,
               incrementApplied: true,
-              reason:
-                  'Autoregulated progression: RPE optimal (8.0), increasing reps',
+              reason: 'Autoregulated progression: RPE optimal (8.0), increasing reps',
             ),
           );
 
@@ -1566,16 +1462,13 @@ void main() {
           );
 
           // Setup specific mock for autoregulated progression
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 6, 3),
-          ).thenAnswer(
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 6, 3)).thenAnswer(
             (_) async => ProgressionCalculationResult(
               newWeight: 98.75, // Reduced weight
               newReps: 8, // Ajustado al mínimo
               newSets: 3,
               incrementApplied: true,
-              reason:
-                  'Autoregulated progression: RPE too high (12.4), reducing weight and adjusting reps to minimum',
+              reason: 'Autoregulated progression: RPE too high (12.4), reducing weight and adjusting reps to minimum',
             ),
           );
 
@@ -1590,10 +1483,7 @@ void main() {
 
           // Assert
           expect(result.newWeight, lessThan(state.currentWeight));
-          expect(
-            result.newReps,
-            greaterThan(state.currentReps),
-          ); // Ajustado al mínimo
+          expect(result.newReps, greaterThan(state.currentReps)); // Ajustado al mínimo
           expect(result.newSets, equals(state.currentSets));
           expect(result.incrementApplied, isTrue);
           expect(result.reason, contains('adjusting reps to minimum'));
@@ -1615,9 +1505,7 @@ void main() {
           );
 
           // Setup specific mock for double factor progression
-          when(
-            mockProgressionService.calculateProgression(any, any, 100.0, 10, 3),
-          ).thenAnswer(
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
             (_) async => ProgressionCalculationResult(
               newWeight: 105.0, // Increased weight (fitness > fatigue)
               newReps: 10,
@@ -1644,113 +1532,85 @@ void main() {
       });
 
       group('Overload Progression', () {
-        test(
-          'should increase volume (sets) when overload type is volume',
-          () async {
-            // Arrange
-            final config = ProgressionMockFactory.createProgressionConfig(
-              type: ProgressionType.overload,
-              customParameters: {
-                'overload_type': 'volume',
-                'overload_rate': 0.1,
-              },
-            );
-            final state = ProgressionMockFactory.createProgressionState(
-              currentWeight: 100.0,
-              currentReps: 10,
-              currentSets: 3,
-            );
+        test('should increase volume (sets) when overload type is volume', () async {
+          // Arrange
+          final config = ProgressionMockFactory.createProgressionConfig(
+            type: ProgressionType.overload,
+            customParameters: {'overload_type': 'volume', 'overload_rate': 0.1},
+          );
+          final state = ProgressionMockFactory.createProgressionState(
+            currentWeight: 100.0,
+            currentReps: 10,
+            currentSets: 3,
+          );
 
-            // Setup specific mock for overload progression
-            when(
-              mockProgressionService.calculateProgression(
-                any,
-                any,
-                100.0,
-                10,
-                3,
-              ),
-            ).thenAnswer(
-              (_) async => ProgressionCalculationResult(
-                newWeight: 100.0, // Weight unchanged
-                newReps: 10, // Reps unchanged
-                newSets: 4, // Increased sets
-                incrementApplied: true,
-                reason: 'Overload progression: increasing volume (sets)',
-              ),
-            );
+          // Setup specific mock for overload progression
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
+            (_) async => ProgressionCalculationResult(
+              newWeight: 100.0, // Weight unchanged
+              newReps: 10, // Reps unchanged
+              newSets: 4, // Increased sets
+              incrementApplied: true,
+              reason: 'Overload progression: increasing volume (sets)',
+            ),
+          );
 
-            // Act
-            final result = await mockProgressionService.calculateProgression(
-              config.id,
-              state.exerciseId,
-              state.currentWeight,
-              state.currentReps,
-              state.currentSets,
-            );
+          // Act
+          final result = await mockProgressionService.calculateProgression(
+            config.id,
+            state.exerciseId,
+            state.currentWeight,
+            state.currentReps,
+            state.currentSets,
+          );
 
-            // Assert
-            expect(result.newWeight, equals(state.currentWeight));
-            expect(result.newReps, equals(state.currentReps));
-            expect(result.newSets, greaterThan(state.currentSets));
-            expect(result.incrementApplied, isTrue);
-            expect(result.reason, contains('increasing volume'));
-          },
-        );
+          // Assert
+          expect(result.newWeight, equals(state.currentWeight));
+          expect(result.newReps, equals(state.currentReps));
+          expect(result.newSets, greaterThan(state.currentSets));
+          expect(result.incrementApplied, isTrue);
+          expect(result.reason, contains('increasing volume'));
+        });
 
-        test(
-          'should increase intensity (weight) when overload type is intensity',
-          () async {
-            // Arrange
-            final config = ProgressionMockFactory.createProgressionConfig(
-              type: ProgressionType.overload,
-              customParameters: {
-                'overload_type': 'intensity',
-                'overload_rate': 0.1,
-              },
-            );
-            final state = ProgressionMockFactory.createProgressionState(
-              currentWeight: 100.0,
-              currentReps: 10,
-              currentSets: 3,
-            );
+        test('should increase intensity (weight) when overload type is intensity', () async {
+          // Arrange
+          final config = ProgressionMockFactory.createProgressionConfig(
+            type: ProgressionType.overload,
+            customParameters: {'overload_type': 'intensity', 'overload_rate': 0.1},
+          );
+          final state = ProgressionMockFactory.createProgressionState(
+            currentWeight: 100.0,
+            currentReps: 10,
+            currentSets: 3,
+          );
 
-            // Setup specific mock for overload progression
-            when(
-              mockProgressionService.calculateProgression(
-                any,
-                any,
-                100.0,
-                10,
-                3,
-              ),
-            ).thenAnswer(
-              (_) async => ProgressionCalculationResult(
-                newWeight: 110.0, // Increased weight
-                newReps: 10, // Reps unchanged
-                newSets: 3, // Sets unchanged
-                incrementApplied: true,
-                reason: 'Overload progression: increasing intensity (weight)',
-              ),
-            );
+          // Setup specific mock for overload progression
+          when(mockProgressionService.calculateProgression(any, any, 100.0, 10, 3)).thenAnswer(
+            (_) async => ProgressionCalculationResult(
+              newWeight: 110.0, // Increased weight
+              newReps: 10, // Reps unchanged
+              newSets: 3, // Sets unchanged
+              incrementApplied: true,
+              reason: 'Overload progression: increasing intensity (weight)',
+            ),
+          );
 
-            // Act
-            final result = await mockProgressionService.calculateProgression(
-              config.id,
-              state.exerciseId,
-              state.currentWeight,
-              state.currentReps,
-              state.currentSets,
-            );
+          // Act
+          final result = await mockProgressionService.calculateProgression(
+            config.id,
+            state.exerciseId,
+            state.currentWeight,
+            state.currentReps,
+            state.currentSets,
+          );
 
-            // Assert
-            expect(result.newWeight, greaterThan(state.currentWeight));
-            expect(result.newReps, equals(state.currentReps));
-            expect(result.newSets, equals(state.currentSets));
-            expect(result.incrementApplied, isTrue);
-            expect(result.reason, contains('increasing intensity'));
-          },
-        );
+          // Assert
+          expect(result.newWeight, greaterThan(state.currentWeight));
+          expect(result.newReps, equals(state.currentReps));
+          expect(result.newSets, equals(state.currentSets));
+          expect(result.incrementApplied, isTrue);
+          expect(result.reason, contains('increasing intensity'));
+        });
       });
     });
   });

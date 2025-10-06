@@ -55,11 +55,7 @@ class SessionMockGenerator {
   }
 
   /// Genera una sesión básica para pruebas
-  static WorkoutSession generateBasicSession({
-    DateTime? date,
-    String? routineId,
-    String? exerciseId,
-  }) {
+  static WorkoutSession generateBasicSession({DateTime? date, String? routineId, String? exerciseId}) {
     final sessionDate = date ?? DateTime.now();
     final uuid = const Uuid();
 
@@ -135,9 +131,7 @@ class SessionMockGenerator {
             weight: weight,
             restTimeSeconds: 60 + (s * 15),
             notes: s == 0 ? 'Primer set' : null,
-            completedAt: day.add(
-              Duration(hours: 18, minutes: (e * 20) + (s * 3)),
-            ),
+            completedAt: day.add(Duration(hours: 18, minutes: (e * 20) + (s * 3))),
             isCompleted: true,
           ),
         );
@@ -145,10 +139,7 @@ class SessionMockGenerator {
     }
 
     // Calcular totales
-    final totalWeight = exerciseSets.fold<double>(
-      0.0,
-      (sum, set) => sum + (set.weight * set.reps),
-    );
+    final totalWeight = exerciseSets.fold<double>(0.0, (sum, set) => sum + (set.weight * set.reps));
     final totalReps = exerciseSets.fold<int>(0, (sum, set) => sum + set.reps);
 
     final startTime = DateTime(day.year, day.month, day.day, 18, 0);
@@ -204,10 +195,7 @@ class SessionMockGenerator {
       );
     }
 
-    final totalWeight = exerciseSets.fold<double>(
-      0.0,
-      (sum, set) => sum + (set.weight * set.reps),
-    );
+    final totalWeight = exerciseSets.fold<double>(0.0, (sum, set) => sum + (set.weight * set.reps));
     final totalReps = exerciseSets.fold<int>(0, (sum, set) => sum + set.reps);
 
     return WorkoutSession(
@@ -281,8 +269,7 @@ class SessionMockGenerator {
         'equipment': 'Barra',
         'imageUrl': null,
         'videoUrl': null,
-        'instructions':
-            'Coloca la barra en los hombros y baja como si te sentaras',
+        'instructions': 'Coloca la barra en los hombros y baja como si te sentaras',
         'createdAt': DateTime.now().subtract(const Duration(days: 30)),
         'updatedAt': DateTime.now(),
       },
