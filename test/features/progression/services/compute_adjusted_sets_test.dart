@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/features/progression/services/session_progression_service.dart';
+import 'package:liftly/features/progression/services/session_progression_service.dart';
 
 void main() {
   group('computeAdjustedSets', () {

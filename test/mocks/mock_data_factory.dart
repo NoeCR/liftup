@@ -1,9 +1,9 @@
-import 'package:liftup/features/sessions/models/workout_session.dart';
-import 'package:liftup/features/exercise/models/exercise.dart';
-import 'package:liftup/features/exercise/models/exercise_set.dart';
-import 'package:liftup/features/home/models/routine.dart';
-import 'package:liftup/features/statistics/models/progress_data.dart';
-import 'package:liftup/common/enums/muscle_group_enum.dart';
+import 'package:liftly/features/sessions/models/workout_session.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/exercise/models/exercise_set.dart';
+import 'package:liftly/features/home/models/routine.dart';
+import 'package:liftly/features/statistics/models/progress_data.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'session_mock_generator.dart';
 
 /// Factory para generar datos mock completos para pruebas
@@ -49,7 +49,9 @@ class MockDataFactory {
             description: data['description'] as String,
             imageUrl: data['imageUrl'] as String? ?? '',
             videoUrl: data['videoUrl'] as String?,
-            muscleGroups: _parseMuscleGroups(data['muscleGroups'] as List<String>),
+            muscleGroups: _parseMuscleGroups(
+              data['muscleGroups'] as List<String>,
+            ),
             tips: ['Mantén la forma correcta', 'Respira adecuadamente'],
             commonMistakes: ['Arquear la espalda', 'Movimiento muy rápido'],
             category: ExerciseCategory.chest,
@@ -98,11 +100,17 @@ class MockDataFactory {
     final exerciseDataByDate = <String, Map<DateTime, List<ExerciseSet>>>{};
 
     for (final session in sessions) {
-      final sessionDate = DateTime(session.startTime.year, session.startTime.month, session.startTime.day);
+      final sessionDate = DateTime(
+        session.startTime.year,
+        session.startTime.month,
+        session.startTime.day,
+      );
 
       for (final set in session.exerciseSets) {
         exerciseDataByDate.putIfAbsent(set.exerciseId, () => {});
-        exerciseDataByDate[set.exerciseId]!.putIfAbsent(sessionDate, () => []).add(set);
+        exerciseDataByDate[set.exerciseId]!
+            .putIfAbsent(sessionDate, () => [])
+            .add(set);
       }
     }
 
@@ -116,10 +124,14 @@ class MockDataFactory {
 
         if (sets.isEmpty) continue;
 
-        final maxWeight = sets.map((s) => s.weight).reduce((a, b) => a > b ? a : b);
+        final maxWeight = sets
+            .map((s) => s.weight)
+            .reduce((a, b) => a > b ? a : b);
         final totalReps = sets.map((s) => s.reps).reduce((a, b) => a + b);
         final totalSets = sets.length;
-        final totalVolume = sets.map((s) => s.weight * s.reps).reduce((a, b) => a + b);
+        final totalVolume = sets
+            .map((s) => s.weight * s.reps)
+            .reduce((a, b) => a + b);
 
         progressData.add(
           ProgressData(
@@ -155,7 +167,11 @@ class MockDataSet {
   });
 
   /// Obtiene el número total de elementos
-  int get totalElements => sessions.length + exercises.length + routines.length + progressData.length;
+  int get totalElements =>
+      sessions.length +
+      exercises.length +
+      routines.length +
+      progressData.length;
 
   /// Obtiene una descripción del conjunto de datos
   String get description {

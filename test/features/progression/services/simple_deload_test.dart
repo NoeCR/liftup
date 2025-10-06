@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/features/progression/services/progression_service.dart';
-import 'package:liftup/features/progression/models/progression_config.dart';
-import 'package:liftup/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 
 void main() {
   group('Simple Deload Tests', () {
@@ -89,9 +89,17 @@ void main() {
 
         // Every 4th week should be deload
         if (week % 4 == 0) {
-          expect(isDeloadWeek, isTrue, reason: 'Week $week should be deload week');
+          expect(
+            isDeloadWeek,
+            isTrue,
+            reason: 'Week $week should be deload week',
+          );
         } else {
-          expect(isDeloadWeek, isFalse, reason: 'Week $week should not be deload week');
+          expect(
+            isDeloadWeek,
+            isFalse,
+            reason: 'Week $week should not be deload week',
+          );
         }
 
         // Week in cycle should be 1-4
@@ -132,7 +140,11 @@ void main() {
         {'cycleLength': 3, 'deloadWeek': 3, 'deloadPercentage': 0.75},
         {'cycleLength': 4, 'deloadWeek': 4, 'deloadPercentage': 0.8},
         {'cycleLength': 6, 'deloadWeek': 6, 'deloadPercentage': 0.85},
-        {'cycleLength': 8, 'deloadWeek': 4, 'deloadPercentage': 0.8}, // Mid-cycle deload
+        {
+          'cycleLength': 8,
+          'deloadWeek': 4,
+          'deloadPercentage': 0.8,
+        }, // Mid-cycle deload
         {'cycleLength': 12, 'deloadWeek': 12, 'deloadPercentage': 0.7},
       ];
 

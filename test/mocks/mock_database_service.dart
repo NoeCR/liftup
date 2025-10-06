@@ -1,8 +1,8 @@
 import 'package:hive/hive.dart';
-import 'package:liftup/core/database/i_database_service.dart';
-import 'package:liftup/features/progression/models/progression_config.dart';
-import 'package:liftup/features/progression/models/progression_state.dart';
-import 'package:liftup/features/progression/models/progression_template.dart';
+import 'package:liftly/core/database/i_database_service.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/features/progression/models/progression_template.dart';
 
 /// Mock implementation of IDatabaseService for testing
 class MockDatabaseService implements IDatabaseService {
@@ -16,13 +16,16 @@ class MockDatabaseService implements IDatabaseService {
   bool get isInitialized => _isInitialized;
 
   @override
-  Box<ProgressionConfig> get progressionConfigsBox => _MockBox<ProgressionConfig>(_configs);
+  Box<ProgressionConfig> get progressionConfigsBox =>
+      _MockBox<ProgressionConfig>(_configs);
 
   @override
-  Box<ProgressionState> get progressionStatesBox => _MockBox<ProgressionState>(_states);
+  Box<ProgressionState> get progressionStatesBox =>
+      _MockBox<ProgressionState>(_states);
 
   @override
-  Box<ProgressionTemplate> get progressionTemplatesBox => _MockBox<ProgressionTemplate>(_templates);
+  Box<ProgressionTemplate> get progressionTemplatesBox =>
+      _MockBox<ProgressionTemplate>(_templates);
 
   @override
   Future<void> initialize() async {

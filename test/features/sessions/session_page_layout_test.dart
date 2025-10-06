@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:liftup/features/sessions/pages/session_page.dart';
+import 'package:liftly/features/sessions/pages/session_page.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -33,16 +33,19 @@ void main() {
     ),
   );
 
-  testWidgets('SessionPage: ListView tiene padding inferior con kBottomNavigationBarHeight', (tester) async {
-    // Renderizamos la página sin providers reales; el test valida estructura básica.
-    await tester.pumpWidget(wrap(const SessionPage()));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'SessionPage: ListView tiene padding inferior con kBottomNavigationBarHeight',
+    (tester) async {
+      // Renderizamos la página sin providers reales; el test valida estructura básica.
+      await tester.pumpWidget(wrap(const SessionPage()));
+      await tester.pumpAndSettle();
 
-    // Confirma que el Scaffold tiene bottomNavigationBar configurada
-    final scaffoldFinder = find.byType(Scaffold);
-    expect(scaffoldFinder, findsWidgets);
-    final scaffolds = tester.widgetList<Scaffold>(scaffoldFinder).toList();
-    // Tomamos el último Scaffold renderizado (contenido de la página)
-    expect(scaffolds.last.bottomNavigationBar, isNotNull);
-  });
+      // Confirma que el Scaffold tiene bottomNavigationBar configurada
+      final scaffoldFinder = find.byType(Scaffold);
+      expect(scaffoldFinder, findsWidgets);
+      final scaffolds = tester.widgetList<Scaffold>(scaffoldFinder).toList();
+      // Tomamos el último Scaffold renderizado (contenido de la página)
+      expect(scaffolds.last.bottomNavigationBar, isNotNull);
+    },
+  );
 }

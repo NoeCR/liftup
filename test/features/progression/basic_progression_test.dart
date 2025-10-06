@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/common/enums/progression_type_enum.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 
 void main() {
   group('Basic Progression Tests', () {

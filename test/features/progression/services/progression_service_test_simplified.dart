@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:liftup/features/progression/services/progression_service.dart';
-import 'package:liftup/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import '../mocks/progression_mock_factory.dart';
 
 // Generate mocks
@@ -48,7 +48,9 @@ void main() {
           return expectedConfig;
         });
 
-        when(mockProgressionService.saveProgressionConfig(any)).thenAnswer((_) async {});
+        when(
+          mockProgressionService.saveProgressionConfig(any),
+        ).thenAnswer((_) async {});
 
         // Act
         final result = await mockProgressionService.initializeProgression(
@@ -103,16 +105,19 @@ void main() {
           return expectedState;
         });
 
-        when(mockProgressionService.saveProgressionState(any)).thenAnswer((_) async {});
+        when(
+          mockProgressionService.saveProgressionState(any),
+        ).thenAnswer((_) async {});
 
         // Act
-        final result = await mockProgressionService.initializeExerciseProgression(
-          configId: configId,
-          exerciseId: exerciseId,
-          baseWeight: 100.0,
-          baseReps: 10,
-          baseSets: 3,
-        );
+        final result = await mockProgressionService
+            .initializeExerciseProgression(
+              configId: configId,
+              exerciseId: exerciseId,
+              baseWeight: 100.0,
+              baseReps: 10,
+              baseSets: 3,
+            );
 
         // Assert
         expect(result, isNotNull);
@@ -141,11 +146,23 @@ void main() {
         );
 
         when(
-          mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3),
+          mockProgressionService.calculateProgression(
+            configId,
+            exerciseId,
+            100.0,
+            10,
+            3,
+          ),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3);
+        final result = await mockProgressionService.calculateProgression(
+          configId,
+          exerciseId,
+          100.0,
+          10,
+          3,
+        );
 
         // Assert
         expect(result, isNotNull);
@@ -169,11 +186,23 @@ void main() {
         );
 
         when(
-          mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3),
+          mockProgressionService.calculateProgression(
+            configId,
+            exerciseId,
+            100.0,
+            10,
+            3,
+          ),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3);
+        final result = await mockProgressionService.calculateProgression(
+          configId,
+          exerciseId,
+          100.0,
+          10,
+          3,
+        );
 
         // Assert
         expect(result, isNotNull);
@@ -197,11 +226,23 @@ void main() {
         );
 
         when(
-          mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3),
+          mockProgressionService.calculateProgression(
+            configId,
+            exerciseId,
+            100.0,
+            10,
+            3,
+          ),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3);
+        final result = await mockProgressionService.calculateProgression(
+          configId,
+          exerciseId,
+          100.0,
+          10,
+          3,
+        );
 
         // Assert
         expect(result, isNotNull);
@@ -225,11 +266,23 @@ void main() {
         );
 
         when(
-          mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3),
+          mockProgressionService.calculateProgression(
+            configId,
+            exerciseId,
+            100.0,
+            10,
+            3,
+          ),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3);
+        final result = await mockProgressionService.calculateProgression(
+          configId,
+          exerciseId,
+          100.0,
+          10,
+          3,
+        );
 
         // Assert
         expect(result, isNotNull);
@@ -244,11 +297,15 @@ void main() {
     group('Error Handling', () {
       test('should handle database errors gracefully', () async {
         // Arrange
-        when(mockProgressionService.saveProgressionConfig(any)).thenThrow(Exception('Database error'));
+        when(
+          mockProgressionService.saveProgressionConfig(any),
+        ).thenThrow(Exception('Database error'));
 
         // Act & Assert
         expect(
-          () => mockProgressionService.saveProgressionConfig(ProgressionMockFactory.createProgressionConfig()),
+          () => mockProgressionService.saveProgressionConfig(
+            ProgressionMockFactory.createProgressionConfig(),
+          ),
           throwsException,
         );
       });
@@ -266,11 +323,23 @@ void main() {
         );
 
         when(
-          mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3),
+          mockProgressionService.calculateProgression(
+            configId,
+            exerciseId,
+            100.0,
+            10,
+            3,
+          ),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3);
+        final result = await mockProgressionService.calculateProgression(
+          configId,
+          exerciseId,
+          100.0,
+          10,
+          3,
+        );
 
         // Assert
         expect(result, isNotNull);
@@ -291,11 +360,23 @@ void main() {
         );
 
         when(
-          mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3),
+          mockProgressionService.calculateProgression(
+            configId,
+            exerciseId,
+            100.0,
+            10,
+            3,
+          ),
         ).thenAnswer((_) async => expectedResult);
 
         // Act
-        final result = await mockProgressionService.calculateProgression(configId, exerciseId, 100.0, 10, 3);
+        final result = await mockProgressionService.calculateProgression(
+          configId,
+          exerciseId,
+          100.0,
+          10,
+          3,
+        );
 
         // Assert
         expect(result, isNotNull);
