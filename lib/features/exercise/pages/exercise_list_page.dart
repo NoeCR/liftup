@@ -51,22 +51,12 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                 (context) => [
                   const PopupMenuItem(
                     value: 'create',
-                    child: Row(
-                      children: [
-                        Icon(Icons.add),
-                        SizedBox(width: 8),
-                        Text('Nuevo Ejercicio'),
-                      ],
-                    ),
+                    child: Row(children: [Icon(Icons.add), SizedBox(width: 8), Text('Nuevo Ejercicio')]),
                   ),
                   PopupMenuItem(
                     value: 'quick_add',
                     child: Row(
-                      children: [
-                        Icon(Icons.flash_on),
-                        SizedBox(width: 8),
-                        Text(context.tr('exercises.quickAdd')),
-                      ],
+                      children: [Icon(Icons.flash_on), SizedBox(width: 8), Text(context.tr('exercises.quickAdd'))],
                     ),
                   ),
                 ],
@@ -75,6 +65,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         ],
       ),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Search and Filter
           _buildSearchAndFilter(),
@@ -123,10 +114,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                 ...ExerciseCategory.values.map((category) {
                   return Padding(
                     padding: const EdgeInsets.only(right: AppTheme.spacingS),
-                    child: _buildCategoryChip(
-                      _getCategoryName(category),
-                      category,
-                    ),
+                    child: _buildCategoryChip(_getCategoryName(category), category),
                   );
                 }),
               ],
@@ -170,6 +158,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
 
             return ListView.builder(
               itemCount: filteredExercises.length,
+              shrinkWrap: true,
               itemBuilder: (context, index) {
                 final exercise = filteredExercises[index];
                 return _buildExerciseCard(exercise);
@@ -200,10 +189,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         ),
         title: Text(
           exercise.name,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,9 +199,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
               exercise.description,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: AppTheme.spacingS),
             Wrap(
@@ -226,9 +210,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                     return Chip(
                       label: Text(
                         muscle.displayName,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
                       ),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     );
@@ -236,11 +218,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
             ),
           ],
         ),
-        trailing: Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurfaceVariant),
         onTap: () => context.push('/exercise/${exercise.id}'),
       ),
     );
@@ -265,8 +243,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
       icon = Icons.search_off;
     } else if (isFiltering) {
       title = context.tr('exercises.noExercisesInCategory');
-      subtitle =
-          'No se encontraron ejercicios para ${_getCategoryName(_selectedCategory!)}';
+      subtitle = 'No se encontraron ejercicios para ${_getCategoryName(_selectedCategory!)}';
       icon = Icons.category_outlined;
       actions = [
         const SizedBox(height: 24),
@@ -313,17 +290,11 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
           children: [
             Icon(icon, size: 64, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
-            Text(
-              title,
-              style: theme.textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
+            Text(title, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             ...actions,
@@ -343,16 +314,11 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         children: [
           Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text(
-            'Error al cargar los ejercicios',
-            style: theme.textTheme.headlineSmall,
-          ),
+          Text('Error al cargar los ejercicios', style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             error,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -370,9 +336,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
           filtered.where((exercise) {
             return exercise.name.toLowerCase().contains(query) ||
                 exercise.description.toLowerCase().contains(query) ||
-                exercise.muscleGroups.any(
-                  (muscle) => muscle.displayName.toLowerCase().contains(query),
-                );
+                exercise.muscleGroups.any((muscle) => muscle.displayName.toLowerCase().contains(query));
           }).toList();
     }
 
@@ -411,10 +375,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                       children: [
                         TextField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Nombre',
-                            border: OutlineInputBorder(),
-                          ),
+                          decoration: const InputDecoration(labelText: 'Nombre', border: OutlineInputBorder()),
                         ),
                         const SizedBox(height: 16),
                         TextField(
@@ -437,10 +398,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                                 ),
                                 items:
                                     ExerciseCategory.values.map((category) {
-                                      return DropdownMenuItem(
-                                        value: category,
-                                        child: Text(category.displayName),
-                                      );
+                                      return DropdownMenuItem(value: category, child: Text(category.displayName));
                                     }).toList(),
                                 onChanged: (value) {
                                   if (value != null) {
@@ -453,32 +411,27 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child:
-                                  DropdownButtonFormField<ExerciseDifficulty>(
-                                    value: selectedDifficulty,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Dificultad',
-                                      border: OutlineInputBorder(),
-                                    ),
-                                    items:
-                                        ExerciseDifficulty.values.map((
-                                          difficulty,
-                                        ) {
-                                          return DropdownMenuItem(
-                                            value: difficulty,
-                                            child: Text(
-                                              _getDifficultyName(difficulty),
-                                            ),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      if (value != null) {
-                                        setState(() {
-                                          selectedDifficulty = value;
-                                        });
-                                      }
-                                    },
-                                  ),
+                              child: DropdownButtonFormField<ExerciseDifficulty>(
+                                value: selectedDifficulty,
+                                decoration: const InputDecoration(
+                                  labelText: 'Dificultad',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items:
+                                    ExerciseDifficulty.values.map((difficulty) {
+                                      return DropdownMenuItem(
+                                        value: difficulty,
+                                        child: Text(_getDifficultyName(difficulty)),
+                                      );
+                                    }).toList(),
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      selectedDifficulty = value;
+                                    });
+                                  }
+                                },
+                              ),
                             ),
                           ],
                         ),
@@ -486,19 +439,13 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
                     ),
                   ),
                   actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancelar'),
-                    ),
+                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
                     ElevatedButton(
                       onPressed: () async {
-                        if (nameController.text.trim().isEmpty ||
-                            descriptionController.text.trim().isEmpty) {
+                        if (nameController.text.trim().isEmpty || descriptionController.text.trim().isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Por favor completa todos los campos',
-                              ),
+                              content: Text('Por favor completa todos los campos'),
                               backgroundColor: Colors.red,
                             ),
                           );
@@ -548,21 +495,15 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
       await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$name creado correctamente'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$name creado correctamente'), backgroundColor: Colors.green));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al crear ejercicio: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al crear ejercicio: $e'), backgroundColor: Colors.red));
       }
     }
   }
@@ -623,9 +564,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
       return Image.asset(
         path,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) =>
-                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+        errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
       );
     }
 
@@ -633,20 +572,15 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
       return Image.network(
         path,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) =>
-                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+        errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
       );
     }
 
-    final String filePath =
-        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    final String filePath = path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
     return Image.file(
       File(filePath),
       fit: BoxFit.cover,
-      errorBuilder:
-          (context, error, stackTrace) =>
-              Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+      errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
     );
   }
 }
