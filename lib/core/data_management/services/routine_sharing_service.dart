@@ -101,7 +101,7 @@ class MockRoutineSharingService implements RoutineSharingService {
       _sharedData[shareId] = await _loadSharedData(filePath);
 
       // Generate sharing URL
-      final shareUrl = 'https://liftup.app/share/$shareId';
+      final shareUrl = 'https://liftly.app/share/$shareId';
 
       // Limpiar archivo temporal
       await File(filePath).delete();
