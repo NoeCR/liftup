@@ -25,7 +25,7 @@ class CsvExporter extends ExportBuilder {
 
     // Headers con metadatos
     if (config.includeMetadata) {
-      csvContent.writeln('# LiftUp Export');
+      csvContent.writeln('# Liftly Export');
       csvContent.writeln('# Version: ${metadata.version}');
       csvContent.writeln('# Export Date: ${metadata.exportDate.toIso8601String()}');
       csvContent.writeln('# App Version: ${metadata.appVersion}');

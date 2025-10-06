@@ -1,8 +1,8 @@
-# 🏋️‍♂️ LiftUp - Guía de Desarrollo
+# 🏋️‍♂️ Liftly - Guía de Desarrollo
 
 ## 📋 Resumen del Proyecto
 
-LiftUp es una aplicación móvil desarrollada en Flutter para gestionar rutinas de ejercicios. La aplicación está diseñada con una arquitectura limpia, orientada a features, y utiliza tecnologías modernas como Riverpod para el manejo de estado, Hive para la persistencia local, y go_router para la navegación.
+Liftly es una aplicación móvil desarrollada en Flutter para gestionar rutinas de ejercicios. La aplicación está diseñada con una arquitectura limpia, orientada a features, y utiliza tecnologías modernas como Riverpod para el manejo de estado, Hive para la persistencia local, y go_router para la navegación.
 
 ## 🏗️ Arquitectura del Proyecto
 
@@ -250,7 +250,7 @@ await ExportManager.exportAndShare(
 
 ```dart
 final l10n = AppLocalizations.of(context);
-Text(l10n.appTitle); // "LiftUp"
+Text(l10n.appTitle); // "Liftly"
 ```
 
 ## 🧪 Testing

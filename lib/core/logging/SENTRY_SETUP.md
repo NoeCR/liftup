@@ -1,6 +1,6 @@
-# Configuración de Sentry para LiftUp
+# Configuración de Sentry para Liftly
 
-Este documento explica cómo configurar Sentry para el monitoreo de errores y rendimiento en la aplicación LiftUp.
+Este documento explica cómo configurar Sentry para el monitoreo de errores y rendimiento en la aplicación Liftly.
 
 ## Pasos para configurar Sentry
 
