@@ -1,4 +1,4 @@
-# LiftUp
+# Liftly
 
 A Flutter application for planning routines, applying training progression, tracking sessions, and visualizing statistics. The app uses Riverpod, Hive, build_runner code generation, robust logging, and GitHub Actions CI.
 
@@ -24,7 +24,7 @@ A Flutter application for planning routines, applying training progression, trac
 - Troubleshooting
 
 ## Overview
-LiftUp helps users manage workout routines and sessions while applying configurable progression templates (e.g., linear, undulating, stepped, double, wave). It includes detailed logging and optional Sentry monitoring.
+Liftly helps users manage workout routines and sessions while applying configurable progression templates (e.g., linear, undulating, stepped, double, wave). It includes detailed logging and optional Sentry monitoring.
 
 ## Features
 - Configurable progression types: linear, undulating, stepped, double, wave, static, reverse, autoregulated, overload, double factor

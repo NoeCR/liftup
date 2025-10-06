@@ -1,4 +1,4 @@
-# LiftUp
+# Liftly
 
 Aplicación Flutter para planificar rutinas, aplicar progresiones de entrenamiento, registrar sesiones y visualizar estadísticas. Usa Riverpod, Hive, generación de código con build_runner, logging robusto y CI con GitHub Actions.
 
@@ -24,7 +24,7 @@ Aplicación Flutter para planificar rutinas, aplicar progresiones de entrenamien
 - Problemas Comunes
 
 ## Descripción
-LiftUp ayuda a gestionar rutinas y sesiones aplicando plantillas de progresión configurables (lineal, ondulante, escalonada, doble, wave, etc.). Incluye logging detallado y monitorización opcional con Sentry.
+Liftly ayuda a gestionar rutinas y sesiones aplicando plantillas de progresión configurables (lineal, ondulante, escalonada, doble, wave, etc.). Incluye logging detallado y monitorización opcional con Sentry.
 
 ## Características
 - Tipos de progresión: lineal, ondulante, escalonada, doble, wave, estática, inversa, autoregulada, sobrecarga, doble factor
