@@ -11,6 +11,7 @@ import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../exercise/models/exercise.dart';
 import '../../home/widgets/exercise_card_wrapper.dart';
 import '../../progression/widgets/progression_status_widget.dart';
+import '../../../common/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -90,7 +91,10 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               WorkoutSession? activeSession;
               try {
                 activeSession = sessions.firstWhere(
-                  (s) => (s.status == SessionStatus.active || s.status == SessionStatus.paused) && s.endTime == null,
+                  (s) =>
+                      (s.status == SessionStatus.active ||
+                          s.status == SessionStatus.paused) &&
+                      s.endTime == null,
                 );
               } catch (_) {
                 activeSession = null;
@@ -104,16 +108,24 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               }
 
               // If active and no ticker, compute clean base and start
-              if (_ticker == null && activeSession.status == SessionStatus.active && !_isManuallyPaused) {
+              if (_ticker == null &&
+                  activeSession.status == SessionStatus.active &&
+                  !_isManuallyPaused) {
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                _elapsedSeconds = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
+                _elapsedSeconds = notifier.calculateElapsedForUI(
+                  activeSession,
+                  now: DateTime.now(),
+                );
                 _startTicker();
               }
               // If paused, stop ticker and keep displayed _elapsedSeconds
               if (activeSession.status == SessionStatus.paused) {
                 _stopTicker();
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                _elapsedSeconds = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
+                _elapsedSeconds = notifier.calculateElapsedForUI(
+                  activeSession,
+                  now: DateTime.now(),
+                );
               }
 
               return _buildActiveSession(activeSession);
@@ -147,21 +159,35 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.all(AppTheme.spacingM),
+      padding: const EdgeInsets.all(AppTheme.spacingL),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(AppTheme.radiusL),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.1),
+            blurRadius: AppTheme.elevationM,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Text(
             context.tr('session.workoutTime'),
-            style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimaryContainer),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppTheme.spacingS),
           Text(
             _formatHms(_elapsedSeconds),
             style: theme.textTheme.headlineLarge?.copyWith(
               color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
             ),
           ),
         ],
@@ -185,13 +211,15 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             }
             routine ??= routines.isNotEmpty ? routines.first : null;
             if (routine == null) {
-              return Center(child: Text(context.tr('session.noRoutineAssociated')));
+              return Center(
+                child: Text(context.tr('session.noRoutineAssociated')),
+              );
             }
 
             return exercisesAsync.when(
               data: (exercises) {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppTheme.spacingM),
                   itemCount: routine!.sections.length,
                   itemBuilder: (context, index) {
                     final section = routine!.sections[index];
@@ -199,17 +227,31 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(section.name, style: Theme.of(context).textTheme.titleMedium),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppTheme.spacingS,
+                          ),
+                          child: Text(
+                            section.name,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
                         ),
                         if (section.exercises.isEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.only(
+                              bottom: AppTheme.spacingM,
+                            ),
                             child: Text(
                               context.tr('session.noExercises'),
                               style: Theme.of(
                                 context,
-                              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                              ).textTheme.bodyMedium?.copyWith(
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           )
                         else
@@ -217,7 +259,9 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                             height: 300,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppTheme.spacingS,
+                              ),
                               itemCount: section.exercises.length,
                               itemBuilder: (context, idx) {
                                 final re = section.exercises[idx];
@@ -239,8 +283,6 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                                       ),
                                 );
 
-                                // ExerciseCardWrapper maneja internamente el estado de series realizadas
-
                                 return SizedBox(
                                   width: 320,
                                   child: ExerciseCardWrapper(
@@ -255,18 +297,24 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                               },
                             ),
                           ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppTheme.spacingL),
                       ],
                     );
                   },
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text(context.tr('session.errorLoadingExercises'))),
+              error:
+                  (e, _) => Center(
+                    child: Text(context.tr('session.errorLoadingExercises')),
+                  ),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text(context.tr('session.errorLoadingRoutine'))),
+          error:
+              (e, _) => Center(
+                child: Text(context.tr('session.errorLoadingRoutine')),
+              ),
         );
       },
     );
@@ -274,31 +322,41 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
   Widget _buildSessionControls(WorkoutSession session) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppTheme.spacingM),
       child: Row(
         children: [
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () async {
-                final isPaused = _isManuallyPaused || session.status == SessionStatus.paused;
+                final isPaused =
+                    _isManuallyPaused || session.status == SessionStatus.paused;
                 if (!isPaused) {
                   // Pausar
                   _isManuallyPaused = true;
                   _stopTicker();
-                  await ref.read(sessionNotifierProvider.notifier).pauseSession();
+                  await ref
+                      .read(sessionNotifierProvider.notifier)
+                      .pauseSession();
                   ref.invalidate(sessionNotifierProvider);
                 } else {
                   // Reanudar inmediatamente
                   _isManuallyPaused = false;
-                  await ref.read(sessionNotifierProvider.notifier).resumeSession();
+                  await ref
+                      .read(sessionNotifierProvider.notifier)
+                      .resumeSession();
                   final notifier = ref.read(sessionNotifierProvider.notifier);
-                  _elapsedSeconds = notifier.calculateElapsedForUI(session, now: DateTime.now());
+                  _elapsedSeconds = notifier.calculateElapsedForUI(
+                    session,
+                    now: DateTime.now(),
+                  );
                   _startTicker();
                   ref.invalidate(sessionNotifierProvider);
                 }
               },
               icon: Icon(
-                (_isManuallyPaused || session.status == SessionStatus.paused) ? Icons.play_arrow : Icons.pause,
+                (_isManuallyPaused || session.status == SessionStatus.paused)
+                    ? Icons.play_arrow
+                    : Icons.pause,
               ),
               label: Text(
                 (_isManuallyPaused || session.status == SessionStatus.paused)
@@ -307,12 +365,14 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppTheme.spacingM),
           Expanded(
             child: FilledButton.icon(
               onPressed: () async {
                 _stopTicker();
-                await ref.read(sessionNotifierProvider.notifier).completeSession();
+                await ref
+                    .read(sessionNotifierProvider.notifier)
+                    .completeSession();
                 if (!mounted) return;
                 setState(() {
                   _isManuallyPaused = false;
@@ -321,9 +381,11 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 });
                 // Forzar recarga de sesiones para ocultar controles
                 ref.invalidate(sessionNotifierProvider);
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(context.tr('session.sessionFinished'))));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.tr('session.sessionFinished')),
+                  ),
+                );
                 if (mounted) {
                   context.push('/session-summary');
                 }
@@ -349,37 +411,71 @@ class _SessionPageState extends ConsumerState<SessionPage> {
         // Contenido principal
         Expanded(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.play_circle_outline, size: 64, color: colorScheme.onSurfaceVariant),
-                const SizedBox(height: 16),
-                Text(context.tr('session.noActiveSession'), style: theme.textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                Text(
-                  context.tr('session.startNewSession'),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: () async {
-                    final selectedRoutineId = ref.read(selectedRoutineIdProvider);
-                    if (selectedRoutineId == null) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(context.tr('session.selectRoutineFirst'))));
-                      return;
-                    }
-                    await ref
-                        .read(sessionNotifierProvider.notifier)
-                        .startSession(name: context.tr('session.title'), routineId: selectedRoutineId);
-                    if (mounted) setState(() {});
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: Text(context.tr('session.startSession')),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(AppTheme.spacingXL),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.spacingXL),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.play_circle_outline,
+                      size: 64,
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  Text(
+                    context.tr('session.noActiveSession'),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppTheme.spacingS),
+                  Text(
+                    context.tr('session.startNewSession'),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppTheme.spacingXL),
+                  FilledButton.icon(
+                    onPressed: () async {
+                      final selectedRoutineId = ref.read(
+                        selectedRoutineIdProvider,
+                      );
+                      if (selectedRoutineId == null) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              context.tr('session.selectRoutineFirst'),
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      await ref
+                          .read(sessionNotifierProvider.notifier)
+                          .startSession(
+                            name: context.tr('session.title'),
+                            routineId: selectedRoutineId,
+                          );
+                      if (mounted) setState(() {});
+                    },
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text(context.tr('session.startSession')),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

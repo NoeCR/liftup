@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/auto_routine_selection_notifier.dart';
 import '../../../common/enums/week_day_enum.dart';
+import '../../../common/themes/app_theme.dart';
 
 /// Widget that shows information about automatic routine selection
 class AutoSelectionInfoCard extends ConsumerWidget {
@@ -14,45 +15,80 @@ class AutoSelectionInfoCard extends ConsumerWidget {
     final autoSelectionInfo = ref.watch(autoRoutineSelectionNotifierProvider);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppTheme.spacingM),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(
-                  autoSelectionInfo.hasSelection ? Icons.auto_awesome : Icons.info_outline,
-                  color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  autoSelectionInfo.hasSelection ? 'Suggested Routine' : 'Information',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.spacingXS),
+                  decoration: BoxDecoration(
+                    color:
+                        autoSelectionInfo.hasSelection
+                            ? colorScheme.primaryContainer
+                            : colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                  ),
+                  child: Icon(
+                    autoSelectionInfo.hasSelection
+                        ? Icons.auto_awesome
+                        : Icons.info_outline,
+                    color:
+                        autoSelectionInfo.hasSelection
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
+                    size: 20,
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: AppTheme.spacingM),
+                Expanded(
+                  child: Text(
+                    autoSelectionInfo.hasSelection
+                        ? 'Rutina Sugerida'
+                        : 'Información',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color:
+                          autoSelectionInfo.hasSelection
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 _buildDayChip(context, autoSelectionInfo.currentDay),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.spacingM),
             Text(
               autoSelectionInfo.hasSelection
                   ? autoSelectionInfo.description
-                  : 'No specific routines for ${autoSelectionInfo.currentDay.displayName}. Showing first available routine.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  : 'No hay rutinas específicas para ${autoSelectionInfo.currentDay.displayName}. Mostrando la primera rutina disponible.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                height: 1.4,
+              ),
             ),
-            if (autoSelectionInfo.hasSelection && autoSelectionInfo.availableRoutines.length > 1) ...[
-              const SizedBox(height: 8),
-              Text(
-                '${autoSelectionInfo.availableRoutines.length} routines available for ${autoSelectionInfo.currentDay.displayName}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  fontStyle: FontStyle.italic,
+            if (autoSelectionInfo.hasSelection &&
+                autoSelectionInfo.availableRoutines.length > 1) ...[
+              const SizedBox(height: AppTheme.spacingS),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingS,
+                  vertical: AppTheme.spacingXS,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                ),
+                child: Text(
+                  '${autoSelectionInfo.availableRoutines.length} rutinas disponibles para ${autoSelectionInfo.currentDay.displayName}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
@@ -67,11 +103,20 @@ class AutoSelectionInfoCard extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingS,
+        vertical: AppTheme.spacingXS,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(AppTheme.radiusM),
+      ),
       child: Text(
         day.shortName,
-        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: colorScheme.onPrimaryContainer,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

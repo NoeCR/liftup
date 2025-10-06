@@ -23,7 +23,7 @@
         "addExercises": "Agregar ejercicios",
         "tapToAddExercises": "Toca para agregar ejercicios a esta sección",
         "manageRoutines": "Gestionar rutinas",
-        "settings": "Configuración",
+        "settings": "Config",
         "retry": "Reintentar",
         "reset": "Resetear",
         "resetDatabase": "🔄 Resetear Base de Datos",
@@ -154,7 +154,7 @@
         "title": "Estadísticas"
     },
     "settings": {
-        "title": "Configuración",
+        "title": "Config",
         "routines": "Rutinas",
         "myRoutines": "Mis Rutinas",
         "myRoutinesDescription": "Ver y gestionar todas tus rutinas",

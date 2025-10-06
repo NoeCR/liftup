@@ -9,6 +9,7 @@ import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../settings/notifiers/rest_prefs.dart';
 import '../services/weekly_exercise_tracking_service.dart';
+import '../../../common/themes/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
@@ -27,7 +28,8 @@ class ExerciseCardWrapper extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ExerciseCardWrapper> createState() => _ExerciseCardWrapperState();
+  ConsumerState<ExerciseCardWrapper> createState() =>
+      _ExerciseCardWrapperState();
 }
 
 class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
@@ -41,7 +43,9 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
     super.initState();
     // Defer provider modification until after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(exerciseStateNotifierProvider.notifier).initializeExercise(widget.routineExercise);
+      ref
+          .read(exerciseStateNotifierProvider.notifier)
+          .initializeExercise(widget.routineExercise);
     });
   }
 
@@ -87,8 +91,14 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
     final vibrationEnabled = ref.read(restVibrationEnabledProvider);
     final soundType = ref.read(restSoundTypeProvider);
     if (soundEnabled) {
-      final androidSound = soundType == RestSoundType.alarm ? AndroidSounds.alarm : AndroidSounds.notification;
-      final iosSound = soundType == RestSoundType.alarm ? IosSounds.alarm : IosSounds.triTone;
+      final androidSound =
+          soundType == RestSoundType.alarm
+              ? AndroidSounds.alarm
+              : AndroidSounds.notification;
+      final iosSound =
+          soundType == RestSoundType.alarm
+              ? IosSounds.alarm
+              : IosSounds.triTone;
       FlutterRingtonePlayer().play(
         android: androidSound,
         ios: iosSound,
@@ -109,21 +119,33 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
   Widget build(BuildContext context) {
     // Get current exercise state
     final currentExercise =
-        ref.watch(exerciseStateNotifierProvider.select((state) => state[widget.routineExercise.id])) ??
+        ref.watch(
+          exerciseStateNotifierProvider.select(
+            (state) => state[widget.routineExercise.id],
+          ),
+        ) ??
         widget.routineExercise;
 
     final isCompleted = ref.watch(
-      exerciseCompletionNotifierProvider.select((state) => state.contains(widget.routineExercise.id)),
+      exerciseCompletionNotifierProvider.select(
+        (state) => state.contains(widget.routineExercise.id),
+      ),
     );
 
     // progreso de series realizadas
     // read current performed sets if needed for future display/logic
     // final performedSets = ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
 
-    final performedSets = ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
+    final performedSets =
+        ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ??
+        0;
 
     // Verificar si el ejercicio fue realizado esta semana
-    final wasPerformedThisWeek = ref.watch(exercisePerformedThisWeekProvider(widget.exercise.id)).value ?? false;
+    final wasPerformedThisWeek =
+        ref
+            .watch(exercisePerformedThisWeekProvider(widget.exercise.id))
+            .value ??
+        false;
 
     return Stack(
       children: [
@@ -141,9 +163,15 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           onRepsChanged: (newValue) {
             // Contador de series realizadas
             final totalSets = widget.exercise.defaultSets ?? 3;
-            final previous = ref.read(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
+            final previous =
+                ref.read(performedSetsNotifierProvider)[widget
+                    .routineExercise
+                    .id] ??
+                0;
             final int clamped = newValue.clamp(0, totalSets).toInt();
-            ref.read(performedSetsNotifierProvider.notifier).setCount(widget.routineExercise.id, clamped);
+            ref
+                .read(performedSetsNotifierProvider.notifier)
+                .setCount(widget.routineExercise.id, clamped);
 
             // Launch rest timer if it increments and it's not the last set
             if (clamped > previous && clamped < totalSets) {
@@ -154,8 +182,12 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
             }
 
             final nowCompleted = clamped >= totalSets;
-            final completion = ref.read(exerciseCompletionNotifierProvider.notifier);
-            final already = ref.read(exerciseCompletionNotifierProvider).contains(widget.routineExercise.id);
+            final completion = ref.read(
+              exerciseCompletionNotifierProvider.notifier,
+            );
+            final already = ref
+                .read(exerciseCompletionNotifierProvider)
+                .contains(widget.routineExercise.id);
             if (nowCompleted && !already) {
               completion.toggleExerciseCompletion(widget.routineExercise.id);
             } else if (!nowCompleted && already) {
@@ -167,23 +199,26 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
         // Overlay de descanso: contador durante el timer
         if (_showRestOverlay)
           Positioned(
-            top: 8,
-            left: 16,
-            right: 16,
+            top: AppTheme.spacingS,
+            left: AppTheme.spacingM,
+            right: AppTheme.spacingM,
             height: 120,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.radiusL),
+                  ),
                 ),
                 child: Center(
                   child: Chip(
                     label: Text(
                       '${_restSecondsRemaining}s',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     backgroundColor: Colors.black87,
                   ),
@@ -195,16 +230,18 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
         // Stop button when sound is playing (after timer finishes)
         if (_isRingtonePlaying)
           Positioned(
-            top: 8,
-            left: 16,
-            right: 16,
+            top: AppTheme.spacingS,
+            left: AppTheme.spacingM,
+            right: AppTheme.spacingM,
             height: 120,
             child: IgnorePointer(
               ignoring: false,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppTheme.radiusL),
+                  ),
                 ),
                 child: Center(
                   child: FilledButton.icon(
@@ -217,7 +254,10 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                     },
                     icon: const Icon(Icons.stop),
                     label: const Text('Detener'),
-                    style: FilledButton.styleFrom(backgroundColor: Colors.black87, foregroundColor: Colors.white),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.black87,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
               ),
