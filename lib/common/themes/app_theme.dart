@@ -7,10 +7,10 @@ class AppTheme {
   static const Color primaryLight = Color(0xFF2DD4BF); // teal-400
   static const Color primaryDark = Color(0xFF0F766E); // teal-700
 
-  // Secondary: Electric Purple (energy/innovation)
-  static const Color secondaryColor = Color(0xFF8B5CF6);
-  static const Color secondaryLight = Color(0xFFA78BFA);
-  static const Color secondaryDark = Color(0xFF7C3AED);
+  // Secondary: Cyan (harmoniza con teal primario)
+  static const Color secondaryColor = Color(0xFF06B6D4); // cyan-500
+  static const Color secondaryLight = Color(0xFF67E8F9); // cyan-300
+  static const Color secondaryDark = Color(0xFF0891B2); // cyan-600
 
   // Tertiary: Fresh Mint (success/progress)
   static const Color tertiaryColor = Color(0xFF10B981);
@@ -107,12 +107,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         backgroundColor: surfaceColor,
         foregroundColor: neutral800,
-        titleTextStyle: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: neutral800,
-          letterSpacing: -0.5,
-        ),
+        titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: neutral800, letterSpacing: -0.5),
       ),
       // Card Theme - Consistent elevation and radius
       cardTheme: CardThemeData(
