@@ -277,7 +277,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(
+        16,
+        16,
+        16,
+        kBottomNavigationBarHeight + AppTheme.spacingL,
+      ),
       itemCount: routine.sections.length,
       itemBuilder: (context, index) {
         final section = routine.sections[index];
@@ -340,7 +345,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
 
               // Carrusel horizontal de ejercicios
               return SizedBox(
-                height: 300,
+                height: 308,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(

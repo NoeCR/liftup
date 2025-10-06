@@ -26,10 +26,7 @@ class SectionHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingM,
-        vertical: AppTheme.spacingS,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingS),
       child: Material(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppTheme.radiusM),
@@ -38,10 +35,7 @@ class SectionHeader extends StatelessWidget {
           onTap: onToggleCollapsed,
           borderRadius: BorderRadius.circular(AppTheme.radiusM),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppTheme.spacingM,
-              vertical: AppTheme.spacingM,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingM),
             child: Row(
               children: [
                 if (iconName != null || muscleGroup != null) ...[
@@ -52,9 +46,7 @@ class SectionHeader extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppTheme.radiusS),
                     ),
                     child: Icon(
-                      _getIconData(
-                        iconName ?? muscleGroup?.iconName ?? 'fitness_center',
-                      ),
+                      _getIconData(iconName ?? muscleGroup?.iconName ?? 'fitness_center'),
                       color: colorScheme.onPrimaryContainer,
                       size: 20,
                     ),
@@ -70,19 +62,12 @@ class SectionHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (trailing != null) ...[
-                  const SizedBox(width: AppTheme.spacingS),
-                  trailing!,
-                ],
+                if (trailing != null) ...[const SizedBox(width: AppTheme.spacingS), trailing!],
                 const SizedBox(width: AppTheme.spacingS),
                 AnimatedRotation(
                   turns: isCollapsed ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: colorScheme.onSurfaceVariant,
-                    size: 24,
-                  ),
+                  child: Icon(Icons.keyboard_arrow_down, color: colorScheme.onSurfaceVariant, size: 24),
                 ),
               ],
             ),

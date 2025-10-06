@@ -75,6 +75,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         ],
       ),
       body: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Search and Filter
           _buildSearchAndFilter(),
@@ -170,6 +171,7 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
 
             return ListView.builder(
               itemCount: filteredExercises.length,
+              shrinkWrap: true,
               itemBuilder: (context, index) {
                 final exercise = filteredExercises[index];
                 return _buildExerciseCard(exercise);

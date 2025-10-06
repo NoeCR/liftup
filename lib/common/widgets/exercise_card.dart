@@ -16,6 +16,7 @@ class ExerciseCard extends StatelessWidget {
   final Function(int)? onRepsChanged;
   final int performedSets;
   final bool showSetsControls;
+  final bool isResting;
 
   const ExerciseCard({
     super.key,
@@ -30,6 +31,7 @@ class ExerciseCard extends StatelessWidget {
     this.onRepsChanged,
     this.performedSets = 0,
     this.showSetsControls = false,
+    this.isResting = false,
   });
 
   @override
@@ -47,83 +49,85 @@ class ExerciseCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.radiusL),
             color: _getCardBackgroundColor(colorScheme),
           ),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 240, maxHeight: 280),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Exercise Image
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppTheme.radiusL),
-                  ),
-                  child: Container(
-                    height: 120,
-                    width: double.infinity,
-                    color: colorScheme.surfaceContainerHighest,
-                    child: _buildAdaptiveImage(
-                      exercise?.imageUrl ?? '',
-                      colorScheme,
-                    ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Exercise Image
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppTheme.radiusL),
+                ),
+                child: Container(
+                  height: 120,
+                  width: double.infinity,
+                  color: Colors.transparent,
+                  child: _buildAdaptiveImage(
+                    exercise?.imageUrl ?? '',
+                    colorScheme,
                   ),
                 ),
+              ),
 
-                // Exercise Info
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppTheme.spacingM),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Exercise Name
-                        Text(
-                          exercise?.name ?? 'Ejercicio',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
+              // Exercise Info + Controls unified
+              Padding(
+                padding: const EdgeInsets.all(AppTheme.spacingM),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // LEFT: Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            exercise?.name ?? 'Ejercicio',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppTheme.spacingS),
-
-                        // Exercise Info Chips
-                        Wrap(
-                          spacing: AppTheme.spacingS,
-                          runSpacing: AppTheme.spacingS,
-                          children: [
-                            _buildInfoChip(
-                              context,
-                              '${exercise?.defaultSets ?? 3} series',
-                              Icons.repeat,
-                            ),
-                            _buildInfoChip(
-                              context,
-                              '${exercise?.defaultReps ?? 10} reps',
-                              Icons.fitness_center,
-                            ),
-                            _buildInfoChip(
-                              context,
-                              '${(exercise?.defaultWeight ?? 0.0).toStringAsFixed(1)} kg',
-                              Icons.scale,
-                            ),
-                            if (exercise != null)
+                          const SizedBox(height: AppTheme.spacingS),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               _buildInfoChip(
                                 context,
-                                exercise!.category.displayName,
-                                Icons.category,
+                                '${exercise?.defaultSets ?? 3} series',
+                                Icons.repeat,
                               ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(height: AppTheme.spacingXS),
+                              _buildInfoChip(
+                                context,
+                                '${exercise?.defaultReps ?? 10} reps',
+                                Icons.fitness_center,
+                              ),
+                              const SizedBox(height: AppTheme.spacingXS),
+                              _buildInfoChip(
+                                context,
+                                '${(exercise?.defaultWeight ?? 0.0).toStringAsFixed(1)} kg',
+                                Icons.scale,
+                              ),
+                              const SizedBox(height: AppTheme.spacingXS),
+                              if (exercise != null)
+                                _buildInfoChip(
+                                  context,
+                                  exercise!.category.displayName,
+                                  Icons.category,
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: AppTheme.spacingM),
+                    // RIGHT: Controls (only in session), for bottom alignment match left height
+                    if (showSetsControls)
+                      _buildSeriesControlColumn(context, colorScheme),
+                  ],
                 ),
-                if (showSetsControls) ...[
-                  const SizedBox(height: AppTheme.spacingS),
-                  Center(child: _buildSetsCounter(context, colorScheme)),
-                  const SizedBox(height: AppTheme.spacingS),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -160,66 +164,66 @@ class ExerciseCard extends StatelessWidget {
     );
   }
 
-  // Controles eliminados de la tarjeta principal según nueva UX
-
-  Widget _buildSetsCounter(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildSeriesControlColumn(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingS,
-        vertical: AppTheme.spacingXS,
-      ),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppTheme.radiusXL),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove, size: 16),
-            onPressed:
-                performedSets > 0 &&
-                        performedSets < (exercise?.defaultSets ?? 3)
-                    ? () => onRepsChanged?.call(performedSets - 1)
-                    : null,
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              backgroundColor: colorScheme.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusL),
+    final totalSets = exercise?.defaultSets ?? 3;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(AppTheme.radiusM),
+          ),
+          child: Text(
+            '$performedSets',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppTheme.spacingS),
+        SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: IconButton(
+              icon: const Icon(Icons.add, size: 20),
+              onPressed:
+                  performedSets < totalSets && !isResting
+                      ? () => onRepsChanged?.call(performedSets + 1)
+                      : null,
+              style: IconButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                fixedSize: const Size(48, 48),
+                backgroundColor:
+                    performedSets < totalSets && !isResting
+                        ? colorScheme.primary
+                        : colorScheme.surfaceContainerHighest,
+                foregroundColor:
+                    performedSets < totalSets && !isResting
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurfaceVariant,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusM),
+                ),
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              minimumSize: const Size(32, 32), // Better accessibility
-              padding: EdgeInsets.zero,
             ),
           ),
-          const SizedBox(width: AppTheme.spacingXS),
-          Text(
-            '$performedSets/${exercise?.defaultSets ?? 3} series',
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(width: AppTheme.spacingXS),
-          IconButton(
-            icon: const Icon(Icons.add, size: 16),
-            onPressed:
-                performedSets < (exercise?.defaultSets ?? 3)
-                    ? () => onRepsChanged?.call(performedSets + 1)
-                    : null,
-            style: IconButton.styleFrom(
-              visualDensity: VisualDensity.compact,
-              backgroundColor: colorScheme.surfaceContainerHighest,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusL),
-              ),
-              minimumSize: const Size(32, 32), // Better accessibility
-              padding: EdgeInsets.zero,
-            ),
-          ),
-        ],
-      ),
+        ),
+        // Texto 'Series: x/y' eliminado por redundante
+      ],
     );
   }
 
