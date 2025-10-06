@@ -10,10 +10,14 @@ class SentryConfigExample {
   static const String _dnsKey = 'https://your-dsn@sentry.io/project-id';
 
   /// Development configuration
-  static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(dsn: _dnsKey);
+  static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(
+    dsn: _dnsKey,
+  );
 
   /// Production configuration
-  static final SentryFlutterOptions productionOptions = SentryFlutterOptions(dsn: _dnsKey);
+  static final SentryFlutterOptions productionOptions = SentryFlutterOptions(
+    dsn: _dnsKey,
+  );
 
   /// Gets the appropriate configuration based on environment
   static SentryFlutterOptions get options {
@@ -33,13 +37,22 @@ class SentryConfigExample {
     }
 
     // Add additional device information
-    event = event.copyWith(tags: {...?event.tags, 'app_name': 'LiftUp', 'platform': defaultTargetPlatform.name});
+    event = event.copyWith(
+      tags: {
+        ...?event.tags,
+        'app_name': 'Liftly',
+        'platform': defaultTargetPlatform.name,
+      },
+    );
 
     return event;
   }
 
   /// Filters transactions before sending them to Sentry
-  static SentryTransaction? _beforeSendTransaction(SentryTransaction transaction, {Hint? hint}) {
+  static SentryTransaction? _beforeSendTransaction(
+    SentryTransaction transaction, {
+    Hint? hint,
+  }) {
     // Filter development transactions in production
     if (!kDebugMode && transaction.environment == 'development') {
       return null;
@@ -53,9 +66,18 @@ class SentryConfigExample {
     final message = event.message?.formatted.toLowerCase() ?? '';
     final exception = event.exceptions?.firstOrNull?.value?.toLowerCase() ?? '';
 
-    final sensitiveKeywords = ['password', 'token', 'key', 'secret', 'auth', 'credential'];
+    final sensitiveKeywords = [
+      'password',
+      'token',
+      'key',
+      'secret',
+      'auth',
+      'credential',
+    ];
 
-    return sensitiveKeywords.any((keyword) => message.contains(keyword) || exception.contains(keyword));
+    return sensitiveKeywords.any(
+      (keyword) => message.contains(keyword) || exception.contains(keyword),
+    );
   }
 
   /// Sentry initialization
@@ -66,7 +88,7 @@ class SentryConfigExample {
         options.dsn = _dnsKey;
         options.debug = kDebugMode;
         options.environment = kDebugMode ? 'development' : 'production';
-        options.release = 'liftup@1.0.0+1';
+        options.release = 'liftly@1.0.0+1';
 
         // Performance configuration
         options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;
@@ -78,7 +100,8 @@ class SentryConfigExample {
 
         // Filters
         options.beforeSend = _beforeSend as BeforeSendCallback?;
-        options.beforeSendTransaction = _beforeSendTransaction as BeforeSendTransactionCallback?;
+        options.beforeSendTransaction =
+            _beforeSendTransaction as BeforeSendTransactionCallback?;
 
         // Additional configuration
         options.attachScreenshot = true;

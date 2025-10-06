@@ -365,7 +365,7 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                   controller: shareIdController,
                   decoration: const InputDecoration(
                     labelText: 'ID or Link',
-                    hintText: 'https://liftup.app/share/abc123',
+                    hintText: 'https://liftly.app/share/abc123',
                   ),
                 ),
               ],

@@ -4,7 +4,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'sentry_dsn_config.dart';
 import 'user_context_service.dart';
 
-/// Sentry configuration for the LiftUp application
+/// Sentry configuration for the Liftly application
 class SentryConfig {
   // Use DSN configured from SentryDsnConfig
   static String get _dnsKey => SentryDsnConfig.dsn;
@@ -13,10 +13,14 @@ class SentryConfig {
   static void Function()? _appRunner;
 
   /// Development configuration
-  static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(dsn: _dnsKey);
+  static final SentryFlutterOptions developmentOptions = SentryFlutterOptions(
+    dsn: _dnsKey,
+  );
 
   /// Production configuration
-  static final SentryFlutterOptions productionOptions = SentryFlutterOptions(dsn: _dnsKey);
+  static final SentryFlutterOptions productionOptions = SentryFlutterOptions(
+    dsn: _dnsKey,
+  );
 
   /// Gets the appropriate configuration based on environment
   static SentryFlutterOptions get options {
@@ -36,13 +40,21 @@ class SentryConfig {
     }
 
     // Add additional device information
-    event = event.copyWith(tags: {...?event.tags, 'app_name': 'LiftUp', 'platform': defaultTargetPlatform.name});
+    event = event.copyWith(
+      tags: {
+        ...?event.tags,
+        'app_name': 'Liftly',
+        'platform': defaultTargetPlatform.name,
+      },
+    );
 
     return event;
   }
 
   /// Filters transactions before sending them to Sentry
-  static FutureOr<SentryTransaction?> _beforeSendTransaction(SentryTransaction transaction) {
+  static FutureOr<SentryTransaction?> _beforeSendTransaction(
+    SentryTransaction transaction,
+  ) {
     // Filter development transactions in production
     if (!kDebugMode && transaction.environment == 'development') {
       return null;
@@ -56,9 +68,18 @@ class SentryConfig {
     final message = event.message?.formatted.toLowerCase() ?? '';
     final exception = event.exceptions?.firstOrNull?.value?.toLowerCase() ?? '';
 
-    final sensitiveKeywords = ['password', 'token', 'key', 'secret', 'auth', 'credential'];
+    final sensitiveKeywords = [
+      'password',
+      'token',
+      'key',
+      'secret',
+      'auth',
+      'credential',
+    ];
 
-    return sensitiveKeywords.any((keyword) => message.contains(keyword) || exception.contains(keyword));
+    return sensitiveKeywords.any(
+      (keyword) => message.contains(keyword) || exception.contains(keyword),
+    );
   }
 
   /// Sentry initialization
@@ -84,7 +105,8 @@ class SentryConfig {
 
         // Filters
         options.beforeSend = _beforeSend;
-        options.beforeSendTransaction = _beforeSendTransaction as BeforeSendTransactionCallback?;
+        options.beforeSendTransaction =
+            _beforeSendTransaction as BeforeSendTransactionCallback?;
 
         // Additional configuration
         options.attachScreenshot = SentryDsnConfig.isScreenshotsEnabled;

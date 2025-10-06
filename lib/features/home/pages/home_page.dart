@@ -61,11 +61,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             onPressed: () => _showRoutineManagement(context, ref),
             icon: const Icon(Icons.reorder),
           ),
-          IconButton(
-            onPressed: () => context.push('/settings'),
-            icon: const Icon(Icons.settings),
-            tooltip: context.tr('home.settings'),
-          ),
         ],
       ),
       body: Column(
@@ -173,7 +168,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             ) ==
         true;
     return Container(
-      height: 120,
+      height: 76,
       margin: const EdgeInsets.symmetric(vertical: AppTheme.spacingS),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -183,12 +178,13 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           final option = menuOptions[index];
           final isSelected = _selectedMenuOption == option;
           final routinesList = ref.read(routineNotifierProvider).value;
-          final Routine? routineForCard = routinesList == null || routinesList.isEmpty
-              ? null
-              : routinesList.firstWhere(
-                  (r) => r.name == option,
-                  orElse: () => routinesList.first,
-                );
+          final Routine? routineForCard =
+              routinesList == null || routinesList.isEmpty
+                  ? null
+                  : routinesList.firstWhere(
+                    (r) => r.name == option,
+                    orElse: () => routinesList.first,
+                  );
           final int sectionsCount = routineForCard?.sections.length ?? 0;
 
           return Padding(
@@ -214,7 +210,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 curve: Curves.easeOut,
-                width: 220,
+                width: 180,
                 decoration: BoxDecoration(
                   color:
                       isSelected
@@ -237,13 +233,13 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                             : colorScheme.outline.withValues(alpha: 0.20),
                   ),
                 ),
-                padding: const EdgeInsets.all(AppTheme.spacingM),
+                padding: const EdgeInsets.all(AppTheme.spacingS),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 32,
+                      height: 32,
                       decoration: BoxDecoration(
                         color:
                             isSelected
@@ -280,21 +276,6 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            hasActiveSession
-                                ? context.tr('session.pause')
-                                : context.tr('session.train'),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  isSelected
-                                      ? colorScheme.onPrimaryContainer
-                                          .withValues(alpha: 0.8)
-                                      : colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
                           const SizedBox(height: 6),
                           Row(
                             children: [
@@ -304,8 +285,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                                   vertical: AppTheme.spacingXS,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: colorScheme.secondary.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                                  color: colorScheme.secondary.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                    AppTheme.radiusS,
+                                  ),
                                 ),
                                 child: Text(
                                   '${sectionsCount} ${context.tr('settings.routines').toLowerCase() == 'rutinas' ? 'secciones' : 'sections'}',
