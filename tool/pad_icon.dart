@@ -22,7 +22,7 @@ void main() {
   // Factor de padding: 25% del tamaño resultante en cada lado
   // Resultado: el gráfico ocupa ~50% área, evitando recortes en Android 12
   const canvasSize = 1024; // tamaño cuadrado de salida
-  const paddingRatio = 0.25; // 25% por lado
+  const paddingRatio = 0.15; // 15% por lado (icono más grande)
 
   final canvas = img.Image(width: canvasSize, height: canvasSize);
   // Fondo totalmente transparente
@@ -31,10 +31,7 @@ void main() {
   // Calcular tamaño máximo del icono dentro del canvas respetando padding
   final maxContent = (canvasSize * (1 - paddingRatio * 2)).toInt();
   // Escalar manteniendo proporción para que quepa dentro de maxContent
-  final scale = {
-    'w': maxContent / original.width,
-    'h': maxContent / original.height,
-  };
+  final scale = {'w': maxContent / original.width, 'h': maxContent / original.height};
   final factor = scale['w']! < scale['h']! ? scale['w']! : scale['h']!;
   final targetW = (original.width * factor).toInt();
   final targetH = (original.height * factor).toInt();
@@ -49,4 +46,3 @@ void main() {
   File(outputPath).writeAsBytesSync(outBytes);
   stdout.writeln('Generado $outputPath (${canvas.width}x${canvas.height})');
 }
-
