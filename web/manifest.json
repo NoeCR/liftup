@@ -1,6 +1,6 @@
 {
-    "name": "liftup",
-    "short_name": "liftup",
+    "name": "Liftly",
+    "short_name": "Liftly",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

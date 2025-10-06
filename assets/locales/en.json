@@ -1,7 +1,7 @@
 {
     "app": {
-        "title": "LiftUp",
-        "welcome": "Welcome to LiftUp!",
+        "title": "Liftly",
+        "welcome": "Welcome to Liftly!",
         "createFirstRoutine": "Create your first routine to get started",
         "createRoutine": "Create Routine"
     },
