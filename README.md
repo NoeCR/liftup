@@ -26,6 +26,9 @@ A Flutter application for planning routines, applying training progression, trac
 ## Overview
 Liftly helps users manage workout routines and sessions while applying configurable progression templates (e.g., linear, undulating, stepped, double, wave). It includes detailed logging and optional Sentry monitoring.
 
+### Rebranding
+Formerly known as LiftUp. App name, icons, splash and theming updated to Liftly across Android, iOS and Web.
+
 ## Features
 - Configurable progression types: linear, undulating, stepped, double, wave, static, reverse, autoregulated, overload, double factor
 - Routine and session management with local persistence (Hive)
@@ -89,6 +92,8 @@ App icon is generated from `assets/icons/app_icon.png` with flutter_launcher_ico
 ```bash
 dart run flutter_launcher_icons
 ```
+
+Splash screen is generated with `flutter_native_splash`, using a padded variant `assets/icons/app_icon_splash.png` to avoid cropping on Android 12.
 
 ## Code Generation
 ```bash

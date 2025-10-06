@@ -26,6 +26,9 @@ Aplicación Flutter para planificar rutinas, aplicar progresiones de entrenamien
 ## Descripción
 Liftly ayuda a gestionar rutinas y sesiones aplicando plantillas de progresión configurables (lineal, ondulante, escalonada, doble, wave, etc.). Incluye logging detallado y monitorización opcional con Sentry.
 
+### Rebranding
+Anteriormente conocida como LiftUp. Se actualizó el nombre de la app, iconos, splash y tema a Liftly en Android, iOS y Web.
+
 ## Características
 - Tipos de progresión: lineal, ondulante, escalonada, doble, wave, estática, inversa, autoregulada, sobrecarga, doble factor
 - Gestión de rutinas y sesiones con persistencia local (Hive)
@@ -89,6 +92,8 @@ El icono se genera desde `assets/icons/app_icon.png` con flutter_launcher_icons:
 ```bash
 dart run flutter_launcher_icons
 ```
+
+El splash se genera con `flutter_native_splash`, usando una variante con padding `assets/icons/app_icon_splash.png` para evitar recortes en Android 12.
 
 ## Generación de Código
 ```bash
