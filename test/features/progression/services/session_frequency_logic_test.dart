@@ -14,23 +14,23 @@ void main() {
 
       // Casos de prueba para rutinas de 1 sesión por semana
       expect(shouldApplyProgression(1, false), isTrue); // 1 sesión, no primera
-      expect(shouldApplyProgression(1, true), isTrue);  // 1 sesión, primera
-      
+      expect(shouldApplyProgression(1, true), isTrue); // 1 sesión, primera
+
       // Casos de prueba para rutinas de múltiples sesiones por semana
       expect(shouldApplyProgression(3, false), isFalse); // 3 sesiones, no primera
-      expect(shouldApplyProgression(3, true), isTrue);   // 3 sesiones, primera
+      expect(shouldApplyProgression(3, true), isTrue); // 3 sesiones, primera
       expect(shouldApplyProgression(5, false), isFalse); // 5 sesiones, no primera
-      expect(shouldApplyProgression(5, true), isTrue);   // 5 sesiones, primera
+      expect(shouldApplyProgression(5, true), isTrue); // 5 sesiones, primera
     });
 
     test('should validate session frequency parameters', () {
       // Validar que las frecuencias de sesiones son válidas
       final validFrequencies = [1, 2, 3, 4, 5, 6, 7];
-      
+
       for (final frequency in validFrequencies) {
         expect(frequency, greaterThan(0));
         expect(frequency, lessThanOrEqualTo(7));
-        
+
         // Validar lógica de aplicación
         if (frequency == 1) {
           // Rutinas de 1 sesión: aplicar siempre
@@ -79,24 +79,9 @@ void main() {
     test('should validate progression timing consistency', () {
       // Validar que la frecuencia de sesiones es consistente con otros parámetros
       final testConfigs = [
-        {
-          'sessionsPerWeek': 1,
-          'incrementFrequency': 1,
-          'unit': 'week',
-          'expected': 'single_session',
-        },
-        {
-          'sessionsPerWeek': 3,
-          'incrementFrequency': 1,
-          'unit': 'week',
-          'expected': 'multi_session',
-        },
-        {
-          'sessionsPerWeek': 5,
-          'incrementFrequency': 2,
-          'unit': 'week',
-          'expected': 'multi_session',
-        },
+        {'sessionsPerWeek': 1, 'incrementFrequency': 1, 'unit': 'week', 'expected': 'single_session'},
+        {'sessionsPerWeek': 3, 'incrementFrequency': 1, 'unit': 'week', 'expected': 'multi_session'},
+        {'sessionsPerWeek': 5, 'incrementFrequency': 2, 'unit': 'week', 'expected': 'multi_session'},
       ];
 
       for (final config in testConfigs) {
@@ -151,7 +136,7 @@ void main() {
         required bool hasActiveProgression,
       }) {
         if (!hasActiveProgression) return false;
-        
+
         if (sessionsPerWeek == 1) {
           return true; // Aplicar siempre para rutinas de 1 sesión
         } else {
@@ -162,58 +147,18 @@ void main() {
       // Casos de prueba completos
       final testCases = [
         // Sin progresión activa
-        {
-          'sessionsPerWeek': 1,
-          'isFirstSessionOfWeek': true,
-          'hasActiveProgression': false,
-          'expected': false,
-        },
-        {
-          'sessionsPerWeek': 3,
-          'isFirstSessionOfWeek': true,
-          'hasActiveProgression': false,
-          'expected': false,
-        },
-        
+        {'sessionsPerWeek': 1, 'isFirstSessionOfWeek': true, 'hasActiveProgression': false, 'expected': false},
+        {'sessionsPerWeek': 3, 'isFirstSessionOfWeek': true, 'hasActiveProgression': false, 'expected': false},
+
         // Con progresión activa - rutinas de 1 sesión
-        {
-          'sessionsPerWeek': 1,
-          'isFirstSessionOfWeek': true,
-          'hasActiveProgression': true,
-          'expected': true,
-        },
-        {
-          'sessionsPerWeek': 1,
-          'isFirstSessionOfWeek': false,
-          'hasActiveProgression': true,
-          'expected': true,
-        },
-        
+        {'sessionsPerWeek': 1, 'isFirstSessionOfWeek': true, 'hasActiveProgression': true, 'expected': true},
+        {'sessionsPerWeek': 1, 'isFirstSessionOfWeek': false, 'hasActiveProgression': true, 'expected': true},
+
         // Con progresión activa - rutinas de múltiples sesiones
-        {
-          'sessionsPerWeek': 3,
-          'isFirstSessionOfWeek': true,
-          'hasActiveProgression': true,
-          'expected': true,
-        },
-        {
-          'sessionsPerWeek': 3,
-          'isFirstSessionOfWeek': false,
-          'hasActiveProgression': true,
-          'expected': false,
-        },
-        {
-          'sessionsPerWeek': 5,
-          'isFirstSessionOfWeek': true,
-          'hasActiveProgression': true,
-          'expected': true,
-        },
-        {
-          'sessionsPerWeek': 5,
-          'isFirstSessionOfWeek': false,
-          'hasActiveProgression': true,
-          'expected': false,
-        },
+        {'sessionsPerWeek': 3, 'isFirstSessionOfWeek': true, 'hasActiveProgression': true, 'expected': true},
+        {'sessionsPerWeek': 3, 'isFirstSessionOfWeek': false, 'hasActiveProgression': true, 'expected': false},
+        {'sessionsPerWeek': 5, 'isFirstSessionOfWeek': true, 'hasActiveProgression': true, 'expected': true},
+        {'sessionsPerWeek': 5, 'isFirstSessionOfWeek': false, 'hasActiveProgression': true, 'expected': false},
       ];
 
       for (final testCase in testCases) {
@@ -228,23 +173,23 @@ void main() {
           hasActiveProgression: hasActiveProgression,
         );
 
-        expect(result, equals(expected), 
-          reason: 'Failed for sessionsPerWeek: $sessionsPerWeek, '
-                  'isFirstSessionOfWeek: $isFirstSessionOfWeek, '
-                  'hasActiveProgression: $hasActiveProgression');
+        expect(
+          result,
+          equals(expected),
+          reason:
+              'Failed for sessionsPerWeek: $sessionsPerWeek, '
+              'isFirstSessionOfWeek: $isFirstSessionOfWeek, '
+              'hasActiveProgression: $hasActiveProgression',
+        );
       }
     });
 
     test('should validate deload application with session frequency', () {
       // Validar que el deload se aplica correctamente según la frecuencia de sesiones
-      bool shouldApplyDeload({
-        required int weekInCycle,
-        required int deloadWeek,
-        required int sessionsPerWeek,
-      }) {
+      bool shouldApplyDeload({required int weekInCycle, required int deloadWeek, required int sessionsPerWeek}) {
         // El deload se aplica en la semana correspondiente del ciclo
         final isDeloadWeek = weekInCycle == deloadWeek;
-        
+
         // Para rutinas de 1 sesión, el deload se aplica en cada sesión de esa semana
         // Para rutinas de múltiples sesiones, el deload se aplica solo en la primera sesión de esa semana
         return isDeloadWeek;
@@ -257,19 +202,24 @@ void main() {
         {'weekInCycle': 2, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': false},
         {'weekInCycle': 3, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': false},
         {'weekInCycle': 4, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': true},
-        
+
         {'weekInCycle': 1, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': false},
         {'weekInCycle': 2, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': false},
         {'weekInCycle': 3, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': false},
         {'weekInCycle': 4, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': true},
-        
+
         // Ciclo de 3 semanas, deload en semana 3
         {'weekInCycle': 1, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': false},
         {'weekInCycle': 2, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': false},
         {'weekInCycle': 3, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': true},
-        
+
         // Nuevo ciclo
-        {'weekInCycle': 1, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': false}, // Semana 4 del ciclo anterior = semana 1 del nuevo ciclo
+        {
+          'weekInCycle': 1,
+          'deloadWeek': 3,
+          'sessionsPerWeek': 1,
+          'expected': false,
+        }, // Semana 4 del ciclo anterior = semana 1 del nuevo ciclo
       ];
 
       for (final testCase in testCases) {
@@ -284,10 +234,14 @@ void main() {
           sessionsPerWeek: sessionsPerWeek,
         );
 
-        expect(result, equals(expected),
-          reason: 'Failed for weekInCycle: $weekInCycle, '
-                  'deloadWeek: $deloadWeek, '
-                  'sessionsPerWeek: $sessionsPerWeek');
+        expect(
+          result,
+          equals(expected),
+          reason:
+              'Failed for weekInCycle: $weekInCycle, '
+              'deloadWeek: $deloadWeek, '
+              'sessionsPerWeek: $sessionsPerWeek',
+        );
       }
     });
   });

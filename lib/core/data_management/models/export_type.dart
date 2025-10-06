@@ -1,4 +1,4 @@
-/// Tipos de exportación soportados
+/// Supported export types
 enum ExportType {
   json('json', 'JSON', 'application/json'),
   csv('csv', 'CSV', 'text/csv'),
@@ -6,16 +6,16 @@ enum ExportType {
 
   const ExportType(this.extension, this.displayName, this.mimeType);
 
-  /// Extensión del archivo
+  /// File extension
   final String extension;
 
-  /// Nombre para mostrar en la UI
+  /// UI display name
   final String displayName;
 
-  /// Tipo MIME del archivo
+  /// File MIME type
   final String mimeType;
 
-  /// Obtiene el tipo de exportación desde la extensión del archivo
+  /// Gets the export type from a file extension
   static ExportType? fromExtension(String extension) {
     final cleanExtension = extension.toLowerCase().replaceAll('.', '');
     for (final type in ExportType.values) {
@@ -26,7 +26,7 @@ enum ExportType {
     return null;
   }
 
-  /// Obtiene el tipo de exportación desde el tipo MIME
+  /// Gets the export type from a MIME type
   static ExportType? fromMimeType(String mimeType) {
     for (final type in ExportType.values) {
       if (type.mimeType == mimeType) {
@@ -36,15 +36,12 @@ enum ExportType {
     return null;
   }
 
-  /// Lista de todas las extensiones soportadas
-  static List<String> get supportedExtensions =>
-      ExportType.values.map((e) => e.extension).toList();
+  /// List of all supported extensions
+  static List<String> get supportedExtensions => ExportType.values.map((e) => e.extension).toList();
 
-  /// Lista de todos los tipos MIME soportados
-  static List<String> get supportedMimeTypes =>
-      ExportType.values.map((e) => e.mimeType).toList();
+  /// List of all supported MIME types
+  static List<String> get supportedMimeTypes => ExportType.values.map((e) => e.mimeType).toList();
 
-  /// Lista de todos los nombres para mostrar
-  static List<String> get displayNames =>
-      ExportType.values.map((e) => e.displayName).toList();
+  /// List of all display names
+  static List<String> get displayNames => ExportType.values.map((e) => e.displayName).toList();
 }

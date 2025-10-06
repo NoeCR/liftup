@@ -24,12 +24,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddSectionDialog(context),
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.add), onPressed: () => _showAddSectionDialog(context))],
       ),
       body: Consumer(
         builder: (context, ref, child) {
@@ -46,10 +41,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     );
   }
 
-  Widget _buildSectionTemplatesList(
-    List<RoutineSectionTemplate> templates,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildSectionTemplatesList(List<RoutineSectionTemplate> templates, ColorScheme colorScheme) {
     if (templates.isEmpty) {
       return _buildEmptyState(colorScheme);
     }
@@ -63,8 +55,7 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
         }
         final item = templates.removeAt(oldIndex);
         templates.insert(newIndex, item);
-        ref.read(routineSectionTemplateNotifierProvider.notifier)
-            .reorderSectionTemplates(templates);
+        ref.read(routineSectionTemplateNotifierProvider.notifier).reorderSectionTemplates(templates);
       },
       itemBuilder: (context, index) {
         final template = templates[index];
@@ -73,38 +64,24 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     );
   }
 
-  Widget _buildSectionTemplateCard(
-    RoutineSectionTemplate template,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildSectionTemplateCard(RoutineSectionTemplate template, ColorScheme colorScheme) {
     return Card(
       key: ValueKey(template.id),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: colorScheme.primaryContainer,
-          child: Icon(
-            _getIconData(template.iconName),
-            color: colorScheme.onPrimaryContainer,
-          ),
+          child: Icon(_getIconData(template.iconName), color: colorScheme.onPrimaryContainer),
         ),
         title: Text(template.name),
-        subtitle: template.description != null
-            ? Text(template.description!)
-            : null,
+        subtitle: template.description != null ? Text(template.description!) : null,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!template.isDefault)
-              IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => _showEditSectionDialog(context, template),
-              ),
+              IconButton(icon: const Icon(Icons.edit), onPressed: () => _showEditSectionDialog(context, template)),
             if (!template.isDefault)
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => _showDeleteConfirmation(context, template),
-              ),
+              IconButton(icon: const Icon(Icons.delete), onPressed: () => _showDeleteConfirmation(context, template)),
             const Icon(Icons.drag_handle),
           ],
         ),
@@ -118,25 +95,13 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.settings_suggest_outlined,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(Icons.settings_suggest_outlined, size: 64, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
-          Text(
-            'No hay secciones configuradas',
-            style: TextStyle(
-              fontSize: 18,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
+          Text('No hay secciones configuradas', style: TextStyle(fontSize: 18, color: colorScheme.onSurfaceVariant)),
           const SizedBox(height: 8),
           Text(
             'Toca el botón + para agregar tu primera sección',
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -148,27 +113,11 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.error_outline,
-            size: 64,
-            color: colorScheme.error,
-          ),
+          Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text(
-            'Error al cargar las secciones',
-            style: TextStyle(
-              fontSize: 18,
-              color: colorScheme.error,
-            ),
-          ),
+          Text('Error al cargar las secciones', style: TextStyle(fontSize: 18, color: colorScheme.error)),
           const SizedBox(height: 8),
-          Text(
-            error.toString(),
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          Text(error.toString(), style: TextStyle(color: colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -249,140 +198,136 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
 
     showDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(template == null ? 'Agregar Sección' : 'Editar Sección'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre de la sección',
-                    border: OutlineInputBorder(),
+      builder:
+          (context) => StatefulBuilder(
+            builder:
+                (context, setState) => AlertDialog(
+                  title: Text(template == null ? 'Agregar Sección' : 'Editar Sección'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Nombre de la sección',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        TextField(
+                          controller: descriptionController,
+                          decoration: const InputDecoration(
+                            labelText: 'Descripción (opcional)',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLines: 2,
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Grupo muscular:', style: Theme.of(context).textTheme.titleSmall),
+                        const SizedBox(height: 8),
+                        DropdownButtonFormField<SectionMuscleGroup>(
+                          value: selectedMuscleGroup,
+                          decoration: const InputDecoration(border: OutlineInputBorder()),
+                          items:
+                              SectionMuscleGroup.values.map((group) {
+                                return DropdownMenuItem(value: group, child: Text(group.displayName));
+                              }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                selectedMuscleGroup = value;
+                                // Auto-update icon based on muscle group
+                                selectedIcon = value.iconName;
+                              });
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Text('Seleccionar ícono:', style: Theme.of(context).textTheme.titleSmall),
+                        const SizedBox(height: 8),
+                        _buildIconSelector(context, setState, selectedIcon),
+                      ],
+                    ),
                   ),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+                    FilledButton(
+                      onPressed: () {
+                        if (nameController.text.trim().isNotEmpty) {
+                          if (template == null) {
+                            ref
+                                .read(routineSectionTemplateNotifierProvider.notifier)
+                                .addSectionTemplate(
+                                  name: nameController.text.trim(),
+                                  description:
+                                      descriptionController.text.trim().isEmpty
+                                          ? null
+                                          : descriptionController.text.trim(),
+                                  iconName: selectedIcon,
+                                  muscleGroup: selectedMuscleGroup,
+                                );
+                          } else {
+                            ref
+                                .read(routineSectionTemplateNotifierProvider.notifier)
+                                .updateSectionTemplate(
+                                  template.copyWith(
+                                    name: nameController.text.trim(),
+                                    description:
+                                        descriptionController.text.trim().isEmpty
+                                            ? null
+                                            : descriptionController.text.trim(),
+                                    iconName: selectedIcon,
+                                    muscleGroup: selectedMuscleGroup,
+                                  ),
+                                );
+                          }
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Text(template == null ? 'Agregar' : 'Guardar'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Descripción (opcional)',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 2,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Grupo muscular:',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<SectionMuscleGroup>(
-                  value: selectedMuscleGroup,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  items: SectionMuscleGroup.values.map((group) {
-                    return DropdownMenuItem(
-                      value: group,
-                      child: Text(group.displayName),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        selectedMuscleGroup = value;
-                        // Auto-update icon based on muscle group
-                        selectedIcon = value.iconName;
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Seleccionar ícono:',
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-                _buildIconSelector(context, setState, selectedIcon),
-              ],
-            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (nameController.text.trim().isNotEmpty) {
-                  if (template == null) {
-                    ref.read(routineSectionTemplateNotifierProvider.notifier)
-                        .addSectionTemplate(
-                      name: nameController.text.trim(),
-                      description: descriptionController.text.trim().isEmpty
-                          ? null
-                          : descriptionController.text.trim(),
-                      iconName: selectedIcon,
-                      muscleGroup: selectedMuscleGroup,
-                    );
-                  } else {
-                    ref.read(routineSectionTemplateNotifierProvider.notifier)
-                        .updateSectionTemplate(
-                      template.copyWith(
-                        name: nameController.text.trim(),
-                        description: descriptionController.text.trim().isEmpty
-                            ? null
-                            : descriptionController.text.trim(),
-                        iconName: selectedIcon,
-                        muscleGroup: selectedMuscleGroup,
-                      ),
-                    );
-                  }
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text(template == null ? 'Agregar' : 'Guardar'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   void _showDeleteConfirmation(BuildContext context, RoutineSectionTemplate template) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar Sección'),
-        content: Text('¿Estás seguro de que quieres eliminar la sección "${template.name}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Eliminar Sección'),
+            content: Text('¿Estás seguro de que quieres eliminar la sección "${template.name}"?'),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+              FilledButton(
+                onPressed: () {
+                  ref.read(routineSectionTemplateNotifierProvider.notifier).deleteSectionTemplate(template.id);
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Eliminar'),
+              ),
+            ],
           ),
-          FilledButton(
-            onPressed: () {
-              ref.read(routineSectionTemplateNotifierProvider.notifier)
-                  .deleteSectionTemplate(template.id);
-              Navigator.of(context).pop();
-            },
-            child: const Text('Eliminar'),
-          ),
-        ],
-      ),
     );
   }
 
   Widget _buildIconSelector(BuildContext context, StateSetter setState, String selectedIcon) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
-    // Organizar íconos por categorías
+
+    // Organize icons by categories
     final iconCategories = {
       'Calentamiento/Enfriamiento': ['warm_up', 'self_improvement', 'spa', 'air', 'thermostat'],
-      'Pecho/Torso': ['fitness_center', 'sports_gymnastics', 'sports_martial_arts', 'sports_tennis', 'sports_volleyball'],
+      'Pecho/Torso': [
+        'fitness_center',
+        'sports_gymnastics',
+        'sports_martial_arts',
+        'sports_tennis',
+        'sports_volleyball',
+      ],
       'Espalda/Hombros': ['sports_handball', 'sports_kabaddi', 'sports_mma', 'sports_rugby', 'sports_cricket'],
       'Brazos': ['sports_basketball'],
       'Piernas': ['directions_run', 'sports_soccer'],
@@ -393,50 +338,45 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: iconCategories.entries.map((category) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              category.key,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: colorScheme.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: category.value.map((iconName) {
-                return GestureDetector(
-                  onTap: () => setState(() => selectedIcon = iconName),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: selectedIcon == iconName
-                          ? colorScheme.primary
-                          : colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(8),
-                      border: selectedIcon == iconName
-                          ? Border.all(color: colorScheme.primary, width: 2)
-                          : null,
-                    ),
-                    child: Icon(
-                      _getIconData(iconName),
-                      color: selectedIcon == iconName
-                          ? colorScheme.onPrimary
-                          : colorScheme.onSurfaceVariant,
-                      size: 20,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 12),
-          ],
-        );
-      }).toList(),
+      children:
+          iconCategories.entries.map((category) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category.key,
+                  style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children:
+                      category.value.map((iconName) {
+                        return GestureDetector(
+                          onTap: () => setState(() => selectedIcon = iconName),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color:
+                                  selectedIcon == iconName ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(8),
+                              border:
+                                  selectedIcon == iconName ? Border.all(color: colorScheme.primary, width: 2) : null,
+                            ),
+                            child: Icon(
+                              _getIconData(iconName),
+                              color: selectedIcon == iconName ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                              size: 20,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                ),
+                const SizedBox(height: 12),
+              ],
+            );
+          }).toList(),
     );
   }
 }

@@ -7,21 +7,18 @@ class SentryAlertsConfig {
   static void configureAlerts() {
     try {
       LoggingService.instance.info('Configuring Sentry alerts');
-      
+
       // Configurar breadcrumbs para alertas
       _setupAlertBreadcrumbs();
-      
+
       // Configurar contexto para alertas
       _setupAlertContext();
-      
+
       LoggingService.instance.info('Sentry alerts configured successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to configure Sentry alerts',
-        e,
-        stackTrace,
-        {'component': 'sentry_alerts_config'},
-      );
+      LoggingService.instance.error('Failed to configure Sentry alerts', e, stackTrace, {
+        'component': 'sentry_alerts_config',
+      });
     }
   }
 
@@ -32,10 +29,7 @@ class SentryAlertsConfig {
       'Database critical error detected',
       category: 'alert.database',
       level: SentryLevel.error,
-      data: {
-        'alert_type': 'database_critical',
-        'threshold': 'immediate',
-      },
+      data: {'alert_type': 'database_critical', 'threshold': 'immediate'},
     );
 
     // Breadcrumb para errores de importación/exportación
@@ -43,10 +37,7 @@ class SentryAlertsConfig {
       'Data import/export error detected',
       category: 'alert.data_management',
       level: SentryLevel.error,
-      data: {
-        'alert_type': 'data_management',
-        'threshold': 'immediate',
-      },
+      data: {'alert_type': 'data_management', 'threshold': 'immediate'},
     );
 
     // Breadcrumb para errores de rendimiento
@@ -54,10 +45,7 @@ class SentryAlertsConfig {
       'Performance degradation detected',
       category: 'alert.performance',
       level: SentryLevel.warning,
-      data: {
-        'alert_type': 'performance',
-        'threshold': '1_second',
-      },
+      data: {'alert_type': 'performance', 'threshold': '1_second'},
     );
   }
 
@@ -73,11 +61,7 @@ class SentryAlertsConfig {
   }
 
   /// Envía alerta personalizada para errores críticos de base de datos
-  static void alertDatabaseCritical({
-    required String operation,
-    required String error,
-    Map<String, dynamic>? context,
-  }) {
+  static void alertDatabaseCritical({required String operation, required String error, Map<String, dynamic>? context}) {
     try {
       LoggingService.instance.fatal('Database critical error', {
         'operation': operation,
@@ -93,11 +77,7 @@ class SentryAlertsConfig {
         'Database critical error: $operation',
         category: 'alert.database.critical',
         level: SentryLevel.fatal,
-        data: {
-          'operation': operation,
-          'error': error,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
+        data: {'operation': operation, 'error': error, 'timestamp': DateTime.now().toIso8601String()},
       );
     } catch (e) {
       LoggingService.instance.error('Failed to send database critical alert: $e');
@@ -113,7 +93,7 @@ class SentryAlertsConfig {
   }) {
     try {
       final severity = durationMs > thresholdMs * 2 ? 'high' : 'medium';
-      
+
       LoggingService.instance.warning('Performance issue detected', {
         'operation': operation,
         'duration_ms': durationMs,
@@ -130,12 +110,7 @@ class SentryAlertsConfig {
         'Performance issue: $operation took ${durationMs}ms',
         category: 'alert.performance',
         level: SentryLevel.warning,
-        data: {
-          'operation': operation,
-          'duration_ms': durationMs,
-          'threshold_ms': thresholdMs,
-          'severity': severity,
-        },
+        data: {'operation': operation, 'duration_ms': durationMs, 'threshold_ms': thresholdMs, 'severity': severity},
       );
     } catch (e) {
       LoggingService.instance.error('Failed to send performance alert: $e');
@@ -200,12 +175,7 @@ class SentryAlertsConfig {
         'UX issue: $issue in $component',
         category: 'alert.user_experience',
         level: SentryLevel.warning,
-        data: {
-          'issue': issue,
-          'component': component,
-          'impact': impact,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
+        data: {'issue': issue, 'component': component, 'impact': impact, 'timestamp': DateTime.now().toIso8601String()},
       );
     } catch (e) {
       LoggingService.instance.error('Failed to send UX alert: $e');
@@ -222,7 +192,7 @@ class SentryAlertsConfig {
     try {
       final level = isCritical ? LogLevel.fatal : LogLevel.error;
       final sentryLevel = isCritical ? SentryLevel.fatal : SentryLevel.error;
-      
+
       if (level == LogLevel.fatal) {
         LoggingService.instance.fatal('Configuration error', null, null, {
           'config_type': configType,
@@ -271,7 +241,7 @@ class SentryAlertsConfig {
   }) {
     try {
       final severity = currentMemoryMB > thresholdMB * 1.5 ? 'high' : 'medium';
-      
+
       LoggingService.instance.warning('Memory usage issue detected', {
         'current_memory_mb': currentMemoryMB,
         'threshold_mb': thresholdMB,

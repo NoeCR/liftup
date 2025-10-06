@@ -43,10 +43,10 @@ class SessionMockGenerator {
 
     for (int i = 20; i >= 0; i--) {
       final day = now.subtract(Duration(days: i));
-      
+
       // Crear saltos intencionalmente: algunos días sin datos, otros con picos
       if (i % 4 == 0) continue; // Saltar cada 4 días
-      
+
       final session = _generateSessionWithJump(day, i);
       sessions.add(session);
     }
@@ -55,14 +55,10 @@ class SessionMockGenerator {
   }
 
   /// Genera una sesión básica para pruebas
-  static WorkoutSession generateBasicSession({
-    DateTime? date,
-    String? routineId,
-    String? exerciseId,
-  }) {
+  static WorkoutSession generateBasicSession({DateTime? date, String? routineId, String? exerciseId}) {
     final sessionDate = date ?? DateTime.now();
     final uuid = const Uuid();
-    
+
     return WorkoutSession(
       id: uuid.v4(),
       routineId: routineId ?? _routineId,
@@ -106,27 +102,27 @@ class SessionMockGenerator {
   static WorkoutSession _generateSessionForDay(DateTime day, int dayIndex) {
     final uuid = const Uuid();
     final sessionId = uuid.v4();
-    
+
     // Progreso más gradual y realista
     final baseWeight = 40.0 + (dayIndex * 0.8); // Progreso más lento
     final baseReps = 8 + (dayIndex % 3); // Variación en repeticiones
-    
+
     // Generar 2-4 ejercicios por sesión
     final exerciseCount = 2 + (dayIndex % 3);
     final exerciseSets = <ExerciseSet>[];
-    
+
     for (int e = 0; e < exerciseCount; e++) {
       final exerciseId = _getExerciseIdForIndex(e);
       final setsCount = 3 + (dayIndex % 2); // 3-4 sets por ejercicio
-      
+
       for (int s = 0; s < setsCount; s++) {
         // Variación realista en peso y reps
         final weightVariation = (s * 2.5) + (e * 1.0);
         final repsVariation = (s * -1) + (e * 0);
-        
+
         final weight = (baseWeight + weightVariation).clamp(20.0, 120.0);
         final reps = (baseReps + repsVariation).clamp(5, 15);
-        
+
         exerciseSets.add(
           ExerciseSet(
             id: uuid.v4(),
@@ -135,30 +131,21 @@ class SessionMockGenerator {
             weight: weight,
             restTimeSeconds: 60 + (s * 15),
             notes: s == 0 ? 'Primer set' : null,
-            completedAt: day.add(Duration(
-              hours: 18,
-              minutes: (e * 20) + (s * 3),
-            )),
+            completedAt: day.add(Duration(hours: 18, minutes: (e * 20) + (s * 3))),
             isCompleted: true,
           ),
         );
       }
     }
-    
+
     // Calcular totales
-    final totalWeight = exerciseSets.fold<double>(
-      0.0, 
-      (sum, set) => sum + (set.weight * set.reps),
-    );
-    final totalReps = exerciseSets.fold<int>(
-      0, 
-      (sum, set) => sum + set.reps,
-    );
-    
+    final totalWeight = exerciseSets.fold<double>(0.0, (sum, set) => sum + (set.weight * set.reps));
+    final totalReps = exerciseSets.fold<int>(0, (sum, set) => sum + set.reps);
+
     final startTime = DateTime(day.year, day.month, day.day, 18, 0);
     final duration = Duration(minutes: 45 + (exerciseCount * 10));
     final endTime = startTime.add(duration);
-    
+
     return WorkoutSession(
       id: sessionId,
       routineId: _routineId,
@@ -176,7 +163,7 @@ class SessionMockGenerator {
   static WorkoutSession _generateSessionWithJump(DateTime day, int dayIndex) {
     final uuid = const Uuid();
     final sessionId = uuid.v4();
-    
+
     // Crear saltos intencionalmente
     double baseWeight;
     if (dayIndex % 6 == 0) {
@@ -186,14 +173,14 @@ class SessionMockGenerator {
     } else {
       baseWeight = 50.0 + (dayIndex * 0.5); // Progreso normal
     }
-    
+
     final exerciseSets = <ExerciseSet>[];
     final setsCount = 3 + (dayIndex % 2);
-    
+
     for (int s = 0; s < setsCount; s++) {
       final weight = baseWeight + (s * 2.5);
       final reps = 8 + (s * -1);
-      
+
       exerciseSets.add(
         ExerciseSet(
           id: uuid.v4(),
@@ -207,16 +194,10 @@ class SessionMockGenerator {
         ),
       );
     }
-    
-    final totalWeight = exerciseSets.fold<double>(
-      0.0, 
-      (sum, set) => sum + (set.weight * set.reps),
-    );
-    final totalReps = exerciseSets.fold<int>(
-      0, 
-      (sum, set) => sum + set.reps,
-    );
-    
+
+    final totalWeight = exerciseSets.fold<double>(0.0, (sum, set) => sum + (set.weight * set.reps));
+    final totalReps = exerciseSets.fold<int>(0, (sum, set) => sum + set.reps);
+
     return WorkoutSession(
       id: sessionId,
       routineId: _routineId,
@@ -233,23 +214,35 @@ class SessionMockGenerator {
 
   static String _getExerciseIdForIndex(int index) {
     switch (index % 3) {
-      case 0: return _exerciseId1;
-      case 1: return _exerciseId2;
-      case 2: return _exerciseId3;
-      default: return _exerciseId1;
+      case 0:
+        return _exerciseId1;
+      case 1:
+        return _exerciseId2;
+      case 2:
+        return _exerciseId3;
+      default:
+        return _exerciseId1;
     }
   }
 
   static String _getDayName(int weekday) {
     switch (weekday) {
-      case DateTime.monday: return 'Lunes';
-      case DateTime.tuesday: return 'Martes';
-      case DateTime.wednesday: return 'Miércoles';
-      case DateTime.thursday: return 'Jueves';
-      case DateTime.friday: return 'Viernes';
-      case DateTime.saturday: return 'Sábado';
-      case DateTime.sunday: return 'Domingo';
-      default: return 'Día';
+      case DateTime.monday:
+        return 'Lunes';
+      case DateTime.tuesday:
+        return 'Martes';
+      case DateTime.wednesday:
+        return 'Miércoles';
+      case DateTime.thursday:
+        return 'Jueves';
+      case DateTime.friday:
+        return 'Viernes';
+      case DateTime.saturday:
+        return 'Sábado';
+      case DateTime.sunday:
+        return 'Domingo';
+      default:
+        return 'Día';
     }
   }
 
@@ -276,8 +269,7 @@ class SessionMockGenerator {
         'equipment': 'Barra',
         'imageUrl': null,
         'videoUrl': null,
-        'instructions':
-            'Coloca la barra en los hombros y baja como si te sentaras',
+        'instructions': 'Coloca la barra en los hombros y baja como si te sentaras',
         'createdAt': DateTime.now().subtract(const Duration(days: 30)),
         'updatedAt': DateTime.now(),
       },
@@ -300,7 +292,7 @@ class SessionMockGenerator {
   static List<Routine> generateMockRoutines() {
     final uuid = const Uuid();
     final now = DateTime.now();
-    
+
     return [
       Routine(
         id: _routineId,

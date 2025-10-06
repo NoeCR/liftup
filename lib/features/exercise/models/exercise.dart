@@ -75,8 +75,7 @@ class Exercise extends Equatable {
     this.restTimeSeconds,
   });
 
-  factory Exercise.fromJson(Map<String, dynamic> json) =>
-      _$ExerciseFromJson(json);
+  factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
   Map<String, dynamic> toJson() => _$ExerciseToJson(this);
 
   Exercise copyWith({

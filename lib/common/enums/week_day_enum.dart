@@ -102,12 +102,12 @@ extension WeekDayExtension on WeekDay {
   }
 
   static List<String> get allDisplayNames => [
-        WeekDay.monday.displayName,
-        WeekDay.tuesday.displayName,
-        WeekDay.wednesday.displayName,
-        WeekDay.thursday.displayName,
-        WeekDay.friday.displayName,
-        WeekDay.saturday.displayName,
-        WeekDay.sunday.displayName,
-      ];
+    WeekDay.monday.displayName,
+    WeekDay.tuesday.displayName,
+    WeekDay.wednesday.displayName,
+    WeekDay.thursday.displayName,
+    WeekDay.friday.displayName,
+    WeekDay.saturday.displayName,
+    WeekDay.sunday.displayName,
+  ];
 }

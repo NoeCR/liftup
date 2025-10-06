@@ -20,8 +20,7 @@ class PdfExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName =
-        'liftup_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final fileName = 'liftup_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${directory.path}/$fileName');
 
     final pdf = pw.Document();
@@ -83,20 +82,14 @@ class PdfExporter extends ExportBuilder {
   pw.Widget _buildHeader() {
     return pw.Header(
       level: 0,
-      child: pw.Text(
-        'Reporte de Progreso - LiftUp',
-        style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
-      ),
+      child: pw.Text('Reporte de Progreso - LiftUp', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
     );
   }
 
   /// Construye la sección de metadatos
   List<pw.Widget> _buildMetadataSection() {
     return [
-      pw.Text(
-        'Información del Export',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
+      pw.Text('Información del Export', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
       pw.Text('Versión: ${metadata.version}'),
       pw.Text('Fecha de exportación: ${metadata.exportDate.toString()}'),
@@ -109,19 +102,12 @@ class PdfExporter extends ExportBuilder {
   /// Construye la sección de resumen
   List<pw.Widget> _buildSummarySection() {
     return [
-      pw.Text(
-        'Resumen General',
-        style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
-      ),
+      pw.Text('Resumen General', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
-      if (config.includeSessions)
-        pw.Text('Total de sesiones: ${filteredSessions.length}'),
-      if (config.includeExercises)
-        pw.Text('Total de ejercicios: ${filteredExercises.length}'),
-      if (config.includeRoutines)
-        pw.Text('Total de rutinas: ${filteredRoutines.length}'),
-      if (config.includeProgressData)
-        pw.Text('Registros de progreso: ${filteredProgressData.length}'),
+      if (config.includeSessions) pw.Text('Total de sesiones: ${filteredSessions.length}'),
+      if (config.includeExercises) pw.Text('Total de ejercicios: ${filteredExercises.length}'),
+      if (config.includeRoutines) pw.Text('Total de rutinas: ${filteredRoutines.length}'),
+      if (config.includeProgressData) pw.Text('Registros de progreso: ${filteredProgressData.length}'),
       pw.SizedBox(height: 20),
     ];
   }
@@ -129,10 +115,7 @@ class PdfExporter extends ExportBuilder {
   /// Construye la sección de sesiones
   List<pw.Widget> _buildSessionsSection() {
     return [
-      pw.Text(
-        'Sesiones de Entrenamiento',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
+      pw.Text('Sesiones de Entrenamiento', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
       ...filteredSessions
           .take(10)
@@ -142,8 +125,7 @@ class PdfExporter extends ExportBuilder {
               'Peso total: ${session.totalWeight ?? 0}kg',
             ),
           ),
-      if (filteredSessions.length > 10)
-        pw.Text('... y ${filteredSessions.length - 10} sesiones más'),
+      if (filteredSessions.length > 10) pw.Text('... y ${filteredSessions.length - 10} sesiones más'),
       pw.SizedBox(height: 20),
     ];
   }
@@ -151,20 +133,12 @@ class PdfExporter extends ExportBuilder {
   /// Construye la sección de ejercicios
   List<pw.Widget> _buildExercisesSection() {
     return [
-      pw.Text(
-        'Ejercicios',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
+      pw.Text('Ejercicios', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
       ...filteredExercises
           .take(10)
-          .map(
-            (exercise) => pw.Text(
-              '${exercise.name} - ${exercise.category.name} - ${exercise.difficulty.name}',
-            ),
-          ),
-      if (filteredExercises.length > 10)
-        pw.Text('... y ${filteredExercises.length - 10} ejercicios más'),
+          .map((exercise) => pw.Text('${exercise.name} - ${exercise.category.name} - ${exercise.difficulty.name}')),
+      if (filteredExercises.length > 10) pw.Text('... y ${filteredExercises.length - 10} ejercicios más'),
       pw.SizedBox(height: 20),
     ];
   }
@@ -172,10 +146,7 @@ class PdfExporter extends ExportBuilder {
   /// Construye la sección de rutinas
   List<pw.Widget> _buildRoutinesSection() {
     return [
-      pw.Text(
-        'Rutinas',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
+      pw.Text('Rutinas', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
       ...filteredRoutines
           .take(10)
@@ -185,8 +156,7 @@ class PdfExporter extends ExportBuilder {
               'Creada: ${routine.createdAt.toString().split(' ')[0]}',
             ),
           ),
-      if (filteredRoutines.length > 10)
-        pw.Text('... y ${filteredRoutines.length - 10} rutinas más'),
+      if (filteredRoutines.length > 10) pw.Text('... y ${filteredRoutines.length - 10} rutinas más'),
       pw.SizedBox(height: 20),
     ];
   }
@@ -194,10 +164,7 @@ class PdfExporter extends ExportBuilder {
   /// Construye la sección de datos de progreso
   List<pw.Widget> _buildProgressDataSection() {
     return [
-      pw.Text(
-        'Datos de Progreso',
-        style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-      ),
+      pw.Text('Datos de Progreso', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
       pw.SizedBox(height: 10),
       ...filteredProgressData
           .take(10)
@@ -208,8 +175,7 @@ class PdfExporter extends ExportBuilder {
               'Peso máximo: ${progress.maxWeight}kg',
             ),
           ),
-      if (filteredProgressData.length > 10)
-        pw.Text('... y ${filteredProgressData.length - 10} registros más'),
+      if (filteredProgressData.length > 10) pw.Text('... y ${filteredProgressData.length - 10} registros más'),
     ];
   }
 }

@@ -103,9 +103,7 @@ abstract class ImportBuilder {
     }
 
     // Validar estructura básica
-    if (!data.containsKey('sessions') && 
-        !data.containsKey('exercises') && 
-        !data.containsKey('routines')) {
+    if (!data.containsKey('sessions') && !data.containsKey('exercises') && !data.containsKey('routines')) {
       errors.add('El archivo no contiene datos válidos');
     }
 
@@ -167,9 +165,7 @@ abstract class ImportBuilder {
   bool shouldImportProgressData(ProgressData progress) {
     if (config.mergeData) {
       // Verificar si ya existe
-      final exists = existingProgressData.any((p) => 
-        p.exerciseId == progress.exerciseId && 
-        p.date == progress.date);
+      final exists = existingProgressData.any((p) => p.exerciseId == progress.exerciseId && p.date == progress.date);
       if (exists && !config.overwriteExisting) {
         return false;
       }

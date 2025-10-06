@@ -24,7 +24,6 @@ class PerformedSetsNotifier extends StateNotifier<Map<String, int>> {
   }
 }
 
-final performedSetsNotifierProvider =
-    StateNotifierProvider<PerformedSetsNotifier, Map<String, int>>(
-      (ref) => PerformedSetsNotifier(),
-    );
+final performedSetsNotifierProvider = StateNotifierProvider<PerformedSetsNotifier, Map<String, int>>(
+  (ref) => PerformedSetsNotifier(),
+);

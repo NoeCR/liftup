@@ -9,7 +9,7 @@ class MockDatabaseService implements IDatabaseService {
   final Map<String, ProgressionConfig> _configs = {};
   final Map<String, ProgressionState> _states = {};
   final Map<String, ProgressionTemplate> _templates = {};
-  
+
   bool _isInitialized = false;
 
   @override

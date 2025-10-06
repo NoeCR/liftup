@@ -1,12 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Estado de una rutina compartida
-enum SharedRoutineStatus {
-  active,
-  expired,
-  deleted,
-  private,
-}
+enum SharedRoutineStatus { active, expired, deleted, private }
 
 /// Visibilidad de una rutina compartida
 enum RoutineVisibility {
@@ -51,21 +46,21 @@ class SharedRoutine extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        routineId,
-        ownerId,
-        title,
-        description,
-        visibility,
-        status,
-        createdAt,
-        expiresAt,
-        viewCount,
-        downloadCount,
-        tags,
-        thumbnailUrl,
-        metadata,
-      ];
+    id,
+    routineId,
+    ownerId,
+    title,
+    description,
+    visibility,
+    status,
+    createdAt,
+    expiresAt,
+    viewCount,
+    downloadCount,
+    tags,
+    thumbnailUrl,
+    metadata,
+  ];
 
   Map<String, dynamic> toJson() {
     return {
@@ -93,16 +88,10 @@ class SharedRoutine extends Equatable {
       ownerId: json['ownerId'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
-      visibility: RoutineVisibility.values.firstWhere(
-        (e) => e.name == json['visibility'],
-      ),
-      status: SharedRoutineStatus.values.firstWhere(
-        (e) => e.name == json['status'],
-      ),
+      visibility: RoutineVisibility.values.firstWhere((e) => e.name == json['visibility']),
+      status: SharedRoutineStatus.values.firstWhere((e) => e.name == json['status']),
       createdAt: DateTime.parse(json['createdAt'] as String),
-      expiresAt: json['expiresAt'] != null
-          ? DateTime.parse(json['expiresAt'] as String)
-          : null,
+      expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt'] as String) : null,
       viewCount: json['viewCount'] as int,
       downloadCount: json['downloadCount'] as int,
       tags: List<String>.from(json['tags'] as List),
@@ -153,32 +142,17 @@ class ShareResult extends Equatable {
   final String? shareUrl;
   final String? errorMessage;
 
-  const ShareResult({
-    required this.success,
-    this.shareId,
-    this.shareUrl,
-    this.errorMessage,
-  });
+  const ShareResult({required this.success, this.shareId, this.shareUrl, this.errorMessage});
 
   @override
   List<Object?> get props => [success, shareId, shareUrl, errorMessage];
 
-  factory ShareResult.success({
-    required String shareId,
-    required String shareUrl,
-  }) {
-    return ShareResult(
-      success: true,
-      shareId: shareId,
-      shareUrl: shareUrl,
-    );
+  factory ShareResult.success({required String shareId, required String shareUrl}) {
+    return ShareResult(success: true, shareId: shareId, shareUrl: shareUrl);
   }
 
   factory ShareResult.failure(String errorMessage) {
-    return ShareResult(
-      success: false,
-      errorMessage: errorMessage,
-    );
+    return ShareResult(success: false, errorMessage: errorMessage);
   }
 }
 
@@ -203,15 +177,7 @@ class ShareConfig extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        title,
-        description,
-        visibility,
-        expiresAt,
-        tags,
-        allowDownload,
-        allowComments,
-      ];
+  List<Object?> get props => [title, description, visibility, expiresAt, tags, allowDownload, allowComments];
 
   ShareConfig copyWith({
     String? title,

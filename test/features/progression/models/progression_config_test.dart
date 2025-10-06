@@ -61,15 +61,10 @@ void main() {
 
     test('should handle different progression types', () {
       // Arrange & Act
-      final linearConfig = ProgressionMockFactory.createProgressionConfig(
-        type: ProgressionType.linear,
-      );
+      final linearConfig = ProgressionMockFactory.createProgressionConfig(type: ProgressionType.linear);
       final undulatingConfig = ProgressionMockFactory.createProgressionConfig(
         type: ProgressionType.undulating,
-        customParameters: {
-          'heavy_day_multiplier': 1.1,
-          'light_day_multiplier': 0.9,
-        },
+        customParameters: {'heavy_day_multiplier': 1.1, 'light_day_multiplier': 0.9},
       );
 
       // Assert
@@ -81,15 +76,9 @@ void main() {
 
     test('should handle different progression units', () {
       // Arrange & Act
-      final sessionConfig = ProgressionMockFactory.createProgressionConfig(
-        unit: ProgressionUnit.session,
-      );
-      final weekConfig = ProgressionMockFactory.createProgressionConfig(
-        unit: ProgressionUnit.week,
-      );
-      final cycleConfig = ProgressionMockFactory.createProgressionConfig(
-        unit: ProgressionUnit.cycle,
-      );
+      final sessionConfig = ProgressionMockFactory.createProgressionConfig(unit: ProgressionUnit.session);
+      final weekConfig = ProgressionMockFactory.createProgressionConfig(unit: ProgressionUnit.week);
+      final cycleConfig = ProgressionMockFactory.createProgressionConfig(unit: ProgressionUnit.cycle);
 
       // Assert
       expect(sessionConfig.unit, ProgressionUnit.session);
@@ -99,19 +88,13 @@ void main() {
 
     test('should handle different progression targets', () {
       // Arrange & Act
-      final weightConfig = ProgressionMockFactory.createProgressionConfig(
-        primaryTarget: ProgressionTarget.weight,
-      );
+      final weightConfig = ProgressionMockFactory.createProgressionConfig(primaryTarget: ProgressionTarget.weight);
       final repsConfig = ProgressionMockFactory.createProgressionConfig(
         primaryTarget: ProgressionTarget.reps,
         secondaryTarget: ProgressionTarget.weight,
       );
-      final setsConfig = ProgressionMockFactory.createProgressionConfig(
-        primaryTarget: ProgressionTarget.sets,
-      );
-      final volumeConfig = ProgressionMockFactory.createProgressionConfig(
-        primaryTarget: ProgressionTarget.volume,
-      );
+      final setsConfig = ProgressionMockFactory.createProgressionConfig(primaryTarget: ProgressionTarget.sets);
+      final volumeConfig = ProgressionMockFactory.createProgressionConfig(primaryTarget: ProgressionTarget.volume);
 
       // Assert
       expect(weightConfig.primaryTarget, ProgressionTarget.weight);
@@ -123,17 +106,10 @@ void main() {
 
     test('should handle custom parameters correctly', () {
       // Arrange
-      final customParams = {
-        'max_reps': 12,
-        'min_reps': 8,
-        'rpe_target': 8.5,
-        'deload_threshold': 0.8,
-      };
+      final customParams = {'max_reps': 12, 'min_reps': 8, 'rpe_target': 8.5, 'deload_threshold': 0.8};
 
       // Act
-      final config = ProgressionMockFactory.createProgressionConfig(
-        customParameters: customParams,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(customParameters: customParams);
 
       // Assert
       expect(config.customParameters, customParams);
@@ -149,10 +125,7 @@ void main() {
       final endDate = DateTime(2024, 12, 31);
 
       // Act
-      final config = ProgressionMockFactory.createProgressionConfig(
-        startDate: startDate,
-        endDate: endDate,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(startDate: startDate, endDate: endDate);
 
       // Assert
       expect(config.startDate, startDate);
@@ -161,10 +134,7 @@ void main() {
 
     test('should handle inactive progression config', () {
       // Arrange & Act
-      final config = ProgressionMockFactory.createProgressionConfig(
-        isActive: false,
-        endDate: DateTime.now(),
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(isActive: false, endDate: DateTime.now());
 
       // Assert
       expect(config.isActive, isFalse);
@@ -173,12 +143,8 @@ void main() {
 
     test('should handle global vs non-global progression', () {
       // Arrange & Act
-      final globalConfig = ProgressionMockFactory.createProgressionConfig(
-        isGlobal: true,
-      );
-      final localConfig = ProgressionMockFactory.createProgressionConfig(
-        isGlobal: false,
-      );
+      final globalConfig = ProgressionMockFactory.createProgressionConfig(isGlobal: true);
+      final localConfig = ProgressionMockFactory.createProgressionConfig(isGlobal: false);
 
       // Assert
       expect(globalConfig.isGlobal, isTrue);

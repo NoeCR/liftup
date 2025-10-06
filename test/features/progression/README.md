@@ -221,3 +221,4 @@ Las pruebas cubren:
 5. **Cobertura completa**: Se prueban todos los tipos de progresión y casos edge
 
 
+

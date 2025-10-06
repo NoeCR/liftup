@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-commit] Running dart format..."
+dart format -l 120 .
+
+echo "[pre-commit] Running flutter analyze..."
+flutter analyze --no-preamble --no-fatal-infos
+
+echo "[pre-commit] Completed."
+
+

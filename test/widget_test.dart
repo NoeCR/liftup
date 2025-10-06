@@ -13,11 +13,7 @@ void main() {
   testWidgets('App loads without crashing', (WidgetTester tester) async {
     // Create a simple test app without complex dependencies
     await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: Scaffold(body: Center(child: Text('Test App'))),
-        ),
-      ),
+      const ProviderScope(child: MaterialApp(home: Scaffold(body: Center(child: Text('Test App'))))),
     );
 
     // Verify that the app loads without crashing

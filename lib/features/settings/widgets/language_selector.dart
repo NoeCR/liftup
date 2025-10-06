@@ -52,10 +52,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
                     return ListTile(
                       leading: Text(flag, style: const TextStyle(fontSize: 24)),
                       title: Text(languageName),
-                      trailing:
-                          isSelected
-                              ? const Icon(Icons.check, color: Colors.blue)
-                              : null,
+                      trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
                       onTap: () {
                         Navigator.of(context).pop();
                         _changeLanguage(context, locale);
@@ -64,10 +61,7 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
                   }).toList(),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.cancel')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
             ],
           ),
     );
@@ -76,25 +70,20 @@ class _LanguageSelectorState extends ConsumerState<LanguageSelector> {
   void _changeLanguage(BuildContext context, Locale locale) {
     context.setLocale(locale);
 
-    // Mostrar mensaje de éxito de forma segura
+    // Safely show success message
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && context.mounted) {
         try {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                context.tr(
-                  'settings.languageChanged',
-                  namedArgs: {'language': _getLanguageName(locale)},
-                ),
-              ),
+              content: Text(context.tr('settings.languageChanged', namedArgs: {'language': _getLanguageName(locale)})),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),
           );
         } catch (e) {
           // Si no hay Scaffold disponible, no mostrar el SnackBar
-          // El cambio de idioma ya se aplicó correctamente
+          // The language change was already applied correctly
         }
       }
     });

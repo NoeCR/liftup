@@ -39,7 +39,7 @@ abstract class RoutineSharingService {
   Future<void> incrementDownloadCount(String shareId);
 }
 
-/// Implementación simulada del servicio de compartición
+/// Simulated implementation of the sharing service
 class MockRoutineSharingService implements RoutineSharingService {
   final Map<String, SharedRoutine> _sharedRoutines = {};
   final Map<String, Map<String, dynamic>> _sharedData = {};
@@ -53,7 +53,7 @@ class MockRoutineSharingService implements RoutineSharingService {
     required List<Exercise> exercises,
   }) async {
     try {
-      // Configurar exportación solo para rutinas y ejercicios
+      // Configure export for routines and exercises only
       final exportConfig = const ExportConfig(
         includeSessions: false,
         includeExercises: true,
@@ -64,7 +64,7 @@ class MockRoutineSharingService implements RoutineSharingService {
       );
 
       // Usar ExportFactory para crear el exportador JSON
-      final exporter = await ExportFactory.createExporter(
+      final exporter = ExportFactory.createExporter(
         type: ExportType.json,
         config: exportConfig,
         routines: [routine],
@@ -74,7 +74,7 @@ class MockRoutineSharingService implements RoutineSharingService {
         userSettings: {},
         metadata: await MetadataService.instance.createExportMetadata(),
       );
-      
+
       final filePath = await exporter.export();
 
       // Crear rutina compartida
@@ -100,7 +100,7 @@ class MockRoutineSharingService implements RoutineSharingService {
       _sharedRoutines[shareId] = sharedRoutine;
       _sharedData[shareId] = await _loadSharedData(filePath);
 
-      // Generar URL de compartición
+      // Generate sharing URL
       final shareUrl = 'https://liftup.app/share/$shareId';
 
       // Limpiar archivo temporal
@@ -136,9 +136,7 @@ class MockRoutineSharingService implements RoutineSharingService {
       // Simular consulta a la nube
       await Future.delayed(const Duration(milliseconds: 500));
 
-      return _sharedRoutines.values
-          .where((routine) => routine.ownerId == userId)
-          .toList()
+      return _sharedRoutines.values.where((routine) => routine.ownerId == userId).toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       return [];
@@ -148,7 +146,7 @@ class MockRoutineSharingService implements RoutineSharingService {
   @override
   Future<bool> updateSharedRoutine(String shareId, ShareConfig config) async {
     try {
-      // Simular actualización en la nube
+      // Simulate cloud update
       await Future.delayed(const Duration(milliseconds: 500));
 
       final existingRoutine = _sharedRoutines[shareId];
@@ -177,7 +175,7 @@ class MockRoutineSharingService implements RoutineSharingService {
   @override
   Future<bool> deleteSharedRoutine(String shareId) async {
     try {
-      // Simular eliminación en la nube
+      // Simulate cloud deletion
       await Future.delayed(const Duration(milliseconds: 500));
 
       _sharedRoutines.remove(shareId);
@@ -193,9 +191,7 @@ class MockRoutineSharingService implements RoutineSharingService {
   Future<void> incrementViewCount(String shareId) async {
     final routine = _sharedRoutines[shareId];
     if (routine != null) {
-      _sharedRoutines[shareId] = routine.copyWith(
-        viewCount: routine.viewCount + 1,
-      );
+      _sharedRoutines[shareId] = routine.copyWith(viewCount: routine.viewCount + 1);
     }
   }
 
@@ -203,9 +199,7 @@ class MockRoutineSharingService implements RoutineSharingService {
   Future<void> incrementDownloadCount(String shareId) async {
     final routine = _sharedRoutines[shareId];
     if (routine != null) {
-      _sharedRoutines[shareId] = routine.copyWith(
-        downloadCount: routine.downloadCount + 1,
-      );
+      _sharedRoutines[shareId] = routine.copyWith(downloadCount: routine.downloadCount + 1);
     }
   }
 
@@ -233,13 +227,12 @@ class MockRoutineSharingService implements RoutineSharingService {
 class SharedRoutineImportService {
   final RoutineSharingService _sharingService;
 
-  SharedRoutineImportService({required RoutineSharingService sharingService})
-    : _sharingService = sharingService;
+  SharedRoutineImportService({required RoutineSharingService sharingService}) : _sharingService = sharingService;
 
   /// Importa una rutina compartida
   Future<ImportResult> importSharedRoutine(String shareId) async {
     try {
-      // Obtener información de la rutina compartida
+      // Obtain shared routine info
       final sharedRoutine = await _sharingService.getSharedRoutine(shareId);
       if (sharedRoutine == null) {
         return ImportResult(
@@ -258,8 +251,7 @@ class SharedRoutineImportService {
       }
 
       // Verificar si la rutina ha expirado
-      if (sharedRoutine.expiresAt != null &&
-          DateTime.now().isAfter(sharedRoutine.expiresAt!)) {
+      if (sharedRoutine.expiresAt != null && DateTime.now().isAfter(sharedRoutine.expiresAt!)) {
         return ImportResult(
           success: false,
           importedCount: 0,
@@ -305,12 +297,10 @@ class SharedRoutineImportService {
         final routinesData = data['routines'] as List;
         for (final routineData in routinesData) {
           try {
-            final routine = Routine.fromJson(
-              routineData as Map<String, dynamic>,
-            );
+            final routine = Routine.fromJson(routineData as Map<String, dynamic>);
             importedRoutines.add(routine);
           } catch (e) {
-            // Error al importar rutina específica
+            // Error importing specific routine
           }
         }
       }
@@ -319,12 +309,10 @@ class SharedRoutineImportService {
         final exercisesData = data['exercises'] as List;
         for (final exerciseData in exercisesData) {
           try {
-            final exercise = Exercise.fromJson(
-              exerciseData as Map<String, dynamic>,
-            );
+            final exercise = Exercise.fromJson(exerciseData as Map<String, dynamic>);
             importedExercises.add(exercise);
           } catch (e) {
-            // Error al importar ejercicio específico
+            // Error importing specific exercise
           }
         }
       }

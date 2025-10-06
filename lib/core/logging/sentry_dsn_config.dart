@@ -1,9 +1,9 @@
 import 'environment_service.dart';
 
 /// Configuración del DSN de Sentry usando variables de entorno
-/// 
+///
 /// IMPORTANTE: Este archivo lee la configuración del DSN de Sentry desde variables de entorno.
-/// 
+///
 /// Para configurar Sentry:
 /// 1. Ve a https://sentry.io y crea una cuenta
 /// 2. Crea un nuevo proyecto para Flutter
@@ -14,9 +14,9 @@ import 'environment_service.dart';
 
 class SentryDsnConfig {
   /// DSN de Sentry desde variables de entorno
-  /// 
+  ///
   /// Formato: https://[key]@[organization].ingest.sentry.io/[project_id]
-  /// 
+  ///
   /// Se lee desde la variable de entorno SENTRY_DSN usando EnvironmentService
   static String get _dnsKey {
     final dsn = EnvironmentService.instance.getEnv('SENTRY_DSN');
@@ -32,9 +32,7 @@ class SentryDsnConfig {
   /// Verifica si el DSN está configurado correctamente
   static bool get isConfigured {
     final dsn = EnvironmentService.instance.getEnv('SENTRY_DSN');
-    return dsn.isNotEmpty && 
-           dsn != 'YOUR_SENTRY_DSN_HERE' &&
-           dsn.startsWith('https://');
+    return dsn.isNotEmpty && dsn != 'YOUR_SENTRY_DSN_HERE' && dsn.startsWith('https://');
   }
 
   /// Obtiene información sobre la configuración del DSN

@@ -129,21 +129,18 @@ extension SectionMuscleGroupExtension on SectionMuscleGroup {
   static List<SectionMuscleGroup> get allGroups => SectionMuscleGroup.values;
 
   static List<SectionMuscleGroup> get muscleGroups => [
-        SectionMuscleGroup.chest,
-        SectionMuscleGroup.back,
-        SectionMuscleGroup.shoulders,
-        SectionMuscleGroup.trapezius,
-        SectionMuscleGroup.quadriceps,
-        SectionMuscleGroup.biceps,
-        SectionMuscleGroup.triceps,
-        SectionMuscleGroup.calves,
-        SectionMuscleGroup.hamstrings,
-        SectionMuscleGroup.core,
-        SectionMuscleGroup.cardio,
-      ];
+    SectionMuscleGroup.chest,
+    SectionMuscleGroup.back,
+    SectionMuscleGroup.shoulders,
+    SectionMuscleGroup.trapezius,
+    SectionMuscleGroup.quadriceps,
+    SectionMuscleGroup.biceps,
+    SectionMuscleGroup.triceps,
+    SectionMuscleGroup.calves,
+    SectionMuscleGroup.hamstrings,
+    SectionMuscleGroup.core,
+    SectionMuscleGroup.cardio,
+  ];
 
-  static List<SectionMuscleGroup> get specialGroups => [
-        SectionMuscleGroup.warmup,
-        SectionMuscleGroup.cooldown,
-      ];
+  static List<SectionMuscleGroup> get specialGroups => [SectionMuscleGroup.warmup, SectionMuscleGroup.cooldown];
 }

@@ -7,10 +7,7 @@ void main() {
 
     setUp(() {
       loggingService = LoggingService.instance;
-      loggingService.initialize(
-        enableConsoleLogging: false,
-        enableSentryLogging: false,
-      );
+      loggingService.initialize(enableConsoleLogging: false, enableSentryLogging: false);
     });
 
     test('should initialize successfully', () {
@@ -38,10 +35,7 @@ void main() {
     });
 
     test('should log with context', () {
-      expect(() => loggingService.info('Test message', {
-        'user_id': '123',
-        'action': 'test',
-      }), returnsNormally);
+      expect(() => loggingService.info('Test message', {'user_id': '123', 'action': 'test'}), returnsNormally);
     });
 
     test('should log errors with stack trace', () {
@@ -57,10 +51,7 @@ void main() {
     });
 
     test('should set user context', () {
-      expect(() => loggingService.setUserContext(
-        userId: 'test_user',
-        username: 'test_username',
-      ), returnsNormally);
+      expect(() => loggingService.setUserContext(userId: 'test_user', username: 'test_username'), returnsNormally);
     });
 
     test('should set tags', () {
@@ -68,9 +59,7 @@ void main() {
     });
 
     test('should set context', () {
-      expect(() => loggingService.setContext('test_context', {
-        'key': 'value',
-      }), returnsNormally);
+      expect(() => loggingService.setContext('test_context', {'key': 'value'}), returnsNormally);
     });
   });
 }

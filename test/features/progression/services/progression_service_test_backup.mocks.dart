@@ -7,14 +7,10 @@ import 'dart:async' as _i8;
 
 import 'package:hive/hive.dart' as _i6;
 import 'package:liftup/common/enums/progression_type_enum.dart' as _i10;
-import 'package:liftup/features/progression/models/progression_config.dart'
-    as _i4;
-import 'package:liftup/features/progression/models/progression_state.dart'
-    as _i5;
-import 'package:liftup/features/progression/models/progression_template.dart'
-    as _i9;
-import 'package:liftup/features/progression/services/progression_service.dart'
-    as _i3;
+import 'package:liftup/features/progression/models/progression_config.dart' as _i4;
+import 'package:liftup/features/progression/models/progression_state.dart' as _i5;
+import 'package:liftup/features/progression/models/progression_template.dart' as _i9;
+import 'package:liftup/features/progression/services/progression_service.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i7;
 import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
@@ -33,59 +29,24 @@ import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeAutoDisposeNotifierProviderRef_0<T> extends _i1.SmartFake
-    implements _i2.AutoDisposeNotifierProviderRef<T> {
-  _FakeAutoDisposeNotifierProviderRef_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeAutoDisposeNotifierProviderRef_0<T> extends _i1.SmartFake implements _i2.AutoDisposeNotifierProviderRef<T> {
+  _FakeAutoDisposeNotifierProviderRef_0(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionService_1 extends _i1.SmartFake
-    implements _i3.ProgressionService {
-  _FakeProgressionService_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeProgressionService_1 extends _i1.SmartFake implements _i3.ProgressionService {
+  _FakeProgressionService_1(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionCalculationResult_2 extends _i1.SmartFake
-    implements _i3.ProgressionCalculationResult {
-  _FakeProgressionCalculationResult_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeProgressionCalculationResult_2 extends _i1.SmartFake implements _i3.ProgressionCalculationResult {
+  _FakeProgressionCalculationResult_2(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionConfig_3 extends _i1.SmartFake
-    implements _i4.ProgressionConfig {
-  _FakeProgressionConfig_3(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeProgressionConfig_3 extends _i1.SmartFake implements _i4.ProgressionConfig {
+  _FakeProgressionConfig_3(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionState_4 extends _i1.SmartFake
-    implements _i5.ProgressionState {
-  _FakeProgressionState_4(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
+class _FakeProgressionState_4 extends _i1.SmartFake implements _i5.ProgressionState {
+  _FakeProgressionState_4(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 /// A class which mocks [Box].
@@ -97,260 +58,167 @@ class MockBox<E> extends _i1.Mock implements _i6.Box<E> {
   }
 
   @override
-  Iterable<E> get values => (super.noSuchMethod(
-        Invocation.getter(#values),
-        returnValue: <E>[],
-      ) as Iterable<E>);
+  Iterable<E> get values => (super.noSuchMethod(Invocation.getter(#values), returnValue: <E>[]) as Iterable<E>);
 
   @override
-  String get name => (super.noSuchMethod(
-        Invocation.getter(#name),
-        returnValue: _i7.dummyValue<String>(
-          this,
-          Invocation.getter(#name),
-        ),
-      ) as String);
+  String get name =>
+      (super.noSuchMethod(Invocation.getter(#name), returnValue: _i7.dummyValue<String>(this, Invocation.getter(#name)))
+          as String);
 
   @override
-  bool get isOpen => (super.noSuchMethod(
-        Invocation.getter(#isOpen),
-        returnValue: false,
-      ) as bool);
+  bool get isOpen => (super.noSuchMethod(Invocation.getter(#isOpen), returnValue: false) as bool);
 
   @override
-  bool get lazy => (super.noSuchMethod(
-        Invocation.getter(#lazy),
-        returnValue: false,
-      ) as bool);
+  bool get lazy => (super.noSuchMethod(Invocation.getter(#lazy), returnValue: false) as bool);
 
   @override
-  Iterable<dynamic> get keys => (super.noSuchMethod(
-        Invocation.getter(#keys),
-        returnValue: <dynamic>[],
-      ) as Iterable<dynamic>);
+  Iterable<dynamic> get keys =>
+      (super.noSuchMethod(Invocation.getter(#keys), returnValue: <dynamic>[]) as Iterable<dynamic>);
 
   @override
-  int get length => (super.noSuchMethod(
-        Invocation.getter(#length),
-        returnValue: 0,
-      ) as int);
+  int get length => (super.noSuchMethod(Invocation.getter(#length), returnValue: 0) as int);
 
   @override
-  bool get isEmpty => (super.noSuchMethod(
-        Invocation.getter(#isEmpty),
-        returnValue: false,
-      ) as bool);
+  bool get isEmpty => (super.noSuchMethod(Invocation.getter(#isEmpty), returnValue: false) as bool);
 
   @override
-  bool get isNotEmpty => (super.noSuchMethod(
-        Invocation.getter(#isNotEmpty),
-        returnValue: false,
-      ) as bool);
+  bool get isNotEmpty => (super.noSuchMethod(Invocation.getter(#isNotEmpty), returnValue: false) as bool);
 
   @override
-  Iterable<E> valuesBetween({
-    dynamic startKey,
-    dynamic endKey,
-  }) =>
+  Iterable<E> valuesBetween({dynamic startKey, dynamic endKey}) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #valuesBetween,
-          [],
-          {
-            #startKey: startKey,
-            #endKey: endKey,
-          },
-        ),
-        returnValue: <E>[],
-      ) as Iterable<E>);
+            Invocation.method(#valuesBetween, [], {#startKey: startKey, #endKey: endKey}),
+            returnValue: <E>[],
+          )
+          as Iterable<E>);
 
   @override
-  E? getAt(int? index) => (super.noSuchMethod(Invocation.method(
-        #getAt,
-        [index],
-      )) as E?);
+  E? getAt(int? index) => (super.noSuchMethod(Invocation.method(#getAt, [index])) as E?);
 
   @override
-  Map<dynamic, E> toMap() => (super.noSuchMethod(
-        Invocation.method(
-          #toMap,
-          [],
-        ),
-        returnValue: <dynamic, E>{},
-      ) as Map<dynamic, E>);
+  Map<dynamic, E> toMap() =>
+      (super.noSuchMethod(Invocation.method(#toMap, []), returnValue: <dynamic, E>{}) as Map<dynamic, E>);
 
   @override
-  dynamic keyAt(int? index) => super.noSuchMethod(Invocation.method(
-        #keyAt,
-        [index],
-      ));
+  dynamic keyAt(int? index) => super.noSuchMethod(Invocation.method(#keyAt, [index]));
 
   @override
-  _i8.Stream<_i6.BoxEvent> watch({dynamic key}) => (super.noSuchMethod(
-        Invocation.method(
-          #watch,
-          [],
-          {#key: key},
-        ),
-        returnValue: _i8.Stream<_i6.BoxEvent>.empty(),
-      ) as _i8.Stream<_i6.BoxEvent>);
+  _i8.Stream<_i6.BoxEvent> watch({dynamic key}) =>
+      (super.noSuchMethod(Invocation.method(#watch, [], {#key: key}), returnValue: _i8.Stream<_i6.BoxEvent>.empty())
+          as _i8.Stream<_i6.BoxEvent>);
 
   @override
-  bool containsKey(dynamic key) => (super.noSuchMethod(
-        Invocation.method(
-          #containsKey,
-          [key],
-        ),
-        returnValue: false,
-      ) as bool);
+  bool containsKey(dynamic key) =>
+      (super.noSuchMethod(Invocation.method(#containsKey, [key]), returnValue: false) as bool);
 
   @override
-  _i8.Future<void> put(
-    dynamic key,
-    E? value,
-  ) =>
+  _i8.Future<void> put(dynamic key, E? value) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #put,
-          [
-            key,
-            value,
-          ],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+            Invocation.method(#put, [key, value]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> putAt(
-    int? index,
-    E? value,
-  ) =>
+  _i8.Future<void> putAt(int? index, E? value) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #putAt,
-          [
-            index,
-            value,
-          ],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+            Invocation.method(#putAt, [index, value]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> putAll(Map<dynamic, E>? entries) => (super.noSuchMethod(
-        Invocation.method(
-          #putAll,
-          [entries],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> putAll(Map<dynamic, E>? entries) =>
+      (super.noSuchMethod(
+            Invocation.method(#putAll, [entries]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<int> add(E? value) => (super.noSuchMethod(
-        Invocation.method(
-          #add,
-          [value],
-        ),
-        returnValue: _i8.Future<int>.value(0),
-      ) as _i8.Future<int>);
+  _i8.Future<int> add(E? value) =>
+      (super.noSuchMethod(Invocation.method(#add, [value]), returnValue: _i8.Future<int>.value(0)) as _i8.Future<int>);
 
   @override
-  _i8.Future<Iterable<int>> addAll(Iterable<E>? values) => (super.noSuchMethod(
-        Invocation.method(
-          #addAll,
-          [values],
-        ),
-        returnValue: _i8.Future<Iterable<int>>.value(<int>[]),
-      ) as _i8.Future<Iterable<int>>);
+  _i8.Future<Iterable<int>> addAll(Iterable<E>? values) =>
+      (super.noSuchMethod(Invocation.method(#addAll, [values]), returnValue: _i8.Future<Iterable<int>>.value(<int>[]))
+          as _i8.Future<Iterable<int>>);
 
   @override
-  _i8.Future<void> delete(dynamic key) => (super.noSuchMethod(
-        Invocation.method(
-          #delete,
-          [key],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> delete(dynamic key) =>
+      (super.noSuchMethod(
+            Invocation.method(#delete, [key]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> deleteAt(int? index) => (super.noSuchMethod(
-        Invocation.method(
-          #deleteAt,
-          [index],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> deleteAt(int? index) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAt, [index]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> deleteAll(Iterable<dynamic>? keys) => (super.noSuchMethod(
-        Invocation.method(
-          #deleteAll,
-          [keys],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> deleteAll(Iterable<dynamic>? keys) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAll, [keys]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> compact() => (super.noSuchMethod(
-        Invocation.method(
-          #compact,
-          [],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> compact() =>
+      (super.noSuchMethod(
+            Invocation.method(#compact, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<int> clear() => (super.noSuchMethod(
-        Invocation.method(
-          #clear,
-          [],
-        ),
-        returnValue: _i8.Future<int>.value(0),
-      ) as _i8.Future<int>);
+  _i8.Future<int> clear() =>
+      (super.noSuchMethod(Invocation.method(#clear, []), returnValue: _i8.Future<int>.value(0)) as _i8.Future<int>);
 
   @override
-  _i8.Future<void> close() => (super.noSuchMethod(
-        Invocation.method(
-          #close,
-          [],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> close() =>
+      (super.noSuchMethod(
+            Invocation.method(#close, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> deleteFromDisk() => (super.noSuchMethod(
-        Invocation.method(
-          #deleteFromDisk,
-          [],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> deleteFromDisk() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteFromDisk, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
-  _i8.Future<void> flush() => (super.noSuchMethod(
-        Invocation.method(
-          #flush,
-          [],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+  _i8.Future<void> flush() =>
+      (super.noSuchMethod(
+            Invocation.method(#flush, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 }
 
 /// A class which mocks [ProgressionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProgressionService extends _i1.Mock
-    implements _i3.ProgressionService {
+class MockProgressionService extends _i1.Mock implements _i3.ProgressionService {
   MockProgressionService() {
     _i1.throwOnMissingStub(this);
   }
@@ -358,181 +226,130 @@ class MockProgressionService extends _i1.Mock
   @override
   _i2.AutoDisposeNotifierProviderRef<_i3.ProgressionService> get ref =>
       (super.noSuchMethod(
-        Invocation.getter(#ref),
-        returnValue:
-            _FakeAutoDisposeNotifierProviderRef_0<_i3.ProgressionService>(
-          this,
-          Invocation.getter(#ref),
-        ),
-      ) as _i2.AutoDisposeNotifierProviderRef<_i3.ProgressionService>);
+            Invocation.getter(#ref),
+            returnValue: _FakeAutoDisposeNotifierProviderRef_0<_i3.ProgressionService>(this, Invocation.getter(#ref)),
+          )
+          as _i2.AutoDisposeNotifierProviderRef<_i3.ProgressionService>);
 
   @override
-  _i3.ProgressionService get state => (super.noSuchMethod(
-        Invocation.getter(#state),
-        returnValue: _FakeProgressionService_1(
-          this,
-          Invocation.getter(#state),
-        ),
-      ) as _i3.ProgressionService);
+  _i3.ProgressionService get state =>
+      (super.noSuchMethod(
+            Invocation.getter(#state),
+            returnValue: _FakeProgressionService_1(this, Invocation.getter(#state)),
+          )
+          as _i3.ProgressionService);
 
   @override
-  set state(_i3.ProgressionService? value) => super.noSuchMethod(
-        Invocation.setter(
-          #state,
-          value,
-        ),
-        returnValueForMissingStub: null,
-      );
+  set state(_i3.ProgressionService? value) =>
+      super.noSuchMethod(Invocation.setter(#state, value), returnValueForMissingStub: null);
 
   @override
-  _i3.ProgressionService build() => (super.noSuchMethod(
-        Invocation.method(
-          #build,
-          [],
-        ),
-        returnValue: _FakeProgressionService_1(
-          this,
-          Invocation.method(
-            #build,
-            [],
-          ),
-        ),
-      ) as _i3.ProgressionService);
+  _i3.ProgressionService build() =>
+      (super.noSuchMethod(
+            Invocation.method(#build, []),
+            returnValue: _FakeProgressionService_1(this, Invocation.method(#build, [])),
+          )
+          as _i3.ProgressionService);
 
   @override
   _i8.Future<void> saveProgressionConfig(_i4.ProgressionConfig? config) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #saveProgressionConfig,
-          [config],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+            Invocation.method(#saveProgressionConfig, [config]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   _i8.Future<_i4.ProgressionConfig?> getProgressionConfig(String? configId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getProgressionConfig,
-          [configId],
-        ),
-        returnValue: _i8.Future<_i4.ProgressionConfig?>.value(),
-      ) as _i8.Future<_i4.ProgressionConfig?>);
+            Invocation.method(#getProgressionConfig, [configId]),
+            returnValue: _i8.Future<_i4.ProgressionConfig?>.value(),
+          )
+          as _i8.Future<_i4.ProgressionConfig?>);
 
   @override
   _i8.Future<_i4.ProgressionConfig?> getActiveProgressionConfig() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getActiveProgressionConfig,
-          [],
-        ),
-        returnValue: _i8.Future<_i4.ProgressionConfig?>.value(),
-      ) as _i8.Future<_i4.ProgressionConfig?>);
+            Invocation.method(#getActiveProgressionConfig, []),
+            returnValue: _i8.Future<_i4.ProgressionConfig?>.value(),
+          )
+          as _i8.Future<_i4.ProgressionConfig?>);
 
   @override
   _i8.Future<List<_i4.ProgressionConfig>> getAllProgressionConfigs() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getAllProgressionConfigs,
-          [],
-        ),
-        returnValue: _i8.Future<List<_i4.ProgressionConfig>>.value(
-            <_i4.ProgressionConfig>[]),
-      ) as _i8.Future<List<_i4.ProgressionConfig>>);
+            Invocation.method(#getAllProgressionConfigs, []),
+            returnValue: _i8.Future<List<_i4.ProgressionConfig>>.value(<_i4.ProgressionConfig>[]),
+          )
+          as _i8.Future<List<_i4.ProgressionConfig>>);
 
   @override
   _i8.Future<void> deleteProgressionConfig(String? configId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #deleteProgressionConfig,
-          [configId],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+            Invocation.method(#deleteProgressionConfig, [configId]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   _i8.Future<void> saveProgressionState(_i5.ProgressionState? state) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #saveProgressionState,
-          [state],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+            Invocation.method(#saveProgressionState, [state]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   _i8.Future<_i5.ProgressionState?> getProgressionState(String? stateId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getProgressionState,
-          [stateId],
-        ),
-        returnValue: _i8.Future<_i5.ProgressionState?>.value(),
-      ) as _i8.Future<_i5.ProgressionState?>);
+            Invocation.method(#getProgressionState, [stateId]),
+            returnValue: _i8.Future<_i5.ProgressionState?>.value(),
+          )
+          as _i8.Future<_i5.ProgressionState?>);
 
   @override
-  _i8.Future<_i5.ProgressionState?> getProgressionStateByExercise(
-    String? configId,
-    String? exerciseId,
-  ) =>
+  _i8.Future<_i5.ProgressionState?> getProgressionStateByExercise(String? configId, String? exerciseId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getProgressionStateByExercise,
-          [
-            configId,
-            exerciseId,
-          ],
-        ),
-        returnValue: _i8.Future<_i5.ProgressionState?>.value(),
-      ) as _i8.Future<_i5.ProgressionState?>);
+            Invocation.method(#getProgressionStateByExercise, [configId, exerciseId]),
+            returnValue: _i8.Future<_i5.ProgressionState?>.value(),
+          )
+          as _i8.Future<_i5.ProgressionState?>);
 
   @override
-  _i8.Future<List<_i5.ProgressionState>> getProgressionStatesByConfig(
-          String? configId) =>
+  _i8.Future<List<_i5.ProgressionState>> getProgressionStatesByConfig(String? configId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getProgressionStatesByConfig,
-          [configId],
-        ),
-        returnValue: _i8.Future<List<_i5.ProgressionState>>.value(
-            <_i5.ProgressionState>[]),
-      ) as _i8.Future<List<_i5.ProgressionState>>);
+            Invocation.method(#getProgressionStatesByConfig, [configId]),
+            returnValue: _i8.Future<List<_i5.ProgressionState>>.value(<_i5.ProgressionState>[]),
+          )
+          as _i8.Future<List<_i5.ProgressionState>>);
 
   @override
   _i8.Future<void> saveProgressionTemplate(_i9.ProgressionTemplate? template) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #saveProgressionTemplate,
-          [template],
-        ),
-        returnValue: _i8.Future<void>.value(),
-        returnValueForMissingStub: _i8.Future<void>.value(),
-      ) as _i8.Future<void>);
+            Invocation.method(#saveProgressionTemplate, [template]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   _i8.Future<List<_i9.ProgressionTemplate>> getAllProgressionTemplates() =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getAllProgressionTemplates,
-          [],
-        ),
-        returnValue: _i8.Future<List<_i9.ProgressionTemplate>>.value(
-            <_i9.ProgressionTemplate>[]),
-      ) as _i8.Future<List<_i9.ProgressionTemplate>>);
+            Invocation.method(#getAllProgressionTemplates, []),
+            returnValue: _i8.Future<List<_i9.ProgressionTemplate>>.value(<_i9.ProgressionTemplate>[]),
+          )
+          as _i8.Future<List<_i9.ProgressionTemplate>>);
 
   @override
-  _i8.Future<_i9.ProgressionTemplate?> getProgressionTemplate(
-          String? templateId) =>
+  _i8.Future<_i9.ProgressionTemplate?> getProgressionTemplate(String? templateId) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #getProgressionTemplate,
-          [templateId],
-        ),
-        returnValue: _i8.Future<_i9.ProgressionTemplate?>.value(),
-      ) as _i8.Future<_i9.ProgressionTemplate?>);
+            Invocation.method(#getProgressionTemplate, [templateId]),
+            returnValue: _i8.Future<_i9.ProgressionTemplate?>.value(),
+          )
+          as _i8.Future<_i9.ProgressionTemplate?>);
 
   @override
   _i8.Future<_i3.ProgressionCalculationResult> calculateProgression(
@@ -543,31 +360,21 @@ class MockProgressionService extends _i1.Mock
     int? currentSets,
   ) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #calculateProgression,
-          [
-            configId,
-            exerciseId,
-            currentWeight,
-            currentReps,
-            currentSets,
-          ],
-        ),
-        returnValue: _i8.Future<_i3.ProgressionCalculationResult>.value(
-            _FakeProgressionCalculationResult_2(
-          this,
-          Invocation.method(
-            #calculateProgression,
-            [
-              configId,
-              exerciseId,
-              currentWeight,
-              currentReps,
-              currentSets,
-            ],
-          ),
-        )),
-      ) as _i8.Future<_i3.ProgressionCalculationResult>);
+            Invocation.method(#calculateProgression, [configId, exerciseId, currentWeight, currentReps, currentSets]),
+            returnValue: _i8.Future<_i3.ProgressionCalculationResult>.value(
+              _FakeProgressionCalculationResult_2(
+                this,
+                Invocation.method(#calculateProgression, [
+                  configId,
+                  exerciseId,
+                  currentWeight,
+                  currentReps,
+                  currentSets,
+                ]),
+              ),
+            ),
+          )
+          as _i8.Future<_i3.ProgressionCalculationResult>);
 
   @override
   _i8.Future<_i4.ProgressionConfig> initializeProgression({
@@ -584,30 +391,7 @@ class MockProgressionService extends _i1.Mock
     bool? isGlobal = true,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #initializeProgression,
-          [],
-          {
-            #type: type,
-            #unit: unit,
-            #primaryTarget: primaryTarget,
-            #secondaryTarget: secondaryTarget,
-            #incrementValue: incrementValue,
-            #incrementFrequency: incrementFrequency,
-            #cycleLength: cycleLength,
-            #deloadWeek: deloadWeek,
-            #deloadPercentage: deloadPercentage,
-            #customParameters: customParameters,
-            #isGlobal: isGlobal,
-          },
-        ),
-        returnValue:
-            _i8.Future<_i4.ProgressionConfig>.value(_FakeProgressionConfig_3(
-          this,
-          Invocation.method(
-            #initializeProgression,
-            [],
-            {
+            Invocation.method(#initializeProgression, [], {
               #type: type,
               #unit: unit,
               #primaryTarget: primaryTarget,
@@ -619,10 +403,27 @@ class MockProgressionService extends _i1.Mock
               #deloadPercentage: deloadPercentage,
               #customParameters: customParameters,
               #isGlobal: isGlobal,
-            },
-          ),
-        )),
-      ) as _i8.Future<_i4.ProgressionConfig>);
+            }),
+            returnValue: _i8.Future<_i4.ProgressionConfig>.value(
+              _FakeProgressionConfig_3(
+                this,
+                Invocation.method(#initializeProgression, [], {
+                  #type: type,
+                  #unit: unit,
+                  #primaryTarget: primaryTarget,
+                  #secondaryTarget: secondaryTarget,
+                  #incrementValue: incrementValue,
+                  #incrementFrequency: incrementFrequency,
+                  #cycleLength: cycleLength,
+                  #deloadWeek: deloadWeek,
+                  #deloadPercentage: deloadPercentage,
+                  #customParameters: customParameters,
+                  #isGlobal: isGlobal,
+                }),
+              ),
+            ),
+          )
+          as _i8.Future<_i4.ProgressionConfig>);
 
   @override
   _i8.Future<_i5.ProgressionState> initializeExerciseProgression({
@@ -634,69 +435,40 @@ class MockProgressionService extends _i1.Mock
     double? oneRepMax,
   }) =>
       (super.noSuchMethod(
-        Invocation.method(
-          #initializeExerciseProgression,
-          [],
-          {
-            #configId: configId,
-            #exerciseId: exerciseId,
-            #baseWeight: baseWeight,
-            #baseReps: baseReps,
-            #baseSets: baseSets,
-            #oneRepMax: oneRepMax,
-          },
-        ),
-        returnValue:
-            _i8.Future<_i5.ProgressionState>.value(_FakeProgressionState_4(
-          this,
-          Invocation.method(
-            #initializeExerciseProgression,
-            [],
-            {
+            Invocation.method(#initializeExerciseProgression, [], {
               #configId: configId,
               #exerciseId: exerciseId,
               #baseWeight: baseWeight,
               #baseReps: baseReps,
               #baseSets: baseSets,
               #oneRepMax: oneRepMax,
-            },
-          ),
-        )),
-      ) as _i8.Future<_i5.ProgressionState>);
+            }),
+            returnValue: _i8.Future<_i5.ProgressionState>.value(
+              _FakeProgressionState_4(
+                this,
+                Invocation.method(#initializeExerciseProgression, [], {
+                  #configId: configId,
+                  #exerciseId: exerciseId,
+                  #baseWeight: baseWeight,
+                  #baseReps: baseReps,
+                  #baseSets: baseSets,
+                  #oneRepMax: oneRepMax,
+                }),
+              ),
+            ),
+          )
+          as _i8.Future<_i5.ProgressionState>);
 
   @override
   void listenSelf(
-    void Function(
-      _i3.ProgressionService?,
-      _i3.ProgressionService,
-    )? listener, {
-    void Function(
-      Object,
-      StackTrace,
-    )? onError,
-  }) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #listenSelf,
-          [listener],
-          {#onError: onError},
-        ),
-        returnValueForMissingStub: null,
-      );
+    void Function(_i3.ProgressionService?, _i3.ProgressionService)? listener, {
+    void Function(Object, StackTrace)? onError,
+  }) => super.noSuchMethod(
+    Invocation.method(#listenSelf, [listener], {#onError: onError}),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  bool updateShouldNotify(
-    _i3.ProgressionService? previous,
-    _i3.ProgressionService? next,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #updateShouldNotify,
-          [
-            previous,
-            next,
-          ],
-        ),
-        returnValue: false,
-      ) as bool);
+  bool updateShouldNotify(_i3.ProgressionService? previous, _i3.ProgressionService? next) =>
+      (super.noSuchMethod(Invocation.method(#updateShouldNotify, [previous, next]), returnValue: false) as bool);
 }

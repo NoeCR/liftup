@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  package_info_plus: ^8.0.0
 
   # State Management
   flutter_riverpod: ^2.5.1
@@ -56,9 +57,10 @@ dependencies:
   csv: ^6.0.0
   path_provider: ^2.1.2
   share_plus: ^7.2.2
+  path: ^1.9.0
 
   # Utilities
-  intl: ^0.19.0
+  intl: ">=0.19.0 <0.21.0"
   uuid: ^4.4.0
   equatable: ^2.0.5
   json_annotation: ^4.8.1
@@ -96,6 +98,9 @@ dev_dependencies:
   json_serializable: ^6.7.1
   hive_generator: ^2.0.1
 
+  # App icons
+  flutter_launcher_icons: ^0.13.1
+
   # Testing
   mockito: ^5.4.4
   integration_test:
@@ -123,7 +128,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/animations/
     - assets/locales/
     - .env
     - .env.development
@@ -157,4 +161,10 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 dependency_overrides:
-  package_info_plus: 8.0.0
+
+# Launcher icons configuration
+flutter_launcher_icons:
+  image_path: assets/icons/app_icon.png
+  android: true
+  ios: true
+  min_sdk_android: 21

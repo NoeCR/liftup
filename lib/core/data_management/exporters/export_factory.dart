@@ -79,11 +79,7 @@ class ExportFactory {
 
   /// Obtiene la extensión de archivo para cada tipo
   static Map<ExportType, String> getFileExtensions() {
-    return {
-      ExportType.json: '.json',
-      ExportType.csv: '.csv',
-      ExportType.pdf: '.pdf',
-    };
+    return {ExportType.json: '.json', ExportType.csv: '.csv', ExportType.pdf: '.pdf'};
   }
 
   /// Obtiene el tipo de exportación desde una extensión de archivo

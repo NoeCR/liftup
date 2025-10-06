@@ -22,27 +22,24 @@ class MetricsMonitor {
 
     try {
       LoggingService.instance.info('Starting metrics monitoring');
-      
+
       _isMonitoring = true;
-      
+
       // Monitorear métricas cada 30 segundos
       _metricsTimer = Timer.periodic(const Duration(seconds: 30), (_) {
         _collectAndSendMetrics();
       });
-      
+
       // Monitorear memoria cada 10 segundos
       _memoryTimer = Timer.periodic(const Duration(seconds: 10), (_) {
         _monitorMemoryUsage();
       });
-      
+
       LoggingService.instance.info('Metrics monitoring started successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to start metrics monitoring',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to start metrics monitoring', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -52,21 +49,18 @@ class MetricsMonitor {
 
     try {
       LoggingService.instance.info('Stopping metrics monitoring');
-      
+
       _metricsTimer?.cancel();
       _memoryTimer?.cancel();
       _metricsTimer = null;
       _memoryTimer = null;
       _isMonitoring = false;
-      
+
       LoggingService.instance.info('Metrics monitoring stopped successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to stop metrics monitoring',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to stop metrics monitoring', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -75,25 +69,22 @@ class MetricsMonitor {
     try {
       // Obtener estadísticas de rendimiento
       final performanceStats = PerformanceMonitor.instance.getAllStats();
-      
+
       // Obtener métricas del sistema
       final systemMetrics = _getSystemMetrics();
-      
+
       // Enviar métricas a Sentry
       _sendMetricsToSentry(performanceStats, systemMetrics);
-      
+
       LoggingService.instance.debug('Metrics collected and sent', {
         'performance_operations': performanceStats.length,
         'system_metrics_count': systemMetrics.length,
         'component': 'metrics_monitor',
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to collect and send metrics',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to collect and send metrics', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -101,7 +92,7 @@ class MetricsMonitor {
   void _monitorMemoryUsage() {
     try {
       final memoryInfo = _getMemoryInfo();
-      
+
       if (memoryInfo['current_memory_mb'] > 100) {
         LoggingService.instance.warning('High memory usage detected', {
           'current_memory_mb': memoryInfo['current_memory_mb'],
@@ -109,7 +100,7 @@ class MetricsMonitor {
           'threshold_mb': 100,
           'component': 'metrics_monitor',
         });
-        
+
         // Enviar alerta de memoria
         SentryAlertsConfig.alertMemoryIssue(
           currentMemoryMB: memoryInfo['current_memory_mb'],
@@ -118,12 +109,7 @@ class MetricsMonitor {
         );
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to monitor memory usage',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to monitor memory usage', e, stackTrace, {'component': 'metrics_monitor'});
     }
   }
 
@@ -132,13 +118,10 @@ class MetricsMonitor {
     try {
       final memoryInfo = _getMemoryInfo();
       final performanceStats = PerformanceMonitor.instance.getAllStats();
-      
+
       return {
         'memory': memoryInfo,
-        'performance': {
-          'total_operations': performanceStats.length,
-          'operations': performanceStats.keys.toList(),
-        },
+        'performance': {'total_operations': performanceStats.length, 'operations': performanceStats.keys.toList()},
         'timestamp': DateTime.now().toIso8601String(),
         'platform': Platform.operatingSystem,
       };
@@ -155,7 +138,7 @@ class MetricsMonitor {
       // Pero podemos usar ProcessInfo para obtener información básica
       final processInfo = ProcessInfo.currentRss;
       final memoryMB = (processInfo / 1024 / 1024).round();
-      
+
       return {
         'current_memory_mb': memoryMB,
         'peak_memory_mb': memoryMB, // En Flutter no tenemos acceso al peak real
@@ -164,51 +147,43 @@ class MetricsMonitor {
       };
     } catch (e) {
       LoggingService.instance.error('Failed to get memory info: $e');
-      return {
-        'current_memory_mb': 0,
-        'peak_memory_mb': 0,
-        'error': e.toString(),
-      };
+      return {'current_memory_mb': 0, 'peak_memory_mb': 0, 'error': e.toString()};
     }
   }
 
   /// Envía métricas a Sentry
-  void _sendMetricsToSentry(
-    Map<String, dynamic> performanceStats,
-    Map<String, dynamic> systemMetrics,
-  ) {
+  void _sendMetricsToSentry(Map<String, dynamic> performanceStats, Map<String, dynamic> systemMetrics) {
     try {
       // Enviar breadcrumb con métricas
-      Sentry.addBreadcrumb(Breadcrumb(
-        message: 'Metrics report',
-        category: 'metrics.report',
-        level: SentryLevel.info,
-        data: {
-          'performance_operations_count': performanceStats.length,
-          'memory_mb': systemMetrics['memory']?['current_memory_mb'] ?? 0,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      ));
-      
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          message: 'Metrics report',
+          category: 'metrics.report',
+          level: SentryLevel.info,
+          data: {
+            'performance_operations_count': performanceStats.length,
+            'memory_mb': systemMetrics['memory']?['current_memory_mb'] ?? 0,
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+        ),
+      );
+
       // Enviar contexto de métricas
       LoggingService.instance.setContext('metrics_report', {
         'performance_stats': performanceStats,
         'system_metrics': systemMetrics,
         'report_timestamp': DateTime.now().toIso8601String(),
       });
-      
+
       LoggingService.instance.debug('Metrics sent to Sentry', {
         'performance_operations': performanceStats.length,
         'memory_mb': systemMetrics['memory']?['current_memory_mb'] ?? 0,
         'component': 'metrics_monitor',
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to send metrics to Sentry',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to send metrics to Sentry', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -217,7 +192,7 @@ class MetricsMonitor {
     try {
       final performanceStats = PerformanceMonitor.instance.getAllStats();
       final memoryInfo = _getMemoryInfo();
-      
+
       return {
         'is_monitoring': _isMonitoring,
         'performance_operations': performanceStats.length,
@@ -227,10 +202,7 @@ class MetricsMonitor {
       };
     } catch (e) {
       LoggingService.instance.error('Failed to get monitoring stats: $e');
-      return {
-        'is_monitoring': _isMonitoring,
-        'error': e.toString(),
-      };
+      return {'is_monitoring': _isMonitoring, 'error': e.toString()};
     }
   }
 
@@ -241,12 +213,9 @@ class MetricsMonitor {
       _collectAndSendMetrics();
       LoggingService.instance.info('Forced metrics collection completed');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to force metrics collection',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to force metrics collection', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 

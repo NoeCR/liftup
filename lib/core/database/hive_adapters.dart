@@ -48,9 +48,7 @@ class HiveAdapters {
       _registerAdapterSafely<MuscleGroup>(MuscleGroupAdapter());
 
       // Routine Section Template adapters
-      _registerAdapterSafely<RoutineSectionTemplate>(
-        RoutineSectionTemplateAdapter(),
-      );
+      _registerAdapterSafely<RoutineSectionTemplate>(RoutineSectionTemplateAdapter());
 
       // Section Muscle Group adapters
       _registerAdapterSafely<SectionMuscleGroup>(SectionMuscleGroupAdapter());

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/auto_routine_selection_notifier.dart';
 import '../../../common/enums/week_day_enum.dart';
 
-/// Widget que muestra información sobre la selección automática de rutinas
+/// Widget that shows information about automatic routine selection
 class AutoSelectionInfoCard extends ConsumerWidget {
   const AutoSelectionInfoCard({super.key});
 
@@ -23,25 +23,15 @@ class AutoSelectionInfoCard extends ConsumerWidget {
             Row(
               children: [
                 Icon(
-                  autoSelectionInfo.hasSelection
-                      ? Icons.auto_awesome
-                      : Icons.info_outline,
-                  color:
-                      autoSelectionInfo.hasSelection
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
+                  autoSelectionInfo.hasSelection ? Icons.auto_awesome : Icons.info_outline,
+                  color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  autoSelectionInfo.hasSelection
-                      ? 'Rutina Sugerida'
-                      : 'Information',
+                  autoSelectionInfo.hasSelection ? 'Suggested Routine' : 'Information',
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color:
-                        autoSelectionInfo.hasSelection
-                            ? colorScheme.primary
-                            : colorScheme.onSurfaceVariant,
+                    color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -54,15 +44,12 @@ class AutoSelectionInfoCard extends ConsumerWidget {
               autoSelectionInfo.hasSelection
                   ? autoSelectionInfo.description
                   : 'No specific routines for ${autoSelectionInfo.currentDay.displayName}. Showing first available routine.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
-            if (autoSelectionInfo.hasSelection &&
-                autoSelectionInfo.availableRoutines.length > 1) ...[
+            if (autoSelectionInfo.hasSelection && autoSelectionInfo.availableRoutines.length > 1) ...[
               const SizedBox(height: 8),
               Text(
-                '${autoSelectionInfo.availableRoutines.length} rutinas disponibles para ${autoSelectionInfo.currentDay.displayName}',
+                '${autoSelectionInfo.availableRoutines.length} routines available for ${autoSelectionInfo.currentDay.displayName}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
@@ -81,16 +68,10 @@ class AutoSelectionInfoCard extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(12)),
       child: Text(
         day.shortName,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: colorScheme.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
-        ),
+        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.bold),
       ),
     );
   }

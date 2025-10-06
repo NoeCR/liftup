@@ -14,37 +14,37 @@ import 'features/progression/services/progression_template_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializar easy_localization
+  // Initialize easy_localization
   await EasyLocalization.ensureInitialized();
 
-  // Inicializar servicio de entorno
+  // Initialize environment service
   await EnvironmentService.instance.initialize();
 
-  // Inicializar Sentry y ejecutar la aplicación
+  // Initialize Sentry and run the application
   await SentryConfig.initialize(appRunner: _runApp);
 }
 
-/// Función que se ejecuta después de que Sentry se inicializa correctamente
+/// Runs after Sentry has been initialized successfully
 void _runApp() async {
-  // Inicializar servicio de logging
+  // Initialize logging service
   LoggingService.instance.initialize();
 
-  // Inicializar servicio de contexto de usuario
+  // Initialize user context service
   await UserContextService.instance.initialize();
 
-  // Configurar alertas y métricas de Sentry
+  // Configure Sentry alerts and metrics
   if (SentryDsnConfig.isAlertsEnabled) {
     SentryAlertsConfig.configureAlerts();
   }
   await SentryMetricsConfig.initialize();
 
-  // Iniciar monitoreo de métricas y salud si está habilitado
+  // Start metrics and health monitoring when enabled
   if (SentryDsnConfig.isMetricsMonitoringEnabled) {
     MetricsMonitor.instance.startMonitoring();
     HealthMonitor.instance.startMonitoring();
   }
 
-  // Configurar manejo global de errores
+  // Configure global error handling
   _setupGlobalErrorHandling();
 
   // Initialize Hive and register adapters once
@@ -59,33 +59,21 @@ void _runApp() async {
     // Initialize progression templates
     try {
       final container = ProviderContainer();
-      final templateService = container.read(
-        progressionTemplateServiceProvider.notifier,
-      );
+      final templateService = container.read(progressionTemplateServiceProvider.notifier);
       await templateService.initializeBuiltInTemplates();
       container.dispose();
-      LoggingService.instance.info(
-        'Progression templates initialized successfully',
-      );
+      LoggingService.instance.info('Progression templates initialized successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error initializing progression templates',
-        e,
-        stackTrace,
-        {'component': 'progression_templates_initialization'},
-      );
+      LoggingService.instance.error('Error initializing progression templates', e, stackTrace, {
+        'component': 'progression_templates_initialization',
+      });
     }
   } catch (e, stackTrace) {
-    LoggingService.instance.error(
-      'Error initializing database',
-      e,
-      stackTrace,
-      {'component': 'database_initialization'},
-    );
-    // If initialization fails, show error but don't auto-reset
-    LoggingService.instance.warning(
-      'Database initialization failed. User can manually reset from settings if needed.',
-    );
+    LoggingService.instance.error('Error initializing database', e, stackTrace, {
+      'component': 'database_initialization',
+    });
+    // If initialization fails, show error but do not auto-reset
+    LoggingService.instance.warning('Database initialization failed. User can manually reset from settings if needed.');
   }
 
   runApp(
@@ -98,27 +86,20 @@ void _runApp() async {
   );
 }
 
-/// Configura el manejo global de errores
+/// Configures global error handling
 void _setupGlobalErrorHandling() {
-  // Capturar errores de Flutter
+  // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    LoggingService.instance.error(
-      'Flutter Error: ${details.exception}',
-      details.exception,
-      details.stack,
-      {
-        'component': 'flutter_error',
-        'library': details.library,
-        'context': details.context?.toString(),
-      },
-    );
+    LoggingService.instance.error('Flutter Error: ${details.exception}', details.exception, details.stack, {
+      'component': 'flutter_error',
+      'library': details.library,
+      'context': details.context?.toString(),
+    });
   };
 
-  // Capturar errores de plataforma
+  // Capture platform errors
   PlatformDispatcher.instance.onError = (error, stack) {
-    LoggingService.instance.error('Platform Error: $error', error, stack, {
-      'component': 'platform_error',
-    });
+    LoggingService.instance.error('Platform Error: $error', error, stack, {'component': 'platform_error'});
     return true;
   };
 }

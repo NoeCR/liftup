@@ -33,19 +33,19 @@ class ExportConfig extends Equatable {
 
   @override
   List<Object?> get props => [
-        includeSessions,
-        includeExercises,
-        includeRoutines,
-        includeProgressData,
-        includeUserSettings,
-        fromDate,
-        toDate,
-        routineIds,
-        exerciseIds,
-        preferredType,
-        compressData,
-        includeMetadata,
-      ];
+    includeSessions,
+    includeExercises,
+    includeRoutines,
+    includeProgressData,
+    includeUserSettings,
+    fromDate,
+    toDate,
+    routineIds,
+    exerciseIds,
+    preferredType,
+    compressData,
+    includeMetadata,
+  ];
 
   ExportConfig copyWith({
     bool? includeSessions,
@@ -79,19 +79,12 @@ class ExportConfig extends Equatable {
 
   /// Verifica si se incluye algún tipo de dato
   bool get hasAnyData {
-    return includeSessions || 
-           includeExercises || 
-           includeRoutines || 
-           includeProgressData || 
-           includeUserSettings;
+    return includeSessions || includeExercises || includeRoutines || includeProgressData || includeUserSettings;
   }
 
   /// Verifica si se incluyen todos los tipos de datos
   bool get hasAllData {
-    return includeSessions && 
-           includeExercises && 
-           includeRoutines && 
-           includeProgressData;
+    return includeSessions && includeExercises && includeRoutines && includeProgressData;
   }
 
   /// Obtiene una descripción de los datos incluidos
@@ -102,7 +95,7 @@ class ExportConfig extends Equatable {
     if (includeRoutines) included.add('Rutinas');
     if (includeProgressData) included.add('Progreso');
     if (includeUserSettings) included.add('Configuración');
-    
+
     return included.isEmpty ? 'Ningún dato' : included.join(', ');
   }
 
@@ -145,7 +138,6 @@ class ExportConfig extends Equatable {
     );
   }
 }
-
 
 /// Metadatos de exportación
 class ExportMetadata extends Equatable {

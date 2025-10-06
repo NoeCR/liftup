@@ -4,26 +4,24 @@ import '../../../common/enums/week_day_enum.dart';
 import '../notifiers/routine_notifier.dart';
 import '../../../core/logging/logging.dart';
 
-/// Servicio para selección automática de rutinas basada en el día de la semana
+/// Service for automatic routine selection based on the weekday
 class AutoRoutineSelectionService {
   static AutoRoutineSelectionService? _instance;
-  static AutoRoutineSelectionService get instance =>
-      _instance ??= AutoRoutineSelectionService._();
+  static AutoRoutineSelectionService get instance => _instance ??= AutoRoutineSelectionService._();
 
   AutoRoutineSelectionService._();
 
-  /// Obtiene el día de la semana actual
+  /// Returns the current weekday
   WeekDay getCurrentWeekDay() {
     final now = DateTime.now();
     // DateTime.weekday devuelve 1-7 (lunes-domingo)
     return WeekDayExtension.fromInt(now.weekday);
   }
 
-  /// Encuentra rutinas que coincidan con el día de la semana actual
+  /// Finds routines that match the current weekday
   List<Routine> findRoutinesForToday(List<Routine> routines) {
     final today = getCurrentWeekDay();
-    final todayRoutines =
-        routines.where((routine) => routine.days.contains(today)).toList();
+    final todayRoutines = routines.where((routine) => routine.days.contains(today)).toList();
 
     LoggingService.instance.debug('Finding routines for today', {
       'today': today.displayName,
@@ -45,52 +43,43 @@ class AutoRoutineSelectionService {
     return todayRoutines;
   }
 
-  /// Selecciona automáticamente la rutina para el día actual
-  /// Prioriza rutinas con menor orden, luego por fecha de creación
+  /// Automatically selects routine for today.
+  /// Prioritizes routines with lower order, then by creation date.
   Routine? selectRoutineForToday(List<Routine> routines) {
-    return PerformanceMonitor.instance.monitorSync(
-      'select_routine_for_today',
-      () {
-        final todayRoutines = findRoutinesForToday(routines);
+    return PerformanceMonitor.instance.monitorSync('select_routine_for_today', () {
+      final todayRoutines = findRoutinesForToday(routines);
 
-        if (todayRoutines.isEmpty) {
-          LoggingService.instance.info('No routines available for today', {
-            'component': 'auto_routine_selection',
-          });
-          return null;
+      if (todayRoutines.isEmpty) {
+        LoggingService.instance.info('No routines available for today', {'component': 'auto_routine_selection'});
+        return null;
+      }
+
+      // Sort by order (ascending), then by creation date (ascending)
+      todayRoutines.sort((a, b) {
+        // Primero por orden
+        final orderA = a.order ?? 999;
+        final orderB = b.order ?? 999;
+        if (orderA != orderB) {
+          return orderA.compareTo(orderB);
         }
+        // Then by creation date
+        return a.createdAt.compareTo(b.createdAt);
+      });
 
-        // Ordenar por orden (ascendente), luego por fecha de creación (ascendente)
-        todayRoutines.sort((a, b) {
-          // Primero por orden
-          final orderA = a.order ?? 999;
-          final orderB = b.order ?? 999;
-          if (orderA != orderB) {
-            return orderA.compareTo(orderB);
-          }
-          // Luego por fecha de creación
-          return a.createdAt.compareTo(b.createdAt);
-        });
-
-        final selectedRoutine = todayRoutines.first;
-        LoggingService.instance.info('Routine selected for today', {
-          'selected_routine_name': selectedRoutine.name,
-          'selected_routine_id': selectedRoutine.id,
-          'selected_routine_order': selectedRoutine.order,
-          'total_available': todayRoutines.length,
-          'component': 'auto_routine_selection',
-        });
-
-        return selectedRoutine;
-      },
-      context: {
-        'total_routines': routines.length,
+      final selectedRoutine = todayRoutines.first;
+      LoggingService.instance.info('Routine selected for today', {
+        'selected_routine_name': selectedRoutine.name,
+        'selected_routine_id': selectedRoutine.id,
+        'selected_routine_order': selectedRoutine.order,
+        'total_available': todayRoutines.length,
         'component': 'auto_routine_selection',
-      },
-    );
+      });
+
+      return selectedRoutine;
+    }, context: {'total_routines': routines.length, 'component': 'auto_routine_selection'});
   }
 
-  /// Obtiene información sobre la selección automática
+  /// Returns info about the automatic selection
   AutoSelectionInfo getAutoSelectionInfo(List<Routine> routines) {
     final today = getCurrentWeekDay();
     final todayRoutines = findRoutinesForToday(routines);
@@ -105,7 +94,7 @@ class AutoRoutineSelectionService {
   }
 }
 
-/// Información sobre la selección automática
+/// Information about automatic selection
 class AutoSelectionInfo {
   final WeekDay currentDay;
   final List<Routine> availableRoutines;
@@ -119,7 +108,7 @@ class AutoSelectionInfo {
     required this.hasSelection,
   });
 
-  /// Mensaje descriptivo sobre la selección
+  /// Descriptive message about the selection
   String get description {
     if (!hasSelection) {
       return 'No routines configured for ${currentDay.displayName}';
@@ -133,20 +122,19 @@ class AutoSelectionInfo {
   }
 }
 
-/// Provider para el servicio de selección automática
-final autoRoutineSelectionServiceProvider =
-    Provider<AutoRoutineSelectionService>((ref) {
-      return AutoRoutineSelectionService.instance;
-    });
+/// Provider for the automatic selection service
+final autoRoutineSelectionServiceProvider = Provider<AutoRoutineSelectionService>((ref) {
+  return AutoRoutineSelectionService.instance;
+});
 
-/// Provider para obtener información de selección automática
+/// Provider to obtain automatic selection info
 final autoSelectionInfoProvider = Provider<AutoSelectionInfo>((ref) {
   final routines = ref.watch(routineNotifierProvider).value ?? [];
   final service = ref.watch(autoRoutineSelectionServiceProvider);
   return service.getAutoSelectionInfo(routines);
 });
 
-/// Provider para la rutina seleccionada automáticamente
+/// Provider for the automatically selected routine
 final autoSelectedRoutineProvider = Provider<Routine?>((ref) {
   final info = ref.watch(autoSelectionInfoProvider);
   return info.selectedRoutine;

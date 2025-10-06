@@ -78,8 +78,7 @@ class ProgressionState extends Equatable {
     required this.customData,
   });
 
-  factory ProgressionState.fromJson(Map<String, dynamic> json) =>
-      _$ProgressionStateFromJson(json);
+  factory ProgressionState.fromJson(Map<String, dynamic> json) => _$ProgressionStateFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionStateToJson(this);
 
   ProgressionState copyWith({
@@ -124,22 +123,22 @@ class ProgressionState extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        progressionConfigId,
-        exerciseId,
-        currentCycle,
-        currentWeek,
-        currentSession,
-        currentWeight,
-        currentReps,
-        currentSets,
-        baseWeight,
-        baseReps,
-        baseSets,
-        sessionHistory,
-        lastUpdated,
-        isDeloadWeek,
-        oneRepMax,
-        customData,
-      ];
+    id,
+    progressionConfigId,
+    exerciseId,
+    currentCycle,
+    currentWeek,
+    currentSession,
+    currentWeight,
+    currentReps,
+    currentSets,
+    baseWeight,
+    baseReps,
+    baseSets,
+    sessionHistory,
+    lastUpdated,
+    isDeloadWeek,
+    oneRepMax,
+    customData,
+  ];
 }

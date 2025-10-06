@@ -8,7 +8,7 @@ import 'logging_service.dart';
 class UserContextService {
   static UserContextService? _instance;
   static UserContextService get instance => _instance ??= UserContextService._();
-  
+
   UserContextService._();
 
   PackageInfo? _packageInfo;
@@ -20,22 +20,19 @@ class UserContextService {
 
     try {
       LoggingService.instance.info('Initializing UserContextService');
-      
+
       // Obtener información del paquete
       _packageInfo = await PackageInfo.fromPlatform();
-      
+
       // Configurar contexto inicial
       await _setInitialContext();
-      
+
       _isInitialized = true;
       LoggingService.instance.info('UserContextService initialized successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to initialize UserContextService',
-        e,
-        stackTrace,
-        {'component': 'user_context_initialization'},
-      );
+      LoggingService.instance.error('Failed to initialize UserContextService', e, stackTrace, {
+        'component': 'user_context_initialization',
+      });
     }
   }
 
@@ -83,12 +80,9 @@ class UserContextService {
         'debug_mode': kDebugMode,
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to set initial context',
-        e,
-        stackTrace,
-        {'component': 'set_initial_context'},
-      );
+      LoggingService.instance.error('Failed to set initial context', e, stackTrace, {
+        'component': 'set_initial_context',
+      });
     }
   }
 
@@ -112,10 +106,7 @@ class UserContextService {
         userId: userId,
         username: username,
         email: email,
-        extra: {
-          'user_type': userType,
-          ...?customAttributes,
-        },
+        extra: {'user_type': userType, ...?customAttributes},
       );
 
       // Configurar tags adicionales
@@ -142,28 +133,15 @@ class UserContextService {
         'User context set',
         category: 'user',
         level: SentryLevel.info,
-        data: {
-          'user_id': userId,
-          'username': username,
-          'user_type': userType,
-        },
+        data: {'user_id': userId, 'username': username, 'user_type': userType},
       );
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to set user context',
-        e,
-        stackTrace,
-        {'component': 'set_user_context'},
-      );
+      LoggingService.instance.error('Failed to set user context', e, stackTrace, {'component': 'set_user_context'});
     }
   }
 
   /// Actualiza el contexto de sesión
-  void updateSessionContext({
-    String? sessionId,
-    String? sessionType,
-    Map<String, dynamic>? sessionData,
-  }) {
+  void updateSessionContext({String? sessionId, String? sessionType, Map<String, dynamic>? sessionData}) {
     try {
       LoggingService.instance.setContext('session', {
         'id': sessionId,
@@ -183,18 +161,12 @@ class UserContextService {
         'Session context updated',
         category: 'session',
         level: SentryLevel.info,
-        data: {
-          'session_id': sessionId,
-          'session_type': sessionType,
-        },
+        data: {'session_id': sessionId, 'session_type': sessionType},
       );
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to update session context',
-        e,
-        stackTrace,
-        {'component': 'update_session_context'},
-      );
+      LoggingService.instance.error('Failed to update session context', e, stackTrace, {
+        'component': 'update_session_context',
+      });
     }
   }
 
@@ -228,19 +200,12 @@ class UserContextService {
         'Routine context set',
         category: 'routine',
         level: SentryLevel.info,
-        data: {
-          'routine_id': routineId,
-          'routine_name': routineName,
-          'routine_type': routineType,
-        },
+        data: {'routine_id': routineId, 'routine_name': routineName, 'routine_type': routineType},
       );
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to set routine context',
-        e,
-        stackTrace,
-        {'component': 'set_routine_context'},
-      );
+      LoggingService.instance.error('Failed to set routine context', e, stackTrace, {
+        'component': 'set_routine_context',
+      });
     }
   }
 
@@ -274,19 +239,12 @@ class UserContextService {
         'Exercise context set',
         category: 'exercise',
         level: SentryLevel.info,
-        data: {
-          'exercise_id': exerciseId,
-          'exercise_name': exerciseName,
-          'exercise_type': exerciseType,
-        },
+        data: {'exercise_id': exerciseId, 'exercise_name': exerciseName, 'exercise_type': exerciseType},
       );
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to set exercise context',
-        e,
-        stackTrace,
-        {'component': 'set_exercise_context'},
-      );
+      LoggingService.instance.error('Failed to set exercise context', e, stackTrace, {
+        'component': 'set_exercise_context',
+      });
     }
   }
 
@@ -294,18 +252,9 @@ class UserContextService {
   void clearUserContext() {
     try {
       LoggingService.instance.setUserContext();
-      LoggingService.instance.addBreadcrumb(
-        'User context cleared',
-        category: 'user',
-        level: SentryLevel.info,
-      );
+      LoggingService.instance.addBreadcrumb('User context cleared', category: 'user', level: SentryLevel.info);
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to clear user context',
-        e,
-        stackTrace,
-        {'component': 'clear_user_context'},
-      );
+      LoggingService.instance.error('Failed to clear user context', e, stackTrace, {'component': 'clear_user_context'});
     }
   }
 
@@ -320,7 +269,7 @@ class UserContextService {
     if (_packageInfo == null) {
       return 'liftup@unknown';
     }
-    
+
     return '${_packageInfo!.packageName}@${_packageInfo!.version}+${_packageInfo!.buildNumber}';
   }
 

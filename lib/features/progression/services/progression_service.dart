@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:hive/hive.dart';
@@ -11,20 +12,15 @@ import '../../../core/logging/logging.dart';
 
 part 'progression_service.g.dart';
 
-// Provider para uso en producción (usa DatabaseService real)
+// Provider used in production (backed by real DatabaseService)
 @riverpod
-ProgressionService productionProgressionService(
-  ProductionProgressionServiceRef ref,
-) {
+ProgressionService productionProgressionService(Ref ref) {
   return ProgressionService();
 }
 
-// Provider para testing (permite inyección de dependencias)
+// Provider used for testing (allows dependency injection)
 @riverpod
-ProgressionService testProgressionService(
-  TestProgressionServiceRef ref,
-  IDatabaseService databaseService,
-) {
+ProgressionService testProgressionService(Ref ref, IDatabaseService databaseService) {
   return ProgressionService(databaseService: databaseService);
 }
 
@@ -32,7 +28,7 @@ ProgressionService testProgressionService(
 class ProgressionService extends _$ProgressionService {
   final IDatabaseService _databaseService;
 
-  // Constructor con inyección de dependencias
+  // Constructor with dependency injection
   ProgressionService({IDatabaseService? databaseService})
     : _databaseService = databaseService ?? DatabaseService.getInstance();
 
@@ -45,7 +41,7 @@ class ProgressionService extends _$ProgressionService {
   Box get _statesBox => _databaseService.progressionStatesBox;
   Box get _templatesBox => _databaseService.progressionTemplatesBox;
 
-  // ========== CONFIGURACIONES DE PROGRESIÓN ==========
+  // ========== PROGRESSION CONFIGS ==========
 
   Future<void> saveProgressionConfig(ProgressionConfig config) async {
     try {
@@ -57,16 +53,9 @@ class ProgressionService extends _$ProgressionService {
 
       await _configsBox.put(config.id, config);
 
-      LoggingService.instance.info('Progression config saved successfully', {
-        'configId': config.id,
-      });
+      LoggingService.instance.info('Progression config saved successfully', {'configId': config.id});
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error saving progression config',
-        e,
-        stackTrace,
-        {'configId': config.id},
-      );
+      LoggingService.instance.error('Error saving progression config', e, stackTrace, {'configId': config.id});
       rethrow;
     }
   }
@@ -75,12 +64,7 @@ class ProgressionService extends _$ProgressionService {
     try {
       return _configsBox.get(configId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error getting progression config',
-        e,
-        stackTrace,
-        {'configId': configId},
-      );
+      LoggingService.instance.error('Error getting progression config', e, stackTrace, {'configId': configId});
       return null;
     }
   }
@@ -90,13 +74,10 @@ class ProgressionService extends _$ProgressionService {
       final allConfigs = _configsBox.values.cast<ProgressionConfig>();
       return allConfigs.firstWhere(
         (config) => config.isGlobal && config.isActive,
-        orElse:
-            () => throw StateError('No active global progression config found'),
+        orElse: () => throw StateError('No active global progression config found'),
       );
     } catch (e) {
-      LoggingService.instance.debug(
-        'No active global progression config found',
-      );
+      LoggingService.instance.debug('No active global progression config found');
       return null;
     }
   }
@@ -107,11 +88,7 @@ class ProgressionService extends _$ProgressionService {
       allConfigs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return allConfigs;
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error getting all progression configs',
-        e,
-        stackTrace,
-      );
+      LoggingService.instance.error('Error getting all progression configs', e, stackTrace);
       return [];
     }
   }
@@ -119,16 +96,9 @@ class ProgressionService extends _$ProgressionService {
   Future<void> deleteProgressionConfig(String configId) async {
     try {
       await _configsBox.delete(configId);
-      LoggingService.instance.info('Progression config deleted', {
-        'configId': configId,
-      });
+      LoggingService.instance.info('Progression config deleted', {'configId': configId});
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error deleting progression config',
-        e,
-        stackTrace,
-        {'configId': configId},
-      );
+      LoggingService.instance.error('Error deleting progression config', e, stackTrace, {'configId': configId});
       rethrow;
     }
   }
@@ -137,39 +107,24 @@ class ProgressionService extends _$ProgressionService {
   Future<void> cleanupInactiveProgressionStates() async {
     try {
       final allConfigs = _configsBox.values.cast<ProgressionConfig>();
-      final activeConfigIds =
-          allConfigs
-              .where((config) => config.isActive)
-              .map((config) => config.id)
-              .toSet();
+      final activeConfigIds = allConfigs.where((config) => config.isActive).map((config) => config.id).toSet();
 
       final allStates = _statesBox.values.cast<ProgressionState>();
-      final statesToDelete =
-          allStates
-              .where(
-                (state) => !activeConfigIds.contains(state.progressionConfigId),
-              )
-              .toList();
+      final statesToDelete = allStates.where((state) => !activeConfigIds.contains(state.progressionConfigId)).toList();
 
       for (final state in statesToDelete) {
         await _statesBox.delete(state.id);
       }
 
       if (statesToDelete.isNotEmpty) {
-        LoggingService.instance.info('Cleaned up inactive progression states', {
-          'deletedCount': statesToDelete.length,
-        });
+        LoggingService.instance.info('Cleaned up inactive progression states', {'deletedCount': statesToDelete.length});
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error cleaning up inactive progression states',
-        e,
-        stackTrace,
-      );
+      LoggingService.instance.error('Error cleaning up inactive progression states', e, stackTrace);
     }
   }
 
-  // ========== ESTADOS DE PROGRESIÓN ==========
+  // ========== PROGRESSION STATES ==========
 
   Future<void> saveProgressionState(ProgressionState state) async {
     try {
@@ -182,16 +137,9 @@ class ProgressionService extends _$ProgressionService {
 
       await _statesBox.put(state.id, state);
 
-      LoggingService.instance.info('Progression state saved successfully', {
-        'stateId': state.id,
-      });
+      LoggingService.instance.info('Progression state saved successfully', {'stateId': state.id});
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error saving progression state',
-        e,
-        stackTrace,
-        {'stateId': state.id},
-      );
+      LoggingService.instance.error('Error saving progression state', e, stackTrace, {'stateId': state.id});
       rethrow;
     }
   }
@@ -200,26 +148,16 @@ class ProgressionService extends _$ProgressionService {
     try {
       return _statesBox.get(stateId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error getting progression state',
-        e,
-        stackTrace,
-        {'stateId': stateId},
-      );
+      LoggingService.instance.error('Error getting progression state', e, stackTrace, {'stateId': stateId});
       return null;
     }
   }
 
-  Future<ProgressionState?> getProgressionStateByExercise(
-    String configId,
-    String exerciseId,
-  ) async {
+  Future<ProgressionState?> getProgressionStateByExercise(String configId, String exerciseId) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
       return allStates.firstWhere(
-        (state) =>
-            state.progressionConfigId == configId &&
-            state.exerciseId == exerciseId,
+        (state) => state.progressionConfigId == configId && state.exerciseId == exerciseId,
         orElse: () => throw StateError('No progression state found'),
       );
     } catch (e) {
@@ -231,56 +169,37 @@ class ProgressionService extends _$ProgressionService {
     }
   }
 
-  Future<List<ProgressionState>> getProgressionStatesByConfig(
-    String configId,
-  ) async {
+  Future<List<ProgressionState>> getProgressionStatesByConfig(String configId) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
-      return allStates
-          .where((state) => state.progressionConfigId == configId)
-          .toList();
+      return allStates.where((state) => state.progressionConfigId == configId).toList();
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error getting progression states by config',
-        e,
-        stackTrace,
-        {'configId': configId},
-      );
+      LoggingService.instance.error('Error getting progression states by config', e, stackTrace, {
+        'configId': configId,
+      });
       return [];
     }
   }
 
-  // ========== PLANTILLAS DE PROGRESIÓN ==========
+  // ========== PROGRESSION TEMPLATES ==========
 
   Future<void> saveProgressionTemplate(ProgressionTemplate template) async {
     try {
       await _templatesBox.put(template.id, template);
-      LoggingService.instance.info('Progression template saved', {
-        'templateId': template.id,
-      });
+      LoggingService.instance.info('Progression template saved', {'templateId': template.id});
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error saving progression template',
-        e,
-        stackTrace,
-        {'templateId': template.id},
-      );
+      LoggingService.instance.error('Error saving progression template', e, stackTrace, {'templateId': template.id});
       rethrow;
     }
   }
 
   Future<List<ProgressionTemplate>> getAllProgressionTemplates() async {
     try {
-      final allTemplates =
-          _templatesBox.values.cast<ProgressionTemplate>().toList();
+      final allTemplates = _templatesBox.values.cast<ProgressionTemplate>().toList();
       allTemplates.sort((a, b) => a.name.compareTo(b.name));
       return allTemplates;
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error getting all progression templates',
-        e,
-        stackTrace,
-      );
+      LoggingService.instance.error('Error getting all progression templates', e, stackTrace);
       return [];
     }
   }
@@ -289,19 +208,14 @@ class ProgressionService extends _$ProgressionService {
     try {
       return _templatesBox.get(templateId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error getting progression template',
-        e,
-        stackTrace,
-        {'templateId': templateId},
-      );
+      LoggingService.instance.error('Error getting progression template', e, stackTrace, {'templateId': templateId});
       return null;
     }
   }
 
-  // ========== LÓGICA DE PROGRESIÓN ==========
+  // ========== PROGRESSION LOGIC ==========
 
-  /// Calcula los valores actualizados para un ejercicio basado en su progresión
+  /// Computes updated values for an exercise based on its progression
   Future<ProgressionCalculationResult> calculateProgression(
     String configId,
     String exerciseId,
@@ -328,13 +242,12 @@ class ProgressionService extends _$ProgressionService {
         currentSets: currentSets,
       );
 
-      // Calcular la semana actual basada en el número de sesiones
-      // Asumiendo 3 sesiones por semana (configurable)
+      // Compute current week based on session count (3 sessions/week by default; configurable)
       final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
       final newSession = state.currentSession + 1;
       final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
 
-      // Actualizar el estado de progresión
+      // Update progression state
       final updatedState = state.copyWith(
         currentWeight: result.newWeight,
         currentReps: result.newReps,
@@ -365,12 +278,10 @@ class ProgressionService extends _$ProgressionService {
 
       return result;
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error calculating progression',
-        e,
-        stackTrace,
-        {'configId': configId, 'exerciseId': exerciseId},
-      );
+      LoggingService.instance.error('Error calculating progression', e, stackTrace, {
+        'configId': configId,
+        'exerciseId': exerciseId,
+      });
       rethrow;
     }
   }
@@ -384,85 +295,25 @@ class ProgressionService extends _$ProgressionService {
   }) {
     switch (config.type) {
       case ProgressionType.linear:
-        return _calculateLinearProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateLinearProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.undulating:
-        return _calculateUndulatingProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateUndulatingProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.stepped:
-        return _calculateSteppedProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateSteppedProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.double:
-        return _calculateDoubleProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateDoubleProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.wave:
-        return _calculateWaveProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateWaveProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.static:
-        return _calculateStaticProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateStaticProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.reverse:
-        return _calculateReverseProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateReverseProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.autoregulated:
-        return _calculateAutoregulatedProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateAutoregulatedProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.doubleFactor:
-        return _calculateDoubleFactorProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateDoubleFactorProgression(config, state, currentWeight, currentReps, currentSets);
       case ProgressionType.overload:
-        return _calculateOverloadProgression(
-          config,
-          state,
-          currentWeight,
-          currentReps,
-          currentSets,
-        );
+        return _calculateOverloadProgression(config, state, currentWeight, currentReps, currentSets);
       default:
         return ProgressionCalculationResult(
           newWeight: currentWeight,
@@ -481,37 +332,31 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la sesión/semana actual en el ciclo según la unidad
+    // Compute current position in cycle based on configured unit
     final currentInCycle =
         config.unit == ProgressionUnit.session
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
 
-    final isDeloadPeriod =
-        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
-    // Si es período de deload, aplicar deload
+    // Apply deload if current period matches deloadWeek
     if (isDeloadPeriod) {
-      // Deload proporcional: reduce un porcentaje del aumento logrado desde el peso base
-      // Ej.: base 100, actual 120, 90% => 100 + (20 * 0.9) = 118
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-        0,
-        double.infinity,
-      );
-      final double deloadWeight =
-          state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      // Proportional deload: reduce a percentage of the increase achieved over base weight
+      // Example: base 100, current 120, 90% => 100 + (20 * 0.9) = 118
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Linear progression: deload ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
+        reason: 'Linear progression: deload ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
       );
     }
 
-    // Progresión lineal: incremento constante cada X períodos
+    // Linear progression: constant increment every X periods
     if (currentInCycle % config.incrementFrequency == 0) {
       return ProgressionCalculationResult(
         newWeight: currentWeight + config.incrementValue,
@@ -528,8 +373,7 @@ class ProgressionService extends _$ProgressionService {
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: false,
-      reason:
-          'Linear progression: no increment this ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
+      reason: 'Linear progression: no increment this ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
     );
   }
 
@@ -540,45 +384,41 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // Apply deload on configured week
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Undulating progression: deload week (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Undulating progression: deload week (week $weekInCycle of ${config.cycleLength})',
       );
     }
 
-    // Progresión ondulante: alterna entre días pesados y ligeros
+    // Undulating progression: heavy vs light days
     final isHeavyDay = weekInCycle % 2 == 1;
 
     if (isHeavyDay) {
-      // Día pesado: más peso, menos repeticiones
+      // Heavy day: more weight, fewer reps
       return ProgressionCalculationResult(
         newWeight: currentWeight + (config.incrementValue * 0.5),
         newReps: (currentReps * 0.8).round(),
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Undulating progression: heavy day (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Undulating progression: heavy day (week $weekInCycle of ${config.cycleLength})',
       );
     } else {
-      // Día ligero: menos peso, más repeticiones
+      // Light day: less weight, more reps
       return ProgressionCalculationResult(
         newWeight: currentWeight - (config.incrementValue * 0.5),
         newReps: (currentReps * 1.2).round(),
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Undulating progression: light day (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Undulating progression: light day (week $weekInCycle of ${config.cycleLength})',
       );
     }
   }
@@ -590,10 +430,9 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
@@ -601,13 +440,11 @@ class ProgressionService extends _$ProgressionService {
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Stepped progression: deload week (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Stepped progression: deload week (week $weekInCycle of ${config.cycleLength})',
       );
     } else {
-      // Progresión escalonada: acumula incrementos durante las semanas de acumulación
-      final accumulationWeeks =
-          config.customParameters['accumulation_weeks'] ?? 3;
+      // Stepped progression: accumulates increases during accumulation weeks
+      final accumulationWeeks = config.customParameters['accumulation_weeks'] ?? 3;
       final totalIncrement =
           weekInCycle <= accumulationWeeks
               ? config.incrementValue * weekInCycle
@@ -618,8 +455,7 @@ class ProgressionService extends _$ProgressionService {
         newReps: currentReps,
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Stepped progression: accumulation phase (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Stepped progression: accumulation phase (week $weekInCycle of ${config.cycleLength})',
       );
     }
   }
@@ -631,15 +467,14 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular el índice actual en el ciclo según la unidad configurada
+    // Compute current position in the cycle based on the configured unit
     final currentInCycle =
         config.unit == ProgressionUnit.session
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadPeriod =
-        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
-    // Logs detallados para debugging
+    // Detailed logs for debugging
     LoggingService.instance.info('DOUBLE PROGRESSION CALCULATION', {
       'exerciseId': state.exerciseId,
       'currentWeek': state.currentWeek,
@@ -659,7 +494,7 @@ class ProgressionService extends _$ProgressionService {
       'deloadPercentage': config.deloadPercentage,
     });
 
-    // Si es período de deload, aplicar deload
+    // If it's a deload period, apply deload
     if (isDeloadPeriod) {
       final deloadWeight = state.baseWeight * config.deloadPercentage;
       final deloadSets = (currentSets * 0.7).round();
@@ -678,17 +513,16 @@ class ProgressionService extends _$ProgressionService {
         newReps: currentReps,
         newSets: deloadSets,
         incrementApplied: true,
-        reason:
-            'Double progression: deload ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
+        reason: 'Double progression: deload ${config.unit.name} ($currentInCycle of ${config.cycleLength})',
       );
     }
 
-    // Progresión doble: primero aumenta repeticiones, luego peso
+    // Double progression: first increase reps, then weight
     final maxReps = config.customParameters['max_reps'] ?? 12;
     final minReps = config.customParameters['min_reps'] ?? 5;
 
     if (currentReps < maxReps) {
-      // Aumentar repeticiones
+      // Increase repetitions
       LoggingService.instance.info('DOUBLE PROGRESSION: INCREASING REPS', {
         'exerciseId': state.exerciseId,
         'unit': config.unit.name,
@@ -705,26 +539,24 @@ class ProgressionService extends _$ProgressionService {
         newReps: currentReps + 1,
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Double progression: increasing reps (${config.unit.name} $currentInCycle of ${config.cycleLength})',
+        reason: 'Double progression: increasing reps (${config.unit.name} $currentInCycle of ${config.cycleLength})',
       );
     } else {
-      // Aumentar peso y resetear repeticiones
+      // Increase weight and reset repetitions
       final newWeight = currentWeight + config.incrementValue;
 
-      LoggingService.instance
-          .info('DOUBLE PROGRESSION: INCREASING WEIGHT & RESETTING REPS', {
-            'exerciseId': state.exerciseId,
-            'unit': config.unit.name,
-            'currentInCycle': currentInCycle,
-            'currentWeight': currentWeight,
-            'newWeight': newWeight,
-            'incrementValue': config.incrementValue,
-            'currentReps': currentReps,
-            'newReps': minReps,
-            'maxReps': maxReps,
-            'reason': 'Max reps reached, increasing weight and resetting reps',
-          });
+      LoggingService.instance.info('DOUBLE PROGRESSION: INCREASING WEIGHT & RESETTING REPS', {
+        'exerciseId': state.exerciseId,
+        'unit': config.unit.name,
+        'currentInCycle': currentInCycle,
+        'currentWeight': currentWeight,
+        'newWeight': newWeight,
+        'incrementValue': config.incrementValue,
+        'currentReps': currentReps,
+        'newReps': minReps,
+        'maxReps': maxReps,
+        'reason': 'Max reps reached, increasing weight and resetting reps',
+      });
 
       return ProgressionCalculationResult(
         newWeight: newWeight,
@@ -744,46 +576,42 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Progresión por oleadas: usa el ciclo configurado
+    // Wave progression: uses the configured cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
 
     switch (weekInCycle) {
-      case 1: // Semana de alta intensidad
+      case 1: // High-intensity week
         return ProgressionCalculationResult(
           newWeight: currentWeight + config.incrementValue,
           newReps: (currentReps * 0.8).round(),
           newSets: currentSets,
           incrementApplied: true,
-          reason:
-              'Wave progression: high intensity week (week $weekInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: high intensity week (week $weekInCycle of ${config.cycleLength})',
         );
-      case 2: // Semana de alto volumen
+      case 2: // High-volume week
         return ProgressionCalculationResult(
           newWeight: currentWeight - (config.incrementValue * 0.2),
           newReps: (currentReps * 1.3).round(),
           newSets: currentSets + 1,
           incrementApplied: true,
-          reason:
-              'Wave progression: high volume week (week $weekInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: high volume week (week $weekInCycle of ${config.cycleLength})',
         );
-      case 3: // Semana de descarga
+      case 3: // Deload week
         return ProgressionCalculationResult(
           newWeight: state.baseWeight * config.deloadPercentage,
           newReps: currentReps,
           newSets: (currentSets * 0.7).round(),
           incrementApplied: true,
-          reason:
-              'Wave progression: deload week (week $weekInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: deload week (week $weekInCycle of ${config.cycleLength})',
         );
       default:
-        // Para ciclos más largos, aplicar progresión normal
+        // For longer cycles, apply normal progression
         return ProgressionCalculationResult(
           newWeight: currentWeight + config.incrementValue,
           newReps: currentReps,
           newSets: currentSets,
           incrementApplied: true,
-          reason:
-              'Wave progression: normal progression (week $weekInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: normal progression (week $weekInCycle of ${config.cycleLength})',
         );
     }
   }
@@ -795,7 +623,7 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Progresión estática: mantiene valores constantes
+    // Static progression: keep constant values
     return ProgressionCalculationResult(
       newWeight: currentWeight,
       newReps: currentReps,
@@ -812,7 +640,7 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Progresión inversa: reduce peso, aumenta repeticiones
+    // Reverse progression: decrease weight, increase reps
     return ProgressionCalculationResult(
       newWeight: currentWeight - config.incrementValue,
       newReps: currentReps + 1,
@@ -829,25 +657,23 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in the cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // If it's a deload week, apply deload
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Autoregulated progression: deload week (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Autoregulated progression: deload week (week $weekInCycle of ${config.cycleLength})',
       );
     }
 
-    // Progresión autoregulada: ajusta basado en RPE/RIR
-    // Calcula el RPE basado en las repeticiones realizadas vs objetivo
+    // Autoregulated progression: adjust based on RPE/RIR
+    // Estimate RPE based on performed reps vs target
 
     final targetRPE = config.customParameters['target_rpe'] ?? 8.0;
     final rpeThreshold = config.customParameters['rpe_threshold'] ?? 0.5;
@@ -855,20 +681,19 @@ class ProgressionService extends _$ProgressionService {
     final maxReps = config.customParameters['max_reps'] ?? 12;
     final minReps = config.customParameters['min_reps'] ?? 5;
 
-    // Obtener las repeticiones realizadas en la última sesión
-    final lastSessionData =
-        state.sessionHistory['session_${state.currentSession}'];
+    // Get repetitions performed in the last session
+    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
     final performedReps = lastSessionData?['reps'] ?? currentReps;
 
-    // Calcular RPE estimado basado en repeticiones realizadas vs objetivo
-    // Si realizó más repeticiones de las objetivo, RPE fue bajo
-    // Si realizó menos repeticiones de las objetivo, RPE fue alto
+    // Calculate estimated RPE based on performed vs target reps
+    // If performed reps exceed target, RPE was low
+    // If performed reps are below target, RPE was high
     double estimatedRPE;
     if (performedReps >= targetReps) {
-      // RPE bajo: pudo hacer más repeticiones de las objetivo
+      // Low RPE: could do more than target reps
       estimatedRPE = targetRPE - ((performedReps - targetReps) * 0.5);
     } else {
-      // RPE alto: no pudo completar las repeticiones objetivo
+      // High RPE: could not complete target reps
       estimatedRPE = targetRPE + ((targetReps - performedReps) * 0.8);
     }
 
@@ -882,13 +707,12 @@ class ProgressionService extends _$ProgressionService {
         newReps: currentReps,
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Autoregulated progression: RPE too low (${estimatedRPE.toStringAsFixed(1)}), increasing weight',
+        reason: 'Autoregulated progression: RPE too low (${estimatedRPE.toStringAsFixed(1)}), increasing weight',
       );
     }
-    // Si el RPE fue muy alto, reducir peso
+    // If RPE was too high, reduce weight
     else if (estimatedRPE > targetRPE + rpeThreshold) {
-      // Si las repeticiones están por debajo del mínimo, ajustarlas al mínimo
+      // If reps are below the minimum, adjust to the minimum
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
 
       return ProgressionCalculationResult(
@@ -902,9 +726,9 @@ class ProgressionService extends _$ProgressionService {
                 : 'Autoregulated progression: RPE too high (${estimatedRPE.toStringAsFixed(1)}), reducing weight',
       );
     }
-    // Si el RPE está en el rango objetivo, aumentar repeticiones (hasta el máximo)
+    // If RPE is within the target range, increase reps (up to the max)
     else {
-      // Asegurar que las repeticiones estén al menos en el mínimo
+      // Ensure reps are at least the minimum
       final baseReps = currentReps < minReps ? minReps : currentReps;
       final newReps = baseReps < maxReps ? baseReps + 1 : baseReps;
 
@@ -928,36 +752,33 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in the cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // If it's a deload week, apply deload
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Double factor progression: deload week (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Double factor progression: deload week (week $weekInCycle of ${config.cycleLength})',
       );
     }
 
-    // Progresión doble factor: balance entre fitness y fatiga
+    // Double factor progression: balance between fitness and fatigue
     final fitnessGain = config.customParameters['fitness_gain'] ?? 0.1;
     final fatigueDecay = config.customParameters['fatigue_decay'] ?? 0.05;
 
-    // Simular fitness y fatiga acumulados
+    // Simulate accumulated fitness and fatigue
     final currentFitness = state.customData['fitness'] ?? 1.0;
     final currentFatigue = state.customData['fatigue'] ?? 0.0;
 
     final newFitness = currentFitness + fitnessGain;
-    final newFatigue =
-        (currentFatigue + fitnessGain * 0.8) * (1 - fatigueDecay);
+    final newFatigue = (currentFatigue + fitnessGain * 0.8) * (1 - fatigueDecay);
 
-    // Ajustar peso basado en la relación fitness/fatiga
+    // Adjust weight based on the fitness/fatigue ratio
     final fitnessFatigueRatio = newFitness / (1 + newFatigue);
     final weightMultiplier = fitnessFatigueRatio > 1.0 ? 1.05 : 0.95;
 
@@ -978,53 +799,49 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets,
   ) {
-    // Calcular la semana actual en el ciclo
+    // Compute current week in the cycle
     final weekInCycle = ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadWeek =
-        config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
+    final isDeloadWeek = config.deloadWeek > 0 && weekInCycle == config.deloadWeek;
 
-    // Si es semana de deload, aplicar deload
+    // If it's a deload week, apply deload
     if (isDeloadWeek) {
       return ProgressionCalculationResult(
         newWeight: state.baseWeight * config.deloadPercentage,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Overload progression: deload week (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Overload progression: deload week (week $weekInCycle of ${config.cycleLength})',
       );
     }
 
-    // Sobrecarga progresiva: incremento gradual de volumen o intensidad
+    // Progressive overload: gradual increase of volume or intensity
     final overloadType = config.customParameters['overload_type'] ?? 'volume';
     final overloadRate = config.customParameters['overload_rate'] ?? 0.1;
 
     if (overloadType == 'volume') {
-      // Aumentar volumen (series)
+      // Increase volume (sets)
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
         newSets: (currentSets * (1 + overloadRate)).round(),
         incrementApplied: true,
-        reason:
-            'Overload progression: increasing volume (sets) (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Overload progression: increasing volume (sets) (week $weekInCycle of ${config.cycleLength})',
       );
     } else {
-      // Aumentar intensidad (peso)
+      // Increase intensity (weight)
       return ProgressionCalculationResult(
         newWeight: currentWeight * (1 + overloadRate),
         newReps: currentReps,
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Overload progression: increasing intensity (weight) (week $weekInCycle of ${config.cycleLength})',
+        reason: 'Overload progression: increasing intensity (weight) (week $weekInCycle of ${config.cycleLength})',
       );
     }
   }
 
-  // ========== INICIALIZACIÓN DE PROGRESIONES ==========
+  // ========== PROGRESSION INITIALIZATION ==========
 
-  /// Inicializa una nueva progresión global
+  /// Initializes a new global progression configuration
   Future<ProgressionConfig> initializeProgression({
     required ProgressionType type,
     required ProgressionUnit unit,
@@ -1061,24 +878,19 @@ class ProgressionService extends _$ProgressionService {
 
       await saveProgressionConfig(config);
 
-      LoggingService.instance.info(
-        'Global progression initialized successfully',
-        {'configId': config.id, 'type': type.name},
-      );
+      LoggingService.instance.info('Global progression initialized successfully', {
+        'configId': config.id,
+        'type': type.name,
+      });
 
       return config;
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error initializing progression',
-        e,
-        stackTrace,
-        {'type': type.name},
-      );
+      LoggingService.instance.error('Error initializing progression', e, stackTrace, {'type': type.name});
       rethrow;
     }
   }
 
-  /// Inicializa el estado de progresión para un ejercicio específico
+  /// Initializes progression state for a specific exercise
   Future<ProgressionState> initializeExerciseProgression({
     required String configId,
     required String exerciseId,
@@ -1119,12 +931,10 @@ class ProgressionService extends _$ProgressionService {
 
       return state;
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error initializing exercise progression state',
-        e,
-        stackTrace,
-        {'configId': configId, 'exerciseId': exerciseId},
-      );
+      LoggingService.instance.error('Error initializing exercise progression state', e, stackTrace, {
+        'configId': configId,
+        'exerciseId': exerciseId,
+      });
       rethrow;
     }
   }

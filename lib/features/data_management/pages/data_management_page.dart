@@ -30,7 +30,7 @@ class DataManagementPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Sección de Exportación
+          // Export section
           _buildSectionCard(
             context: context,
             title: context.tr('dataManagement.exportData'),
@@ -42,7 +42,7 @@ class DataManagementPage extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Sección de Importación
+          // Import section
           _buildSectionCard(
             context: context,
             title: context.tr('dataManagement.importData'),
@@ -54,7 +54,7 @@ class DataManagementPage extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Sección de Backup en la Nube
+          // Cloud Backup section
           _buildSectionCard(
             context: context,
             title: context.tr('dataManagement.cloudBackup'),
@@ -66,7 +66,7 @@ class DataManagementPage extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Sección de Compartición
+          // Sharing section
           _buildSectionCard(
             context: context,
             title: context.tr('dataManagement.shareRoutines'),
@@ -78,7 +78,7 @@ class DataManagementPage extends ConsumerWidget {
 
           const SizedBox(height: 16),
 
-          // Sección de Historial
+          // History section
           _buildSectionCard(
             context: context,
             title: context.tr('dataManagement.changeHistory'),
@@ -116,7 +116,7 @@ class DataManagementPage extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: color, size: 24),
@@ -126,17 +126,10 @@ class DataManagementPage extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                       Text(
                         subtitle,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -164,12 +157,7 @@ class DataManagementPage extends ConsumerWidget {
               '• Retención de historial\n'
               '• Formatos de exportación preferidos',
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
+            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar'))],
           ),
     );
   }

@@ -29,21 +29,12 @@ class RoutineNotifier extends _$RoutineNotifier {
   Future<void> addRoutine(Routine routine) async {
     final routineService = ref.read(routineServiceProvider);
 
-    // Obtener el siguiente orden disponible
+    // Compute next available display order
     final currentRoutines = await routineService.getAllRoutines();
     final nextOrder =
-        currentRoutines.isEmpty
-            ? 0
-            : (currentRoutines
-                    .map((r) => r.order ?? 0)
-                    .reduce((a, b) => a > b ? a : b) +
-                1);
+        currentRoutines.isEmpty ? 0 : (currentRoutines.map((r) => r.order ?? 0).reduce((a, b) => a > b ? a : b) + 1);
 
-    final newRoutine = routine.copyWith(
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      order: nextOrder,
-    );
+    final newRoutine = routine.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now(), order: nextOrder);
 
     await routineService.saveRoutine(newRoutine);
     state = AsyncValue.data(await routineService.getAllRoutines());
@@ -53,11 +44,11 @@ class RoutineNotifier extends _$RoutineNotifier {
     final routineService = ref.read(routineServiceProvider);
     final updatedRoutine = routine.copyWith(updatedAt: DateTime.now());
 
-    // Debug: Guardando rutina con secciones y ejercicios
+    // Persist routine with updated sections and exercises
 
     await routineService.saveRoutine(updatedRoutine);
     state = AsyncValue.data(await routineService.getAllRoutines());
-    // Debug: Rutina guardada exitosamente
+    // Routine saved successfully
   }
 
   Future<void> deleteRoutine(String routineId) async {
@@ -90,9 +81,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     for (final routine in currentRoutines) {
       for (final section in routine.sections) {
         if (section.id == sectionId) {
-          final updatedSection = section.copyWith(
-            isCollapsed: !section.isCollapsed,
-          );
+          final updatedSection = section.copyWith(isCollapsed: !section.isCollapsed);
 
           final updatedSections =
               routine.sections.map((s) {
@@ -129,11 +118,11 @@ class RoutineNotifier extends _$RoutineNotifier {
   }
 
   Future<void> _loadInitialRoutine() async {
-    // No crear rutinas automáticamente - el usuario las creará manualmente
-    // Esto permite mayor flexibilidad y personalización
+    // Do not create routines automatically — the user will create them manually
+    // This allows greater flexibility and customization
   }
 
-  /// Reordena las rutinas manualmente
+  /// Reorders routines manually
   Future<void> reorderRoutines(List<String> routineIds) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) return;
@@ -152,7 +141,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     state = AsyncValue.data(await routineService.getAllRoutines());
   }
 
-  /// Mueve una rutina a una posición específica
+  /// Moves a routine to a specific position
   Future<void> moveRoutineToPosition(String routineId, int newPosition) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) return;
@@ -166,10 +155,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     await reorderRoutines(routineIds);
   }
 
-  Future<void> addSectionsToRoutine(
-    String routineId,
-    List<String> sectionTemplateIds,
-  ) async {
+  Future<void> addSectionsToRoutine(String routineId, List<String> sectionTemplateIds) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) {
       return;
@@ -185,9 +171,7 @@ class RoutineNotifier extends _$RoutineNotifier {
       final routine = currentRoutines[routineIndex];
 
       // Get section templates
-      final sectionTemplates = await ref.read(
-        routineSectionTemplateNotifierProvider.future,
-      );
+      final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
 
       // Create sections based on selected templates
       final newSections =

@@ -348,17 +348,17 @@ extension MuscleGroupExtension on MuscleGroup {
   }
 
   static List<String> get allCategories => [
-        'Pecho',
-        'Espalda',
-        'Hombros',
-        'Bíceps',
-        'Tríceps',
-        'Antebrazos',
-        'Cuádriceps',
-        'Isquiotibiales',
-        'Glúteos',
-        'Pantorrillas',
-        'Core',
-        'Otros',
-      ];
+    'Pecho',
+    'Espalda',
+    'Hombros',
+    'Bíceps',
+    'Tríceps',
+    'Antebrazos',
+    'Cuádriceps',
+    'Isquiotibiales',
+    'Glúteos',
+    'Pantorrillas',
+    'Core',
+    'Otros',
+  ];
 }

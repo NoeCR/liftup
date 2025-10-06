@@ -82,12 +82,7 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      routine.name,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: Text(routine.name, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                   ),
                   PopupMenuButton<String>(
                     onSelected: (value) => _handleMenuAction(value, routine),
@@ -95,13 +90,7 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
                         (context) => [
                           const PopupMenuItem(
                             value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit),
-                                SizedBox(width: 8),
-                                Text('Editar'),
-                              ],
-                            ),
+                            child: Row(children: [Icon(Icons.edit), SizedBox(width: 8), Text('Editar')]),
                           ),
                           const PopupMenuItem(
                             value: 'delete',
@@ -109,10 +98,7 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
                               children: [
                                 Icon(Icons.delete, color: Colors.red),
                                 SizedBox(width: 8),
-                                Text(
-                                  'Eliminar',
-                                  style: TextStyle(color: Colors.red),
-                                ),
+                                Text('Eliminar', style: TextStyle(color: Colors.red)),
                               ],
                             ),
                           ),
@@ -126,9 +112,7 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
               if (routine.description.isNotEmpty) ...[
                 Text(
                   routine.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -144,31 +128,19 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
               // Footer with creation date
               Row(
                 children: [
-                  Icon(
-                    Icons.access_time,
-                    size: 16,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  Icon(Icons.access_time, size: 16, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 4),
                   Text(
                     'Creada: ${_formatDate(routine.createdAt)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                   ),
                   const Spacer(),
                   if (routine.updatedAt != routine.createdAt) ...[
-                    Icon(
-                      Icons.edit,
-                      size: 16,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.edit, size: 16, color: colorScheme.onSurfaceVariant),
                     const SizedBox(width: 4),
                     Text(
                       'Actualizada: ${_formatDate(routine.updatedAt)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ],
@@ -189,10 +161,7 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
       children: [
         Text(
           'Días de entrenamiento:',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
-          ),
+          style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 4),
         Wrap(
@@ -201,15 +170,9 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
           children:
               days.map((day) {
                 return Chip(
-                  label: Text(
-                    day.displayName,
-                    style: theme.textTheme.bodySmall,
-                  ),
+                  label: Text(day.displayName, style: theme.textTheme.bodySmall),
                   backgroundColor: colorScheme.primaryContainer,
-                  labelStyle: TextStyle(
-                    color: colorScheme.onPrimaryContainer,
-                    fontSize: 12,
-                  ),
+                  labelStyle: TextStyle(color: colorScheme.onPrimaryContainer, fontSize: 12),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );
               }).toList(),
@@ -228,24 +191,14 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
         const SizedBox(width: 4),
         Text(
           '${routine.sections.length} secciones',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
-          ),
+          style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
         const SizedBox(width: 16),
-        Icon(
-          Icons.fitness_center,
-          size: 16,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        Icon(Icons.fitness_center, size: 16, color: colorScheme.onSurfaceVariant),
         const SizedBox(width: 4),
         Text(
           '${routine.sections.fold(0, (sum, section) => sum + section.exercises.length)} ejercicios',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
-          ),
+          style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -261,24 +214,16 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.fitness_center_outlined,
-              size: 80,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            Icon(Icons.fitness_center_outlined, size: 80, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: 24),
             Text(
               'No tienes rutinas creadas',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.headlineSmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 12),
             Text(
               'Crea tu primera rutina para comenzar a entrenar de manera organizada.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -305,18 +250,11 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
           children: [
             Icon(Icons.error_outline, size: 80, color: colorScheme.error),
             const SizedBox(height: 24),
-            Text(
-              'Error al cargar rutinas',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                color: colorScheme.error,
-              ),
-            ),
+            Text('Error al cargar rutinas', style: theme.textTheme.headlineSmall?.copyWith(color: colorScheme.error)),
             const SizedBox(height: 12),
             Text(
               error.toString(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -334,9 +272,7 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
   }
 
   void _navigateToEditRoutine(Routine routine) {
-    context.push(
-      '${AppRouter.createRoutine}?edit=true&routineId=${routine.id}',
-    );
+    context.push('${AppRouter.createRoutine}?edit=true&routineId=${routine.id}');
   }
 
   void _handleMenuAction(String action, Routine routine) {
@@ -361,18 +297,13 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
               'Esta acción no se puede deshacer.',
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
               FilledButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
                   await _deleteRoutine(routine);
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
                 child: const Text('Eliminar'),
               ),
             ],
@@ -382,26 +313,18 @@ class _RoutineListPageState extends ConsumerState<RoutineListPage> {
 
   Future<void> _deleteRoutine(Routine routine) async {
     try {
-      await ref
-          .read(routineNotifierProvider.notifier)
-          .deleteRoutine(routine.id);
+      await ref.read(routineNotifierProvider.notifier).deleteRoutine(routine.id);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Rutina "${routine.name}" eliminada exitosamente'),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text('Rutina "${routine.name}" eliminada exitosamente'), backgroundColor: Colors.green),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al eliminar rutina: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al eliminar rutina: $e'), backgroundColor: Colors.red));
       }
     }
   }

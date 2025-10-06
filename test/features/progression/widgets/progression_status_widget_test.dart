@@ -2,31 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liftup/features/progression/notifiers/progression_notifier.dart';
-import 'package:liftup/features/progression/widgets/progression_status_widget.dart';
 import 'package:liftup/features/progression/models/progression_config.dart';
 import 'package:liftup/common/enums/progression_type_enum.dart';
 import '../mocks/progression_mock_factory.dart';
 
 void main() {
   group('ProgressionStatusWidget', () {
-    Widget createTestWidget({
-      ProgressionConfig? config,
-      bool isLoading = false,
-      String? error,
-    }) {
+    Widget createTestWidget({ProgressionConfig? config, bool isLoading = false, String? error}) {
       return ProviderScope(
         overrides: [
           progressionNotifierProvider.overrideWith(
-            () => _TestProgressionNotifier(
-              config: config,
-              isLoading: isLoading,
-              error: error,
-            ),
+            () => _TestProgressionNotifier(config: config, isLoading: isLoading, error: error),
           ),
         ],
-        child: MaterialApp(
-          home: Scaffold(body: _TestProgressionStatusWidget()),
-        ),
+        child: MaterialApp(home: Scaffold(body: _TestProgressionStatusWidget())),
       );
     }
 
@@ -39,9 +28,7 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should display no progression state', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display no progression state', (WidgetTester tester) async {
       // Act
       await tester.pumpWidget(createTestWidget(config: null));
       await tester.pump();
@@ -50,9 +37,7 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should display active progression state', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display active progression state', (WidgetTester tester) async {
       // Arrange
       final config = ProgressionMockFactory.createProgressionConfig();
 
@@ -73,13 +58,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle different progression types', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle different progression types', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        type: ProgressionType.linear,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(type: ProgressionType.linear);
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -89,13 +70,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle different progression units', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle different progression units', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        unit: ProgressionUnit.session,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(unit: ProgressionUnit.session);
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -105,13 +82,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle different progression targets', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle different progression targets', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        primaryTarget: ProgressionTarget.weight,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(primaryTarget: ProgressionTarget.weight);
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -121,13 +94,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle inactive progression', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle inactive progression', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        isActive: false,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(isActive: false);
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -137,9 +106,7 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle progression with end date', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle progression with end date', (WidgetTester tester) async {
       // Arrange
       final config = ProgressionMockFactory.createProgressionConfig(
         endDate: DateTime.now().add(const Duration(days: 30)),
@@ -153,13 +120,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle progression with custom parameters', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle progression with custom parameters', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        customParameters: {'custom': 'value'},
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(customParameters: {'custom': 'value'});
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -169,13 +132,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle zero increment value', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle zero increment value', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        incrementValue: 0.0,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(incrementValue: 0.0);
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -185,13 +144,9 @@ void main() {
       expect(find.byType(_TestProgressionStatusWidget), findsOneWidget);
     });
 
-    testWidgets('should handle negative increment value', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle negative increment value', (WidgetTester tester) async {
       // Arrange
-      final config = ProgressionMockFactory.createProgressionConfig(
-        incrementValue: -2.5,
-      );
+      final config = ProgressionMockFactory.createProgressionConfig(incrementValue: -2.5);
 
       // Act
       await tester.pumpWidget(createTestWidget(config: config));
@@ -219,8 +174,7 @@ class _TestProgressionStatusWidget extends ConsumerWidget {
             Text('Progression: ${config.type.displayNameKey}'),
             Text('Description: ${config.type.descriptionKey}'),
             Text('Unit: ${config.unit.displayNameKey}'),
-            if (config.primaryTarget != null)
-              Text('Target: ${config.primaryTarget!.displayNameKey}'),
+            Text('Target: ${config.primaryTarget.displayNameKey}'),
           ],
         );
       },

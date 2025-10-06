@@ -25,7 +25,7 @@ class ExerciseService extends _$ExerciseService {
   Future<void> saveExercise(Exercise exercise) async {
     final box = _box;
     await box.put(exercise.id, exercise);
-    // Invalidar cache después de guardar
+    // Invalidate cache after saving
     _invalidateCache();
   }
 
@@ -37,31 +37,24 @@ class ExerciseService extends _$ExerciseService {
   Future<List<Exercise>> getAllExercises() async {
     final now = DateTime.now();
 
-    // Verificar si el cache es válido
+    // Check whether cache is valid
     if (_cachedExercises != null &&
         _lastCacheUpdate != null &&
-        now.difference(_lastCacheUpdate!).compareTo(_cacheValidityDuration) <
-            0) {
+        now.difference(_lastCacheUpdate!).compareTo(_cacheValidityDuration) < 0) {
       return _cachedExercises!;
     }
 
     // Actualizar cache
     final box = _box;
-    _cachedExercises =
-        box.values.cast<Exercise>().toList()
-          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    _cachedExercises = box.values.cast<Exercise>().toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     _lastCacheUpdate = now;
 
     return _cachedExercises!;
   }
 
-  Future<List<Exercise>> getExercisesByCategory(
-    ExerciseCategory category,
-  ) async {
+  Future<List<Exercise>> getExercisesByCategory(ExerciseCategory category) async {
     final allExercises = await getAllExercises();
-    return allExercises
-        .where((exercise) => exercise.category == category)
-        .toList();
+    return allExercises.where((exercise) => exercise.category == category).toList();
   }
 
   Future<List<Exercise>> searchExercises(String query) async {
@@ -70,19 +63,19 @@ class ExerciseService extends _$ExerciseService {
     final allExercises = await getAllExercises();
     final lowercaseQuery = query.toLowerCase().trim();
 
-    // Búsqueda optimizada con early return
+    // Optimized search with early return
     return allExercises.where((exercise) {
-      // Verificar nombre primero (más común)
+      // Check name first (most common)
       if (exercise.name.toLowerCase().contains(lowercaseQuery)) {
         return true;
       }
 
-      // Verificar descripción
+      // Check description
       if (exercise.description.toLowerCase().contains(lowercaseQuery)) {
         return true;
       }
 
-      // Verificar músculos trabajados
+      // Check muscles worked
       for (final muscle in exercise.muscleGroups) {
         if (muscle.displayName.toLowerCase().contains(lowercaseQuery)) {
           return true;
@@ -96,7 +89,7 @@ class ExerciseService extends _$ExerciseService {
   Future<void> deleteExercise(String id) async {
     final box = _box;
     await box.delete(id);
-    // Invalidar cache después de eliminar
+    // Invalidate cache after deleting
     _invalidateCache();
   }
 

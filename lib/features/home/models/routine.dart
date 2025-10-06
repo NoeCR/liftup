@@ -19,10 +19,10 @@ class Routine extends Equatable {
   final String description;
 
   @HiveField(3)
-  final List<WeekDay> days; // Solo los días de la semana, sin secciones
+  final List<WeekDay> days; // Week days only, no sections
 
   @HiveField(4)
-  final List<RoutineSection> sections; // Las secciones están en la rutina
+  final List<RoutineSection> sections; // Sections belong to the routine
 
   @HiveField(5)
   final DateTime createdAt;
@@ -34,7 +34,7 @@ class Routine extends Equatable {
   final String? imageUrl;
 
   @HiveField(8)
-  final int? order; // Orden manual para controlar la posición en la lista
+  final int? order; // Manual order to control position in list
 
   const Routine({
     required this.id,
@@ -48,8 +48,7 @@ class Routine extends Equatable {
     this.order,
   });
 
-  factory Routine.fromJson(Map<String, dynamic> json) =>
-      _$RoutineFromJson(json);
+  factory Routine.fromJson(Map<String, dynamic> json) => _$RoutineFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineToJson(this);
 
   Routine copyWith({
@@ -77,17 +76,7 @@ class Routine extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    description,
-    days,
-    sections,
-    createdAt,
-    updatedAt,
-    imageUrl,
-    order,
-  ];
+  List<Object?> get props => [id, name, description, days, sections, createdAt, updatedAt, imageUrl, order];
 }
 
 @HiveType(typeId: 7)
@@ -132,8 +121,7 @@ class RoutineSection extends Equatable {
     this.muscleGroup,
   });
 
-  factory RoutineSection.fromJson(Map<String, dynamic> json) =>
-      _$RoutineSectionFromJson(json);
+  factory RoutineSection.fromJson(Map<String, dynamic> json) => _$RoutineSectionFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineSectionToJson(this);
 
   RoutineSection copyWith({
@@ -200,17 +188,10 @@ class RoutineExercise extends Equatable {
     required this.order,
   });
 
-  factory RoutineExercise.fromJson(Map<String, dynamic> json) =>
-      _$RoutineExerciseFromJson(json);
+  factory RoutineExercise.fromJson(Map<String, dynamic> json) => _$RoutineExerciseFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineExerciseToJson(this);
 
-  RoutineExercise copyWith({
-    String? id,
-    String? routineSectionId,
-    String? exerciseId,
-    String? notes,
-    int? order,
-  }) {
+  RoutineExercise copyWith({String? id, String? routineSectionId, String? exerciseId, String? notes, int? order}) {
     return RoutineExercise(
       id: id ?? this.id,
       routineSectionId: routineSectionId ?? this.routineSectionId,

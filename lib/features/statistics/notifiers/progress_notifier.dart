@@ -16,14 +16,14 @@ class ProgressNotifier extends _$ProgressNotifier {
   /// Actualiza los datos de progreso basándose en las sesiones actuales
   Future<void> refreshFromSessions() async {
     state = const AsyncValue.loading();
-    
+
     try {
       final sessionNotifier = ref.read(sessionNotifierProvider.notifier);
       final sessions = await sessionNotifier.future;
-      
+
       final progressService = ProgressService.instance;
       final newProgressData = await progressService.refreshProgressData(sessions);
-      
+
       state = AsyncValue.data(newProgressData);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -37,10 +37,7 @@ class ProgressNotifier extends _$ProgressNotifier {
   }
 
   /// Obtiene datos de progreso en un rango de fechas
-  Future<List<ProgressData>> getProgressInDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
+  Future<List<ProgressData>> getProgressInDateRange(DateTime startDate, DateTime endDate) async {
     final progressService = ProgressService.instance;
     return await progressService.getProgressInDateRange(startDate, endDate);
   }
@@ -48,11 +45,11 @@ class ProgressNotifier extends _$ProgressNotifier {
   /// Limpia todos los datos de progreso
   Future<void> clearAllProgress() async {
     state = const AsyncValue.loading();
-    
+
     try {
       final progressService = ProgressService.instance;
       await progressService.clearAllProgressData();
-      
+
       state = const AsyncValue.data([]);
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -64,7 +61,7 @@ class ProgressNotifier extends _$ProgressNotifier {
     try {
       final progressService = ProgressService.instance;
       await progressService.saveProgressData([progressData]);
-      
+
       // Actualizar el estado
       final currentData = state.value ?? [];
       state = AsyncValue.data([...currentData, progressData]);

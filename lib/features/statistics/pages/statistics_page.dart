@@ -17,10 +17,7 @@ class StatisticsPage extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.tr('statistics.title')),
-        backgroundColor: colorScheme.surface,
-      ),
+      appBar: AppBar(title: Text(context.tr('statistics.title')), backgroundColor: colorScheme.surface),
       body: Consumer(
         builder: (context, ref, _) {
           final sessionsAsync = ref.watch(sessionNotifierProvider);
@@ -40,24 +37,16 @@ class StatisticsPage extends ConsumerWidget {
                           const SizedBox(height: 12),
                           _ExerciseProgressChart(),
                           const SizedBox(height: 24),
-                          _SectionTitle(
-                            'Comparación por rutina (sets totales)',
-                          ),
+                          _SectionTitle('Comparación por rutina (sets totales)'),
                           const SizedBox(height: 12),
                           _RoutineComparisonChart(),
                         ],
                       );
                     },
-                    loading:
-                        () => const Center(child: CircularProgressIndicator()),
+                    loading: () => const Center(child: CircularProgressIndicator()),
                     error:
                         (e, _) => Center(
-                          child: Text(
-                            context.tr(
-                              'errors.errorLoadingData',
-                              namedArgs: {'error': e.toString()},
-                            ),
-                          ),
+                          child: Text(context.tr('errors.errorLoadingData', namedArgs: {'error': e.toString()})),
                         ),
                   );
                 },
@@ -96,34 +85,25 @@ class _RoutineComparisonChart extends ConsumerWidget {
           final setsByRoutine = <String, int>{};
           for (final s in sessions) {
             final rid = s.routineId ?? 'Sin rutina';
-            setsByRoutine[rid] =
-                (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
+            setsByRoutine[rid] = (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
           }
           if (setsByRoutine.isEmpty) {
             return Center(child: Text(context.tr('statistics.noData')));
           }
           final pie = <PieChartSectionData>[];
           final total = setsByRoutine.values.fold<int>(0, (a, b) => a + b);
-          setsByRoutine.entries.forEach((e) {
+          for (final e in setsByRoutine.entries) {
             final pct = total == 0 ? 0.0 : e.value / total * 100;
             pie.add(
               PieChartSectionData(
                 value: e.value.toDouble(),
                 title: '${pct.toStringAsFixed(0)}%',
-                color: Theme.of(context).colorScheme.primary.withOpacity(
-                  0.3 + (pie.length * 0.1).clamp(0, 0.6),
-                ),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + (pie.length * 0.1).clamp(0, 0.6)),
                 radius: 60,
               ),
             );
-          });
-          return PieChart(
-            PieChartData(
-              sections: pie,
-              sectionsSpace: 2,
-              centerSpaceRadius: 34,
-            ),
-          );
+          }
+          return PieChart(PieChartData(sections: pie, sectionsSpace: 2, centerSpaceRadius: 34));
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -135,12 +115,10 @@ class _RoutineComparisonChart extends ConsumerWidget {
 class _ExerciseProgressChart extends ConsumerStatefulWidget {
   const _ExerciseProgressChart();
   @override
-  ConsumerState<_ExerciseProgressChart> createState() =>
-      _ExerciseProgressChartState();
+  ConsumerState<_ExerciseProgressChart> createState() => _ExerciseProgressChartState();
 }
 
-class _ExerciseProgressChartState
-    extends ConsumerState<_ExerciseProgressChart> {
+class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> {
   static const String allExercisesId = '__all__';
   String? _selectedExerciseId;
   DateTime? _from;
@@ -152,7 +130,7 @@ class _ExerciseProgressChartState
     final now = DateTime.now();
     _to = now;
     _from = now.subtract(const Duration(days: 28));
-    _selectedExerciseId = allExercisesId; // Default: Todos los ejercicios
+    _selectedExerciseId = allExercisesId; // Default: all exercises
   }
 
   @override
@@ -164,25 +142,15 @@ class _ExerciseProgressChartState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Selector de ejercicio
+        // Exercise selector
         DropdownButtonFormField<String>(
           value: _selectedExerciseId,
-          decoration: InputDecoration(
-            labelText: context.tr('statistics.exercise'),
-          ),
+          decoration: InputDecoration(labelText: context.tr('statistics.exercise')),
           items: exercisesAsync.when(
             data:
                 (exercises) => [
-                  DropdownMenuItem(
-                    value: allExercisesId,
-                    child: Text(context.tr('statistics.all')),
-                  ),
-                  ...exercises
-                      .map(
-                        (e) =>
-                            DropdownMenuItem(value: e.id, child: Text(e.name)),
-                      )
-                      .toList(),
+                  DropdownMenuItem(value: allExercisesId, child: Text(context.tr('statistics.all'))),
+                  ...exercises.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))),
                 ],
             loading: () => const [],
             error: (_, __) => const [],
@@ -190,7 +158,7 @@ class _ExerciseProgressChartState
           onChanged: (id) => setState(() => _selectedExerciseId = id),
         ),
         const SizedBox(height: 12),
-        // Selector de rango de fechas
+        // Date range selector
         Row(
           children: [
             Expanded(
@@ -198,20 +166,14 @@ class _ExerciseProgressChartState
                 onPressed: () async {
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate:
-                        _from ??
-                        DateTime.now().subtract(const Duration(days: 30)),
+                    initialDate: _from ?? DateTime.now().subtract(const Duration(days: 30)),
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),
                   );
                   if (picked != null) setState(() => _from = picked);
                 },
                 icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  _from == null
-                      ? 'Desde'
-                      : '${_from!.day}/${_from!.month}/${_from!.year}',
-                ),
+                label: Text(_from == null ? 'Desde' : '${_from!.day}/${_from!.month}/${_from!.year}'),
               ),
             ),
             const SizedBox(width: 8),
@@ -227,77 +189,57 @@ class _ExerciseProgressChartState
                   if (picked != null) setState(() => _to = picked);
                 },
                 icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  _to == null
-                      ? 'Hasta'
-                      : '${_to!.day}/${_to!.month}/${_to!.year}',
-                ),
+                label: Text(_to == null ? 'Hasta' : '${_to!.day}/${_to!.month}/${_to!.year}'),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        // Gráfico de progreso
+        // Progress chart
         SizedBox(
           height: 220,
           child: sessionsAsync.when(
             data: (sessions) {
-              // Filtrar por fechas y ordenar cronológicamente
+              // Filter by dates and sort chronologically
               final filtered =
                   sessions.where((s) {
-                      if (_from != null && s.startTime.isBefore(_from!))
-                        return false;
-                      if (_to != null && s.startTime.isAfter(_to!))
-                        return false;
-                      // Si se selecciona ejercicio específico, exige que la sesión lo tenga
-                      if (_selectedExerciseId != null &&
-                          _selectedExerciseId != allExercisesId) {
-                        return s.exerciseSets.any(
-                          (set) => set.exerciseId == _selectedExerciseId,
-                        );
+                      if (_from != null && s.startTime.isBefore(_from!)) return false;
+                      if (_to != null && s.startTime.isAfter(_to!)) return false;
+                      // If a specific exercise is selected, require sessions to include it
+                      if (_selectedExerciseId != null && _selectedExerciseId != allExercisesId) {
+                        return s.exerciseSets.any((set) => set.exerciseId == _selectedExerciseId);
                       }
                       return true;
                     }).toList()
                     ..sort((a, b) => a.startTime.compareTo(b.startTime));
               if (filtered.isEmpty) {
-                return Center(
-                  child: Text(context.tr('statistics.noDataInRange')),
-                );
+                return Center(child: Text(context.tr('statistics.noDataInRange')));
               }
-              // Calcular media ponderada (reps * peso) por sesión
+              // Compute weighted average (reps × weight) per session
               final rawSpots = <FlSpot>[];
               for (var i = 0; i < filtered.length; i++) {
                 final s = filtered[i];
                 final sets =
                     (_selectedExerciseId == allExercisesId)
                         ? s.exerciseSets
-                        : s.exerciseSets
-                            .where(
-                              (set) => set.exerciseId == _selectedExerciseId,
-                            )
-                            .toList();
+                        : s.exerciseSets.where((set) => set.exerciseId == _selectedExerciseId).toList();
                 if (sets.isEmpty) continue;
-                final total = sets.fold<double>(
-                  0,
-                  (a, b) => a + (b.reps * b.weight),
-                );
+                final total = sets.fold<double>(0, (a, b) => a + (b.reps * b.weight));
                 final avg = total / sets.length;
                 rawSpots.add(FlSpot(i.toDouble(), avg));
               }
 
-              // Aplicar algoritmo de suavizado mejorado
+              // Apply advanced smoothing algorithm
               final spots = _applyAdvancedSmoothing(rawSpots, filtered);
               if (spots.isEmpty) {
-                return Center(
-                  child: Text(context.tr('statistics.noDataInRange')),
-                );
+                return Center(child: Text(context.tr('statistics.noDataInRange')));
               }
-              // Calcular rango Y para evitar que se salga del marco
+              // Compute Y range to keep the chart within bounds
               final yValues = spots.map((spot) => spot.y).toList();
               final minY = yValues.reduce((a, b) => a < b ? a : b);
               final maxY = yValues.reduce((a, b) => a > b ? a : b);
               final yRange = maxY - minY;
-              final yPadding = yRange * 0.1; // 10% de padding
+              final yPadding = yRange * 0.1; // 10% padding
               final yMin = (minY - yPadding).clamp(0, double.infinity);
               final yMax = maxY + yPadding;
 
@@ -309,10 +251,7 @@ class _ExerciseProgressChartState
                     drawVerticalLine: false,
                     horizontalInterval: _calculateYInterval(yMax - yMin),
                     getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: theme.colorScheme.outline.withOpacity(0.2),
-                        strokeWidth: 1,
-                      );
+                      return FlLine(color: theme.colorScheme.outline.withValues(alpha: 0.2), strokeWidth: 1);
                     },
                   ),
                   titlesData: FlTitlesData(
@@ -324,9 +263,7 @@ class _ExerciseProgressChartState
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toInt().toString(),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              fontSize: 10,
-                            ),
+                            style: theme.textTheme.bodySmall?.copyWith(fontSize: 10),
                           );
                         },
                       ),
@@ -337,17 +274,14 @@ class _ExerciseProgressChartState
                         reservedSize: 40,
                         interval: _calculateDateInterval(filtered.length),
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= 0 &&
-                              value.toInt() < filtered.length) {
+                          if (value.toInt() >= 0 && value.toInt() < filtered.length) {
                             final session = filtered[value.toInt()];
                             final date = session.startTime;
                             return Transform.rotate(
-                              angle: -0.5, // Rotación de ~30 grados
+                              angle: -0.5, // ~30 degrees rotation
                               child: Text(
                                 '${date.day}/${date.month}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontSize: 10,
-                                ),
+                                style: theme.textTheme.bodySmall?.copyWith(fontSize: 10),
                                 textAlign: TextAlign.center,
                               ),
                             );
@@ -356,12 +290,8 @@ class _ExerciseProgressChartState
                         },
                       ),
                     ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   ),
                   lineBarsData: [
                     LineChartBarData(
@@ -373,8 +303,8 @@ class _ExerciseProgressChartState
                       isStrokeCapRound: true,
                       gradient: LinearGradient(
                         colors: [
-                          theme.colorScheme.primary.withOpacity(0.9),
-                          theme.colorScheme.tertiary.withOpacity(0.9),
+                          theme.colorScheme.primary.withValues(alpha: 0.9),
+                          theme.colorScheme.tertiary.withValues(alpha: 0.9),
                         ],
                       ),
                       dotData: FlDotData(show: false),
@@ -384,8 +314,8 @@ class _ExerciseProgressChartState
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            theme.colorScheme.primary.withOpacity(0.25),
-                            theme.colorScheme.tertiary.withOpacity(0.05),
+                            theme.colorScheme.primary.withValues(alpha: 0.25),
+                            theme.colorScheme.tertiary.withValues(alpha: 0.05),
                           ],
                         ),
                       ),
@@ -400,12 +330,7 @@ class _ExerciseProgressChartState
                       getTooltipItems:
                           (touchedSpots) =>
                               touchedSpots
-                                  .map(
-                                    (ts) => LineTooltipItem(
-                                      ts.y.toStringAsFixed(0),
-                                      theme.textTheme.labelMedium!,
-                                    ),
-                                  )
+                                  .map((ts) => LineTooltipItem(ts.y.toStringAsFixed(0), theme.textTheme.labelMedium!))
                                   .toList(),
                     ),
                   ),
@@ -420,16 +345,16 @@ class _ExerciseProgressChartState
     );
   }
 
-  /// Calcula el intervalo óptimo para mostrar fechas sin solapamiento
+  /// Calculates an optimal interval to show dates without overlap
   double _calculateDateInterval(int totalSessions) {
-    if (totalSessions <= 7) return 1.0; // Mostrar todas si son pocas
-    if (totalSessions <= 14) return 2.0; // Cada 2 días
-    if (totalSessions <= 21) return 3.0; // Cada 3 días
-    if (totalSessions <= 28) return 4.0; // Cada 4 días
-    return (totalSessions / 7).ceilToDouble(); // Máximo 7 etiquetas
+    if (totalSessions <= 7) return 1.0; // Show all when few
+    if (totalSessions <= 14) return 2.0; // Every 2 days
+    if (totalSessions <= 21) return 3.0; // Every 3 days
+    if (totalSessions <= 28) return 4.0; // Every 4 days
+    return (totalSessions / 7).ceilToDouble(); // Max 7 labels
   }
 
-  /// Calcula el intervalo óptimo para el eje Y
+  /// Calculates an optimal interval for the Y axis
   double _calculateYInterval(double yRange) {
     if (yRange <= 50) return 10.0;
     if (yRange <= 100) return 20.0;
@@ -438,76 +363,64 @@ class _ExerciseProgressChartState
     return (yRange / 5).ceilToDouble();
   }
 
-  /// Aplica algoritmo de suavizado avanzado para eliminar saltos y valores vacíos
-  List<FlSpot> _applyAdvancedSmoothing(
-    List<FlSpot> rawSpots,
-    List<WorkoutSession> sessions,
-  ) {
+  /// Applies advanced smoothing to remove jumps and fill gaps
+  List<FlSpot> _applyAdvancedSmoothing(List<FlSpot> rawSpots, List<WorkoutSession> sessions) {
     if (rawSpots.isEmpty) return rawSpots;
 
-    // Paso 1: Interpolación lineal para llenar huecos temporales
+    // Step 1: Linear interpolation to fill temporal gaps
     final interpolatedSpots = _interpolateMissingValues(rawSpots, sessions);
 
-    // Paso 2: Aplicar media móvil para suavizar la curva
+    // Step 2: Apply moving average to smooth the curve
     final smoothedSpots = _applyMovingAverage(interpolatedSpots);
 
-    // Paso 3: Ajuste final para eliminar saltos bruscos
+    // Step 3: Final pass to remove sharp jumps
     final finalSpots = _removeSharpJumps(smoothedSpots);
 
     return finalSpots;
   }
 
-  /// Interpola valores faltantes entre sesiones usando interpolación lineal
-  List<FlSpot> _interpolateMissingValues(
-    List<FlSpot> rawSpots,
-    List<WorkoutSession> sessions,
-  ) {
+  /// Interpolates missing values between sessions using linear interpolation
+  List<FlSpot> _interpolateMissingValues(List<FlSpot> rawSpots, List<WorkoutSession> sessions) {
     if (rawSpots.length < 2) return rawSpots;
 
     final interpolatedSpots = <FlSpot>[];
     final maxDays = sessions.length;
 
-    // Crear mapa de valores por día
+    // Build value-by-day map
     final valuesByDay = <int, double>{};
     for (int i = 0; i < rawSpots.length; i++) {
       valuesByDay[i] = rawSpots[i].y;
     }
 
-    // Interpolar valores faltantes
+    // Interpolate missing values
     for (int day = 0; day < maxDays; day++) {
       if (valuesByDay.containsKey(day)) {
-        // Valor existente
+        // Existing value
         interpolatedSpots.add(FlSpot(day.toDouble(), valuesByDay[day]!));
       } else {
-        // Buscar valores anteriores y posteriores para interpolación
+        // Find previous and next values for interpolation
         final prevDay = _findPreviousValue(day, valuesByDay);
         final nextDay = _findNextValue(day, valuesByDay);
 
         if (prevDay != null && nextDay != null) {
-          // Interpolación lineal entre valores existentes
-          final interpolatedValue = _linearInterpolation(
-            prevDay.day,
-            prevDay.value,
-            nextDay.day,
-            nextDay.value,
-            day,
-          );
+          // Linear interpolation between existing values
+          final interpolatedValue = _linearInterpolation(prevDay.day, prevDay.value, nextDay.day, nextDay.value, day);
           interpolatedSpots.add(FlSpot(day.toDouble(), interpolatedValue));
         } else if (prevDay != null) {
-          // Usar valor anterior si no hay siguiente
+          // Use previous value if no next value
           interpolatedSpots.add(FlSpot(day.toDouble(), prevDay.value));
         } else if (nextDay != null) {
-          // Usar valor siguiente si no hay anterior
+          // Use next value if no previous value
           interpolatedSpots.add(FlSpot(day.toDouble(), nextDay.value));
         }
-        // Si no hay valores anteriores ni posteriores, omitir el día
+        // If there is neither previous nor next, skip the day
       }
     }
 
     return interpolatedSpots;
   }
 
-  /// Encuentra el valor anterior más cercano
+  /// Finds the nearest previous value
   _ValueAtDay? _findPreviousValue(int day, Map<int, double> valuesByDay) {
     for (int i = day - 1; i >= 0; i--) {
       if (valuesByDay.containsKey(i)) {
@@ -517,7 +430,7 @@ class _ExerciseProgressChartState
     return null;
   }
 
-  /// Encuentra el valor siguiente más cercano
+  /// Finds the nearest next value
   _ValueAtDay? _findNextValue(int day, Map<int, double> valuesByDay) {
     final maxDay = valuesByDay.keys.reduce((a, b) => a > b ? a : b);
     for (int i = day + 1; i <= maxDay; i++) {
@@ -528,24 +441,24 @@ class _ExerciseProgressChartState
     return null;
   }
 
-  /// Interpolación lineal entre dos puntos
+  /// Linear interpolation between two points
   double _linearInterpolation(int x1, double y1, int x2, double y2, int x) {
     if (x2 == x1) return y1;
     return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
   }
 
-  /// Aplica media móvil para suavizar la curva
+  /// Applies a moving average to smooth the curve
   List<FlSpot> _applyMovingAverage(List<FlSpot> spots) {
     if (spots.length < 3) return spots;
 
     final smoothedSpots = <FlSpot>[];
-    const windowSize = 3; // Ventana de 3 puntos
+    const windowSize = 3; // 3-point window
 
     for (int i = 0; i < spots.length; i++) {
       double sum = 0;
       int count = 0;
 
-      // Calcular media en la ventana
+      // Compute average over the window
       for (int j = i - windowSize ~/ 2; j <= i + windowSize ~/ 2; j++) {
         if (j >= 0 && j < spots.length) {
           sum += spots[j].y;
@@ -560,30 +473,30 @@ class _ExerciseProgressChartState
     return smoothedSpots;
   }
 
-  /// Elimina saltos bruscos aplicando un filtro de suavizado adicional
+  /// Removes sharp jumps by applying an additional smoothing filter
   List<FlSpot> _removeSharpJumps(List<FlSpot> spots) {
     if (spots.length < 2) return spots;
 
     final filteredSpots = <FlSpot>[];
-    const maxJumpRatio = 0.3; // Máximo 30% de cambio entre puntos consecutivos
+    const maxJumpRatio = 0.3; // Max 30% change between consecutive points
 
-    // Mantener el primer punto
+    // Keep the first point
     filteredSpots.add(spots.first);
 
     for (int i = 1; i < spots.length; i++) {
       final current = spots[i];
       final previous = filteredSpots.last;
 
-      // Calcular el cambio porcentual
+      // Calculate percentage change
       final change = (current.y - previous.y).abs();
       final changeRatio = previous.y > 0 ? change / previous.y : 0;
 
       if (changeRatio > maxJumpRatio) {
-        // Suavizar el salto brusco
+        // Smooth the sharp jump
         final smoothedY = previous.y + (current.y - previous.y) * maxJumpRatio;
         filteredSpots.add(FlSpot(current.x, smoothedY));
       } else {
-        // Mantener el valor original
+        // Keep original value
         filteredSpots.add(current);
       }
     }
@@ -592,7 +505,7 @@ class _ExerciseProgressChartState
   }
 }
 
-/// Clase auxiliar para almacenar valor y día
+/// Helper class to store a value and its day
 class _ValueAtDay {
   final int day;
   final double value;

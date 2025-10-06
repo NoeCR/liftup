@@ -14,11 +14,11 @@ part 'session_notifier.g.dart';
 
 @riverpod
 class SessionNotifier extends _$SessionNotifier {
-  // Estado auxiliar en memoria para tiempos pausados y última reanudación
+  // Auxiliary in-memory state for paused time and last resume
   final Map<String, int> _pausedElapsedBySession = {};
   final Map<String, DateTime> _lastResumeAtBySession = {};
 
-  // Tags simples en notes para persistir datos entre vistas
+  // Simple tags in notes to persist data across views
   static const String _tagPaused = 'pausedElapsed=';
   static const String _tagResumeAt = 'lastResumeAt=';
   static const String _tagRestPrefix = 'rest_'; // rest_<exerciseId>=ISO8601
@@ -28,14 +28,11 @@ class SessionNotifier extends _$SessionNotifier {
     return await sessionService.getAllSessions();
   }
 
-  Future<WorkoutSession> startSession({
-    String? routineId,
-    required String name,
-  }) async {
-    // Limpiar contadores de series realizadas al iniciar nueva sesión
+  Future<WorkoutSession> startSession({String? routineId, required String name}) async {
+    // Clear performed-set counters when starting a new session
     ref.read(performedSetsNotifierProvider.notifier).clearAll();
 
-    // Aplicar progresión si hay una rutina seleccionada
+    // Apply progression if there is a selected routine
     if (routineId != null) {
       try {
         final routines = await ref.read(routineNotifierProvider.future);
@@ -44,10 +41,8 @@ class SessionNotifier extends _$SessionNotifier {
           orElse: () => throw Exception('Routine not found: $routineId'),
         );
 
-        // Aplicar progresión a la rutina
-        final sessionProgressionService = ref.read(
-          sessionProgressionServiceProvider.notifier,
-        );
+        // Apply progression to the routine
+        final sessionProgressionService = ref.read(sessionProgressionServiceProvider.notifier);
         await sessionProgressionService.applyProgressionToRoutine(routine);
       } catch (e) {
         // Log error but don't fail session creation
@@ -111,14 +106,11 @@ class SessionNotifier extends _$SessionNotifier {
     final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
-    // Convertir contadores de series realizadas en ExerciseSet reales
+    // Convert performed-set counters into real ExerciseSet entries
     final performedSets = ref.read(performedSetsNotifierProvider);
-    final exerciseSets = await _convertPerformedSetsToExerciseSets(
-      performedSets,
-      currentSession,
-    );
+    final exerciseSets = await _convertPerformedSetsToExerciseSets(performedSets, currentSession);
 
-    // Calcular totales al finalizar
+    // Calculate totals upon completion
     final totalWeight = _calculateTotalWeight(exerciseSets);
     final totalReps = _calculateTotalReps(exerciseSets);
 
@@ -137,27 +129,23 @@ class SessionNotifier extends _$SessionNotifier {
     _pausedElapsedBySession.remove(currentSession.id);
     _lastResumeAtBySession.remove(currentSession.id);
 
-    // NO limpiar contadores aquí - mantenerlos en memoria para vista rápida
-    // Se limpiarán al iniciar una nueva sesión
+    // Do NOT clear counters here — keep them in memory for quick view
+    // They will be cleared when a new session starts
   }
 
   Future<void> pauseSession() async {
     final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
     if (currentSession.status == SessionStatus.paused) {
-      // Ya está pausada
+      // Already paused
       state = state;
       return;
     }
 
-    // Guardar tiempo transcurrido acumulado al pausar (soporta múltiples pausas)
+    // Save accumulated elapsed time when pausing (supports multiple pauses)
     final now = DateTime.now();
-    final previousPaused =
-        _pausedElapsedBySession[currentSession.id] ??
-        readPausedFromNotes(currentSession.notes);
-    final lastResumeAt =
-        _lastResumeAtBySession[currentSession.id] ??
-        readResumeAtFromNotes(currentSession.notes);
+    final previousPaused = _pausedElapsedBySession[currentSession.id] ?? readPausedFromNotes(currentSession.notes);
+    final lastResumeAt = _lastResumeAtBySession[currentSession.id] ?? readResumeAtFromNotes(currentSession.notes);
     int elapsedAtPause;
     if (previousPaused != null && lastResumeAt != null) {
       elapsedAtPause = previousPaused + now.difference(lastResumeAt).inSeconds;
@@ -167,17 +155,14 @@ class SessionNotifier extends _$SessionNotifier {
     if (elapsedAtPause < 0) elapsedAtPause = 0;
     _pausedElapsedBySession[currentSession.id] = elapsedAtPause;
 
-    // Persistir en notes
+    // Persist into notes
     final updatedNotes = _setNoteValue(
       _setNoteValue(currentSession.notes, _tagPaused, '$elapsedAtPause'),
       _tagResumeAt,
       null,
     );
 
-    final pausedSession = currentSession.copyWith(
-      status: SessionStatus.paused,
-      notes: updatedNotes,
-    );
+    final pausedSession = currentSession.copyWith(status: SessionStatus.paused, notes: updatedNotes);
 
     final sessionService = ref.read(sessionServiceProvider);
     await sessionService.saveSession(pausedSession);
@@ -190,21 +175,15 @@ class SessionNotifier extends _$SessionNotifier {
 
     final resumedSession = currentSession.copyWith(
       status: SessionStatus.active,
-      notes: _setNoteValue(
-        currentSession.notes,
-        _tagResumeAt,
-        DateTime.now().toIso8601String(),
-      ),
+      notes: _setNoteValue(currentSession.notes, _tagResumeAt, DateTime.now().toIso8601String()),
     );
 
-    // Registrar última reanudación
+    // Record last resume instant
     final now = DateTime.now();
     _lastResumeAtBySession[resumedSession.id] = now;
-    // Sembrar pausedElapsed en memoria si venimos de notes
+    // Seed pausedElapsed in memory if read from notes
     _pausedElapsedBySession[resumedSession.id] =
-        _pausedElapsedBySession[resumedSession.id] ??
-        readPausedFromNotes(currentSession.notes) ??
-        0;
+        _pausedElapsedBySession[resumedSession.id] ?? readPausedFromNotes(currentSession.notes) ?? 0;
 
     final sessionService = ref.read(sessionServiceProvider);
     await sessionService.saveSession(resumedSession);
@@ -212,19 +191,12 @@ class SessionNotifier extends _$SessionNotifier {
   }
 
   // --- Rest timers per exercise ---
-  Future<void> setExerciseRestEnd({
-    required String exerciseId,
-    required DateTime? restEndsAt,
-  }) async {
+  Future<void> setExerciseRestEnd({required String exerciseId, required DateTime? restEndsAt}) async {
     final currentSession = await getCurrentOngoingSession();
     if (currentSession == null) return;
 
     final tag = '$_tagRestPrefix$exerciseId=';
-    final updatedNotes = _setNoteValue(
-      currentSession.notes,
-      tag,
-      restEndsAt?.toIso8601String(),
-    );
+    final updatedNotes = _setNoteValue(currentSession.notes, tag, restEndsAt?.toIso8601String());
 
     final updatedSession = currentSession.copyWith(notes: updatedNotes);
     final sessionService = ref.read(sessionServiceProvider);
@@ -251,8 +223,7 @@ class SessionNotifier extends _$SessionNotifier {
     try {
       return sessions.firstWhere(
         (session) =>
-            (session.status == SessionStatus.active ||
-                session.status == SessionStatus.paused) &&
+            (session.status == SessionStatus.active || session.status == SessionStatus.paused) &&
             session.endTime == null,
       );
     } catch (e) {
@@ -260,10 +231,7 @@ class SessionNotifier extends _$SessionNotifier {
     }
   }
 
-  Future<List<WorkoutSession>> getSessionsByDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
+  Future<List<WorkoutSession>> getSessionsByDateRange(DateTime startDate, DateTime endDate) async {
     final sessionService = ref.read(sessionServiceProvider);
     return await sessionService.getSessionsByDateRange(startDate, endDate);
   }
@@ -287,18 +255,16 @@ class SessionNotifier extends _$SessionNotifier {
     return sets.fold(0, (sum, set) => sum + set.reps);
   }
 
-  // Exponer datos auxiliares para UI
-  int? getPausedElapsedSeconds(String sessionId) =>
-      _pausedElapsedBySession[sessionId];
-  DateTime? getLastResumeAt(String sessionId) =>
-      _lastResumeAtBySession[sessionId];
+  // Expose auxiliary data for UI
+  int? getPausedElapsedSeconds(String sessionId) => _pausedElapsedBySession[sessionId];
+  DateTime? getLastResumeAt(String sessionId) => _lastResumeAtBySession[sessionId];
 
   /// Limpia manualmente los contadores de series realizadas
   void clearPerformedSets() {
     ref.read(performedSetsNotifierProvider.notifier).clearAll();
   }
 
-  // Helpers para notes
+  // Notes helpers
   String? _setNoteValue(String? notes, String tag, String? value) {
     final lines = (notes ?? '').split('\n');
     final filtered = lines.where((l) => !l.trim().startsWith(tag)).toList();
@@ -334,19 +300,17 @@ class SessionNotifier extends _$SessionNotifier {
     return null;
   }
 
-  /// Devuelve el tiempo pausado consolidado tomando memoria o notes
+  /// Returns consolidated paused time taking memory or notes
   int? resolvePausedElapsed(WorkoutSession session) {
-    return _pausedElapsedBySession[session.id] ??
-        readPausedFromNotes(session.notes);
+    return _pausedElapsedBySession[session.id] ?? readPausedFromNotes(session.notes);
   }
 
-  /// Devuelve el instante de última reanudación desde memoria o notes
+  /// Returns last resume instant from memory or notes
   DateTime? resolveLastResumeAt(WorkoutSession session) {
-    return _lastResumeAtBySession[session.id] ??
-        readResumeAtFromNotes(session.notes);
+    return _lastResumeAtBySession[session.id] ?? readResumeAtFromNotes(session.notes);
   }
 
-  /// Calcula los segundos transcurridos que debe mostrar la UI
+  /// Calculates the elapsed seconds the UI should display
   int calculateElapsedForUI(WorkoutSession session, {required DateTime now}) {
     if (session.status == SessionStatus.paused) {
       final paused = resolvePausedElapsed(session);
@@ -367,7 +331,7 @@ class SessionNotifier extends _$SessionNotifier {
     return base < 0 ? 0 : base;
   }
 
-  /// Convierte los contadores de series realizadas en ExerciseSet reales
+  /// Converts performed-set counters into real ExerciseSet objects
   Future<List<ExerciseSet>> _convertPerformedSetsToExerciseSets(
     Map<String, int> performedSets,
     WorkoutSession session,
@@ -375,16 +339,14 @@ class SessionNotifier extends _$SessionNotifier {
     final exerciseSets = <ExerciseSet>[];
     final uuid = const Uuid();
 
-    // Obtener rutina y ejercicios para acceder a los datos necesarios
+    // Get routine and exercises to access required data
     final routines = await ref.read(routineNotifierProvider.future);
     final exercises = await ref.read(exerciseNotifierProvider.future);
 
-    // Encontrar la rutina actual
+    // Find the current routine
     Routine? currentRoutine;
     try {
-      currentRoutine = routines.firstWhere(
-        (routine) => routine.id == session.routineId,
-      );
+      currentRoutine = routines.firstWhere((routine) => routine.id == session.routineId);
     } catch (e) {
       if (routines.isNotEmpty) {
         currentRoutine = routines.first;
@@ -393,39 +355,35 @@ class SessionNotifier extends _$SessionNotifier {
 
     if (currentRoutine == null) return exerciseSets;
 
-    // Procesar cada contador de series realizadas
+    // Process each performed-set counter
     for (final entry in performedSets.entries) {
       final routineExerciseId = entry.key;
       final setsCount = entry.value;
 
       if (setsCount <= 0) continue;
 
-      // Encontrar el RoutineExercise correspondiente
+      // Find the corresponding RoutineExercise
       RoutineExercise? routineExercise;
       for (final section in currentRoutine.sections) {
         try {
-          routineExercise = section.exercises.firstWhere(
-            (re) => re.id == routineExerciseId,
-          );
+          routineExercise = section.exercises.firstWhere((re) => re.id == routineExerciseId);
           break;
         } catch (e) {
-          // Continuar buscando en la siguiente sección
+          // Continue searching in the next section
         }
       }
 
       if (routineExercise == null) continue;
 
-      // Encontrar el ejercicio
+      // Find the exercise
       Exercise? exercise;
       try {
-        exercise = exercises.firstWhere(
-          (e) => e.id == routineExercise!.exerciseId,
-        );
+        exercise = exercises.firstWhere((e) => e.id == routineExercise!.exerciseId);
       } catch (e) {
         continue;
       }
 
-      // Crear ExerciseSet para cada serie realizada
+      // Create an ExerciseSet for each performed set
       for (int i = 0; i < setsCount; i++) {
         final exerciseSet = ExerciseSet(
           id: uuid.v4(),
