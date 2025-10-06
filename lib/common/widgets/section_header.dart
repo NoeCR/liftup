@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../common/enums/section_muscle_group_enum.dart';
+import '../themes/app_theme.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -25,41 +26,48 @@ class SectionHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingS),
       child: Material(
         color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusM),
+        elevation: AppTheme.elevationS,
         child: InkWell(
           onTap: onToggleCollapsed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppTheme.radiusM),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingM),
             child: Row(
               children: [
                 if (iconName != null || muscleGroup != null) ...[
-                  Icon(
-                    _getIconData(iconName ?? muscleGroup?.iconName ?? 'fitness_center'),
-                    color: colorScheme.onSurfaceVariant,
-                    size: 20,
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.spacingXS),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusS),
+                    ),
+                    child: Icon(
+                      _getIconData(iconName ?? muscleGroup?.iconName ?? 'fitness_center'),
+                      color: colorScheme.onPrimaryContainer,
+                      size: 20,
+                    ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppTheme.spacingM),
                 ],
-                Flexible(
-                  fit: FlexFit.loose,
+                Expanded(
                   child: Text(
                     title,
                     style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ),
-                if (trailing != null) ...[const SizedBox(width: 8), trailing!],
-                const SizedBox(width: 8),
+                if (trailing != null) ...[const SizedBox(width: AppTheme.spacingS), trailing!],
+                const SizedBox(width: AppTheme.spacingS),
                 AnimatedRotation(
                   turns: isCollapsed ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.keyboard_arrow_down, color: colorScheme.onSurfaceVariant),
+                  child: Icon(Icons.keyboard_arrow_down, color: colorScheme.onSurfaceVariant, size: 24),
                 ),
               ],
             ),

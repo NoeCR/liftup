@@ -9,6 +9,7 @@ import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
 import '../../settings/notifiers/rest_prefs.dart';
 import '../services/weekly_exercise_tracking_service.dart';
+import '../../../common/themes/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
@@ -134,6 +135,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           wasPerformedThisWeek: wasPerformedThisWeek,
           performedSets: performedSets,
           showSetsControls: widget.showSetsControls,
+          isResting: _showRestOverlay,
           onTap: null,
           onLongPress: widget.onTap,
           onToggleCompleted: null,
@@ -167,15 +169,15 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
         // Overlay de descanso: contador durante el timer
         if (_showRestOverlay)
           Positioned(
-            top: 8,
-            left: 16,
-            right: 16,
+            top: AppTheme.spacingS,
+            left: AppTheme.spacingM,
+            right: AppTheme.spacingM,
             height: 120,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
                 ),
                 child: Center(
                   child: Chip(
@@ -195,16 +197,16 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
         // Stop button when sound is playing (after timer finishes)
         if (_isRingtonePlaying)
           Positioned(
-            top: 8,
-            left: 16,
-            right: 16,
+            top: AppTheme.spacingS,
+            left: AppTheme.spacingM,
+            right: AppTheme.spacingM,
             height: 120,
             child: IgnorePointer(
               ignoring: false,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
                 ),
                 child: Center(
                   child: FilledButton.icon(

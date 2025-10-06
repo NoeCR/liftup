@@ -11,6 +11,7 @@ import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../exercise/models/exercise.dart';
 import '../../home/widgets/exercise_card_wrapper.dart';
 import '../../progression/widgets/progression_status_widget.dart';
+import '../../../common/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -137,7 +138,14 @@ class _SessionPageState extends ConsumerState<SessionPage> {
         Expanded(child: _buildSessionContent(session)),
 
         // Session Controls
-        _buildSessionControls(session),
+        SafeArea(
+          top: false,
+          bottom: true,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.spacingS),
+            child: _buildSessionControls(session),
+          ),
+        ),
       ],
     );
   }
@@ -147,21 +155,35 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: colorScheme.primaryContainer, borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.all(AppTheme.spacingM),
+      padding: const EdgeInsets.all(AppTheme.spacingL),
+      decoration: BoxDecoration(
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(AppTheme.radiusL),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.1),
+            blurRadius: AppTheme.elevationM,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Text(
             context.tr('session.workoutTime'),
-            style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onPrimaryContainer),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppTheme.spacingS),
           Text(
             _formatHms(_elapsedSeconds),
             style: theme.textTheme.headlineLarge?.copyWith(
               color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
             ),
           ),
         ],
@@ -191,7 +213,12 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             return exercisesAsync.when(
               data: (exercises) {
                 return ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppTheme.spacingM,
+                    AppTheme.spacingM,
+                    AppTheme.spacingM,
+                    kBottomNavigationBarHeight + AppTheme.spacingL,
+                  ),
                   itemCount: routine!.sections.length,
                   itemBuilder: (context, index) {
                     final section = routine!.sections[index];
@@ -199,25 +226,29 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(section.name, style: Theme.of(context).textTheme.titleMedium),
+                          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingS),
+                          child: Text(
+                            section.name,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                          ),
                         ),
                         if (section.exercises.isEmpty)
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
                             child: Text(
                               context.tr('session.noExercises'),
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           )
                         else
                           SizedBox(
-                            height: 300,
+                            height: 360,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
                               itemCount: section.exercises.length,
                               itemBuilder: (context, idx) {
                                 final re = section.exercises[idx];
@@ -239,8 +270,6 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                                       ),
                                 );
 
-                                // ExerciseCardWrapper maneja internamente el estado de series realizadas
-
                                 return SizedBox(
                                   width: 320,
                                   child: ExerciseCardWrapper(
@@ -255,7 +284,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                               },
                             ),
                           ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppTheme.spacingL),
                       ],
                     );
                   },
@@ -274,7 +303,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
   Widget _buildSessionControls(WorkoutSession session) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppTheme.spacingM),
       child: Row(
         children: [
           Expanded(
@@ -307,7 +336,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppTheme.spacingM),
           Expanded(
             child: FilledButton.icon(
               onPressed: () async {
@@ -349,37 +378,52 @@ class _SessionPageState extends ConsumerState<SessionPage> {
         // Contenido principal
         Expanded(
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.play_circle_outline, size: 64, color: colorScheme.onSurfaceVariant),
-                const SizedBox(height: 16),
-                Text(context.tr('session.noActiveSession'), style: theme.textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                Text(
-                  context.tr('session.startNewSession'),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
-                ),
-                const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: () async {
-                    final selectedRoutineId = ref.read(selectedRoutineIdProvider);
-                    if (selectedRoutineId == null) {
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text(context.tr('session.selectRoutineFirst'))));
-                      return;
-                    }
-                    await ref
-                        .read(sessionNotifierProvider.notifier)
-                        .startSession(name: context.tr('session.title'), routineId: selectedRoutineId);
-                    if (mounted) setState(() {});
-                  },
-                  icon: const Icon(Icons.play_arrow),
-                  label: Text(context.tr('session.startSession')),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(AppTheme.spacingXL),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.spacingXL),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.play_circle_outline, size: 64, color: colorScheme.primary),
+                  ),
+                  const SizedBox(height: AppTheme.spacingL),
+                  Text(
+                    context.tr('session.noActiveSession'),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppTheme.spacingS),
+                  Text(
+                    context.tr('session.startNewSession'),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppTheme.spacingXL),
+                  FilledButton.icon(
+                    onPressed: () async {
+                      final selectedRoutineId = ref.read(selectedRoutineIdProvider);
+                      if (selectedRoutineId == null) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(context.tr('session.selectRoutineFirst'))));
+                        return;
+                      }
+                      await ref
+                          .read(sessionNotifierProvider.notifier)
+                          .startSession(name: context.tr('session.title'), routineId: selectedRoutineId);
+                      if (mounted) setState(() {});
+                    },
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text(context.tr('session.startSession')),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
