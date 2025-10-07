@@ -7,6 +7,7 @@ import '../../sessions/notifiers/performed_sets_notifier.dart';
 import '../../../common/widgets/exercise_card.dart';
 import '../models/routine.dart';
 import '../../exercise/models/exercise.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../settings/notifiers/rest_prefs.dart';
 import '../services/weekly_exercise_tracking_service.dart';
 import '../../../common/themes/app_theme.dart';
@@ -133,6 +134,12 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           exercise: widget.exercise,
           isCompleted: isCompleted,
           wasPerformedThisWeek: wasPerformedThisWeek,
+          isLocked: widget.exercise.isProgressionLocked,
+          onToggleLock: () async {
+            final notifier = ref.read(exerciseNotifierProvider.notifier);
+            final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
+            await notifier.updateExercise(updated);
+          },
           performedSets: performedSets,
           showSetsControls: widget.showSetsControls,
           isResting: _showRestOverlay,

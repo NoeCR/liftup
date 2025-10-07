@@ -264,7 +264,7 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.incrementApplied, isTrue);
         expect(deloadResult.reason, contains('deload'));
@@ -292,7 +292,7 @@ void main() {
           state.currentSets,
         );
         expect(result.newWeight, equals(102.5)); // 100 + 2.5
-        expect(result.newReps, equals(8)); // 10 * 0.8
+        expect(result.newReps, equals(9)); // 10 * 0.9
         expect(result.reason, contains('high intensity week'));
 
         // Semana 2: Alto volumen
@@ -305,7 +305,7 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(result.newWeight, equals(102.0)); // 102.5 - (2.5 * 0.2)
+        expect(result.newWeight, equals(101.75)); // 102.5 - (2.5 * 0.3)
         expect(result.newReps, equals(10)); // 8 * 1.3
         expect(result.newSets, equals(4)); // 3 + 1
         expect(result.reason, contains('high volume week'));
@@ -385,7 +385,7 @@ void main() {
           state.currentReps,
           state.currentSets,
         );
-        expect(deloadResult.newWeight, equals(90.0)); // 100 * 0.9
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.reason, contains('deload week'));
       });
@@ -436,7 +436,7 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.newWeight, equals(85.0)); // 100 * 0.85
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.reason, contains('deload week'));
       });
@@ -480,7 +480,7 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.reason, contains('deload week'));
       });
@@ -523,7 +523,7 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.reason, contains('deload week'));
       });
@@ -566,7 +566,7 @@ void main() {
           deloadState.currentReps,
           deloadState.currentSets,
         );
-        expect(deloadResult.newWeight, equals(75.0)); // 100 * 0.75
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
         expect(deloadResult.newSets, equals(2)); // 3 * 0.7
         expect(deloadResult.reason, contains('deload week'));
       });

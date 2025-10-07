@@ -3,11 +3,14 @@ import '../models/progression_state.dart';
 import '../notifiers/progression_notifier.dart';
 import '../../exercise/models/exercise_set.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../exercise/models/exercise.dart';
 import '../../home/models/routine.dart';
 import '../../sessions/services/session_service.dart';
 import '../../../core/logging/logging.dart';
 import '../../../common/enums/progression_type_enum.dart';
 import '../../settings/notifiers/rest_prefs.dart';
+import '../services/progression_service.dart';
+import 'package:flutter/foundation.dart';
 part 'session_progression_service.g.dart';
 
 int computeAdjustedSets({
@@ -78,6 +81,18 @@ class SessionProgressionService extends _$SessionProgressionService {
               orElse: () => throw Exception('Exercise not found: ${exercise.exerciseId}'),
             );
 
+            // Skip if progression is locked for this exercise
+            if (exerciseModel.isProgressionLocked) {
+              updatedExercises.add(exercise);
+              continue;
+            }
+
+            // Apply progression only to exercises previously performed
+            if (exerciseModel.lastPerformedAt == null) {
+              updatedExercises.add(exercise);
+              continue;
+            }
+
             // Get or initialize progression state for this exercise
             ProgressionState? progressionState = await progressionNotifier.getExerciseProgressionState(
               exercise.exerciseId,
@@ -90,6 +105,22 @@ class SessionProgressionService extends _$SessionProgressionService {
               baseReps: exerciseModel.defaultReps ?? 10,
               baseSets: exerciseModel.defaultSets ?? 4,
             );
+
+            // Skip if a skip flag is set for this routine in the exercise state
+            final skipByRoutine = progressionState.customData['skip_next_by_routine'] as Map?;
+            final shouldSkipForRoutine = skipByRoutine != null && skipByRoutine[routine.id] == true;
+            if (shouldSkipForRoutine) {
+              // Clear the skip flag for this routine after skipping once
+              final cleaned = Map<String, dynamic>.from(progressionState.customData);
+              final byRoutine = Map<String, dynamic>.from((cleaned['skip_next_by_routine'] as Map?) ?? const {});
+              byRoutine.remove(routine.id);
+              cleaned['skip_next_by_routine'] = byRoutine;
+              final updatedState = progressionState.copyWith(customData: cleaned, lastUpdated: DateTime.now());
+              await ref.read(progressionServiceProvider.notifier).saveProgressionState(updatedState);
+
+              updatedExercises.add(exercise);
+              continue;
+            }
 
             // Log current state before calculation
             LoggingService.instance.info('SESSION PROGRESSION: BEFORE CALCULATION', {
@@ -112,14 +143,29 @@ class SessionProgressionService extends _$SessionProgressionService {
             );
 
             if (calculationResult != null) {
+              // Build per-exercise custom parameters by overlaying per_exercise overrides
+              final Map<String, dynamic> mergedCustom = buildMergedCustomForExercise(
+                globalCustom: config.customParameters,
+                exerciseId: exercise.exerciseId,
+              );
+
+              // Adjust by exerciseType-specific configuration (increments and rep ranges)
+              final adjusted = _adjustByExerciseType(
+                exerciseType: exerciseModel.exerciseType,
+                currentWeight: progressionState.currentWeight,
+                proposedWeight: calculationResult.newWeight,
+                proposedReps: calculationResult.newReps,
+                custom: mergedCustom,
+                incrementApplied: calculationResult.incrementApplied,
+              );
               // Log calculation result
               LoggingService.instance.info('SESSION PROGRESSION: CALCULATION RESULT', {
                 'exerciseId': exercise.exerciseId,
                 'exerciseName': exerciseModel.name,
                 'oldWeight': progressionState.currentWeight,
-                'newWeight': calculationResult.newWeight,
+                'newWeight': adjusted.newWeight,
                 'oldReps': progressionState.currentReps,
-                'newReps': calculationResult.newReps,
+                'newReps': adjusted.newReps,
                 'oldSets': progressionState.currentSets,
                 'newSets': calculationResult.newSets,
                 'incrementApplied': calculationResult.incrementApplied,
@@ -139,13 +185,58 @@ class SessionProgressionService extends _$SessionProgressionService {
               );
 
               final updatedExerciseModel = exerciseModel.copyWith(
-                defaultWeight: calculationResult.newWeight,
-                defaultReps: calculationResult.newReps,
+                defaultWeight: adjusted.newWeight,
+                defaultReps: adjusted.newReps,
                 defaultSets: adjustedSets,
               );
 
               // Persist updated exercise
               await ref.read(exerciseNotifierProvider.notifier).updateExercise(updatedExerciseModel);
+
+              // Persist adjusted progression state so next session uses adjusted values
+              try {
+                final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
+                final newSession = progressionState.currentSession + 1;
+                final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
+
+                final int currentInCycle =
+                    config.unit == ProgressionUnit.session
+                        ? ((progressionState.currentSession - 1) % config.cycleLength) + 1
+                        : ((progressionState.currentWeek - 1) % config.cycleLength) + 1;
+                final bool isDeloadNow = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+
+                // Update customData (track deload application)
+                final updatedCustom = Map<String, dynamic>.from(progressionState.customData);
+                if (isDeloadNow) {
+                  updatedCustom['deload_last_cycle_pos'] = currentInCycle;
+                } else {
+                  updatedCustom.remove('deload_last_cycle_pos');
+                }
+
+                final updatedState = progressionState.copyWith(
+                  currentWeight: adjusted.newWeight,
+                  currentReps: adjusted.newReps,
+                  currentSets: calculationResult.newSets,
+                  currentSession: newSession,
+                  currentWeek: newWeek,
+                  lastUpdated: DateTime.now(),
+                  baseWeight: isDeloadNow ? adjusted.newWeight : progressionState.baseWeight,
+                  isDeloadWeek: isDeloadNow,
+                  sessionHistory: {
+                    ...progressionState.sessionHistory,
+                    'session_$newSession': {
+                      'weight': adjusted.newWeight,
+                      'reps': adjusted.newReps,
+                      'sets': calculationResult.newSets,
+                      'date': DateTime.now().toIso8601String(),
+                      'increment_applied': calculationResult.incrementApplied,
+                    },
+                  },
+                  customData: updatedCustom,
+                );
+
+                await ref.read(progressionServiceProvider.notifier).saveProgressionState(updatedState);
+              } catch (_) {}
 
               // Build updated routine exercise (structure unchanged; Exercise carries defaults)
               final updatedExercise = exercise.copyWith();
@@ -387,6 +478,107 @@ class SessionProgressionService extends _$SessionProgressionService {
       return true;
     }
   }
+}
+
+class _TypeAdjustedResult {
+  final double newWeight;
+  final int newReps;
+  const _TypeAdjustedResult({required this.newWeight, required this.newReps});
+}
+
+@visibleForTesting
+Map<String, dynamic> buildMergedCustomForExercise({
+  required Map<String, dynamic> globalCustom,
+  required String exerciseId,
+}) {
+  final Map<String, dynamic> merged = Map<String, dynamic>.from(globalCustom);
+  final Map<String, dynamic>? perExerciseAll = (globalCustom['per_exercise'] as Map?)?.cast<String, dynamic>();
+  final Map<String, dynamic>? overrides =
+      perExerciseAll != null ? (perExerciseAll[exerciseId] as Map?)?.cast<String, dynamic>() : null;
+  if (overrides != null) {
+    merged.addAll(overrides);
+  }
+  return merged;
+}
+
+_TypeAdjustedResult _adjustByExerciseType({
+  required ExerciseType exerciseType,
+  required double currentWeight,
+  required double proposedWeight,
+  required int proposedReps,
+  required Map<String, dynamic> custom,
+  required bool incrementApplied,
+}) {
+  // Expected keys in custom parameters:
+  // multi_increment_min, multi_increment_max, multi_reps_min, multi_reps_max
+  // iso_increment_min, iso_increment_max, iso_reps_min, iso_reps_max
+  final bool isMulti = exerciseType == ExerciseType.multiJoint;
+  final String prefix = isMulti ? 'multi' : 'iso';
+
+  final double incMin = (custom['${prefix}_increment_min'] as num?)?.toDouble() ?? (isMulti ? 2.5 : 1.25);
+  final double incMax = (custom['${prefix}_increment_max'] as num?)?.toDouble() ?? (isMulti ? 5.0 : 2.5);
+  final int repsMin = (custom['${prefix}_reps_min'] as num?)?.toInt() ?? (isMulti ? 15 : 8);
+  final int repsMax = (custom['${prefix}_reps_max'] as num?)?.toInt() ?? (isMulti ? 20 : 12);
+
+  double adjustedWeight = proposedWeight;
+  int adjustedReps = proposedReps;
+
+  if (incrementApplied) {
+    final double delta = proposedWeight - currentWeight;
+    if (delta > 0) {
+      // Adjust to closest allowed step within [incMin, incMax]
+      double step = incMin;
+      if (delta >= incMax) {
+        step = incMax;
+      } else if (delta >= incMin) {
+        step = incMin;
+      } else {
+        step = incMin; // enforce minimum step
+      }
+      adjustedWeight = currentWeight + step;
+    }
+  }
+
+  // Clamp reps to [repsMin, repsMax]
+  if (adjustedReps < repsMin) adjustedReps = repsMin;
+  if (adjustedReps > repsMax) adjustedReps = repsMax;
+
+  return _TypeAdjustedResult(newWeight: adjustedWeight, newReps: adjustedReps);
+}
+
+@visibleForTesting
+Map<String, dynamic> debugAdjustByExerciseType({
+  required ExerciseType exerciseType,
+  required double currentWeight,
+  required double proposedWeight,
+  required int proposedReps,
+  required Map<String, dynamic> custom,
+  required bool incrementApplied,
+}) {
+  final r = _adjustByExerciseType(
+    exerciseType: exerciseType,
+    currentWeight: currentWeight,
+    proposedWeight: proposedWeight,
+    proposedReps: proposedReps,
+    custom: custom,
+    incrementApplied: incrementApplied,
+  );
+  return {'weight': r.newWeight, 'reps': r.newReps};
+}
+
+@visibleForTesting
+Map<String, dynamic> evaluateAndConsumeSkipForRoutine({
+  required Map<String, dynamic> customData,
+  required String routineId,
+}) {
+  final cleaned = Map<String, dynamic>.from(customData);
+  final byRoutine = Map<String, dynamic>.from((cleaned['skip_next_by_routine'] as Map?) ?? const {});
+  final shouldSkip = byRoutine[routineId] == true;
+  if (shouldSkip) {
+    byRoutine.remove(routineId);
+    cleaned['skip_next_by_routine'] = byRoutine;
+  }
+  return {'skip': shouldSkip, 'custom': cleaned};
 }
 
 class ProgressionInfo {

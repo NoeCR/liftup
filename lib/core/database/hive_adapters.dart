@@ -26,6 +26,7 @@ class HiveAdapters {
       _registerAdapterSafely<Exercise>(ExerciseAdapter());
       _registerAdapterSafely<ExerciseCategory>(ExerciseCategoryAdapter());
       _registerAdapterSafely<ExerciseDifficulty>(ExerciseDifficultyAdapter());
+      _registerAdapterSafely<ExerciseType>(ExerciseTypeAdapter());
 
       // Exercise Set adapters
       _registerAdapterSafely<ExerciseSet>(ExerciseSetAdapter());
@@ -68,13 +69,26 @@ class HiveAdapters {
   }
 
   static void _registerAdapterSafely<T>(TypeAdapter<T> adapter) {
+    // Avoid duplicate registration by checking typeId first
+    // Note: Hive throws different messages depending on platform; be proactive.
     try {
+      // @ignore: cast ok for accessing typeId
+      final dynamic dynAdapter = adapter;
+      final int? typeId = (dynAdapter is TypeAdapter) ? dynAdapter.typeId : null;
+      if (typeId != null) {
+        final bool already = Hive.isAdapterRegistered(typeId);
+        if (already) {
+          return;
+        }
+      }
+
       Hive.registerAdapter<T>(adapter);
     } catch (e) {
-      // If adapter is already registered, that's fine
-      if (!e.toString().contains('already registered')) {
-        rethrow;
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('already registered') || msg.contains('there is already a typeadapter')) {
+        return; // ignore duplicate registration errors
       }
+      rethrow;
     }
   }
 

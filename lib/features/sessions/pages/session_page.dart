@@ -14,6 +14,8 @@ import '../../progression/widgets/progression_status_widget.dart';
 import '../../../common/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import '../../progression/notifiers/progression_notifier.dart';
+import '../../../common/enums/progression_type_enum.dart';
 
 class SessionPage extends ConsumerStatefulWidget {
   const SessionPage({super.key});
@@ -249,9 +251,94 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
-                              itemCount: section.exercises.length,
+                              itemCount:
+                                  (() {
+                                    // count based on sorted list length
+                                    final sorted = [...section.exercises];
+                                    sorted.sort((a, b) {
+                                      final exA = exercises.firstWhere(
+                                        (e) => e.id == a.exerciseId,
+                                        orElse:
+                                            () => Exercise(
+                                              id: '',
+                                              name: context.tr('exercises.title'),
+                                              description: '',
+                                              imageUrl: '',
+                                              muscleGroups: const [],
+                                              tips: const [],
+                                              commonMistakes: const [],
+                                              category: ExerciseCategory.fullBody,
+                                              difficulty: ExerciseDifficulty.beginner,
+                                              createdAt: DateTime.now(),
+                                              updatedAt: DateTime.now(),
+                                            ),
+                                      );
+                                      final exB = exercises.firstWhere(
+                                        (e) => e.id == b.exerciseId,
+                                        orElse:
+                                            () => Exercise(
+                                              id: '',
+                                              name: context.tr('exercises.title'),
+                                              description: '',
+                                              imageUrl: '',
+                                              muscleGroups: const [],
+                                              tips: const [],
+                                              commonMistakes: const [],
+                                              category: ExerciseCategory.fullBody,
+                                              difficulty: ExerciseDifficulty.beginner,
+                                              createdAt: DateTime.now(),
+                                              updatedAt: DateTime.now(),
+                                            ),
+                                      );
+                                      final aDate = exA.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                      final bDate = exB.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                      return aDate.compareTo(bDate); // older first
+                                    });
+                                    return sorted.length;
+                                  })(),
                               itemBuilder: (context, idx) {
-                                final re = section.exercises[idx];
+                                // Build a sorted list here to ensure consistent order with itemCount
+                                final sorted = [...section.exercises];
+                                sorted.sort((a, b) {
+                                  final exA = exercises.firstWhere(
+                                    (e) => e.id == a.exerciseId,
+                                    orElse:
+                                        () => Exercise(
+                                          id: '',
+                                          name: context.tr('exercises.title'),
+                                          description: '',
+                                          imageUrl: '',
+                                          muscleGroups: const [],
+                                          tips: const [],
+                                          commonMistakes: const [],
+                                          category: ExerciseCategory.fullBody,
+                                          difficulty: ExerciseDifficulty.beginner,
+                                          createdAt: DateTime.now(),
+                                          updatedAt: DateTime.now(),
+                                        ),
+                                  );
+                                  final exB = exercises.firstWhere(
+                                    (e) => e.id == b.exerciseId,
+                                    orElse:
+                                        () => Exercise(
+                                          id: '',
+                                          name: context.tr('exercises.title'),
+                                          description: '',
+                                          imageUrl: '',
+                                          muscleGroups: const [],
+                                          tips: const [],
+                                          commonMistakes: const [],
+                                          category: ExerciseCategory.fullBody,
+                                          difficulty: ExerciseDifficulty.beginner,
+                                          createdAt: DateTime.now(),
+                                          updatedAt: DateTime.now(),
+                                        ),
+                                  );
+                                  final aDate = exA.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                  final bDate = exB.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                  return aDate.compareTo(bDate);
+                                });
+                                final re = sorted[idx];
                                 final ex = exercises.firstWhere(
                                   (e) => e.id == re.exerciseId,
                                   orElse:
@@ -341,6 +428,57 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             child: FilledButton.icon(
               onPressed: () async {
                 _stopTicker();
+                final progressionConfig = await ref.read(progressionNotifierProvider.future);
+                bool applyNext = true;
+                if (progressionConfig != null) {
+                  final isWeekly = progressionConfig.unit == ProgressionUnit.week;
+                  final isEndOfWeek = DateTime.now().weekday == DateTime.sunday;
+                  final shouldAsk = !isWeekly || (isWeekly && isEndOfWeek);
+                  if (shouldAsk) {
+                    applyNext =
+                        await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) {
+                            return AlertDialog(
+                              title: Text(ctx.tr('progression.confirmApplyTitle')),
+                              content: Text(ctx.tr('progression.confirmApplyMessage')),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  child: Text(ctx.tr('common.keepValues')),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  child: Text(ctx.tr('progression.applyNextSession')),
+                                ),
+                              ],
+                            );
+                          },
+                        ) ??
+                        true;
+                  }
+                }
+
+                // Persist skip flag per routine if user decides to keep values
+                try {
+                  final activeSession = await ref.read(sessionNotifierProvider.notifier).getCurrentOngoingSession();
+                  final routineId = activeSession?.routineId;
+                  if (routineId != null) {
+                    final routine = (await ref.read(
+                      routineNotifierProvider.future,
+                    )).firstWhere((r) => r.id == routineId);
+                    final exerciseIds =
+                        routine.sections.expand((s) => s.exercises.map((e) => e.exerciseId)).toSet().toList();
+                    await ref
+                        .read(progressionNotifierProvider.notifier)
+                        .setSkipNextProgressionForRoutine(
+                          routineId: routineId,
+                          exerciseIds: exerciseIds,
+                          skip: !applyNext,
+                        );
+                  }
+                } catch (_) {}
+
                 await ref.read(sessionNotifierProvider.notifier).completeSession();
                 if (!mounted) return;
                 setState(() {

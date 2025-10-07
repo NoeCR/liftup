@@ -1,0 +1,126 @@
+import '../../models/progression_config.dart';
+import '../../models/progression_state.dart';
+import '../../models/progression_calculation_result.dart';
+import '../../../../common/enums/progression_type_enum.dart';
+import '../progression_strategy.dart';
+
+class DoubleProgressionStrategy implements ProgressionStrategy {
+  @override
+  ProgressionCalculationResult calculate({
+    required ProgressionConfig config,
+    required ProgressionState state,
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+  }) {
+    final currentInCycle =
+        config.unit == ProgressionUnit.session
+            ? ((state.currentSession - 1) % config.cycleLength) + 1
+            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+
+    if (isDeloadPeriod) {
+      // Deload: reduce peso manteniendo el incremento sobre base, reduce series
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final deloadSets = (currentSets * 0.7).round();
+      return ProgressionCalculationResult(
+        newWeight: deloadWeight,
+        newReps: currentReps,
+        newSets: deloadSets,
+        incrementApplied: true,
+        reason: 'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      );
+    }
+
+    // Leer parámetros de progresión con fallbacks apropiados
+    final maxReps = _getMaxReps(config);
+    final minReps = _getMinReps(config);
+
+    if (currentReps < maxReps) {
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: currentReps + 1,
+        newSets: currentSets,
+        incrementApplied: true,
+        reason: 'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+      );
+    } else {
+      // Incrementar peso y resetear reps al mínimo
+      final incrementValue = _getIncrementValue(config);
+      return ProgressionCalculationResult(
+        newWeight: currentWeight + incrementValue,
+        newReps: minReps,
+        newSets: currentSets,
+        incrementApplied: true,
+        reason:
+            'Double progression: increasing weight +${incrementValue}kg and resetting reps to $minReps (week $currentInCycle of ${config.cycleLength})',
+      );
+    }
+  }
+
+  /// Obtiene el máximo de repeticiones desde los parámetros personalizados
+  int _getMaxReps(ProgressionConfig config) {
+    // Prioridad: per_exercise > global > defaults por tipo
+    final customParams = config.customParameters;
+
+    // Buscar en per_exercise primero
+    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
+    if (perExercise != null) {
+      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
+      if (exerciseParams != null) {
+        final maxReps =
+            exerciseParams['max_reps'] ?? exerciseParams['multi_reps_max'] ?? exerciseParams['iso_reps_max'];
+        if (maxReps != null) return maxReps as int;
+      }
+    }
+
+    // Fallback a global
+    return customParams['max_reps'] ?? customParams['multi_reps_max'] ?? customParams['iso_reps_max'] ?? 12; // default
+  }
+
+  /// Obtiene el mínimo de repeticiones desde los parámetros personalizados
+  int _getMinReps(ProgressionConfig config) {
+    // Prioridad: per_exercise > global > defaults por tipo
+    final customParams = config.customParameters;
+
+    // Buscar en per_exercise primero
+    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
+    if (perExercise != null) {
+      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
+      if (exerciseParams != null) {
+        final minReps =
+            exerciseParams['min_reps'] ?? exerciseParams['multi_reps_min'] ?? exerciseParams['iso_reps_min'];
+        if (minReps != null) return minReps as int;
+      }
+    }
+
+    // Fallback a global
+    return customParams['min_reps'] ?? customParams['multi_reps_min'] ?? customParams['iso_reps_min'] ?? 5; // default
+  }
+
+  /// Obtiene el valor de incremento desde parámetros personalizados
+  /// Prioridad: per_exercise > global > defaults por tipo
+  double _getIncrementValue(ProgressionConfig config) {
+    final customParams = config.customParameters;
+
+    // Buscar en per_exercise primero
+    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
+    if (perExercise != null) {
+      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
+      if (exerciseParams != null) {
+        final increment =
+            exerciseParams['increment_value'] ??
+            exerciseParams['multi_increment_min'] ??
+            exerciseParams['iso_increment_min'];
+        if (increment != null) return (increment as num).toDouble();
+      }
+    }
+
+    // Fallback a global
+    return customParams['increment_value'] ??
+        customParams['multi_increment_min'] ??
+        customParams['iso_increment_min'] ??
+        config.incrementValue; // fallback al valor base
+  }
+}

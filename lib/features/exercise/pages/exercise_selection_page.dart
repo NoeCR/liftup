@@ -491,15 +491,42 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       final selectedExercises = exercises.where((exercise) => _selectedExercises.contains(exercise.id)).toList();
 
       if (selectedExercises.isNotEmpty) {
-        // Add exercises to the routine exercise notifier
-        final sectionId = widget.sectionId ?? 'main_${DateTime.now().millisecondsSinceEpoch}';
-        ref.read(routineExerciseNotifierProvider.notifier).addExercisesToSection(sectionId, selectedExercises);
+        // Resolver la sección destino: si no viene por parámetro y tenemos rutina,
+        // utilizar la primera sección existente de la rutina
+        String? resolvedSectionId = widget.sectionId;
+        if (resolvedSectionId == null && widget.routineId != null) {
+          final routinesAsync = ref.read(routineNotifierProvider);
+          final routines = routinesAsync.valueOrNull;
+          if (routines != null) {
+            final routine = routines.firstWhere(
+              (r) => r.id == widget.routineId,
+              orElse: () => routines.isNotEmpty ? routines.first : throw Exception('No routines available'),
+            );
+            if (routine.sections.isNotEmpty) {
+              resolvedSectionId = routine.sections.first.id;
+            }
+          }
+        }
 
-        // If we have a routineId, we should also update the routine in the database
+        if (resolvedSectionId == null) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No se pudo determinar la sección de la rutina. Crea una sección primero.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Add exercises to the in-memory notifier for immediate UI feedback
+        ref.read(routineExerciseNotifierProvider.notifier).addExercisesToSection(resolvedSectionId, selectedExercises);
+
+        // Persistir cambios en la rutina si tenemos routineId
         if (widget.routineId != null) {
           _updateRoutineWithExercises(
             widget.routineId!,
-            sectionId,
+            resolvedSectionId,
             selectedExercises,
             sets: parsedSets,
             reps: parsedReps,
@@ -555,15 +582,21 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       final routine = routines.firstWhere((r) => r.id == routineId, orElse: () => throw Exception('Routine not found'));
 
       // Create RoutineExercise objects (weight/sets/reps now stored in Exercise)
+      // Calcular orden a partir de los existentes en la sección
+      final targetSection = routine.sections.firstWhere((s) => s.id == sectionId, orElse: () => routine.sections.first);
+      final baseOrder = targetSection.exercises.length;
+
       final routineExercises =
           exercises
+              .asMap()
+              .entries
               .map(
-                (exercise) => RoutineExercise(
-                  id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
+                (entry) => RoutineExercise(
+                  id: '${entry.value.id}_${DateTime.now().millisecondsSinceEpoch}',
                   routineSectionId: sectionId,
-                  exerciseId: exercise.id,
+                  exerciseId: entry.value.id,
                   notes: '',
-                  order: 0,
+                  order: baseOrder + entry.key,
                 ),
               )
               .toList();

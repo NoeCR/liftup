@@ -17,6 +17,8 @@ class ExerciseCard extends StatelessWidget {
   final int performedSets;
   final bool showSetsControls;
   final bool isResting;
+  final bool isLocked;
+  final VoidCallback? onToggleLock;
 
   const ExerciseCard({
     super.key,
@@ -32,6 +34,8 @@ class ExerciseCard extends StatelessWidget {
     this.performedSets = 0,
     this.showSetsControls = false,
     this.isResting = false,
+    this.isLocked = false,
+    this.onToggleLock,
   });
 
   @override
@@ -54,14 +58,41 @@ class ExerciseCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Exercise Image
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
-                child: Container(
-                  height: 120,
-                  width: double.infinity,
-                  color: Colors.transparent,
-                  child: _buildAdaptiveImage(exercise?.imageUrl ?? '', colorScheme),
-                ),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
+                    child: Container(
+                      height: 120,
+                      width: double.infinity,
+                      color: Colors.transparent,
+                      child: _buildAdaptiveImage(exercise?.imageUrl ?? '', colorScheme),
+                    ),
+                  ),
+                  Positioned(
+                    top: AppTheme.spacingS,
+                    right: AppTheme.spacingS,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkResponse(
+                        onTap: onToggleLock,
+                        radius: 24,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            isLocked ? Icons.lock : Icons.lock_open,
+                            size: 20,
+                            color: isLocked ? colorScheme.error : colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               // Exercise Info + Controls unified

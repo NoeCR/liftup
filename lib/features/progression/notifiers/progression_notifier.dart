@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
+import '../models/progression_calculation_result.dart';
 import '../services/progression_service.dart';
 import '../services/progression_template_service.dart';
 import '../../../common/enums/progression_type_enum.dart';
@@ -208,6 +209,36 @@ class ProgressionNotifier extends _$ProgressionNotifier {
     }
   }
 
+  /// Marca/Desmarca que se omita la progresión en la próxima sesión de una rutina concreta
+  /// Almacena en customData del ProgressionState un mapa: { 'skip_next_by_routine': { 'routineId': true/false } }
+  Future<void> setSkipNextProgressionForRoutine({
+    required String routineId,
+    required List<String> exerciseIds,
+    required bool skip,
+  }) async {
+    try {
+      final config = await future;
+      if (config == null) return;
+
+      final progressionService = ref.read(progressionServiceProvider.notifier);
+
+      for (final exerciseId in exerciseIds) {
+        final state = await progressionService.getProgressionStateByExercise(config.id, exerciseId);
+        if (state == null) continue;
+
+        final existing = Map<String, dynamic>.from(state.customData);
+        final updated = updateSkipNextByRoutineMap(existing, routineId, skip);
+
+        final updatedState = state.copyWith(customData: updated);
+        await progressionService.saveProgressionState(updatedState);
+      }
+    } catch (e, stackTrace) {
+      LoggingService.instance.error('Error setting skip_next_progression flag', e, stackTrace, {
+        'routineId': routineId,
+      });
+    }
+  }
+
   /// Verifica si hay una progresión activa
   bool get hasActiveProgression {
     return state.hasValue && state.value != null && state.value!.isActive;
@@ -217,4 +248,17 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   ProgressionType? get activeProgressionType {
     return state.hasValue ? state.value?.type : null;
   }
+}
+
+/// Helper pure function to update the skip_next_by_routine structure
+Map<String, dynamic> updateSkipNextByRoutineMap(Map<String, dynamic> customData, String routineId, bool skip) {
+  final next = Map<String, dynamic>.from(customData);
+  final byRoutine = Map<String, dynamic>.from((next['skip_next_by_routine'] as Map?) ?? const {});
+  if (skip) {
+    byRoutine[routineId] = true;
+  } else {
+    byRoutine.remove(routineId);
+  }
+  next['skip_next_by_routine'] = byRoutine;
+  return next;
 }

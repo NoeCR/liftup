@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/features/progression/models/progression_calculation_result.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import '../mocks/progression_mock_factory.dart';
 

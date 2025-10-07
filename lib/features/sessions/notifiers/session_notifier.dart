@@ -131,6 +131,27 @@ class SessionNotifier extends _$SessionNotifier {
 
     // Do NOT clear counters here — keep them in memory for quick view
     // They will be cleared when a new session starts
+
+    // Update lastPerformedAt for exercises that were actually completed
+    try {
+      final exercisesNotifier = ref.read(exerciseNotifierProvider.notifier);
+      final allExercises = await ref.read(exerciseNotifierProvider.future);
+
+      final completedExerciseIds = <String>{};
+      for (final set in exerciseSets) {
+        completedExerciseIds.add(set.exerciseId);
+      }
+
+      final now = DateTime.now();
+      for (final exercise in allExercises) {
+        if (completedExerciseIds.contains(exercise.id)) {
+          final updated = exercise.copyWith(lastPerformedAt: now);
+          await exercisesNotifier.updateExercise(updated);
+        }
+      }
+    } catch (_) {
+      // Ignore update errors to not block completion
+    }
   }
 
   Future<void> pauseSession() async {
