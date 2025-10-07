@@ -30,13 +30,17 @@ Liftly helps users manage workout routines and sessions while applying configura
 Formerly known as LiftUp. App name, icons, splash and theming updated to Liftly across Android, iOS and Web.
 
 ## Features
-- Configurable progression types: linear, undulating, stepped, double, wave, static, reverse, autoregulated, overload, double factor
-- Routine and session management with local persistence (Hive)
-- Statistics and charts
-- Riverpod 2.x app architecture
-- Logger + Sentry integration
-- Code generation with build_runner
-- Git hooks and CI pipeline (GitHub Actions)
+- **11 Advanced Progression Strategies**: linear, undulating, stepped, double, wave, static, reverse, autoregulated, overload, double factor, default
+- **Exercise-Specific Progression**: Individual progression parameters per exercise (multi-joint vs isolation)
+- **Unified Deload Logic**: Consistent deload application across all strategies with base weight preservation
+- **Comprehensive Testing**: 344/344 tests passing (100% success rate) with 99 strategy-specific tests
+- **Refactored Architecture**: Specialized services (ProgressionStateService, ProgressionCalculationService, ProgressionCoordinatorService)
+- **Routine and session management** with local persistence (Hive)
+- **Statistics and charts**
+- **Riverpod 2.x app architecture**
+- **Logger + Sentry integration**
+- **Code generation with build_runner**
+- **Git hooks and CI pipeline (GitHub Actions)**
 
 ## Tech Stack
 - Flutter 3.35.5 (stable)
@@ -129,11 +133,15 @@ Workflow: `.github/workflows/flutter-ci.yml`
 - Run tests
 
 ## Architecture
-- UI: Flutter + go_router, easy_localization
-- State: Riverpod `ProviderScope` with services/notifiers
-- Domain: progression logic & templates
-- Data: Hive local storage, adapters generated
-- Observability: `LoggingService` to console and Sentry
+- **UI**: Flutter + go_router, easy_localization
+- **State**: Riverpod `ProviderScope` with services/notifiers
+- **Domain**: Advanced progression strategies with specialized services
+  - `ProgressionStateService`: State management and persistence
+  - `ProgressionCalculationService`: Core progression calculations
+  - `ProgressionCoordinatorService`: Orchestration and coordination
+  - `ProgressionStrategyFactory`: Strategy pattern implementation
+- **Data**: Hive local storage, adapters generated
+- **Observability**: `LoggingService` to console and Sentry
 
 ## State Management
 Riverpod 2.x providers. Deprecated `*Ref` types replaced by `Ref`.
