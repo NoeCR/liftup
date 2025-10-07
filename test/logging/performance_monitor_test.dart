@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/core/logging/performance_monitor.dart';
+import 'package:liftly/core/logging/performance_monitor.dart';
 
 void main() {
   group('PerformanceMonitor', () {

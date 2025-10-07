@@ -33,7 +33,7 @@ class SentryConfigExample {
     }
 
     // Add additional device information
-    event = event.copyWith(tags: {...?event.tags, 'app_name': 'LiftUp', 'platform': defaultTargetPlatform.name});
+    event = event.copyWith(tags: {...?event.tags, 'app_name': 'Liftly', 'platform': defaultTargetPlatform.name});
 
     return event;
   }
@@ -66,7 +66,7 @@ class SentryConfigExample {
         options.dsn = _dnsKey;
         options.debug = kDebugMode;
         options.environment = kDebugMode ? 'development' : 'production';
-        options.release = 'liftup@1.0.0+1';
+        options.release = 'liftly@1.0.0+1';
 
         // Performance configuration
         options.tracesSampleRate = kDebugMode ? 1.0 : 0.1;

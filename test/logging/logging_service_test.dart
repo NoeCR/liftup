@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/core/logging/logging_service.dart';
+import 'package:liftly/core/logging/logging_service.dart';
 
 void main() {
   group('LoggingService', () {

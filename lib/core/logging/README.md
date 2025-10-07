@@ -1,6 +1,6 @@
-# Sistema de Logging y Monitoreo - LiftUp
+# Sistema de Logging y Monitoreo - Liftly
 
-Este módulo proporciona un sistema completo de logging y monitoreo para la aplicación LiftUp, integrado con Sentry para el seguimiento de errores y métricas de rendimiento.
+Este módulo proporciona un sistema completo de logging y monitoreo para la aplicación Liftly, integrado con Sentry para el seguimiento de errores y métricas de rendimiento.
 
 ## 🚀 Características
 

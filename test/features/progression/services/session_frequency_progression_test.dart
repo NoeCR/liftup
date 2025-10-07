@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/common/enums/week_day_enum.dart';
-import 'package:liftup/features/progression/models/progression_config.dart';
-import 'package:liftup/features/home/models/routine.dart';
-import 'package:liftup/features/exercise/models/exercise.dart';
-import 'package:liftup/common/enums/progression_type_enum.dart';
-import 'package:liftup/common/enums/muscle_group_enum.dart';
+import 'package:liftly/common/enums/week_day_enum.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/home/models/routine.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 
 void main() {
   group('Session Frequency Progression Tests', () {

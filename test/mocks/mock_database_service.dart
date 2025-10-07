@@ -1,8 +1,8 @@
 import 'package:hive/hive.dart';
-import 'package:liftup/core/database/i_database_service.dart';
-import 'package:liftup/features/progression/models/progression_config.dart';
-import 'package:liftup/features/progression/models/progression_state.dart';
-import 'package:liftup/features/progression/models/progression_template.dart';
+import 'package:liftly/core/database/i_database_service.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/features/progression/models/progression_template.dart';
 
 /// Mock implementation of IDatabaseService for testing
 class MockDatabaseService implements IDatabaseService {

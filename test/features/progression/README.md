@@ -1,6 +1,6 @@
 # Pruebas de Progresión
 
-Este directorio contiene todas las pruebas para la funcionalidad de progresión de la aplicación LiftUp.
+Este directorio contiene todas las pruebas para la funcionalidad de progresión de la aplicación Liftly.
 
 ## Estructura de Pruebas
 

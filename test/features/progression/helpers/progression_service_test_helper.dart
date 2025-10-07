@@ -1,5 +1,5 @@
-import 'package:liftup/features/progression/services/progression_service.dart';
-import 'package:liftup/core/database/i_database_service.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/core/database/i_database_service.dart';
 import '../../../mocks/mock_database_service.dart';
 
 /// Helper class for testing ProgressionService with dependency injection

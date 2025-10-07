@@ -27,7 +27,7 @@ class CSVExportService extends ExportService {
     required List<ProgressData> progressData,
   }) async {
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/liftup_data_${DateTime.now().millisecondsSinceEpoch}.csv');
+    final file = File('${directory.path}/liftly_data_${DateTime.now().millisecondsSinceEpoch}.csv');
 
     final csvContent = StringBuffer();
 
@@ -85,7 +85,7 @@ class PDFExportService extends ExportService {
             pw.Header(
               level: 0,
               child: pw.Text(
-                'Reporte de Progreso - LiftUp',
+                'Reporte de Progreso - Liftly',
                 style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
               ),
             ),
@@ -122,7 +122,7 @@ class PDFExportService extends ExportService {
     );
 
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/liftup_report_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final file = File('${directory.path}/liftly_report_${DateTime.now().millisecondsSinceEpoch}.pdf');
     await file.writeAsBytes(await pdf.save());
 
     return file.path;
@@ -147,7 +147,7 @@ class JSONExportService extends ExportService {
     };
 
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/liftup_backup_${DateTime.now().millisecondsSinceEpoch}.json');
+    final file = File('${directory.path}/liftly_backup_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonEncode(data));
 
     return file.path;

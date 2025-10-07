@@ -81,7 +81,7 @@ void _runApp() async {
       supportedLocales: const [Locale('es'), Locale('en')],
       path: 'assets/locales',
       fallbackLocale: const Locale('es'),
-      child: const ProviderScope(child: LiftUpApp()),
+      child: const ProviderScope(child: LiftlyApp()),
     ),
   );
 }
@@ -104,13 +104,13 @@ void _setupGlobalErrorHandling() {
   };
 }
 
-class LiftUpApp extends StatelessWidget {
-  const LiftUpApp({super.key});
+class LiftlyApp extends StatelessWidget {
+  const LiftlyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'LiftUp',
+      title: 'Liftly',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

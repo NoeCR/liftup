@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 // ignore: depend_on_referenced_packages
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:liftup/features/sessions/pages/session_page.dart';
+import 'package:liftly/features/sessions/pages/session_page.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

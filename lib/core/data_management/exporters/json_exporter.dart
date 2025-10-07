@@ -19,7 +19,7 @@ class JsonExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_export_${DateTime.now().millisecondsSinceEpoch}.json';
+    final fileName = 'liftly_export_${DateTime.now().millisecondsSinceEpoch}.json';
     final file = File('${directory.path}/$fileName');
 
     final data = <String, dynamic>{};

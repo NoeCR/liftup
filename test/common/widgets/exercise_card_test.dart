@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftup/common/widgets/exercise_card.dart';
-import 'package:liftup/features/exercise/models/exercise.dart';
-import 'package:liftup/features/home/models/routine.dart';
+import 'package:liftly/common/widgets/exercise_card.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/home/models/routine.dart';
 
 void main() {
   Exercise buildExercise({

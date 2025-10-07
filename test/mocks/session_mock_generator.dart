@@ -1,8 +1,8 @@
 import 'package:uuid/uuid.dart';
-import 'package:liftup/features/sessions/models/workout_session.dart';
-import 'package:liftup/features/exercise/models/exercise_set.dart';
-import 'package:liftup/features/home/models/routine.dart';
-import 'package:liftup/common/enums/week_day_enum.dart';
+import 'package:liftly/features/sessions/models/workout_session.dart';
+import 'package:liftly/features/exercise/models/exercise_set.dart';
+import 'package:liftly/features/home/models/routine.dart';
+import 'package:liftly/common/enums/week_day_enum.dart';
 
 /// Generador de datos mock para sesiones de entrenamiento
 /// Utilizado en pruebas y desarrollo

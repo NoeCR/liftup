@@ -18,14 +18,14 @@ class CsvExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_export_${DateTime.now().millisecondsSinceEpoch}.csv';
+    final fileName = 'liftly_export_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${directory.path}/$fileName');
 
     final csvContent = StringBuffer();
 
     // Headers con metadatos
     if (config.includeMetadata) {
-      csvContent.writeln('# LiftUp Export');
+      csvContent.writeln('# Liftly Export');
       csvContent.writeln('# Version: ${metadata.version}');
       csvContent.writeln('# Export Date: ${metadata.exportDate.toIso8601String()}');
       csvContent.writeln('# App Version: ${metadata.appVersion}');

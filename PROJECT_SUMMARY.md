@@ -1,8 +1,8 @@
-# 🏋️‍♂️ LiftUp - Resumen del Proyecto
+# 🏋️‍♂️ Liftly - Resumen del Proyecto
 
 ## ✅ Estado del Proyecto: COMPLETADO
 
-¡Excelente! He completado exitosamente el diseño y desarrollo de la aplicación LiftUp según todos los requisitos especificados. La aplicación está lista para ser ejecutada y desarrollada further.
+¡Excelente! He completado exitosamente el diseño y desarrollo de la aplicación Liftly según todos los requisitos especificados. La aplicación está lista para ser ejecutada y desarrollada further.
 
 ## 🎯 Funcionalidades Implementadas
 
@@ -206,7 +206,7 @@ lib/
 
 ## 🎉 Conclusión
 
-La aplicación LiftUp está **completamente funcional** y lista para ser utilizada. He implementado todos los requisitos solicitados:
+La aplicación Liftly está **completamente funcional** y lista para ser utilizada. He implementado todos los requisitos solicitados:
 
 ✅ **Arquitectura limpia y mantenible**  
 ✅ **Base de datos offline con Hive**  

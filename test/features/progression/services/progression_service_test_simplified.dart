@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:liftup/features/progression/services/progression_service.dart';
-import 'package:liftup/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import '../mocks/progression_mock_factory.dart';
 
 // Generate mocks

@@ -20,7 +20,7 @@ class PdfExporter extends ExportBuilder {
   @override
   Future<String> export() async {
     final directory = await getApplicationDocumentsDirectory();
-    final fileName = 'liftup_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    final fileName = 'liftly_report_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${directory.path}/$fileName');
 
     final pdf = pw.Document();
@@ -82,7 +82,7 @@ class PdfExporter extends ExportBuilder {
   pw.Widget _buildHeader() {
     return pw.Header(
       level: 0,
-      child: pw.Text('Reporte de Progreso - LiftUp', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+      child: pw.Text('Reporte de Progreso - Liftly', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
     );
   }
 

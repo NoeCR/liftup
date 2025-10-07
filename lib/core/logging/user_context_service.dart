@@ -267,7 +267,7 @@ class UserContextService {
   /// Obtiene la información de release para Sentry
   String getReleaseInfo() {
     if (_packageInfo == null) {
-      return 'liftup@unknown';
+      return 'liftly@unknown';
     }
 
     return '${_packageInfo!.packageName}@${_packageInfo!.version}+${_packageInfo!.buildNumber}';

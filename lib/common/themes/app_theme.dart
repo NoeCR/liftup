@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Modern Color Palette - Inspired by contemporary design trends
-  // Primary: Deep Ocean Blue - Professional and trustworthy
-  static const Color primaryColor = Color(0xFF1E3A8A);
-  static const Color primaryLight = Color(0xFF3B82F6);
-  static const Color primaryDark = Color(0xFF1E40AF);
+  // Modern Color Palette - Liftly Identity
+  // Primary: Teal-Blue (vibrant, fresh, fitness-tech vibe)
+  static const Color primaryColor = Color(0xFF0EA5A4); // teal-600
+  static const Color primaryLight = Color(0xFF2DD4BF); // teal-400
+  static const Color primaryDark = Color(0xFF0F766E); // teal-700
 
-  // Secondary: Vibrant Coral - Energy and motivation
-  static const Color secondaryColor = Color(0xFFF97316);
-  static const Color secondaryLight = Color(0xFFFB923C);
-  static const Color secondaryDark = Color(0xFFEA580C);
+  // Secondary: Cyan (harmoniza con teal primario)
+  static const Color secondaryColor = Color(0xFF06B6D4); // cyan-500
+  static const Color secondaryLight = Color(0xFF67E8F9); // cyan-300
+  static const Color secondaryDark = Color(0xFF0891B2); // cyan-600
 
-  // Tertiary: Fresh Mint - Success and progress
+  // Tertiary: Fresh Mint (success/progress)
   static const Color tertiaryColor = Color(0xFF10B981);
   static const Color tertiaryLight = Color(0xFF34D399);
   static const Color tertiaryDark = Color(0xFF059669);
 
-  // Accent: Electric Purple - Innovation and creativity
-  static const Color accentColor = Color(0xFF8B5CF6);
-  static const Color accentLight = Color(0xFFA78BFA);
-  static const Color accentDark = Color(0xFF7C3AED);
+  // Accent: Coral (calls to action)
+  static const Color accentColor = Color(0xFFF97316);
+  static const Color accentLight = Color(0xFFFB923C);
+  static const Color accentDark = Color(0xFFEA580C);
 
   // Neutral colors - Modern grays
   static const Color neutral50 = Color(0xFFF8FAFC);
@@ -72,19 +72,19 @@ class AppTheme {
         brightness: Brightness.light,
         primary: primaryColor,
         onPrimary: Colors.white,
-        primaryContainer: primaryLight.withValues(alpha: 0.1),
+        primaryContainer: primaryLight.withValues(alpha: 0.12),
         onPrimaryContainer: primaryDark,
         secondary: secondaryColor,
         onSecondary: Colors.white,
-        secondaryContainer: secondaryLight.withValues(alpha: 0.1),
+        secondaryContainer: secondaryLight.withValues(alpha: 0.12),
         onSecondaryContainer: secondaryDark,
         tertiary: tertiaryColor,
         onTertiary: Colors.white,
-        tertiaryContainer: tertiaryLight.withValues(alpha: 0.1),
+        tertiaryContainer: tertiaryLight.withValues(alpha: 0.12),
         onTertiaryContainer: tertiaryDark,
         error: errorColor,
         onError: Colors.white,
-        errorContainer: errorColor.withValues(alpha: 0.1),
+        errorContainer: errorColor.withValues(alpha: 0.12),
         onErrorContainer: errorColor,
         surface: surfaceColor,
         onSurface: neutral800,
@@ -92,7 +92,7 @@ class AppTheme {
         onSurfaceVariant: neutral600,
         outline: neutral300,
         outlineVariant: neutral200,
-        shadow: neutral900.withValues(alpha: 0.1),
+        shadow: neutral900.withValues(alpha: 0.08),
         scrim: neutral900.withValues(alpha: 0.5),
         inverseSurface: neutral800,
         onInverseSurface: neutral100,
@@ -118,6 +118,8 @@ class AppTheme {
       // Button Themes - Consistent styling and accessibility
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
@@ -125,6 +127,8 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: secondaryColor,
+          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
@@ -132,6 +136,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          side: BorderSide(color: primaryColor.withValues(alpha: 0.6)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
@@ -139,6 +144,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          foregroundColor: primaryDark,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
@@ -178,7 +184,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryColor,
+        seedColor: primaryDark,
         brightness: Brightness.dark,
         primary: primaryLight,
         onPrimary: neutral900,
@@ -228,6 +234,8 @@ class AppTheme {
       // Button Themes - Dark mode with accessibility
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          backgroundColor: primaryLight,
+          foregroundColor: neutral900,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48),
@@ -235,6 +243,8 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          backgroundColor: secondaryLight,
+          foregroundColor: neutral900,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48),
@@ -242,6 +252,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          side: BorderSide(color: primaryLight.withValues(alpha: 0.6)),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48),
@@ -249,6 +260,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          foregroundColor: primaryLight,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
           padding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
           minimumSize: const Size(64, 48),

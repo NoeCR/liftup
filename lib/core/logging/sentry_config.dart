@@ -4,7 +4,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'sentry_dsn_config.dart';
 import 'user_context_service.dart';
 
-/// Sentry configuration for the LiftUp application
+/// Sentry configuration for the Liftly application
 class SentryConfig {
   // Use DSN configured from SentryDsnConfig
   static String get _dnsKey => SentryDsnConfig.dsn;
@@ -36,7 +36,7 @@ class SentryConfig {
     }
 
     // Add additional device information
-    event = event.copyWith(tags: {...?event.tags, 'app_name': 'LiftUp', 'platform': defaultTargetPlatform.name});
+    event = event.copyWith(tags: {...?event.tags, 'app_name': 'Liftly', 'platform': defaultTargetPlatform.name});
 
     return event;
   }

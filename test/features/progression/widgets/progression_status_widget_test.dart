@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:liftup/features/progression/notifiers/progression_notifier.dart';
-import 'package:liftup/features/progression/models/progression_config.dart';
-import 'package:liftup/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/notifiers/progression_notifier.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import '../mocks/progression_mock_factory.dart';
 
 void main() {
