@@ -98,13 +98,31 @@ class SessionProgressionService extends _$SessionProgressionService {
               exercise.exerciseId,
             );
 
-            // Initialize progression state for this exercise
-            progressionState ??= await progressionNotifier.initializeExerciseProgression(
-              exerciseId: exercise.exerciseId,
-              baseWeight: exerciseModel.defaultWeight ?? 0.0,
-              baseReps: exerciseModel.defaultReps ?? 10,
-              baseSets: exerciseModel.defaultSets ?? 4,
-            );
+            // Check if the existing progression state is for the current routine
+            // If not, we should initialize a new one with the configured values
+            final isForCurrentRoutine = progressionState?.customData['current_routine_id'] == routine.id;
+            
+            // Initialize progression state for this exercise if:
+            // 1. No progression state exists, OR
+            // 2. The existing state is not for the current routine
+            if (progressionState == null || !isForCurrentRoutine) {
+              progressionState = await progressionNotifier.initializeExerciseProgression(
+                exerciseId: exercise.exerciseId,
+                baseWeight: exerciseModel.defaultWeight ?? 0.0,
+                baseReps: exerciseModel.defaultReps ?? 10,
+                baseSets: exerciseModel.defaultSets ?? 4,
+              );
+              
+              // Mark this progression state as belonging to the current routine
+              final updatedCustomData = Map<String, dynamic>.from(progressionState.customData);
+              updatedCustomData['current_routine_id'] = routine.id;
+              final updatedState = progressionState.copyWith(
+                customData: updatedCustomData,
+                lastUpdated: DateTime.now(),
+              );
+              await ref.read(progressionServiceProvider.notifier).saveProgressionState(updatedState);
+              progressionState = updatedState;
+            }
 
             // Skip if a skip flag is set for this routine in the exercise state
             final skipByRoutine = progressionState.customData['skip_next_by_routine'] as Map?;

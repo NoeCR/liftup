@@ -26,7 +26,8 @@ void main() {
           ExerciseSet(
             id: 'set-1',
             exerciseId: 'test-exercise-1',
-            weight: 60.0, // User configured weight (different from exercise default)
+            weight:
+                60.0, // User configured weight (different from exercise default)
             reps: 10, // User configured reps (different from exercise default)
             completedAt: DateTime.now(),
             isCompleted: true,
@@ -83,10 +84,26 @@ void main() {
 
         // Assert: Verify that the highest values are correctly collected
         final valuesUsed = exerciseValuesUsed['test-exercise-1'];
-        expect(valuesUsed, isNotNull, reason: 'Exercise values should be collected');
-        expect(valuesUsed!['weight'], equals(67.5), reason: 'Should use highest weight (67.5)');
-        expect(valuesUsed['reps'], equals(10), reason: 'Should use highest reps (10)');
-        expect(valuesUsed['sets'], equals(4), reason: 'Should count total sets (4)');
+        expect(
+          valuesUsed,
+          isNotNull,
+          reason: 'Exercise values should be collected',
+        );
+        expect(
+          valuesUsed!['weight'],
+          equals(67.5),
+          reason: 'Should use highest weight (67.5)',
+        );
+        expect(
+          valuesUsed['reps'],
+          equals(10),
+          reason: 'Should use highest reps (10)',
+        );
+        expect(
+          valuesUsed['sets'],
+          equals(4),
+          reason: 'Should count total sets (4)',
+        );
       },
     );
 
@@ -94,43 +111,47 @@ void main() {
       'should initialize progression state with collected session values when no existing state',
       () async {
         // Arrange: Mock that no existing progression state exists
-        when(mockProgressionNotifier.getExerciseProgressionState('test-exercise-1'))
-            .thenAnswer((_) async => null);
-        
+        when(
+          mockProgressionNotifier.getExerciseProgressionState(
+            'test-exercise-1',
+          ),
+        ).thenAnswer((_) async => null);
+
         // Mock the initializeExerciseProgression method
-        when(mockProgressionNotifier.initializeExerciseProgression(
-          exerciseId: anyNamed('exerciseId'),
-          baseWeight: anyNamed('baseWeight'),
-          baseReps: anyNamed('baseReps'),
-          baseSets: anyNamed('baseSets'),
-        )).thenAnswer((_) async => ProgressionState(
-          id: 'mock-state-id',
-          progressionConfigId: 'mock-config-id',
-          exerciseId: 'test-exercise-1',
-          currentCycle: 1,
-          currentWeek: 1,
-          currentSession: 1,
-          currentWeight: 67.5,
-          currentReps: 10,
-          currentSets: 4,
-          baseWeight: 67.5,
-          baseReps: 10,
-          baseSets: 4,
-          sessionHistory: {},
-          lastUpdated: DateTime.now(),
-          isDeloadWeek: false,
-          customData: {},
-        ));
+        when(
+          mockProgressionNotifier.initializeExerciseProgression(
+            exerciseId: anyNamed('exerciseId'),
+            baseWeight: anyNamed('baseWeight'),
+            baseReps: anyNamed('baseReps'),
+            baseSets: anyNamed('baseSets'),
+          ),
+        ).thenAnswer(
+          (_) async => ProgressionState(
+            id: 'mock-state-id',
+            progressionConfigId: 'mock-config-id',
+            exerciseId: 'test-exercise-1',
+            currentCycle: 1,
+            currentWeek: 1,
+            currentSession: 1,
+            currentWeight: 67.5,
+            currentReps: 10,
+            currentSets: 4,
+            baseWeight: 67.5,
+            baseReps: 10,
+            baseSets: 4,
+            sessionHistory: {},
+            lastUpdated: DateTime.now(),
+            isDeloadWeek: false,
+            customData: {},
+          ),
+        );
 
         // Act: Simulate the initialization logic from completeSession()
-        final valuesUsed = {
-          'weight': 67.5,
-          'reps': 10,
-          'sets': 4,
-        };
+        final valuesUsed = {'weight': 67.5, 'reps': 10, 'sets': 4};
 
         // Check if progression state already exists
-        final existingState = await mockProgressionNotifier.getExerciseProgressionState('test-exercise-1');
+        final existingState = await mockProgressionNotifier
+            .getExerciseProgressionState('test-exercise-1');
         if (existingState == null) {
           // Create progression state with actual values used
           await mockProgressionNotifier.initializeExerciseProgression(
@@ -142,12 +163,14 @@ void main() {
         }
 
         // Assert: Verify that initializeExerciseProgression was called with correct values
-        verify(mockProgressionNotifier.initializeExerciseProgression(
-          exerciseId: 'test-exercise-1',
-          baseWeight: 67.5,
-          baseReps: 10,
-          baseSets: 4,
-        )).called(1);
+        verify(
+          mockProgressionNotifier.initializeExerciseProgression(
+            exerciseId: 'test-exercise-1',
+            baseWeight: 67.5,
+            baseReps: 10,
+            baseSets: 4,
+          ),
+        ).called(1);
       },
     );
 
@@ -174,8 +197,11 @@ void main() {
           customData: {},
         );
 
-        when(mockProgressionNotifier.getExerciseProgressionState('test-exercise-2'))
-            .thenAnswer((_) async => existingProgressionState);
+        when(
+          mockProgressionNotifier.getExerciseProgressionState(
+            'test-exercise-2',
+          ),
+        ).thenAnswer((_) async => existingProgressionState);
 
         // Act: Simulate the initialization logic from completeSession()
         final valuesUsed = {
@@ -185,7 +211,8 @@ void main() {
         };
 
         // Check if progression state already exists
-        final existingState = await mockProgressionNotifier.getExerciseProgressionState('test-exercise-2');
+        final existingState = await mockProgressionNotifier
+            .getExerciseProgressionState('test-exercise-2');
         if (existingState == null) {
           // This should NOT be called because existing state exists
           await mockProgressionNotifier.initializeExerciseProgression(
@@ -197,12 +224,96 @@ void main() {
         }
 
         // Assert: Verify that initializeExerciseProgression was NOT called
-        verifyNever(mockProgressionNotifier.initializeExerciseProgression(
-          exerciseId: anyNamed('exerciseId'),
-          baseWeight: anyNamed('baseWeight'),
-          baseReps: anyNamed('baseReps'),
-          baseSets: anyNamed('baseSets'),
-        ));
+        verifyNever(
+          mockProgressionNotifier.initializeExerciseProgression(
+            exerciseId: anyNamed('exerciseId'),
+            baseWeight: anyNamed('baseWeight'),
+            baseReps: anyNamed('baseReps'),
+            baseSets: anyNamed('baseSets'),
+          ),
+        );
+      },
+    );
+
+    test(
+      'should initialize new progression state when exercise is used in different routine',
+      () async {
+        // Arrange: Mock that an existing progression state exists for a different routine
+        final existingProgressionState = ProgressionState(
+          id: 'existing-state-id',
+          progressionConfigId: 'config-id',
+          exerciseId: 'test-exercise-3',
+          currentCycle: 1,
+          currentWeek: 1,
+          currentSession: 1,
+          currentWeight: 70.0,
+          currentReps: 12,
+          currentSets: 5,
+          baseWeight: 70.0,
+          baseReps: 12,
+          baseSets: 5,
+          sessionHistory: {},
+          lastUpdated: DateTime.now(),
+          isDeloadWeek: false,
+          customData: {'current_routine_id': 'different-routine-id'}, // Different routine
+        );
+
+        when(
+          mockProgressionNotifier.getExerciseProgressionState('test-exercise-3'),
+        ).thenAnswer((_) async => existingProgressionState);
+
+        // Mock the initializeExerciseProgression method
+        when(
+          mockProgressionNotifier.initializeExerciseProgression(
+            exerciseId: anyNamed('exerciseId'),
+            baseWeight: anyNamed('baseWeight'),
+            baseReps: anyNamed('baseReps'),
+            baseSets: anyNamed('baseSets'),
+          ),
+        ).thenAnswer(
+          (_) async => ProgressionState(
+            id: 'new-state-id',
+            progressionConfigId: 'config-id',
+            exerciseId: 'test-exercise-3',
+            currentCycle: 1,
+            currentWeek: 1,
+            currentSession: 1,
+            currentWeight: 60.0,
+            currentReps: 10,
+            currentSets: 4,
+            baseWeight: 60.0,
+            baseReps: 10,
+            baseSets: 4,
+            sessionHistory: {},
+            lastUpdated: DateTime.now(),
+            isDeloadWeek: false,
+            customData: {},
+          ),
+        );
+
+        // Act: Simulate the logic that checks if progression state is for current routine
+        const currentRoutineId = 'current-routine-id';
+        final isForCurrentRoutine = existingProgressionState.customData['current_routine_id'] == currentRoutineId;
+        
+        if (!isForCurrentRoutine) {
+          // This should be called because the existing state is for a different routine
+          await mockProgressionNotifier.initializeExerciseProgression(
+            exerciseId: 'test-exercise-3',
+            baseWeight: 60.0, // New configured values
+            baseReps: 10,
+            baseSets: 4,
+          );
+        }
+
+        // Assert: Verify that initializeExerciseProgression was called with new values
+        verify(
+          mockProgressionNotifier.initializeExerciseProgression(
+            exerciseId: 'test-exercise-3',
+            baseWeight: 60.0,
+            baseReps: 10,
+            baseSets: 4,
+          ),
+        ).called(1);
       },
     );
 
