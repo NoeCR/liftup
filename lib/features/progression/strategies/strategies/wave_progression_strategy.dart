@@ -70,8 +70,7 @@ class WaveProgressionStrategy implements ProgressionStrategy {
     final incrementValue = _getIncrementValue(config);
 
     // Verificar si es semana de deload
-    final isDeloadPeriod =
-        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
     if (isDeloadPeriod) {
       // Deload: reduce peso proporcionalmente, reduce series
@@ -81,8 +80,7 @@ class WaveProgressionStrategy implements ProgressionStrategy {
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -100,15 +98,11 @@ class WaveProgressionStrategy implements ProgressionStrategy {
       case 2:
         // Semana 2: Alto volumen (menos peso, más reps, más series)
         return ProgressionCalculationResult(
-          newWeight: (currentWeight - incrementValue * 0.3).clamp(
-            0,
-            currentWeight,
-          ),
+          newWeight: (currentWeight - incrementValue * 0.3).clamp(0, currentWeight),
           newReps: (currentReps * 1.2).round(),
           newSets: currentSets + 1,
           incrementApplied: true,
-          reason:
-              'Wave progression: high volume ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: high volume ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
         );
       default:
         // Semanas adicionales: progresión normal
@@ -117,8 +111,7 @@ class WaveProgressionStrategy implements ProgressionStrategy {
           newReps: currentReps,
           newSets: currentSets,
           incrementApplied: true,
-          reason:
-              'Wave progression: normal ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: normal ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
         );
     }
   }

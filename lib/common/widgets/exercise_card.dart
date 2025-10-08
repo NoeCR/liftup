@@ -269,8 +269,8 @@ class ExerciseCard extends StatelessWidget {
       // Ejercicio completado en la sesión actual
       return colorScheme.primaryContainer.withValues(alpha: 0.3);
     } else if (wasPerformedThisWeek) {
-      // Ejercicio realizado esta semana (fondo ámbar)
-      return Colors.amber.withValues(alpha: 0.15);
+      // Ejercicio realizado esta semana (fondo sutil con color coherente)
+      return colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
     }
     // Sin estado especial
     return null;

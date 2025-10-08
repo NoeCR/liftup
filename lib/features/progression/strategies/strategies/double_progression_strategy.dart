@@ -59,25 +59,19 @@ class DoubleProgressionStrategy implements ProgressionStrategy {
         config.unit == ProgressionUnit.session
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
-    final isDeloadPeriod =
-        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
     if (isDeloadPeriod) {
       // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-        0,
-        double.infinity,
-      );
-      final double deloadWeight =
-          state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
       final deloadSets = (currentSets * 0.7).round();
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: deloadSets,
         incrementApplied: true,
-        reason:
-            'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -91,8 +85,7 @@ class DoubleProgressionStrategy implements ProgressionStrategy {
         newReps: currentReps + 1,
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
@@ -119,18 +112,13 @@ class DoubleProgressionStrategy implements ProgressionStrategy {
       final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
       if (exerciseParams != null) {
         final maxReps =
-            exerciseParams['max_reps'] ??
-            exerciseParams['multi_reps_max'] ??
-            exerciseParams['iso_reps_max'];
+            exerciseParams['max_reps'] ?? exerciseParams['multi_reps_max'] ?? exerciseParams['iso_reps_max'];
         if (maxReps != null) return maxReps as int;
       }
     }
 
     // Fallback a global
-    return customParams['max_reps'] ??
-        customParams['multi_reps_max'] ??
-        customParams['iso_reps_max'] ??
-        12; // default
+    return customParams['max_reps'] ?? customParams['multi_reps_max'] ?? customParams['iso_reps_max'] ?? 12; // default
   }
 
   /// Obtiene el mínimo de repeticiones desde los parámetros personalizados
@@ -144,18 +132,13 @@ class DoubleProgressionStrategy implements ProgressionStrategy {
       final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
       if (exerciseParams != null) {
         final minReps =
-            exerciseParams['min_reps'] ??
-            exerciseParams['multi_reps_min'] ??
-            exerciseParams['iso_reps_min'];
+            exerciseParams['min_reps'] ?? exerciseParams['multi_reps_min'] ?? exerciseParams['iso_reps_min'];
         if (minReps != null) return minReps as int;
       }
     }
 
     // Fallback a global
-    return customParams['min_reps'] ??
-        customParams['multi_reps_min'] ??
-        customParams['iso_reps_min'] ??
-        5; // default
+    return customParams['min_reps'] ?? customParams['multi_reps_min'] ?? customParams['iso_reps_min'] ?? 5; // default
   }
 
   /// Obtiene el valor de incremento desde parámetros personalizados

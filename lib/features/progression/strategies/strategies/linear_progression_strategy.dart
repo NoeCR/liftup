@@ -55,24 +55,18 @@ class LinearProgressionStrategy implements ProgressionStrategy {
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
 
-    final isDeloadPeriod =
-        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
     if (isDeloadPeriod) {
       // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-        0,
-        double.infinity,
-      );
-      final double deloadWeight =
-          state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason:
-            'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -86,8 +80,7 @@ class LinearProgressionStrategy implements ProgressionStrategy {
         newReps: currentReps,
         newSets: currentSets,
         incrementApplied: true,
-        reason:
-            'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -96,8 +89,7 @@ class LinearProgressionStrategy implements ProgressionStrategy {
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: false,
-      reason:
-          'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
     );
   }
 
@@ -110,8 +102,7 @@ class LinearProgressionStrategy implements ProgressionStrategy {
     try {
       final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
       if (perExercise != null) {
-        final exerciseParams =
-            perExercise.values.first as Map<String, dynamic>?;
+        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
         if (exerciseParams != null) {
           final increment =
               exerciseParams['increment_value'] ??
@@ -129,9 +120,7 @@ class LinearProgressionStrategy implements ProgressionStrategy {
     // Fallback a global
     try {
       final globalIncrement =
-          customParams['increment_value'] ??
-          customParams['multi_increment_min'] ??
-          customParams['iso_increment_min'];
+          customParams['increment_value'] ?? customParams['multi_increment_min'] ?? customParams['iso_increment_min'];
       if (globalIncrement != null && globalIncrement is num) {
         return globalIncrement.toDouble();
       }

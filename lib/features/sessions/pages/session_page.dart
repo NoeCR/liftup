@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../notifiers/session_notifier.dart';
 import '../../../common/widgets/custom_bottom_navigation.dart';
+import '../../../common/widgets/section_header.dart';
 import '../../sessions/models/workout_session.dart';
 import 'dart:async';
 import '../../home/notifiers/selected_routine_provider.dart';
@@ -225,153 +226,155 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                   itemBuilder: (context, index) {
                     final section = routine!.sections[index];
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingS),
-                          child: Text(
-                            section.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                          ),
+                        SectionHeader(
+                          title: section.name,
+                          isCollapsed: section.isCollapsed,
+                          iconName: section.iconName,
+                          muscleGroup: section.muscleGroup,
+                          onToggleCollapsed: () {
+                            ref.read(routineNotifierProvider.notifier).toggleSectionCollapsed(section.id);
+                          },
                         ),
-                        if (section.exercises.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                            child: Text(
-                              context.tr('session.noExercises'),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontStyle: FontStyle.italic,
+                        if (!section.isCollapsed) ...[
+                          if (section.exercises.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+                              child: Text(
+                                context.tr('session.noExercises'),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 360,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+                                itemCount:
+                                    (() {
+                                      // count based on sorted list length
+                                      final sorted = [...section.exercises];
+                                      sorted.sort((a, b) {
+                                        final exA = exercises.firstWhere(
+                                          (e) => e.id == a.exerciseId,
+                                          orElse:
+                                              () => Exercise(
+                                                id: '',
+                                                name: context.tr('exercises.title'),
+                                                description: '',
+                                                imageUrl: '',
+                                                muscleGroups: const [],
+                                                tips: const [],
+                                                commonMistakes: const [],
+                                                category: ExerciseCategory.fullBody,
+                                                difficulty: ExerciseDifficulty.beginner,
+                                                createdAt: DateTime.now(),
+                                                updatedAt: DateTime.now(),
+                                              ),
+                                        );
+                                        final exB = exercises.firstWhere(
+                                          (e) => e.id == b.exerciseId,
+                                          orElse:
+                                              () => Exercise(
+                                                id: '',
+                                                name: context.tr('exercises.title'),
+                                                description: '',
+                                                imageUrl: '',
+                                                muscleGroups: const [],
+                                                tips: const [],
+                                                commonMistakes: const [],
+                                                category: ExerciseCategory.fullBody,
+                                                difficulty: ExerciseDifficulty.beginner,
+                                                createdAt: DateTime.now(),
+                                                updatedAt: DateTime.now(),
+                                              ),
+                                        );
+                                        final aDate = exA.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                        final bDate = exB.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                        return aDate.compareTo(bDate); // older first
+                                      });
+                                      return sorted.length;
+                                    })(),
+                                itemBuilder: (context, idx) {
+                                  // Build a sorted list here to ensure consistent order with itemCount
+                                  final sorted = [...section.exercises];
+                                  sorted.sort((a, b) {
+                                    final exA = exercises.firstWhere(
+                                      (e) => e.id == a.exerciseId,
+                                      orElse:
+                                          () => Exercise(
+                                            id: '',
+                                            name: context.tr('exercises.title'),
+                                            description: '',
+                                            imageUrl: '',
+                                            muscleGroups: const [],
+                                            tips: const [],
+                                            commonMistakes: const [],
+                                            category: ExerciseCategory.fullBody,
+                                            difficulty: ExerciseDifficulty.beginner,
+                                            createdAt: DateTime.now(),
+                                            updatedAt: DateTime.now(),
+                                          ),
+                                    );
+                                    final exB = exercises.firstWhere(
+                                      (e) => e.id == b.exerciseId,
+                                      orElse:
+                                          () => Exercise(
+                                            id: '',
+                                            name: context.tr('exercises.title'),
+                                            description: '',
+                                            imageUrl: '',
+                                            muscleGroups: const [],
+                                            tips: const [],
+                                            commonMistakes: const [],
+                                            category: ExerciseCategory.fullBody,
+                                            difficulty: ExerciseDifficulty.beginner,
+                                            createdAt: DateTime.now(),
+                                            updatedAt: DateTime.now(),
+                                          ),
+                                    );
+                                    final aDate = exA.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                    final bDate = exB.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+                                    return aDate.compareTo(bDate);
+                                  });
+                                  final re = sorted[idx];
+                                  final ex = exercises.firstWhere(
+                                    (e) => e.id == re.exerciseId,
+                                    orElse:
+                                        () => Exercise(
+                                          id: '',
+                                          name: context.tr('exercises.title'),
+                                          description: '',
+                                          imageUrl: '',
+                                          muscleGroups: const [],
+                                          tips: const [],
+                                          commonMistakes: const [],
+                                          category: ExerciseCategory.fullBody,
+                                          difficulty: ExerciseDifficulty.beginner,
+                                          createdAt: DateTime.now(),
+                                          updatedAt: DateTime.now(),
+                                        ),
+                                  );
+
+                                  return SizedBox(
+                                    width: 320,
+                                    child: ExerciseCardWrapper(
+                                      routineExercise: re,
+                                      exercise: ex,
+                                      showSetsControls: true,
+                                      onTap: () {
+                                        // Long press functionality for exercise details
+                                      },
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                          )
-                        else
-                          SizedBox(
-                            height: 360,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
-                              itemCount:
-                                  (() {
-                                    // count based on sorted list length
-                                    final sorted = [...section.exercises];
-                                    sorted.sort((a, b) {
-                                      final exA = exercises.firstWhere(
-                                        (e) => e.id == a.exerciseId,
-                                        orElse:
-                                            () => Exercise(
-                                              id: '',
-                                              name: context.tr('exercises.title'),
-                                              description: '',
-                                              imageUrl: '',
-                                              muscleGroups: const [],
-                                              tips: const [],
-                                              commonMistakes: const [],
-                                              category: ExerciseCategory.fullBody,
-                                              difficulty: ExerciseDifficulty.beginner,
-                                              createdAt: DateTime.now(),
-                                              updatedAt: DateTime.now(),
-                                            ),
-                                      );
-                                      final exB = exercises.firstWhere(
-                                        (e) => e.id == b.exerciseId,
-                                        orElse:
-                                            () => Exercise(
-                                              id: '',
-                                              name: context.tr('exercises.title'),
-                                              description: '',
-                                              imageUrl: '',
-                                              muscleGroups: const [],
-                                              tips: const [],
-                                              commonMistakes: const [],
-                                              category: ExerciseCategory.fullBody,
-                                              difficulty: ExerciseDifficulty.beginner,
-                                              createdAt: DateTime.now(),
-                                              updatedAt: DateTime.now(),
-                                            ),
-                                      );
-                                      final aDate = exA.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-                                      final bDate = exB.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-                                      return aDate.compareTo(bDate); // older first
-                                    });
-                                    return sorted.length;
-                                  })(),
-                              itemBuilder: (context, idx) {
-                                // Build a sorted list here to ensure consistent order with itemCount
-                                final sorted = [...section.exercises];
-                                sorted.sort((a, b) {
-                                  final exA = exercises.firstWhere(
-                                    (e) => e.id == a.exerciseId,
-                                    orElse:
-                                        () => Exercise(
-                                          id: '',
-                                          name: context.tr('exercises.title'),
-                                          description: '',
-                                          imageUrl: '',
-                                          muscleGroups: const [],
-                                          tips: const [],
-                                          commonMistakes: const [],
-                                          category: ExerciseCategory.fullBody,
-                                          difficulty: ExerciseDifficulty.beginner,
-                                          createdAt: DateTime.now(),
-                                          updatedAt: DateTime.now(),
-                                        ),
-                                  );
-                                  final exB = exercises.firstWhere(
-                                    (e) => e.id == b.exerciseId,
-                                    orElse:
-                                        () => Exercise(
-                                          id: '',
-                                          name: context.tr('exercises.title'),
-                                          description: '',
-                                          imageUrl: '',
-                                          muscleGroups: const [],
-                                          tips: const [],
-                                          commonMistakes: const [],
-                                          category: ExerciseCategory.fullBody,
-                                          difficulty: ExerciseDifficulty.beginner,
-                                          createdAt: DateTime.now(),
-                                          updatedAt: DateTime.now(),
-                                        ),
-                                  );
-                                  final aDate = exA.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-                                  final bDate = exB.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-                                  return aDate.compareTo(bDate);
-                                });
-                                final re = sorted[idx];
-                                final ex = exercises.firstWhere(
-                                  (e) => e.id == re.exerciseId,
-                                  orElse:
-                                      () => Exercise(
-                                        id: '',
-                                        name: context.tr('exercises.title'),
-                                        description: '',
-                                        imageUrl: '',
-                                        muscleGroups: const [],
-                                        tips: const [],
-                                        commonMistakes: const [],
-                                        category: ExerciseCategory.fullBody,
-                                        difficulty: ExerciseDifficulty.beginner,
-                                        createdAt: DateTime.now(),
-                                        updatedAt: DateTime.now(),
-                                      ),
-                                );
-
-                                return SizedBox(
-                                  width: 320,
-                                  child: ExerciseCardWrapper(
-                                    routineExercise: re,
-                                    exercise: ex,
-                                    showSetsControls: true,
-                                    onTap: () {
-                                      // Long press functionality for exercise details
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        const SizedBox(height: AppTheme.spacingL),
+                        ],
                       ],
                     );
                   },
