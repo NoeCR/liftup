@@ -100,10 +100,7 @@ void main() {
 
         for (final strategy in strategies) {
           // Verificar que pueden acceder a métodos helper
-          expect(
-            () => strategy.getCurrentInCycle(config, state),
-            returnsNormally,
-          );
+          expect(() => strategy.getCurrentInCycle(config, state), returnsNormally);
           expect(() => strategy.isDeloadPeriod(config, 1), returnsNormally);
           expect(() => strategy.getIncrementValue(config), returnsNormally);
           expect(() => strategy.getMaxReps(config), returnsNormally);
@@ -142,8 +139,7 @@ void main() {
             expect(
               result,
               equals(expected),
-              reason:
-                  'Strategy ${strategy.runtimeType} should return $expected for session $session',
+              reason: 'Strategy ${strategy.runtimeType} should return $expected for session $session',
             );
           }
         }
@@ -177,8 +173,7 @@ void main() {
             expect(
               result,
               equals(expected),
-              reason:
-                  'Strategy ${strategy.runtimeType} should return $expected for week $week',
+              reason: 'Strategy ${strategy.runtimeType} should return $expected for week $week',
             );
           }
         }
@@ -212,36 +207,18 @@ void main() {
 
         for (final strategy in strategies) {
           // Test multi-joint
-          final multiIncrement = strategy.getIncrementValue(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
-          final multiMaxReps = strategy.getMaxReps(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
-          final multiMinReps = strategy.getMinReps(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
+          final multiIncrement = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
+          final multiMaxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.multiJoint);
+          final multiMinReps = strategy.getMinReps(config, exerciseType: ExerciseType.multiJoint);
 
           expect(multiIncrement, equals(5.0));
           expect(multiMaxReps, equals(8));
           expect(multiMinReps, equals(3));
 
           // Test isolation
-          final isoIncrement = strategy.getIncrementValue(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
-          final isoMaxReps = strategy.getMaxReps(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
-          final isoMinReps = strategy.getMinReps(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
+          final isoIncrement = strategy.getIncrementValue(config, exerciseType: ExerciseType.isolation);
+          final isoMaxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.isolation);
+          final isoMinReps = strategy.getMinReps(config, exerciseType: ExerciseType.isolation);
 
           expect(isoIncrement, equals(1.25));
           expect(isoMaxReps, equals(15));
@@ -265,36 +242,18 @@ void main() {
 
         for (final strategy in strategies) {
           // Test fallbacks para multi-joint
-          final multiIncrement = strategy.getIncrementValue(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
-          final multiMaxReps = strategy.getMaxReps(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
-          final multiMinReps = strategy.getMinReps(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
+          final multiIncrement = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
+          final multiMaxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.multiJoint);
+          final multiMinReps = strategy.getMinReps(config, exerciseType: ExerciseType.multiJoint);
 
           expect(multiIncrement, equals(2.5)); // Default para multi-joint
           expect(multiMaxReps, equals(8)); // Default para multi-joint
           expect(multiMinReps, equals(5)); // Default para multi-joint
 
           // Test fallbacks para isolation
-          final isoIncrement = strategy.getIncrementValue(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
-          final isoMaxReps = strategy.getMaxReps(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
-          final isoMinReps = strategy.getMinReps(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
+          final isoIncrement = strategy.getIncrementValue(config, exerciseType: ExerciseType.isolation);
+          final isoMaxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.isolation);
+          final isoMinReps = strategy.getMinReps(config, exerciseType: ExerciseType.isolation);
 
           expect(isoIncrement, equals(1.25)); // Default para isolation
           expect(isoMaxReps, equals(15)); // Default para isolation
@@ -304,78 +263,72 @@ void main() {
     });
 
     group('Manejo de errores consistente', () {
-      test(
-        'todas las estrategias manejan parámetros inválidos de la misma manera',
-        () {
-          final strategies = <BaseProgressionStrategy>[
-            LinearProgressionStrategy(),
-            DoubleFactorProgressionStrategy(),
-            UndulatingProgressionStrategy(),
-            SteppedProgressionStrategy(),
-            WaveProgressionStrategy(),
-            ReverseProgressionStrategy(),
-            OverloadProgressionStrategy(),
-            AutoregulatedProgressionStrategy(),
-          ];
+      test('todas las estrategias manejan parámetros inválidos de la misma manera', () {
+        final strategies = <BaseProgressionStrategy>[
+          LinearProgressionStrategy(),
+          DoubleFactorProgressionStrategy(),
+          UndulatingProgressionStrategy(),
+          SteppedProgressionStrategy(),
+          WaveProgressionStrategy(),
+          ReverseProgressionStrategy(),
+          OverloadProgressionStrategy(),
+          AutoregulatedProgressionStrategy(),
+        ];
 
-          // Configurar parámetros con datos inválidos
-          config = config.copyWith(
-            customParameters: {
-              'per_exercise': 'invalid_data',
-              'multi_increment_min': 'not_a_number',
-              'increment_value': 3.0, // Fallback válido
-            },
-          );
+        // Configurar parámetros con datos inválidos
+        config = config.copyWith(
+          customParameters: {
+            'per_exercise': 'invalid_data',
+            'multi_increment_min': 'not_a_number',
+            'increment_value': 3.0, // Fallback válido
+          },
+        );
 
-          for (final strategy in strategies) {
-            // Debe usar fallback global sin lanzar excepciones
-            expect(() => strategy.getIncrementValue(config), returnsNormally);
-            expect(() => strategy.getMaxReps(config), returnsNormally);
-            expect(() => strategy.getMinReps(config), returnsNormally);
+        for (final strategy in strategies) {
+          // Debe usar fallback global sin lanzar excepciones
+          expect(() => strategy.getIncrementValue(config), returnsNormally);
+          expect(() => strategy.getMaxReps(config), returnsNormally);
+          expect(() => strategy.getMinReps(config), returnsNormally);
 
-            // Debe usar el fallback global
-            final increment = strategy.getIncrementValue(config);
-            expect(increment, equals(3.0));
-          }
-        },
-      );
+          // Debe usar el fallback global
+          final increment = strategy.getIncrementValue(config);
+          expect(increment, equals(3.0));
+        }
+      });
     });
 
     group('Estrategias estáticas', () {
-      test(
-        'StaticProgressionStrategy y DefaultProgressionStrategy no usan deloads',
-        () {
-          final staticStrategy = StaticProgressionStrategy();
-          final defaultStrategy = DefaultProgressionStrategy();
+      test('StaticProgressionStrategy y DefaultProgressionStrategy no usan deloads', () {
+        final staticStrategy = StaticProgressionStrategy();
+        final defaultStrategy = DefaultProgressionStrategy();
 
-          // Ambas estrategias deben mantener valores constantes
-          final staticResult = staticStrategy.calculate(
-            config: config,
-            state: state,
-            currentWeight: 100.0,
-            currentReps: 10,
-            currentSets: 3,
-          );
+        // Ambas estrategias deben mantener valores constantes
+        final staticResult = staticStrategy.calculate(
+          config: config,
+          state: state,
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 3,
+        );
 
-          final defaultResult = defaultStrategy.calculate(
-            config: config,
-            state: state,
-            currentWeight: 100.0,
-            currentReps: 10,
-            currentSets: 3,
-          );
+        final defaultResult = defaultStrategy.calculate(
+          config: config,
+          state: state,
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 3,
+        );
 
-          expect(staticResult.incrementApplied, isFalse);
-          expect(staticResult.newWeight, equals(100.0));
-          expect(staticResult.newReps, equals(10));
-          expect(staticResult.newSets, equals(3));
+        expect(staticResult.incrementApplied, isFalse);
+        expect(staticResult.newWeight, equals(100.0));
+        expect(staticResult.newReps, equals(10));
+        expect(staticResult.newSets, equals(3));
 
-          expect(defaultResult.incrementApplied, isFalse);
-          expect(defaultResult.newWeight, equals(100.0));
-          expect(defaultResult.newReps, equals(10));
-          expect(defaultResult.newSets, equals(3));
-        },
-      );
+        expect(defaultResult.incrementApplied, isFalse);
+        expect(defaultResult.newWeight, equals(100.0));
+        expect(defaultResult.newReps, equals(10));
+        expect(defaultResult.newSets, equals(3));
+      });
     });
   });
 }

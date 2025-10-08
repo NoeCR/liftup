@@ -49,8 +49,7 @@ import '../progression_strategy.dart';
 /// - Requiere planificación cuidadosa de fases
 /// - Puede ser menos efectiva para ganancias rápidas
 /// - Necesita deloads apropiados
-class SteppedProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class SteppedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -65,35 +64,22 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(
-        config,
-        state,
-        currentWeight,
-        currentReps,
-        currentSets,
-        currentInCycle,
-      );
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
     }
 
     // 1. Aplicar lógica específica de progresión escalonada
     final accumulationWeeks = _getAccumulationWeeks(config);
-    final incrementValue = getIncrementValue(
-      config,
-      exerciseType: exerciseType,
-    );
+    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
 
     final totalIncrement =
-        currentInCycle <= accumulationWeeks
-            ? incrementValue * currentInCycle
-            : incrementValue * accumulationWeeks;
+        currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
 
     return ProgressionCalculationResult(
       newWeight: state.baseWeight + totalIncrement,
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: true,
-      reason:
-          'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );
   }
 
@@ -106,20 +92,15 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy
     int currentSets,
     int currentInCycle,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-      0,
-      double.infinity,
-    );
-    final double deloadWeight =
-        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
       newSets: (currentSets * 0.7).round(),
       incrementApplied: true,
-      reason:
-          'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
 

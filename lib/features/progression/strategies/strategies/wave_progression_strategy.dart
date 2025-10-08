@@ -54,8 +54,7 @@ import '../progression_strategy.dart';
 /// - Requiere mayor experiencia
 /// - Puede ser abrumadora para principiantes
 /// - Necesita planificación cuidadosa de ciclos
-class WaveProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class WaveProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -70,20 +69,10 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(
-        config,
-        state,
-        currentWeight,
-        currentReps,
-        currentSets,
-        currentInCycle,
-      );
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
     }
 
-    final incrementValue = getIncrementValue(
-      config,
-      exerciseType: exerciseType,
-    );
+    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
 
     // 1. Aplicar lógica específica de progresión por oleadas
     switch (currentInCycle) {
@@ -100,10 +89,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
       case 2:
         // Semana 2: Alto volumen (menos peso, más reps, más series)
         return ProgressionCalculationResult(
-          newWeight: (currentWeight - incrementValue * 0.3).clamp(
-            0,
-            currentWeight,
-          ),
+          newWeight: (currentWeight - incrementValue * 0.3).clamp(0, currentWeight),
           newReps: (currentReps * 1.2).round(),
           newSets: currentSets + 1,
           incrementApplied: true,
@@ -117,8 +103,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
           newReps: currentReps,
           newSets: currentSets,
           incrementApplied: true,
-          reason:
-              'Wave progression: normal +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: normal +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
         );
     }
   }
@@ -140,8 +125,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
       newReps: currentReps,
       newSets: (currentSets * 0.7).round(),
       incrementApplied: true,
-      reason:
-          'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
 }

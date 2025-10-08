@@ -40,8 +40,7 @@ import '../progression_strategy.dart';
 /// - Requiere conocimiento del usuario
 /// - Puede llevar a estancamiento sin planificación
 /// - No optimiza automáticamente las cargas
-class DefaultProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class DefaultProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,

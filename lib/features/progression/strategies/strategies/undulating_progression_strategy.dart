@@ -48,8 +48,7 @@ import '../progression_strategy.dart';
 /// - Más compleja de programar
 /// - Puede ser abrumadora para principiantes
 /// - Requiere mayor capacidad de recuperación
-class UndulatingProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class UndulatingProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -64,22 +63,12 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(
-        config,
-        state,
-        currentWeight,
-        currentReps,
-        currentSets,
-        currentInCycle,
-      );
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
     }
 
     // 1. Aplicar lógica específica de progresión ondulante
     final isHeavyDay = currentInCycle % 2 == 1;
-    final incrementValue = getIncrementValue(
-      config,
-      exerciseType: exerciseType,
-    );
+    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
 
     if (isHeavyDay) {
       // Día pesado: más peso, menos reps
@@ -113,20 +102,15 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
     int currentSets,
     int currentInCycle,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-      0,
-      double.infinity,
-    );
-    final double deloadWeight =
-        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
       newSets: (currentSets * 0.7).round(),
       incrementApplied: true,
-      reason:
-          'Undulating progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Undulating progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
 }

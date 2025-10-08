@@ -68,25 +68,22 @@ void main() {
     });
 
     group('LinearProgressionStrategy', () {
-      test(
-        'aplica incremento multi_increment_min para ejercicios multi-joint',
-        () {
-          final strategy = LinearProgressionStrategy();
+      test('aplica incremento multi_increment_min para ejercicios multi-joint', () {
+        final strategy = LinearProgressionStrategy();
 
-          final result = strategy.calculate(
-            config: config,
-            state: state,
-            currentWeight: 100.0,
-            currentReps: 5,
-            currentSets: 3,
-            exerciseType: ExerciseType.multiJoint,
-          );
+        final result = strategy.calculate(
+          config: config,
+          state: state,
+          currentWeight: 100.0,
+          currentReps: 5,
+          currentSets: 3,
+          exerciseType: ExerciseType.multiJoint,
+        );
 
-          expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
-          expect(result.incrementApplied, true);
-          expect(result.reason, contains('+5.0kg'));
-        },
-      );
+        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        expect(result.incrementApplied, true);
+        expect(result.reason, contains('+5.0kg'));
+      });
 
       test('aplica incremento iso_increment_min para ejercicios isolation', () {
         final strategy = LinearProgressionStrategy();
@@ -238,27 +235,24 @@ void main() {
         expect(result.reason, contains('+1.25kg'));
       });
 
-      test(
-        'reduce peso con incremento multi en día ligero para multi-joint',
-        () {
-          final strategy = UndulatingProgressionStrategy();
-          // Semana 2 = día ligero (par)
-          final stateWeek2 = state.copyWith(currentWeek: 2);
+      test('reduce peso con incremento multi en día ligero para multi-joint', () {
+        final strategy = UndulatingProgressionStrategy();
+        // Semana 2 = día ligero (par)
+        final stateWeek2 = state.copyWith(currentWeek: 2);
 
-          final result = strategy.calculate(
-            config: config,
-            state: stateWeek2,
-            currentWeight: 100.0,
-            currentReps: 5,
-            currentSets: 3,
-            exerciseType: ExerciseType.multiJoint,
-          );
+        final result = strategy.calculate(
+          config: config,
+          state: stateWeek2,
+          currentWeight: 100.0,
+          currentReps: 5,
+          currentSets: 3,
+          exerciseType: ExerciseType.multiJoint,
+        );
 
-          expect(result.newWeight, 95.0); // 100 - 5.0 (multi_increment_min)
-          expect(result.incrementApplied, true);
-          expect(result.reason, contains('-5.0kg'));
-        },
-      );
+        expect(result.newWeight, 95.0); // 100 - 5.0 (multi_increment_min)
+        expect(result.incrementApplied, true);
+        expect(result.reason, contains('-5.0kg'));
+      });
 
       test('reduce peso con incremento iso en día ligero para isolation', () {
         final strategy = UndulatingProgressionStrategy();
@@ -325,97 +319,85 @@ void main() {
     });
 
     group('WaveProgressionStrategy', () {
-      test(
-        'aplica incremento multi en semana 1 (alta intensidad) para multi-joint',
-        () {
-          final strategy = WaveProgressionStrategy();
-          // Semana 1 = alta intensidad
-          final stateWeek1 = state.copyWith(currentWeek: 1);
+      test('aplica incremento multi en semana 1 (alta intensidad) para multi-joint', () {
+        final strategy = WaveProgressionStrategy();
+        // Semana 1 = alta intensidad
+        final stateWeek1 = state.copyWith(currentWeek: 1);
 
-          final result = strategy.calculate(
-            config: config,
-            state: stateWeek1,
-            currentWeight: 100.0,
-            currentReps: 5,
-            currentSets: 3,
-            exerciseType: ExerciseType.multiJoint,
-          );
+        final result = strategy.calculate(
+          config: config,
+          state: stateWeek1,
+          currentWeight: 100.0,
+          currentReps: 5,
+          currentSets: 3,
+          exerciseType: ExerciseType.multiJoint,
+        );
 
-          expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
-          expect(result.incrementApplied, true);
-          expect(result.reason, contains('+5.0kg'));
-        },
-      );
+        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        expect(result.incrementApplied, true);
+        expect(result.reason, contains('+5.0kg'));
+      });
 
-      test(
-        'aplica incremento iso en semana 1 (alta intensidad) para isolation',
-        () {
-          final strategy = WaveProgressionStrategy();
-          // Semana 1 = alta intensidad
-          final stateWeek1 = state.copyWith(currentWeek: 1);
+      test('aplica incremento iso en semana 1 (alta intensidad) para isolation', () {
+        final strategy = WaveProgressionStrategy();
+        // Semana 1 = alta intensidad
+        final stateWeek1 = state.copyWith(currentWeek: 1);
 
-          final result = strategy.calculate(
-            config: config,
-            state: stateWeek1,
-            currentWeight: 100.0,
-            currentReps: 5,
-            currentSets: 3,
-            exerciseType: ExerciseType.isolation,
-          );
+        final result = strategy.calculate(
+          config: config,
+          state: stateWeek1,
+          currentWeight: 100.0,
+          currentReps: 5,
+          currentSets: 3,
+          exerciseType: ExerciseType.isolation,
+        );
 
-          expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
-          expect(result.incrementApplied, true);
-          expect(result.reason, contains('+1.25kg'));
-        },
-      );
+        expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
+        expect(result.incrementApplied, true);
+        expect(result.reason, contains('+1.25kg'));
+      });
 
-      test(
-        'reduce peso con incremento multi en semana 2 (alto volumen) para multi-joint',
-        () {
-          final strategy = WaveProgressionStrategy();
-          // Semana 2 = alto volumen
-          final stateWeek2 = state.copyWith(currentWeek: 2);
+      test('reduce peso con incremento multi en semana 2 (alto volumen) para multi-joint', () {
+        final strategy = WaveProgressionStrategy();
+        // Semana 2 = alto volumen
+        final stateWeek2 = state.copyWith(currentWeek: 2);
 
-          final result = strategy.calculate(
-            config: config,
-            state: stateWeek2,
-            currentWeight: 100.0,
-            currentReps: 5,
-            currentSets: 3,
-            exerciseType: ExerciseType.multiJoint,
-          );
+        final result = strategy.calculate(
+          config: config,
+          state: stateWeek2,
+          currentWeight: 100.0,
+          currentReps: 5,
+          currentSets: 3,
+          exerciseType: ExerciseType.multiJoint,
+        );
 
-          // Alto volumen: reduce peso por 30% del incremento
-          // 100 - (5.0 * 0.3) = 98.5
-          expect(result.newWeight, 98.5);
-          expect(result.incrementApplied, true);
-          expect(result.reason, contains('-1.5kg'));
-        },
-      );
+        // Alto volumen: reduce peso por 30% del incremento
+        // 100 - (5.0 * 0.3) = 98.5
+        expect(result.newWeight, 98.5);
+        expect(result.incrementApplied, true);
+        expect(result.reason, contains('-1.5kg'));
+      });
 
-      test(
-        'reduce peso con incremento iso en semana 2 (alto volumen) para isolation',
-        () {
-          final strategy = WaveProgressionStrategy();
-          // Semana 2 = alto volumen
-          final stateWeek2 = state.copyWith(currentWeek: 2);
+      test('reduce peso con incremento iso en semana 2 (alto volumen) para isolation', () {
+        final strategy = WaveProgressionStrategy();
+        // Semana 2 = alto volumen
+        final stateWeek2 = state.copyWith(currentWeek: 2);
 
-          final result = strategy.calculate(
-            config: config,
-            state: stateWeek2,
-            currentWeight: 100.0,
-            currentReps: 5,
-            currentSets: 3,
-            exerciseType: ExerciseType.isolation,
-          );
+        final result = strategy.calculate(
+          config: config,
+          state: stateWeek2,
+          currentWeight: 100.0,
+          currentReps: 5,
+          currentSets: 3,
+          exerciseType: ExerciseType.isolation,
+        );
 
-          // Alto volumen: reduce peso por 30% del incremento
-          // 100 - (1.25 * 0.3) = 99.625
-          expect(result.newWeight, 99.625);
-          expect(result.incrementApplied, true);
-          expect(result.reason, contains('-0.4kg'));
-        },
-      );
+        // Alto volumen: reduce peso por 30% del incremento
+        // 100 - (1.25 * 0.3) = 99.625
+        expect(result.newWeight, 99.625);
+        expect(result.incrementApplied, true);
+        expect(result.reason, contains('-0.4kg'));
+      });
     });
 
     group('ReverseProgressionStrategy', () {
@@ -505,121 +487,103 @@ void main() {
     });
 
     group('Fallback Behavior', () {
-      test(
-        'todas las estrategias usan incrementValue base cuando no hay parámetros específicos',
-        () {
-          final configWithoutSpecifics = config.copyWith(
-            customParameters: {
-              'increment_value': 3.0, // Solo valor base
-            },
+      test('todas las estrategias usan incrementValue base cuando no hay parámetros específicos', () {
+        final configWithoutSpecifics = config.copyWith(
+          customParameters: {
+            'increment_value': 3.0, // Solo valor base
+          },
+        );
+
+        final strategies = <dynamic>[
+          LinearProgressionStrategy(),
+          DoubleFactorProgressionStrategy(),
+          UndulatingProgressionStrategy(),
+          SteppedProgressionStrategy(),
+          WaveProgressionStrategy(),
+          // ReverseProgressionStrategy(), // Excluida porque reduce peso por diseño
+          AutoregulatedProgressionStrategy(),
+        ];
+
+        for (final strategy in strategies) {
+          // Para DoubleFactorProgressionStrategy, necesitamos reps >= maxReps para que incremente peso
+          final currentReps = strategy is DoubleFactorProgressionStrategy ? 12 : 5;
+
+          // Para estrategias que alternan, necesitamos estar en fase de incremento
+          final testState =
+              strategy is UndulatingProgressionStrategy
+                  ? state.copyWith(currentWeek: 1) // Semana 1 = día pesado
+                  : strategy is WaveProgressionStrategy
+                  ? state.copyWith(currentWeek: 1) // Semana 1 = alta intensidad
+                  : strategy is AutoregulatedProgressionStrategy
+                  ? state.copyWith(
+                    sessionHistory: {
+                      'session_1': {'reps': 12}, // Más reps de las esperadas = RPE bajo
+                    },
+                  )
+                  : state;
+
+          final result = strategy.calculate(
+            config: configWithoutSpecifics,
+            state: testState,
+            currentWeight: 100.0,
+            currentReps: currentReps,
+            currentSets: 3,
+            exerciseType: ExerciseType.multiJoint, // Tipo no importa sin parámetros específicos
           );
 
-          final strategies = <dynamic>[
-            LinearProgressionStrategy(),
-            DoubleFactorProgressionStrategy(),
-            UndulatingProgressionStrategy(),
-            SteppedProgressionStrategy(),
-            WaveProgressionStrategy(),
-            // ReverseProgressionStrategy(), // Excluida porque reduce peso por diseño
-            AutoregulatedProgressionStrategy(),
-          ];
+          // Todas deben usar el incrementValue base (3.0)
+          expect(result.newWeight, greaterThan(100.0));
+          expect(result.incrementApplied, true);
+        }
+      });
 
-          for (final strategy in strategies) {
-            // Para DoubleFactorProgressionStrategy, necesitamos reps >= maxReps para que incremente peso
-            final currentReps =
-                strategy is DoubleFactorProgressionStrategy ? 12 : 5;
+      test('todas las estrategias usan defaults por tipo cuando no hay parámetros personalizados', () {
+        final configMinimal = config.copyWith(
+          customParameters: const {}, // Sin parámetros personalizados
+        );
 
-            // Para estrategias que alternan, necesitamos estar en fase de incremento
-            final testState =
-                strategy is UndulatingProgressionStrategy
-                    ? state.copyWith(currentWeek: 1) // Semana 1 = día pesado
-                    : strategy is WaveProgressionStrategy
-                    ? state.copyWith(
-                      currentWeek: 1,
-                    ) // Semana 1 = alta intensidad
-                    : strategy is AutoregulatedProgressionStrategy
-                    ? state.copyWith(
-                      sessionHistory: {
-                        'session_1': {
-                          'reps': 12,
-                        }, // Más reps de las esperadas = RPE bajo
-                      },
-                    )
-                    : state;
+        final strategies = <dynamic>[
+          LinearProgressionStrategy(),
+          DoubleFactorProgressionStrategy(),
+          UndulatingProgressionStrategy(),
+          SteppedProgressionStrategy(),
+          WaveProgressionStrategy(),
+          // ReverseProgressionStrategy(), // Excluida porque reduce peso por diseño
+          AutoregulatedProgressionStrategy(),
+        ];
 
-            final result = strategy.calculate(
-              config: configWithoutSpecifics,
-              state: testState,
-              currentWeight: 100.0,
-              currentReps: currentReps,
-              currentSets: 3,
-              exerciseType:
-                  ExerciseType
-                      .multiJoint, // Tipo no importa sin parámetros específicos
-            );
+        for (final strategy in strategies) {
+          // Para DoubleFactorProgressionStrategy, necesitamos reps >= maxReps para que incremente peso
+          final currentReps = strategy is DoubleFactorProgressionStrategy ? 12 : 5;
 
-            // Todas deben usar el incrementValue base (3.0)
-            expect(result.newWeight, greaterThan(100.0));
-            expect(result.incrementApplied, true);
-          }
-        },
-      );
+          // Para estrategias que alternan, necesitamos estar en fase de incremento
+          final testState =
+              strategy is UndulatingProgressionStrategy
+                  ? state.copyWith(currentWeek: 1) // Semana 1 = día pesado
+                  : strategy is WaveProgressionStrategy
+                  ? state.copyWith(currentWeek: 1) // Semana 1 = alta intensidad
+                  : strategy is AutoregulatedProgressionStrategy
+                  ? state.copyWith(
+                    sessionHistory: {
+                      'session_1': {'reps': 12}, // Más reps de las esperadas = RPE bajo
+                    },
+                  )
+                  : state;
 
-      test(
-        'todas las estrategias usan defaults por tipo cuando no hay parámetros personalizados',
-        () {
-          final configMinimal = config.copyWith(
-            customParameters: const {}, // Sin parámetros personalizados
+          final result = strategy.calculate(
+            config: configMinimal,
+            state: testState,
+            currentWeight: 100.0,
+            currentReps: currentReps,
+            currentSets: 3,
+            exerciseType: ExerciseType.multiJoint,
           );
 
-          final strategies = <dynamic>[
-            LinearProgressionStrategy(),
-            DoubleFactorProgressionStrategy(),
-            UndulatingProgressionStrategy(),
-            SteppedProgressionStrategy(),
-            WaveProgressionStrategy(),
-            // ReverseProgressionStrategy(), // Excluida porque reduce peso por diseño
-            AutoregulatedProgressionStrategy(),
-          ];
-
-          for (final strategy in strategies) {
-            // Para DoubleFactorProgressionStrategy, necesitamos reps >= maxReps para que incremente peso
-            final currentReps =
-                strategy is DoubleFactorProgressionStrategy ? 12 : 5;
-
-            // Para estrategias que alternan, necesitamos estar en fase de incremento
-            final testState =
-                strategy is UndulatingProgressionStrategy
-                    ? state.copyWith(currentWeek: 1) // Semana 1 = día pesado
-                    : strategy is WaveProgressionStrategy
-                    ? state.copyWith(
-                      currentWeek: 1,
-                    ) // Semana 1 = alta intensidad
-                    : strategy is AutoregulatedProgressionStrategy
-                    ? state.copyWith(
-                      sessionHistory: {
-                        'session_1': {
-                          'reps': 12,
-                        }, // Más reps de las esperadas = RPE bajo
-                      },
-                    )
-                    : state;
-
-            final result = strategy.calculate(
-              config: configMinimal,
-              state: testState,
-              currentWeight: 100.0,
-              currentReps: currentReps,
-              currentSets: 3,
-              exerciseType: ExerciseType.multiJoint,
-            );
-
-            // Deben usar defaults por tipo o incrementValue base
-            expect(result.newWeight, greaterThan(100.0));
-            expect(result.incrementApplied, true);
-          }
-        },
-      );
+          // Deben usar defaults por tipo o incrementValue base
+          expect(result.newWeight, greaterThan(100.0));
+          expect(result.incrementApplied, true);
+        }
+      });
     });
   });
 }

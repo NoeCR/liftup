@@ -128,32 +128,16 @@ void main() {
       });
 
       test('usa incremento específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(
-          customParameters: {
-            'multi_increment_min': 5.0,
-            'iso_increment_min': 1.25,
-          },
-        );
+        config = config.copyWith(customParameters: {'multi_increment_min': 5.0, 'iso_increment_min': 1.25});
 
-        final increment = strategy.getIncrementValue(
-          config,
-          exerciseType: ExerciseType.multiJoint,
-        );
+        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
         expect(increment, equals(5.0));
       });
 
       test('usa incremento específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(
-          customParameters: {
-            'multi_increment_min': 5.0,
-            'iso_increment_min': 1.25,
-          },
-        );
+        config = config.copyWith(customParameters: {'multi_increment_min': 5.0, 'iso_increment_min': 1.25});
 
-        final increment = strategy.getIncrementValue(
-          config,
-          exerciseType: ExerciseType.isolation,
-        );
+        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.isolation);
         expect(increment, equals(1.25));
       });
 
@@ -170,18 +154,12 @@ void main() {
             'increment_value': 3.0,
             'multi_increment_min': 5.0,
             'per_exercise': {
-              'test-exercise': {
-                'increment_value': 4.0,
-                'multi_increment_min': 6.0,
-              },
+              'test-exercise': {'increment_value': 4.0, 'multi_increment_min': 6.0},
             },
           },
         );
 
-        final increment = strategy.getIncrementValue(
-          config,
-          exerciseType: ExerciseType.multiJoint,
-        );
+        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
         expect(increment, equals(6.0)); // per_exercise > multi_increment_min
       });
 
@@ -205,26 +183,16 @@ void main() {
       });
 
       test('usa max_reps específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15});
 
-        final maxReps = strategy.getMaxReps(
-          config,
-          exerciseType: ExerciseType.multiJoint,
-        );
+        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.multiJoint);
         expect(maxReps, equals(8));
       });
 
       test('usa max_reps específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15});
 
-        final maxReps = strategy.getMaxReps(
-          config,
-          exerciseType: ExerciseType.isolation,
-        );
+        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.isolation);
         expect(maxReps, equals(15));
       });
 
@@ -243,26 +211,16 @@ void main() {
       });
 
       test('usa min_reps específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8});
 
-        final minReps = strategy.getMinReps(
-          config,
-          exerciseType: ExerciseType.multiJoint,
-        );
+        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.multiJoint);
         expect(minReps, equals(3));
       });
 
       test('usa min_reps específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8});
 
-        final minReps = strategy.getMinReps(
-          config,
-          exerciseType: ExerciseType.isolation,
-        );
+        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.isolation);
         expect(minReps, equals(8));
       });
 
@@ -275,49 +233,25 @@ void main() {
     });
 
     group('Fallbacks por tipo de ejercicio', () {
-      test(
-        'usa fallbacks por defecto para multi-joint cuando no hay parámetros',
-        () {
-          final increment = strategy.getIncrementValue(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
-          final maxReps = strategy.getMaxReps(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
-          final minReps = strategy.getMinReps(
-            config,
-            exerciseType: ExerciseType.multiJoint,
-          );
+      test('usa fallbacks por defecto para multi-joint cuando no hay parámetros', () {
+        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
+        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.multiJoint);
+        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.multiJoint);
 
-          expect(increment, equals(2.5)); // Default para multi-joint
-          expect(maxReps, equals(8)); // Default para multi-joint
-          expect(minReps, equals(5)); // Default para multi-joint
-        },
-      );
+        expect(increment, equals(2.5)); // Default para multi-joint
+        expect(maxReps, equals(8)); // Default para multi-joint
+        expect(minReps, equals(5)); // Default para multi-joint
+      });
 
-      test(
-        'usa fallbacks por defecto para isolation cuando no hay parámetros',
-        () {
-          final increment = strategy.getIncrementValue(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
-          final maxReps = strategy.getMaxReps(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
-          final minReps = strategy.getMinReps(
-            config,
-            exerciseType: ExerciseType.isolation,
-          );
+      test('usa fallbacks por defecto para isolation cuando no hay parámetros', () {
+        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.isolation);
+        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.isolation);
+        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.isolation);
 
-          expect(increment, equals(1.25)); // Default para isolation
-          expect(maxReps, equals(15)); // Default para isolation
-          expect(minReps, equals(8)); // Default para isolation
-        },
-      );
+        expect(increment, equals(1.25)); // Default para isolation
+        expect(maxReps, equals(15)); // Default para isolation
+        expect(minReps, equals(8)); // Default para isolation
+      });
     });
   });
 }
@@ -333,10 +267,7 @@ class TestProgressionStrategy extends BaseProgressionStrategy {
     return super.isDeloadPeriod(config, currentInCycle);
   }
 
-  double getIncrementValue(
-    ProgressionConfig config, {
-    ExerciseType? exerciseType,
-  }) {
+  double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
     return super.getIncrementValue(config, exerciseType: exerciseType);
   }
 

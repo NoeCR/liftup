@@ -22,23 +22,18 @@ abstract class BaseProgressionStrategy {
   /// Obtiene el valor de incremento desde parámetros personalizados
   /// Prioridad: per_exercise > global > defaults por tipo > fallback
   /// Considera el tipo de ejercicio para elegir el incremento apropiado
-  double getIncrementValue(
-    ProgressionConfig config, {
-    ExerciseType? exerciseType,
-  }) {
+  double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
     final customParams = config.customParameters;
 
     // Buscar en per_exercise primero
     try {
       final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
       if (perExercise != null) {
-        final exerciseParams =
-            perExercise.values.first as Map<String, dynamic>?;
+        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
         if (exerciseParams != null) {
           // Priorizar incremento específico por tipo de ejercicio
           final increment =
-              _getIncrementByExerciseType(exerciseParams, exerciseType) ??
-              exerciseParams['increment_value'];
+              _getIncrementByExerciseType(exerciseParams, exerciseType) ?? exerciseParams['increment_value'];
           if (increment != null && increment is num) {
             return increment.toDouble();
           }
@@ -52,8 +47,7 @@ abstract class BaseProgressionStrategy {
     try {
       // Priorizar incremento específico por tipo de ejercicio
       final globalIncrement =
-          _getIncrementByExerciseType(customParams, exerciseType) ??
-          customParams['increment_value'];
+          _getIncrementByExerciseType(customParams, exerciseType) ?? customParams['increment_value'];
       if (globalIncrement != null && globalIncrement is num) {
         return globalIncrement.toDouble();
       }
@@ -62,9 +56,7 @@ abstract class BaseProgressionStrategy {
     }
 
     // Fallback a defaults por tipo de ejercicio
-    final typeDefaultIncrement = _getDefaultIncrementByExerciseType(
-      exerciseType,
-    );
+    final typeDefaultIncrement = _getDefaultIncrementByExerciseType(exerciseType);
     if (typeDefaultIncrement != null) {
       return typeDefaultIncrement;
     }
@@ -81,12 +73,9 @@ abstract class BaseProgressionStrategy {
     try {
       final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
       if (perExercise != null) {
-        final exerciseParams =
-            perExercise.values.first as Map<String, dynamic>?;
+        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
         if (exerciseParams != null) {
-          final maxReps =
-              _getRepsByExerciseType(exerciseParams, exerciseType, 'max') ??
-              exerciseParams['max_reps'];
+          final maxReps = _getRepsByExerciseType(exerciseParams, exerciseType, 'max') ?? exerciseParams['max_reps'];
           if (maxReps != null && maxReps is num) {
             return maxReps.toInt();
           }
@@ -98,9 +87,7 @@ abstract class BaseProgressionStrategy {
 
     // Fallback a global
     try {
-      final globalMaxReps =
-          _getRepsByExerciseType(customParams, exerciseType, 'max') ??
-          customParams['max_reps'];
+      final globalMaxReps = _getRepsByExerciseType(customParams, exerciseType, 'max') ?? customParams['max_reps'];
       if (globalMaxReps != null && globalMaxReps is num) {
         return globalMaxReps.toInt();
       }
@@ -109,10 +96,7 @@ abstract class BaseProgressionStrategy {
     }
 
     // Fallback a defaults por tipo de ejercicio
-    final typeDefaultMaxReps = _getDefaultRepsByExerciseType(
-      exerciseType,
-      'max',
-    );
+    final typeDefaultMaxReps = _getDefaultRepsByExerciseType(exerciseType, 'max');
     if (typeDefaultMaxReps != null) {
       return typeDefaultMaxReps;
     }
@@ -129,12 +113,9 @@ abstract class BaseProgressionStrategy {
     try {
       final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
       if (perExercise != null) {
-        final exerciseParams =
-            perExercise.values.first as Map<String, dynamic>?;
+        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
         if (exerciseParams != null) {
-          final minReps =
-              _getRepsByExerciseType(exerciseParams, exerciseType, 'min') ??
-              exerciseParams['min_reps'];
+          final minReps = _getRepsByExerciseType(exerciseParams, exerciseType, 'min') ?? exerciseParams['min_reps'];
           if (minReps != null && minReps is num) {
             return minReps.toInt();
           }
@@ -146,9 +127,7 @@ abstract class BaseProgressionStrategy {
 
     // Fallback a global
     try {
-      final globalMinReps =
-          _getRepsByExerciseType(customParams, exerciseType, 'min') ??
-          customParams['min_reps'];
+      final globalMinReps = _getRepsByExerciseType(customParams, exerciseType, 'min') ?? customParams['min_reps'];
       if (globalMinReps != null && globalMinReps is num) {
         return globalMinReps.toInt();
       }
@@ -157,10 +136,7 @@ abstract class BaseProgressionStrategy {
     }
 
     // Fallback a defaults por tipo de ejercicio
-    final typeDefaultMinReps = _getDefaultRepsByExerciseType(
-      exerciseType,
-      'min',
-    );
+    final typeDefaultMinReps = _getDefaultRepsByExerciseType(exerciseType, 'min');
     if (typeDefaultMinReps != null) {
       return typeDefaultMinReps;
     }
@@ -169,10 +145,7 @@ abstract class BaseProgressionStrategy {
   }
 
   /// Métodos privados helper
-  double? _getIncrementByExerciseType(
-    Map<String, dynamic> params,
-    ExerciseType? exerciseType,
-  ) {
+  double? _getIncrementByExerciseType(Map<String, dynamic> params, ExerciseType? exerciseType) {
     if (exerciseType == null) return null;
 
     final bool isMulti = exerciseType == ExerciseType.multiJoint;

@@ -38,8 +38,7 @@ import '../progression_strategy.dart';
 /// - Puede llevar a estancamiento a largo plazo
 /// - No es efectiva para ganancias continuas
 /// - Requiere cambio eventual de estrategia
-class StaticProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class StaticProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
