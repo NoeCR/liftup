@@ -46,13 +46,7 @@ void main() {
       oneRepMax: null,
       customData: const {},
     );
-    final res = strategy.calculate(
-      config: cfg,
-      state: st,
-      currentWeight: 100,
-      currentReps: 10,
-      currentSets: 4,
-    );
+    final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
     expect(res.incrementApplied, false);
     expect(res.newWeight, 100);
     expect(res.newReps, 10);

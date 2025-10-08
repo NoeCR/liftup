@@ -27,22 +27,12 @@ class ChangeHistoryService {
   }
 
   /// Obtiene el historial de cambios para una entidad
-  Future<List<ChangeRecord>> getEntityHistory(
-    EntityType entityType,
-    String entityId, {
-    int? limit,
-  }) async {
+  Future<List<ChangeRecord>> getEntityHistory(EntityType entityType, String entityId, {int? limit}) async {
     if (_box == null) await initialize();
 
     final allChanges = _box!.values.toList();
     final entityChanges =
-        allChanges
-            .where(
-              (change) =>
-                  change.entityType == entityType &&
-                  change.entityId == entityId,
-            )
-            .toList()
+        allChanges.where((change) => change.entityType == entityType && change.entityId == entityId).toList()
           ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     if (limit != null && entityChanges.length > limit) {
@@ -53,31 +43,19 @@ class ChangeHistoryService {
   }
 
   /// Obtiene el historial de cambios para un usuario
-  Future<List<ChangeRecord>> getUserHistory(
-    String userId, {
-    int? limit,
-    DateTime? fromDate,
-    DateTime? toDate,
-  }) async {
+  Future<List<ChangeRecord>> getUserHistory(String userId, {int? limit, DateTime? fromDate, DateTime? toDate}) async {
     if (_box == null) await initialize();
 
     final allChanges = _box!.values.toList();
-    var userChanges =
-        allChanges.where((change) => change.userId == userId).toList();
+    var userChanges = allChanges.where((change) => change.userId == userId).toList();
 
     // Filtrar por rango de fechas si se especifica
     if (fromDate != null) {
-      userChanges =
-          userChanges
-              .where((change) => change.timestamp.isAfter(fromDate))
-              .toList();
+      userChanges = userChanges.where((change) => change.timestamp.isAfter(fromDate)).toList();
     }
 
     if (toDate != null) {
-      userChanges =
-          userChanges
-              .where((change) => change.timestamp.isBefore(toDate))
-              .toList();
+      userChanges = userChanges.where((change) => change.timestamp.isBefore(toDate)).toList();
     }
 
     userChanges.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -99,22 +77,15 @@ class ChangeHistoryService {
     if (_box == null) await initialize();
 
     final allChanges = _box!.values.toList();
-    var typeChanges =
-        allChanges.where((change) => change.changeType == changeType).toList();
+    var typeChanges = allChanges.where((change) => change.changeType == changeType).toList();
 
     // Filtrar por rango de fechas si se especifica
     if (fromDate != null) {
-      typeChanges =
-          typeChanges
-              .where((change) => change.timestamp.isAfter(fromDate))
-              .toList();
+      typeChanges = typeChanges.where((change) => change.timestamp.isAfter(fromDate)).toList();
     }
 
     if (toDate != null) {
-      typeChanges =
-          typeChanges
-              .where((change) => change.timestamp.isBefore(toDate))
-              .toList();
+      typeChanges = typeChanges.where((change) => change.timestamp.isBefore(toDate)).toList();
     }
 
     typeChanges.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -127,11 +98,7 @@ class ChangeHistoryService {
   }
 
   /// Obtiene estadísticas del historial
-  Future<Map<String, dynamic>> getHistoryStats({
-    String? userId,
-    DateTime? fromDate,
-    DateTime? toDate,
-  }) async {
+  Future<Map<String, dynamic>> getHistoryStats({String? userId, DateTime? fromDate, DateTime? toDate}) async {
     if (_box == null) await initialize();
 
     final allChanges = _box!.values.toList();
@@ -139,23 +106,16 @@ class ChangeHistoryService {
 
     // Filtrar por usuario si se especifica
     if (userId != null) {
-      filteredChanges =
-          filteredChanges.where((change) => change.userId == userId).toList();
+      filteredChanges = filteredChanges.where((change) => change.userId == userId).toList();
     }
 
     // Filtrar por rango de fechas si se especifica
     if (fromDate != null) {
-      filteredChanges =
-          filteredChanges
-              .where((change) => change.timestamp.isAfter(fromDate))
-              .toList();
+      filteredChanges = filteredChanges.where((change) => change.timestamp.isAfter(fromDate)).toList();
     }
 
     if (toDate != null) {
-      filteredChanges =
-          filteredChanges
-              .where((change) => change.timestamp.isBefore(toDate))
-              .toList();
+      filteredChanges = filteredChanges.where((change) => change.timestamp.isBefore(toDate)).toList();
     }
 
     // Calcular estadísticas
@@ -169,19 +129,13 @@ class ChangeHistoryService {
 
     // Contar por tipo de cambio
     for (final changeType in ChangeType.values) {
-      final count =
-          filteredChanges
-              .where((change) => change.changeType == changeType)
-              .length;
+      final count = filteredChanges.where((change) => change.changeType == changeType).length;
       stats['changesByType'][changeType.name] = count;
     }
 
     // Contar por tipo de entidad
     for (final entityType in EntityType.values) {
-      final count =
-          filteredChanges
-              .where((change) => change.entityType == entityType)
-              .length;
+      final count = filteredChanges.where((change) => change.entityType == entityType).length;
       stats['changesByEntity'][entityType.name] = count;
     }
 
@@ -194,10 +148,7 @@ class ChangeHistoryService {
 
     // Cambios recientes (últimos 7 días)
     final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
-    final recentChanges =
-        filteredChanges
-            .where((change) => change.timestamp.isAfter(sevenDaysAgo))
-            .length;
+    final recentChanges = filteredChanges.where((change) => change.timestamp.isAfter(sevenDaysAgo)).length;
     stats['recentChanges'] = {'count': recentChanges, 'period': '7 days'};
 
     return stats;
@@ -210,10 +161,7 @@ class ChangeHistoryService {
     final cutoffDate = DateTime.now().subtract(Duration(days: daysToKeep));
     final allChanges = _box!.values.toList();
 
-    final oldChanges =
-        allChanges
-            .where((change) => change.timestamp.isBefore(cutoffDate))
-            .toList();
+    final oldChanges = allChanges.where((change) => change.timestamp.isBefore(cutoffDate)).toList();
 
     for (final change in oldChanges) {
       await _box!.delete(change.id);
@@ -221,20 +169,10 @@ class ChangeHistoryService {
   }
 
   /// Exporta el historial a JSON
-  Future<String> exportHistory({
-    String? userId,
-    DateTime? fromDate,
-    DateTime? toDate,
-    int? limit,
-  }) async {
+  Future<String> exportHistory({String? userId, DateTime? fromDate, DateTime? toDate, int? limit}) async {
     if (_box == null) await initialize();
 
-    final changes = await getUserHistory(
-      userId ?? '',
-      fromDate: fromDate,
-      toDate: toDate,
-      limit: limit,
-    );
+    final changes = await getUserHistory(userId ?? '', fromDate: fromDate, toDate: toDate, limit: limit);
 
     final exportData = {
       'exportDate': DateTime.now().toIso8601String(),
@@ -247,27 +185,19 @@ class ChangeHistoryService {
   }
 
   /// Restaura una entidad desde el historial
-  Future<Map<String, dynamic>?> restoreEntity(
-    String entityId,
-    EntityType entityType,
-    DateTime restoreToDate,
-  ) async {
+  Future<Map<String, dynamic>?> restoreEntity(String entityId, EntityType entityType, DateTime restoreToDate) async {
     if (_box == null) await initialize();
 
     final entityHistory = await getEntityHistory(entityType, entityId);
 
     // Encontrar el estado más reciente antes de la fecha de restauración
-    final relevantChanges =
-        entityHistory
-            .where((change) => change.timestamp.isBefore(restoreToDate))
-            .toList();
+    final relevantChanges = entityHistory.where((change) => change.timestamp.isBefore(restoreToDate)).toList();
 
     if (relevantChanges.isEmpty) return null;
 
     // Buscar el último estado válido
     for (final change in relevantChanges) {
-      if (change.changeType == ChangeType.create ||
-          change.changeType == ChangeType.update) {
+      if (change.changeType == ChangeType.create || change.changeType == ChangeType.update) {
         return change.newData;
       }
     }
@@ -276,10 +206,7 @@ class ChangeHistoryService {
   }
 
   /// Obtiene el último cambio para una entidad
-  Future<ChangeRecord?> getLastChange(
-    String entityId,
-    EntityType entityType,
-  ) async {
+  Future<ChangeRecord?> getLastChange(String entityId, EntityType entityType) async {
     if (_box == null) await initialize();
 
     final entityHistory = await getEntityHistory(entityType, entityId);
@@ -294,9 +221,7 @@ class ChangeHistoryService {
   }) async {
     if (_box == null) await initialize();
 
-    final cutoffTime = DateTime.now().subtract(
-      within ?? const Duration(hours: 24),
-    );
+    final cutoffTime = DateTime.now().subtract(within ?? const Duration(hours: 24));
     final entityHistory = await getEntityHistory(entityType, entityId);
 
     return entityHistory.any((change) => change.timestamp.isAfter(cutoffTime));

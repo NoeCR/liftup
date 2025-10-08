@@ -17,13 +17,7 @@ class ProgressionCalculationResult extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-    newWeight,
-    newReps,
-    newSets,
-    incrementApplied,
-    reason,
-  ];
+  List<Object?> get props => [newWeight, newReps, newSets, incrementApplied, reason];
 
   @override
   String toString() {

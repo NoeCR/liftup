@@ -31,19 +31,11 @@ void main() {
   // Calcular tamaño máximo del icono dentro del canvas respetando padding
   final maxContent = (canvasSize * (1 - paddingRatio * 2)).toInt();
   // Escalar manteniendo proporción para que quepa dentro de maxContent
-  final scale = {
-    'w': maxContent / original.width,
-    'h': maxContent / original.height,
-  };
+  final scale = {'w': maxContent / original.width, 'h': maxContent / original.height};
   final factor = scale['w']! < scale['h']! ? scale['w']! : scale['h']!;
   final targetW = (original.width * factor).toInt();
   final targetH = (original.height * factor).toInt();
-  final resized = img.copyResize(
-    original,
-    width: targetW,
-    height: targetH,
-    interpolation: img.Interpolation.linear,
-  );
+  final resized = img.copyResize(original, width: targetW, height: targetH, interpolation: img.Interpolation.linear);
 
   // Centrar
   final dx = ((canvasSize - targetW) / 2).round();

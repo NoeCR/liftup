@@ -11,9 +11,7 @@ class FileVideoPlayerAdapter implements VideoPlayerAdapter {
 
   @override
   Future<void> initialize() async {
-    _videoController = VideoPlayerController.file(
-      File(path.replaceFirst('file://', '')),
-    );
+    _videoController = VideoPlayerController.file(File(path.replaceFirst('file://', '')));
     await _videoController.initialize();
     // No reproducir automáticamente
     _videoController.pause();
@@ -22,19 +20,13 @@ class FileVideoPlayerAdapter implements VideoPlayerAdapter {
   @override
   Widget buildView(BuildContext context) {
     if (!_videoController.value.isInitialized) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
     }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         AspectRatio(
-          aspectRatio:
-              _videoController.value.aspectRatio == 0
-                  ? 16 / 9
-                  : _videoController.value.aspectRatio,
+          aspectRatio: _videoController.value.aspectRatio == 0 ? 16 / 9 : _videoController.value.aspectRatio,
           child: VideoPlayer(_videoController),
         ),
         const SizedBox(height: 8),
@@ -42,15 +34,9 @@ class FileVideoPlayerAdapter implements VideoPlayerAdapter {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: Icon(
-                _videoController.value.isPlaying
-                    ? Icons.pause
-                    : Icons.play_arrow,
-              ),
+              icon: Icon(_videoController.value.isPlaying ? Icons.pause : Icons.play_arrow),
               onPressed: () {
-                _videoController.value.isPlaying
-                    ? _videoController.pause()
-                    : _videoController.play();
+                _videoController.value.isPlaying ? _videoController.pause() : _videoController.play();
               },
             ),
           ],

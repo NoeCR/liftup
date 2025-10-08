@@ -78,8 +78,7 @@ class ProgressionState extends Equatable {
     required this.customData,
   });
 
-  factory ProgressionState.fromJson(Map<String, dynamic> json) =>
-      _$ProgressionStateFromJson(json);
+  factory ProgressionState.fromJson(Map<String, dynamic> json) => _$ProgressionStateFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionStateToJson(this);
 
   ProgressionState copyWith({

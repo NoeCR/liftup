@@ -6,9 +6,7 @@ final restVibrationEnabledProvider = StateProvider<bool>((ref) => true);
 
 enum RestSoundType { notification, alarm }
 
-final restSoundTypeProvider = StateProvider<RestSoundType>(
-  (ref) => RestSoundType.notification,
-);
+final restSoundTypeProvider = StateProvider<RestSoundType>((ref) => RestSoundType.notification);
 
 // Máximo de series permitido por configuración. Valor por defecto: 30
 final maxSetsPerExerciseProvider = StateProvider<int>((ref) => 30);

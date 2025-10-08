@@ -35,19 +35,13 @@ class ExerciseDetailPage extends ConsumerWidget {
                   final exercise = matches.first;
 
                   return PopupMenuButton<String>(
-                    onSelected:
-                        (value) =>
-                            _handleMenuAction(value, context, ref, exercise),
+                    onSelected: (value) => _handleMenuAction(value, context, ref, exercise),
                     itemBuilder:
                         (context) => [
                           PopupMenuItem(
                             value: 'edit',
                             child: Row(
-                              children: [
-                                Icon(Icons.edit),
-                                SizedBox(width: 8),
-                                Text(context.tr('common.edit')),
-                              ],
+                              children: [Icon(Icons.edit), SizedBox(width: 8), Text(context.tr('common.edit'))],
                             ),
                           ),
                           PopupMenuItem(
@@ -56,10 +50,7 @@ class ExerciseDetailPage extends ConsumerWidget {
                               children: [
                                 Icon(Icons.delete, color: Colors.red),
                                 SizedBox(width: 8),
-                                Text(
-                                  context.tr('common.delete'),
-                                  style: TextStyle(color: Colors.red),
-                                ),
+                                Text(context.tr('common.delete'), style: TextStyle(color: Colors.red)),
                               ],
                             ),
                           ),
@@ -81,17 +72,13 @@ class ExerciseDetailPage extends ConsumerWidget {
             data: (exercises) {
               final matches = exercises.where((e) => e.id == exerciseId);
               if (matches.isEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _buildEmptyForCreation(context),
-                );
+                return Padding(padding: const EdgeInsets.all(16), child: _buildEmptyForCreation(context));
               }
               final exercise = matches.first;
               return _buildExerciseDetail(exercise, context);
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error:
-                (error, stack) => _buildErrorState(error.toString(), context),
+            error: (error, stack) => _buildErrorState(error.toString(), context),
           );
         },
       ),
@@ -146,11 +133,7 @@ class ExerciseDetailPage extends ConsumerWidget {
 
   Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
     if (path.isEmpty) {
-      return Icon(
-        Icons.fitness_center,
-        size: 64,
-        color: colorScheme.onSurfaceVariant,
-      );
+      return Icon(Icons.fitness_center, size: 64, color: colorScheme.onSurfaceVariant);
     }
 
     if (path.startsWith('assets/')) {
@@ -158,11 +141,7 @@ class ExerciseDetailPage extends ConsumerWidget {
         path,
         fit: BoxFit.cover,
         errorBuilder:
-            (context, error, stackTrace) => Icon(
-              Icons.fitness_center,
-              size: 64,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            (context, error, stackTrace) => Icon(Icons.fitness_center, size: 64, color: colorScheme.onSurfaceVariant),
       );
     }
 
@@ -171,25 +150,16 @@ class ExerciseDetailPage extends ConsumerWidget {
         path,
         fit: BoxFit.cover,
         errorBuilder:
-            (context, error, stackTrace) => Icon(
-              Icons.fitness_center,
-              size: 64,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            (context, error, stackTrace) => Icon(Icons.fitness_center, size: 64, color: colorScheme.onSurfaceVariant),
       );
     }
 
-    final String filePath =
-        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    final String filePath = path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
     return Image.file(
       File(filePath),
       fit: BoxFit.cover,
       errorBuilder:
-          (context, error, stackTrace) => Icon(
-            Icons.fitness_center,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          (context, error, stackTrace) => Icon(Icons.fitness_center, size: 64, color: colorScheme.onSurfaceVariant),
     );
   }
 
@@ -245,28 +215,15 @@ class ExerciseDetailPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            exercise.name,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text(exercise.name, style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(exercise.description, style: theme.textTheme.bodyLarge),
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildInfoChip(
-                _getCategoryName(exercise.category),
-                Icons.category,
-                context,
-              ),
+              _buildInfoChip(_getCategoryName(exercise.category), Icons.category, context),
               const SizedBox(width: 8),
-              _buildInfoChip(
-                _getDifficultyName(exercise.difficulty),
-                Icons.trending_up,
-                context,
-              ),
+              _buildInfoChip(_getDifficultyName(exercise.difficulty), Icons.trending_up, context),
             ],
           ),
           const SizedBox(height: 16),
@@ -287,27 +244,10 @@ class ExerciseDetailPage extends ConsumerWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _buildInfoChip(
-                      'Series: ${sets.toString()}',
-                      Icons.repeat,
-                      context,
-                    ),
-                    _buildInfoChip(
-                      'Reps: ${reps.toString()}',
-                      Icons.fitness_center,
-                      context,
-                    ),
-                    _buildInfoChip(
-                      'Peso: ${weight.toStringAsFixed(1)} kg',
-                      Icons.scale,
-                      context,
-                    ),
-                    if (restTime != null)
-                      _buildInfoChip(
-                        'Descanso: ${restTime}s',
-                        Icons.timer,
-                        context,
-                      ),
+                    _buildInfoChip('Series: ${sets.toString()}', Icons.repeat, context),
+                    _buildInfoChip('Reps: ${reps.toString()}', Icons.fitness_center, context),
+                    _buildInfoChip('Peso: ${weight.toStringAsFixed(1)} kg', Icons.scale, context),
+                    if (restTime != null) _buildInfoChip('Descanso: ${restTime}s', Icons.timer, context),
                   ],
                 ),
               );
@@ -329,9 +269,7 @@ class ExerciseDetailPage extends ConsumerWidget {
         children: [
           Text(
             context.tr('exercises.musclesWorked'),
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -342,9 +280,7 @@ class ExerciseDetailPage extends ConsumerWidget {
                   return Chip(
                     label: Text(muscle.displayName),
                     backgroundColor: colorScheme.primaryContainer,
-                    labelStyle: TextStyle(
-                      color: colorScheme.onPrimaryContainer,
-                    ),
+                    labelStyle: TextStyle(color: colorScheme.onPrimaryContainer),
                   );
                 }).toList(),
           ),
@@ -362,12 +298,7 @@ class ExerciseDetailPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Consejos',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Consejos', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           ...exercise.tips.map((tip) {
             return Padding(
@@ -375,11 +306,7 @@ class ExerciseDetailPage extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.lightbulb_outline,
-                    color: colorScheme.primary,
-                    size: 20,
-                  ),
+                  Icon(Icons.lightbulb_outline, color: colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
                   Expanded(child: Text(tip, style: theme.textTheme.bodyMedium)),
                 ],
@@ -400,12 +327,7 @@ class ExerciseDetailPage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Errores Comunes',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Errores Comunes', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           ...exercise.commonMistakes.map((mistake) {
             return Padding(
@@ -413,15 +335,9 @@ class ExerciseDetailPage extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.warning_outlined,
-                    color: colorScheme.error,
-                    size: 20,
-                  ),
+                  Icon(Icons.warning_outlined, color: colorScheme.error, size: 20),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(mistake, style: theme.textTheme.bodyMedium),
-                  ),
+                  Expanded(child: Text(mistake, style: theme.textTheme.bodyMedium)),
                 ],
               ),
             );
@@ -437,21 +353,13 @@ class ExerciseDetailPage extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
+          Text(label, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
         ],
       ),
     );
@@ -467,16 +375,11 @@ class ExerciseDetailPage extends ConsumerWidget {
         children: [
           Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text(
-            'Error al cargar el ejercicio',
-            style: theme.textTheme.headlineSmall,
-          ),
+          Text('Error al cargar el ejercicio', style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             error,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -496,10 +399,7 @@ class ExerciseDetailPage extends ConsumerWidget {
             color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Text(
-            context.tr('exercises.noDataYet'),
-            style: theme.textTheme.bodyMedium,
-          ),
+          child: Text(context.tr('exercises.noDataYet'), style: theme.textTheme.bodyMedium),
         ),
         const SizedBox(height: 12),
         ElevatedButton.icon(
@@ -526,12 +426,7 @@ class ExerciseDetailPage extends ConsumerWidget {
     }
   }
 
-  void _handleMenuAction(
-    String action,
-    BuildContext context,
-    WidgetRef ref,
-    Exercise exercise,
-  ) {
+  void _handleMenuAction(String action, BuildContext context, WidgetRef ref, Exercise exercise) {
     switch (action) {
       case 'edit':
         context.push('/exercise/edit/${exercise.id}');
@@ -542,27 +437,15 @@ class ExerciseDetailPage extends ConsumerWidget {
     }
   }
 
-  void _showDeleteConfirmation(
-    BuildContext context,
-    WidgetRef ref,
-    Exercise exercise,
-  ) {
+  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, Exercise exercise) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             title: const Text('Eliminar Ejercicio'),
-            content: Text(
-              context.tr(
-                'exercises.confirmDelete',
-                namedArgs: {'exerciseName': exercise.name},
-              ),
-            ),
+            content: Text(context.tr('exercises.confirmDelete', namedArgs: {'exerciseName': exercise.name})),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancelar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
               TextButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
@@ -576,33 +459,21 @@ class ExerciseDetailPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _deleteExercise(
-    BuildContext context,
-    WidgetRef ref,
-    Exercise exercise,
-  ) async {
+  Future<void> _deleteExercise(BuildContext context, WidgetRef ref, Exercise exercise) async {
     try {
-      await ref
-          .read(exerciseNotifierProvider.notifier)
-          .deleteExercise(exercise.id);
+      await ref.read(exerciseNotifierProvider.notifier).deleteExercise(exercise.id);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${exercise.name} eliminado correctamente'),
-            backgroundColor: Colors.green,
-          ),
+          SnackBar(content: Text('${exercise.name} eliminado correctamente'), backgroundColor: Colors.green),
         );
         context.pop();
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al eliminar: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al eliminar: $e'), backgroundColor: Colors.red));
       }
     }
   }

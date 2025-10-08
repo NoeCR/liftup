@@ -37,12 +37,9 @@ class MetricsMonitor {
 
       LoggingService.instance.info('Metrics monitoring started successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to start metrics monitoring',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to start metrics monitoring', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -61,12 +58,9 @@ class MetricsMonitor {
 
       LoggingService.instance.info('Metrics monitoring stopped successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to stop metrics monitoring',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to stop metrics monitoring', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -88,12 +82,9 @@ class MetricsMonitor {
         'component': 'metrics_monitor',
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to collect and send metrics',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to collect and send metrics', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -118,12 +109,7 @@ class MetricsMonitor {
         );
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to monitor memory usage',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to monitor memory usage', e, stackTrace, {'component': 'metrics_monitor'});
     }
   }
 
@@ -135,10 +121,7 @@ class MetricsMonitor {
 
       return {
         'memory': memoryInfo,
-        'performance': {
-          'total_operations': performanceStats.length,
-          'operations': performanceStats.keys.toList(),
-        },
+        'performance': {'total_operations': performanceStats.length, 'operations': performanceStats.keys.toList()},
         'timestamp': DateTime.now().toIso8601String(),
         'platform': Platform.operatingSystem,
       };
@@ -164,19 +147,12 @@ class MetricsMonitor {
       };
     } catch (e) {
       LoggingService.instance.error('Failed to get memory info: $e');
-      return {
-        'current_memory_mb': 0,
-        'peak_memory_mb': 0,
-        'error': e.toString(),
-      };
+      return {'current_memory_mb': 0, 'peak_memory_mb': 0, 'error': e.toString()};
     }
   }
 
   /// Envía métricas a Sentry
-  void _sendMetricsToSentry(
-    Map<String, dynamic> performanceStats,
-    Map<String, dynamic> systemMetrics,
-  ) {
+  void _sendMetricsToSentry(Map<String, dynamic> performanceStats, Map<String, dynamic> systemMetrics) {
     try {
       // Enviar breadcrumb con métricas
       Sentry.addBreadcrumb(
@@ -205,12 +181,9 @@ class MetricsMonitor {
         'component': 'metrics_monitor',
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to send metrics to Sentry',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to send metrics to Sentry', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 
@@ -224,8 +197,7 @@ class MetricsMonitor {
         'is_monitoring': _isMonitoring,
         'performance_operations': performanceStats.length,
         'memory_info': memoryInfo,
-        'monitoring_started_at':
-            _isMonitoring ? DateTime.now().toIso8601String() : null,
+        'monitoring_started_at': _isMonitoring ? DateTime.now().toIso8601String() : null,
         'component': 'metrics_monitor',
       };
     } catch (e) {
@@ -241,12 +213,9 @@ class MetricsMonitor {
       _collectAndSendMetrics();
       LoggingService.instance.info('Forced metrics collection completed');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to force metrics collection',
-        e,
-        stackTrace,
-        {'component': 'metrics_monitor'},
-      );
+      LoggingService.instance.error('Failed to force metrics collection', e, stackTrace, {
+        'component': 'metrics_monitor',
+      });
     }
   }
 

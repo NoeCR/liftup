@@ -99,12 +99,11 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
       _selectAutoRoutine(info.selectedRoutine!);
     } else if (routines.isNotEmpty) {
       // Si no hay rutina para hoy, seleccionar la primera disponible
-      LoggingService.instance
-          .info('No routine for today, selecting first available', {
-            'selected_routine_name': routines.first.name,
-            'selected_routine_id': routines.first.id,
-            'component': 'auto_routine_selection_notifier',
-          });
+      LoggingService.instance.info('No routine for today, selecting first available', {
+        'selected_routine_name': routines.first.name,
+        'selected_routine_id': routines.first.id,
+        'component': 'auto_routine_selection_notifier',
+      });
       _selectAutoRoutine(routines.first);
     }
   }
@@ -133,8 +132,6 @@ class AutoRoutineSelectionNotifier extends _$AutoRoutineSelectionNotifier {
     final currentSelection = ref.read(selectedRoutineIdProvider);
     final autoRoutine = state.selectedRoutine;
 
-    return currentSelection != null &&
-        autoRoutine != null &&
-        currentSelection == autoRoutine.id;
+    return currentSelection != null && autoRoutine != null && currentSelection == autoRoutine.id;
   }
 }

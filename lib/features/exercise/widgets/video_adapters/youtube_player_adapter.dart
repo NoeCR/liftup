@@ -12,9 +12,7 @@ class YouTubePlayerAdapter implements VideoPlayerAdapter {
   @override
   Future<void> initialize() async {
     final videoId = YoutubePlayerController.convertUrlToId(url) ?? '';
-    _controller = YoutubePlayerController(
-      params: const YoutubePlayerParams(showFullscreenButton: true),
-    );
+    _controller = YoutubePlayerController(params: const YoutubePlayerParams(showFullscreenButton: true));
     // Preparar sin reproducir automáticamente
     _controller.cueVideoById(videoId: videoId);
     _initialized = true;
@@ -22,11 +20,7 @@ class YouTubePlayerAdapter implements VideoPlayerAdapter {
 
   @override
   Widget buildView(BuildContext context) {
-    return YoutubePlayerScaffold(
-      controller: _controller,
-      aspectRatio: 16 / 9,
-      builder: (context, player) => player,
-    );
+    return YoutubePlayerScaffold(controller: _controller, aspectRatio: 16 / 9, builder: (context, player) => player);
   }
 
   @override

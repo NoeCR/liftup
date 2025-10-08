@@ -38,12 +38,9 @@ class HealthMonitor {
 
       LoggingService.instance.info('Health monitoring started successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to start health monitoring',
-        e,
-        stackTrace,
-        {'component': 'health_monitor'},
-      );
+      LoggingService.instance.error('Failed to start health monitoring', e, stackTrace, {
+        'component': 'health_monitor',
+      });
     }
   }
 
@@ -60,12 +57,7 @@ class HealthMonitor {
 
       LoggingService.instance.info('Health monitoring stopped successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to stop health monitoring',
-        e,
-        stackTrace,
-        {'component': 'health_monitor'},
-      );
+      LoggingService.instance.error('Failed to stop health monitoring', e, stackTrace, {'component': 'health_monitor'});
     }
   }
 
@@ -93,12 +85,7 @@ class HealthMonitor {
         'component': 'health_monitor',
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to perform health check',
-        e,
-        stackTrace,
-        {'component': 'health_monitor'},
-      );
+      LoggingService.instance.error('Failed to perform health check', e, stackTrace, {'component': 'health_monitor'});
     }
   }
 
@@ -116,22 +103,14 @@ class HealthMonitor {
         },
         'monitoring': {
           'is_monitoring': monitoringStats['is_monitoring'] ?? false,
-          'memory_mb':
-              monitoringStats['memory_info']?['current_memory_mb'] ?? 0,
+          'memory_mb': monitoringStats['memory_info']?['current_memory_mb'] ?? 0,
         },
-        'errors': {
-          'error_count': _errorCount,
-          'warning_count': _warningCount,
-          'error_rate': _calculateErrorRate(),
-        },
+        'errors': {'error_count': _errorCount, 'warning_count': _warningCount, 'error_rate': _calculateErrorRate()},
         'timestamp': DateTime.now().toIso8601String(),
       };
     } catch (e) {
       LoggingService.instance.error('Failed to collect health metrics: $e');
-      return {
-        'error': e.toString(),
-        'timestamp': DateTime.now().toIso8601String(),
-      };
+      return {'error': e.toString(), 'timestamp': DateTime.now().toIso8601String()};
     }
   }
 
@@ -249,10 +228,7 @@ class HealthMonitor {
   }
 
   /// Envía reporte de salud
-  void _sendHealthReport(
-    Map<String, dynamic> healthStatus,
-    Map<String, dynamic> healthMetrics,
-  ) {
+  void _sendHealthReport(Map<String, dynamic> healthStatus, Map<String, dynamic> healthMetrics) {
     try {
       final status = healthStatus['status'] as String;
       final severity = healthStatus['severity'] as String;
@@ -306,31 +282,20 @@ class HealthMonitor {
         'component': 'health_monitor',
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to send health report',
-        e,
-        stackTrace,
-        {'component': 'health_monitor'},
-      );
+      LoggingService.instance.error('Failed to send health report', e, stackTrace, {'component': 'health_monitor'});
     }
   }
 
   /// Registra un error
   void recordError() {
     _errorCount++;
-    LoggingService.instance.debug('Error recorded', {
-      'error_count': _errorCount,
-      'component': 'health_monitor',
-    });
+    LoggingService.instance.debug('Error recorded', {'error_count': _errorCount, 'component': 'health_monitor'});
   }
 
   /// Registra una advertencia
   void recordWarning() {
     _warningCount++;
-    LoggingService.instance.debug('Warning recorded', {
-      'warning_count': _warningCount,
-      'component': 'health_monitor',
-    });
+    LoggingService.instance.debug('Warning recorded', {'warning_count': _warningCount, 'component': 'health_monitor'});
   }
 
   /// Obtiene el estado de salud actual
@@ -352,12 +317,7 @@ class HealthMonitor {
       _performHealthCheck();
       LoggingService.instance.info('Forced health check completed');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Failed to force health check',
-        e,
-        stackTrace,
-        {'component': 'health_monitor'},
-      );
+      LoggingService.instance.error('Failed to force health check', e, stackTrace, {'component': 'health_monitor'});
     }
   }
 

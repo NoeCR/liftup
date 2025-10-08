@@ -12,10 +12,7 @@ void main() {
       // Assert
       expect(allTypes.length, 11); // 11 tipos de progresión
       expect(allUnits.length, 3); // 3 unidades (sesión, semana, ciclo)
-      expect(
-        allTargets.length,
-        5,
-      ); // 5 objetivos (peso, reps, sets, volumen, intensidad)
+      expect(allTargets.length, 5); // 5 objetivos (peso, reps, sets, volumen, intensidad)
     });
 
     test('should validate progression type consistency', () {
@@ -24,16 +21,8 @@ void main() {
 
       // Assert - Verificar que cada tipo tiene displayName y description
       for (final type in types) {
-        expect(
-          type.displayNameKey,
-          isNotEmpty,
-          reason: '${type.name} should have displayName',
-        );
-        expect(
-          type.descriptionKey,
-          isNotEmpty,
-          reason: '${type.name} should have description',
-        );
+        expect(type.displayNameKey, isNotEmpty, reason: '${type.name} should have displayName');
+        expect(type.descriptionKey, isNotEmpty, reason: '${type.name} should have description');
       }
     });
 
@@ -43,11 +32,7 @@ void main() {
 
       // Assert - Verificar que cada unidad tiene displayName
       for (final unit in units) {
-        expect(
-          unit.displayNameKey,
-          isNotEmpty,
-          reason: '${unit.name} should have displayName',
-        );
+        expect(unit.displayNameKey, isNotEmpty, reason: '${unit.name} should have displayName');
       }
     });
 
@@ -57,11 +42,7 @@ void main() {
 
       // Assert - Verificar que cada objetivo tiene displayName
       for (final target in targets) {
-        expect(
-          target.displayNameKey,
-          isNotEmpty,
-          reason: '${target.name} should have displayName',
-        );
+        expect(target.displayNameKey, isNotEmpty, reason: '${target.name} should have displayName');
       }
     });
 
@@ -72,16 +53,8 @@ void main() {
       final descriptions = types.map((t) => t.descriptionKey).toList();
 
       // Assert - Verificar que no hay duplicados
-      expect(
-        displayNames.toSet().length,
-        displayNames.length,
-        reason: 'Display names should be unique',
-      );
-      expect(
-        descriptions.toSet().length,
-        descriptions.length,
-        reason: 'Descriptions should be unique',
-      );
+      expect(displayNames.toSet().length, displayNames.length, reason: 'Display names should be unique');
+      expect(descriptions.toSet().length, descriptions.length, reason: 'Descriptions should be unique');
     });
 
     test('should validate progression unit uniqueness', () {
@@ -90,11 +63,7 @@ void main() {
       final displayNames = units.map((u) => u.displayNameKey).toList();
 
       // Assert - Verificar que no hay duplicados
-      expect(
-        displayNames.toSet().length,
-        displayNames.length,
-        reason: 'Display names should be unique',
-      );
+      expect(displayNames.toSet().length, displayNames.length, reason: 'Display names should be unique');
     });
 
     test('should validate progression target uniqueness', () {
@@ -103,11 +72,7 @@ void main() {
       final displayNames = targets.map((t) => t.displayNameKey).toList();
 
       // Assert - Verificar que no hay duplicados
-      expect(
-        displayNames.toSet().length,
-        displayNames.length,
-        reason: 'Display names should be unique',
-      );
+      expect(displayNames.toSet().length, displayNames.length, reason: 'Display names should be unique');
     });
 
     test('should validate progression type enum values', () {
@@ -132,11 +97,7 @@ void main() {
 
     test('should validate progression unit enum values', () {
       // Arrange & Act
-      final expectedUnits = [
-        ProgressionUnit.session,
-        ProgressionUnit.week,
-        ProgressionUnit.cycle,
-      ];
+      final expectedUnits = [ProgressionUnit.session, ProgressionUnit.week, ProgressionUnit.cycle];
 
       // Assert
       expect(ProgressionUnit.values, containsAll(expectedUnits));
@@ -214,54 +175,29 @@ void main() {
 
       // Assert - Verificar que las descripciones son informativas (más de 10 caracteres)
       for (final type in types) {
-        expect(
-          type.descriptionKey.length,
-          greaterThan(10),
-          reason: '${type.name} description should be informative',
-        );
+        expect(type.descriptionKey.length, greaterThan(10), reason: '${type.name} description should be informative');
       }
     });
 
-    test(
-      'should validate progression type descriptions contain key concepts',
-      () {
-        // Arrange & Act
-        final linearDescription = ProgressionType.linear.descriptionKey;
-        final undulatingDescription = ProgressionType.undulating.descriptionKey;
-        final steppedDescription = ProgressionType.stepped.descriptionKey;
-        final doubleDescription = ProgressionType.double.descriptionKey;
-        final waveDescription = ProgressionType.wave.descriptionKey;
-        final staticDescription = ProgressionType.static.descriptionKey;
-        final reverseDescription = ProgressionType.reverse.descriptionKey;
+    test('should validate progression type descriptions contain key concepts', () {
+      // Arrange & Act
+      final linearDescription = ProgressionType.linear.descriptionKey;
+      final undulatingDescription = ProgressionType.undulating.descriptionKey;
+      final steppedDescription = ProgressionType.stepped.descriptionKey;
+      final doubleDescription = ProgressionType.double.descriptionKey;
+      final waveDescription = ProgressionType.wave.descriptionKey;
+      final staticDescription = ProgressionType.static.descriptionKey;
+      final reverseDescription = ProgressionType.reverse.descriptionKey;
 
-        // Assert - Verificar que contienen conceptos clave
-        expect(
-          linearDescription,
-          equals('progression.types.linearDescription'),
-        );
-        expect(
-          undulatingDescription,
-          equals('progression.types.undulatingDescription'),
-        );
-        expect(
-          steppedDescription,
-          equals('progression.types.steppedDescription'),
-        );
-        expect(
-          doubleDescription,
-          equals('progression.types.doubleDescription'),
-        );
-        expect(waveDescription, equals('progression.types.waveDescription'));
-        expect(
-          staticDescription,
-          equals('progression.types.staticDescription'),
-        );
-        expect(
-          reverseDescription,
-          equals('progression.types.reverseDescription'),
-        );
-      },
-    );
+      // Assert - Verificar que contienen conceptos clave
+      expect(linearDescription, equals('progression.types.linearDescription'));
+      expect(undulatingDescription, equals('progression.types.undulatingDescription'));
+      expect(steppedDescription, equals('progression.types.steppedDescription'));
+      expect(doubleDescription, equals('progression.types.doubleDescription'));
+      expect(waveDescription, equals('progression.types.waveDescription'));
+      expect(staticDescription, equals('progression.types.staticDescription'));
+      expect(reverseDescription, equals('progression.types.reverseDescription'));
+    });
 
     test('should validate progression type enum serialization', () {
       // Arrange & Act
@@ -270,14 +206,8 @@ void main() {
       // Assert - Verificar que se pueden serializar/deserializar
       for (final type in types) {
         final serialized = type.name;
-        final deserialized = ProgressionType.values.firstWhere(
-          (t) => t.name == serialized,
-        );
-        expect(
-          deserialized,
-          type,
-          reason: '${type.name} should serialize/deserialize correctly',
-        );
+        final deserialized = ProgressionType.values.firstWhere((t) => t.name == serialized);
+        expect(deserialized, type, reason: '${type.name} should serialize/deserialize correctly');
       }
     });
 
@@ -288,14 +218,8 @@ void main() {
       // Assert - Verificar que se pueden serializar/deserializar
       for (final unit in units) {
         final serialized = unit.name;
-        final deserialized = ProgressionUnit.values.firstWhere(
-          (u) => u.name == serialized,
-        );
-        expect(
-          deserialized,
-          unit,
-          reason: '${unit.name} should serialize/deserialize correctly',
-        );
+        final deserialized = ProgressionUnit.values.firstWhere((u) => u.name == serialized);
+        expect(deserialized, unit, reason: '${unit.name} should serialize/deserialize correctly');
       }
     });
 
@@ -306,14 +230,8 @@ void main() {
       // Assert - Verificar que se pueden serializar/deserializar
       for (final target in targets) {
         final serialized = target.name;
-        final deserialized = ProgressionTarget.values.firstWhere(
-          (t) => t.name == serialized,
-        );
-        expect(
-          deserialized,
-          target,
-          reason: '${target.name} should serialize/deserialize correctly',
-        );
+        final deserialized = ProgressionTarget.values.firstWhere((t) => t.name == serialized);
+        expect(deserialized, target, reason: '${target.name} should serialize/deserialize correctly');
       }
     });
 

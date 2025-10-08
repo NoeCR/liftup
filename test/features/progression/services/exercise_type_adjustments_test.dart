@@ -28,12 +28,7 @@ void main() {
         currentWeight: 50,
         proposedWeight: 51.5,
         proposedReps: 5,
-        custom: const {
-          'iso_increment_min': 1.25,
-          'iso_increment_max': 2.5,
-          'iso_reps_min': 8,
-          'iso_reps_max': 12,
-        },
+        custom: const {'iso_increment_min': 1.25, 'iso_increment_max': 2.5, 'iso_reps_min': 8, 'iso_reps_max': 12},
         incrementApplied: true,
       );
       expect(res['weight'], closeTo(51.25, 0.0001));

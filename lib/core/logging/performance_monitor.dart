@@ -5,8 +5,7 @@ import 'logging_service.dart';
 /// Servicio para monitorear el rendimiento de operaciones críticas
 class PerformanceMonitor {
   static PerformanceMonitor? _instance;
-  static PerformanceMonitor get instance =>
-      _instance ??= PerformanceMonitor._();
+  static PerformanceMonitor get instance => _instance ??= PerformanceMonitor._();
 
   PerformanceMonitor._();
 
@@ -15,14 +14,10 @@ class PerformanceMonitor {
 
   /// Inicia el monitoreo de una operación
   String startOperation(String operationName, {Map<String, dynamic>? context}) {
-    final operationId =
-        '${operationName}_${DateTime.now().millisecondsSinceEpoch}';
+    final operationId = '${operationName}_${DateTime.now().millisecondsSinceEpoch}';
     _startTimes[operationId] = DateTime.now();
 
-    LoggingService.instance.debug('Started operation: $operationName', {
-      'operation_id': operationId,
-      ...?context,
-    });
+    LoggingService.instance.debug('Started operation: $operationName', {'operation_id': operationId, ...?context});
 
     // Añadir breadcrumb para Sentry
     LoggingService.instance.addBreadcrumb(
@@ -61,11 +56,7 @@ class PerformanceMonitor {
       'Completed operation: $operationName',
       category: 'performance',
       level: SentryLevel.info,
-      data: {
-        'operation_id': operationId,
-        'duration_ms': duration.inMilliseconds,
-        ...?context,
-      },
+      data: {'operation_id': operationId, 'duration_ms': duration.inMilliseconds, ...?context},
     );
 
     // Enviar métrica a Sentry si la operación es lenta
@@ -75,11 +66,7 @@ class PerformanceMonitor {
   }
 
   /// Envía métrica de operación lenta a Sentry
-  void _sendSlowOperationMetric(
-    String operationName,
-    Duration duration,
-    Map<String, dynamic>? context,
-  ) {
+  void _sendSlowOperationMetric(String operationName, Duration duration, Map<String, dynamic>? context) {
     try {
       Sentry.addBreadcrumb(
         Breadcrumb(
@@ -96,9 +83,7 @@ class PerformanceMonitor {
         ),
       );
     } catch (e) {
-      LoggingService.instance.warning(
-        'Failed to send slow operation metric: $e',
-      );
+      LoggingService.instance.warning('Failed to send slow operation metric: $e');
     }
   }
 
@@ -106,22 +91,12 @@ class PerformanceMonitor {
   Map<String, dynamic> getOperationStats(String operationName) {
     final times = _operationTimes[operationName];
     if (times == null || times.isEmpty) {
-      return {
-        'operation_name': operationName,
-        'count': 0,
-        'average_ms': 0,
-        'min_ms': 0,
-        'max_ms': 0,
-      };
+      return {'operation_name': operationName, 'count': 0, 'average_ms': 0, 'min_ms': 0, 'max_ms': 0};
     }
 
     final totalMs = times.map((d) => d.inMilliseconds).reduce((a, b) => a + b);
-    final minMs = times
-        .map((d) => d.inMilliseconds)
-        .reduce((a, b) => a < b ? a : b);
-    final maxMs = times
-        .map((d) => d.inMilliseconds)
-        .reduce((a, b) => a > b ? a : b);
+    final minMs = times.map((d) => d.inMilliseconds).reduce((a, b) => a < b ? a : b);
+    final maxMs = times.map((d) => d.inMilliseconds).reduce((a, b) => a > b ? a : b);
 
     return {
       'operation_name': operationName,
@@ -161,27 +136,15 @@ class PerformanceMonitor {
       endOperation(operationId, context: context);
       return result;
     } catch (e, stackTrace) {
-      endOperation(
-        operationId,
-        context: {...?context, 'error': e.toString(), 'failed': true},
-      );
+      endOperation(operationId, context: {...?context, 'error': e.toString(), 'failed': true});
 
-      LoggingService.instance.error(
-        'Operation failed: $operationName',
-        e,
-        stackTrace,
-        context,
-      );
+      LoggingService.instance.error('Operation failed: $operationName', e, stackTrace, context);
       rethrow;
     }
   }
 
   /// Monitorea una operación síncrona
-  T monitorSync<T>(
-    String operationName,
-    T Function() operation, {
-    Map<String, dynamic>? context,
-  }) {
+  T monitorSync<T>(String operationName, T Function() operation, {Map<String, dynamic>? context}) {
     final operationId = startOperation(operationName, context: context);
 
     try {
@@ -189,17 +152,9 @@ class PerformanceMonitor {
       endOperation(operationId, context: context);
       return result;
     } catch (e, stackTrace) {
-      endOperation(
-        operationId,
-        context: {...?context, 'error': e.toString(), 'failed': true},
-      );
+      endOperation(operationId, context: {...?context, 'error': e.toString(), 'failed': true});
 
-      LoggingService.instance.error(
-        'Operation failed: $operationName',
-        e,
-        stackTrace,
-        context,
-      );
+      LoggingService.instance.error('Operation failed: $operationName', e, stackTrace, context);
       rethrow;
     }
   }
@@ -212,10 +167,7 @@ class PerformanceMonitor {
 
       LoggingService.instance.info('Sending performance report', {
         'operations_count': stats.length,
-        'total_operations': stats.values.fold(
-          0,
-          (sum, stat) => sum + (stat['count'] as int),
-        ),
+        'total_operations': stats.values.fold(0, (sum, stat) => sum + (stat['count'] as int)),
       });
 
       // Enviar cada estadística como un evento personalizado

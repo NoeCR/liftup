@@ -88,17 +88,10 @@ class SharedRoutine extends Equatable {
       ownerId: json['ownerId'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
-      visibility: RoutineVisibility.values.firstWhere(
-        (e) => e.name == json['visibility'],
-      ),
-      status: SharedRoutineStatus.values.firstWhere(
-        (e) => e.name == json['status'],
-      ),
+      visibility: RoutineVisibility.values.firstWhere((e) => e.name == json['visibility']),
+      status: SharedRoutineStatus.values.firstWhere((e) => e.name == json['status']),
       createdAt: DateTime.parse(json['createdAt'] as String),
-      expiresAt:
-          json['expiresAt'] != null
-              ? DateTime.parse(json['expiresAt'] as String)
-              : null,
+      expiresAt: json['expiresAt'] != null ? DateTime.parse(json['expiresAt'] as String) : null,
       viewCount: json['viewCount'] as int,
       downloadCount: json['downloadCount'] as int,
       tags: List<String>.from(json['tags'] as List),
@@ -149,20 +142,12 @@ class ShareResult extends Equatable {
   final String? shareUrl;
   final String? errorMessage;
 
-  const ShareResult({
-    required this.success,
-    this.shareId,
-    this.shareUrl,
-    this.errorMessage,
-  });
+  const ShareResult({required this.success, this.shareId, this.shareUrl, this.errorMessage});
 
   @override
   List<Object?> get props => [success, shareId, shareUrl, errorMessage];
 
-  factory ShareResult.success({
-    required String shareId,
-    required String shareUrl,
-  }) {
+  factory ShareResult.success({required String shareId, required String shareUrl}) {
     return ShareResult(success: true, shareId: shareId, shareUrl: shareUrl);
   }
 
@@ -192,15 +177,7 @@ class ShareConfig extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-    title,
-    description,
-    visibility,
-    expiresAt,
-    tags,
-    allowDownload,
-    allowComments,
-  ];
+  List<Object?> get props => [title, description, visibility, expiresAt, tags, allowDownload, allowComments];
 
   ShareConfig copyWith({
     String? title,

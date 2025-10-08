@@ -51,19 +51,13 @@ class _ExerciseVideoPlayerState extends State<ExerciseVideoPlayer> {
     if (_loading) {
       return const Padding(
         padding: EdgeInsets.only(bottom: 24),
-        child: SizedBox(
-          height: 200,
-          child: Center(child: CircularProgressIndicator()),
-        ),
+        child: SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
       );
     }
     if (_error != null) {
       return const Padding(
         padding: EdgeInsets.only(bottom: 24),
-        child: SizedBox(
-          height: 200,
-          child: Center(child: Icon(Icons.error_outline)),
-        ),
+        child: SizedBox(height: 200, child: Center(child: Icon(Icons.error_outline))),
       );
     }
 
@@ -76,9 +70,7 @@ class _ExerciseVideoPlayerState extends State<ExerciseVideoPlayer> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Container(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              ),
+              Container(color: Theme.of(context).colorScheme.surfaceContainerHighest),
               Center(
                 child: ElevatedButton.icon(
                   onPressed: _setup,
@@ -95,17 +87,11 @@ class _ExerciseVideoPlayerState extends State<ExerciseVideoPlayer> {
     if (_adapter == null || !_adapter!.isInitialized) {
       return const Padding(
         padding: EdgeInsets.only(bottom: 24),
-        child: SizedBox(
-          height: 200,
-          child: Center(child: CircularProgressIndicator()),
-        ),
+        child: SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: _adapter!.buildView(context),
-    );
+    return Padding(padding: const EdgeInsets.only(bottom: 24), child: _adapter!.buildView(context));
   }
 }
 

@@ -8,16 +8,11 @@ import 'dart:async' as _i7;
 import 'package:flutter_riverpod/flutter_riverpod.dart' as _i2;
 import 'package:liftly/common/enums/progression_type_enum.dart' as _i10;
 import 'package:liftly/features/exercise/models/exercise.dart' as _i9;
-import 'package:liftly/features/progression/models/progression_calculation_result.dart'
-    as _i4;
-import 'package:liftly/features/progression/models/progression_config.dart'
-    as _i5;
-import 'package:liftly/features/progression/models/progression_state.dart'
-    as _i6;
-import 'package:liftly/features/progression/models/progression_template.dart'
-    as _i8;
-import 'package:liftly/features/progression/services/progression_service.dart'
-    as _i3;
+import 'package:liftly/features/progression/models/progression_calculation_result.dart' as _i4;
+import 'package:liftly/features/progression/models/progression_config.dart' as _i5;
+import 'package:liftly/features/progression/models/progression_state.dart' as _i6;
+import 'package:liftly/features/progression/models/progression_template.dart' as _i8;
+import 'package:liftly/features/progression/services/progression_service.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -34,45 +29,30 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeAutoDisposeNotifierProviderRef_0<T> extends _i1.SmartFake
-    implements _i2.AutoDisposeNotifierProviderRef<T> {
-  _FakeAutoDisposeNotifierProviderRef_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(parent, parentInvocation);
+class _FakeAutoDisposeNotifierProviderRef_0<T> extends _i1.SmartFake implements _i2.AutoDisposeNotifierProviderRef<T> {
+  _FakeAutoDisposeNotifierProviderRef_0(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionService_1 extends _i1.SmartFake
-    implements _i3.ProgressionService {
-  _FakeProgressionService_1(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+class _FakeProgressionService_1 extends _i1.SmartFake implements _i3.ProgressionService {
+  _FakeProgressionService_1(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionCalculationResult_2 extends _i1.SmartFake
-    implements _i4.ProgressionCalculationResult {
-  _FakeProgressionCalculationResult_2(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(parent, parentInvocation);
+class _FakeProgressionCalculationResult_2 extends _i1.SmartFake implements _i4.ProgressionCalculationResult {
+  _FakeProgressionCalculationResult_2(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionConfig_3 extends _i1.SmartFake
-    implements _i5.ProgressionConfig {
-  _FakeProgressionConfig_3(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+class _FakeProgressionConfig_3 extends _i1.SmartFake implements _i5.ProgressionConfig {
+  _FakeProgressionConfig_3(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionState_4 extends _i1.SmartFake
-    implements _i6.ProgressionState {
-  _FakeProgressionState_4(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+class _FakeProgressionState_4 extends _i1.SmartFake implements _i6.ProgressionState {
+  _FakeProgressionState_4(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
 /// A class which mocks [ProgressionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProgressionService extends _i1.Mock
-    implements _i3.ProgressionService {
+class MockProgressionService extends _i1.Mock implements _i3.ProgressionService {
   MockProgressionService() {
     _i1.throwOnMissingStub(this);
   }
@@ -81,11 +61,7 @@ class MockProgressionService extends _i1.Mock
   _i2.AutoDisposeNotifierProviderRef<_i3.ProgressionService> get ref =>
       (super.noSuchMethod(
             Invocation.getter(#ref),
-            returnValue:
-                _FakeAutoDisposeNotifierProviderRef_0<_i3.ProgressionService>(
-                  this,
-                  Invocation.getter(#ref),
-                ),
+            returnValue: _FakeAutoDisposeNotifierProviderRef_0<_i3.ProgressionService>(this, Invocation.getter(#ref)),
           )
           as _i2.AutoDisposeNotifierProviderRef<_i3.ProgressionService>);
 
@@ -93,27 +69,19 @@ class MockProgressionService extends _i1.Mock
   _i3.ProgressionService get state =>
       (super.noSuchMethod(
             Invocation.getter(#state),
-            returnValue: _FakeProgressionService_1(
-              this,
-              Invocation.getter(#state),
-            ),
+            returnValue: _FakeProgressionService_1(this, Invocation.getter(#state)),
           )
           as _i3.ProgressionService);
 
   @override
-  set state(_i3.ProgressionService? value) => super.noSuchMethod(
-    Invocation.setter(#state, value),
-    returnValueForMissingStub: null,
-  );
+  set state(_i3.ProgressionService? value) =>
+      super.noSuchMethod(Invocation.setter(#state, value), returnValueForMissingStub: null);
 
   @override
   _i3.ProgressionService build() =>
       (super.noSuchMethod(
             Invocation.method(#build, []),
-            returnValue: _FakeProgressionService_1(
-              this,
-              Invocation.method(#build, []),
-            ),
+            returnValue: _FakeProgressionService_1(this, Invocation.method(#build, [])),
           )
           as _i3.ProgressionService);
 
@@ -146,9 +114,7 @@ class MockProgressionService extends _i1.Mock
   _i7.Future<List<_i5.ProgressionConfig>> getAllProgressionConfigs() =>
       (super.noSuchMethod(
             Invocation.method(#getAllProgressionConfigs, []),
-            returnValue: _i7.Future<List<_i5.ProgressionConfig>>.value(
-              <_i5.ProgressionConfig>[],
-            ),
+            returnValue: _i7.Future<List<_i5.ProgressionConfig>>.value(<_i5.ProgressionConfig>[]),
           )
           as _i7.Future<List<_i5.ProgressionConfig>>);
 
@@ -188,28 +154,18 @@ class MockProgressionService extends _i1.Mock
           as _i7.Future<_i6.ProgressionState?>);
 
   @override
-  _i7.Future<_i6.ProgressionState?> getProgressionStateByExercise(
-    String? configId,
-    String? exerciseId,
-  ) =>
+  _i7.Future<_i6.ProgressionState?> getProgressionStateByExercise(String? configId, String? exerciseId) =>
       (super.noSuchMethod(
-            Invocation.method(#getProgressionStateByExercise, [
-              configId,
-              exerciseId,
-            ]),
+            Invocation.method(#getProgressionStateByExercise, [configId, exerciseId]),
             returnValue: _i7.Future<_i6.ProgressionState?>.value(),
           )
           as _i7.Future<_i6.ProgressionState?>);
 
   @override
-  _i7.Future<List<_i6.ProgressionState>> getProgressionStatesByConfig(
-    String? configId,
-  ) =>
+  _i7.Future<List<_i6.ProgressionState>> getProgressionStatesByConfig(String? configId) =>
       (super.noSuchMethod(
             Invocation.method(#getProgressionStatesByConfig, [configId]),
-            returnValue: _i7.Future<List<_i6.ProgressionState>>.value(
-              <_i6.ProgressionState>[],
-            ),
+            returnValue: _i7.Future<List<_i6.ProgressionState>>.value(<_i6.ProgressionState>[]),
           )
           as _i7.Future<List<_i6.ProgressionState>>);
 
@@ -226,16 +182,12 @@ class MockProgressionService extends _i1.Mock
   _i7.Future<List<_i8.ProgressionTemplate>> getAllProgressionTemplates() =>
       (super.noSuchMethod(
             Invocation.method(#getAllProgressionTemplates, []),
-            returnValue: _i7.Future<List<_i8.ProgressionTemplate>>.value(
-              <_i8.ProgressionTemplate>[],
-            ),
+            returnValue: _i7.Future<List<_i8.ProgressionTemplate>>.value(<_i8.ProgressionTemplate>[]),
           )
           as _i7.Future<List<_i8.ProgressionTemplate>>);
 
   @override
-  _i7.Future<_i8.ProgressionTemplate?> getProgressionTemplate(
-    String? templateId,
-  ) =>
+  _i7.Future<_i8.ProgressionTemplate?> getProgressionTemplate(String? templateId) =>
       (super.noSuchMethod(
             Invocation.method(#getProgressionTemplate, [templateId]),
             returnValue: _i7.Future<_i8.ProgressionTemplate?>.value(),
@@ -262,13 +214,7 @@ class MockProgressionService extends _i1.Mock
                 this,
                 Invocation.method(
                   #calculateProgression,
-                  [
-                    configId,
-                    exerciseId,
-                    currentWeight,
-                    currentReps,
-                    currentSets,
-                  ],
+                  [configId, exerciseId, currentWeight, currentReps, currentSets],
                   {#exerciseType: exerciseType},
                 ),
               ),
@@ -369,13 +315,6 @@ class MockProgressionService extends _i1.Mock
   );
 
   @override
-  bool updateShouldNotify(
-    _i3.ProgressionService? previous,
-    _i3.ProgressionService? next,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#updateShouldNotify, [previous, next]),
-            returnValue: false,
-          )
-          as bool);
+  bool updateShouldNotify(_i3.ProgressionService? previous, _i3.ProgressionService? next) =>
+      (super.noSuchMethod(Invocation.method(#updateShouldNotify, [previous, next]), returnValue: false) as bool);
 }

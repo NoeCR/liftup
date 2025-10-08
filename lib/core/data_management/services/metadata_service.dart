@@ -17,9 +17,7 @@ class MetadataService {
   }
 
   /// Creates export metadata with real data
-  Future<ExportMetadata> createExportMetadata({
-    Map<String, dynamic>? customData,
-  }) async {
+  Future<ExportMetadata> createExportMetadata({Map<String, dynamic>? customData}) async {
     if (_packageInfo == null) {
       await initialize();
     }

@@ -44,6 +44,13 @@ El archivo `.vscode/settings.json` está configurado para formatear automáticam
 ## Pre-commit Hook
 También hay un pre-commit hook configurado que formatea automáticamente el código antes de cada commit.
 
+## Formateo Manual
+Si necesitas formatear manualmente:
+```cmd
+.\scripts\format.bat
+```
+
 ## Recomendación
 - **Para Windows**: Usa `.\scripts\commit.bat "mensaje"` para commits rápidos y consistentes
 - **Para otros sistemas**: Usa `git commit-format "mensaje"` o configura tu editor para formatear automáticamente al guardar
+- **VS Code**: Configurado para formatear automáticamente al guardar archivos Dart

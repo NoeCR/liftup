@@ -12,9 +12,7 @@ class ProgressService {
   ProgressService._();
 
   /// Genera datos de progreso a partir de las sesiones de entrenamiento
-  Future<List<ProgressData>> generateProgressFromSessions(
-    List<WorkoutSession> sessions,
-  ) async {
+  Future<List<ProgressData>> generateProgressFromSessions(List<WorkoutSession> sessions) async {
     final progressData = <ProgressData>[];
     final uuid = const Uuid();
 
@@ -22,17 +20,11 @@ class ProgressService {
     final exerciseDataByDate = <String, Map<DateTime, List<ExerciseSet>>>{};
 
     for (final session in sessions) {
-      final sessionDate = DateTime(
-        session.startTime.year,
-        session.startTime.month,
-        session.startTime.day,
-      );
+      final sessionDate = DateTime(session.startTime.year, session.startTime.month, session.startTime.day);
 
       for (final set in session.exerciseSets) {
         exerciseDataByDate.putIfAbsent(set.exerciseId, () => {});
-        exerciseDataByDate[set.exerciseId]!
-            .putIfAbsent(sessionDate, () => [])
-            .add(set);
+        exerciseDataByDate[set.exerciseId]!.putIfAbsent(sessionDate, () => []).add(set);
       }
     }
 
@@ -47,30 +39,20 @@ class ProgressService {
         if (sets.isEmpty) continue;
 
         // Calcular métricas
-        final maxWeight = sets
-            .map((s) => s.weight)
-            .reduce((a, b) => a > b ? a : b);
+        final maxWeight = sets.map((s) => s.weight).reduce((a, b) => a > b ? a : b);
         final totalReps = sets.map((s) => s.reps).reduce((a, b) => a + b);
         final totalSets = sets.length;
-        final totalVolume = sets
-            .map((s) => s.weight * s.reps)
-            .reduce((a, b) => a + b);
+        final totalVolume = sets.map((s) => s.weight * s.reps).reduce((a, b) => a + b);
 
         // Calcular duración aproximada (basada en el tiempo de la sesión)
         final sessionForDate = sessions.firstWhere(
-          (s) => DateTime(
-            s.startTime.year,
-            s.startTime.month,
-            s.startTime.day,
-          ).isAtSameMomentAs(date),
+          (s) => DateTime(s.startTime.year, s.startTime.month, s.startTime.day).isAtSameMomentAs(date),
           orElse: () => sessions.first,
         );
 
         Duration? duration;
         if (sessionForDate.endTime != null) {
-          duration = sessionForDate.endTime!.difference(
-            sessionForDate.startTime,
-          );
+          duration = sessionForDate.endTime!.difference(sessionForDate.startTime);
         }
 
         final progress = ProgressData(
@@ -101,8 +83,7 @@ class ProgressService {
 
     for (final progress in progressData) {
       // Usar una clave compuesta para evitar duplicados
-      final key =
-          '${progress.exerciseId}_${progress.date.millisecondsSinceEpoch}';
+      final key = '${progress.exerciseId}_${progress.date.millisecondsSinceEpoch}';
       await progressBox.put(key, progress);
     }
   }
@@ -121,10 +102,7 @@ class ProgressService {
   }
 
   /// Obtiene datos de progreso en un rango de fechas
-  Future<List<ProgressData>> getProgressInDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
+  Future<List<ProgressData>> getProgressInDateRange(DateTime startDate, DateTime endDate) async {
     final allProgress = await getAllProgressData();
     return allProgress.where((p) {
       return p.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
@@ -140,9 +118,7 @@ class ProgressService {
   }
 
   /// Actualiza los datos de progreso basándose en las sesiones actuales
-  Future<List<ProgressData>> refreshProgressData(
-    List<WorkoutSession> sessions,
-  ) async {
+  Future<List<ProgressData>> refreshProgressData(List<WorkoutSession> sessions) async {
     // Limpiar datos existentes
     await clearAllProgressData();
 

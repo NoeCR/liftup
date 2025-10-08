@@ -56,9 +56,7 @@ class RoutineSectionTemplateNotifier extends _$RoutineSectionTemplateNotifier {
     ref.invalidateSelf();
   }
 
-  Future<void> reorderSectionTemplates(
-    List<RoutineSectionTemplate> templates,
-  ) async {
+  Future<void> reorderSectionTemplates(List<RoutineSectionTemplate> templates) async {
     final service = ref.read(routineSectionTemplateServiceProvider.notifier);
     await service.reorderSectionTemplates(templates);
     ref.invalidateSelf();

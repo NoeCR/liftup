@@ -10,12 +10,10 @@ class ProgressionSelectionPage extends ConsumerStatefulWidget {
   const ProgressionSelectionPage({super.key});
 
   @override
-  ConsumerState<ProgressionSelectionPage> createState() =>
-      _ProgressionSelectionPageState();
+  ConsumerState<ProgressionSelectionPage> createState() => _ProgressionSelectionPageState();
 }
 
-class _ProgressionSelectionPageState
-    extends ConsumerState<ProgressionSelectionPage> {
+class _ProgressionSelectionPageState extends ConsumerState<ProgressionSelectionPage> {
   ProgressionType? _selectedType;
   String? _selectedDifficulty;
   final List<String> _difficulties = ['Principiante', 'Intermedio', 'Avanzado'];
@@ -31,10 +29,7 @@ class _ProgressionSelectionPageState
         backgroundColor: colorScheme.surface,
         actions: [
           if (_selectedType != null)
-            TextButton(
-              onPressed: () => _navigateToConfiguration(),
-              child: const Text('Siguiente'),
-            ),
+            TextButton(onPressed: () => _navigateToConfiguration(), child: const Text('Siguiente')),
         ],
       ),
       body: Column(
@@ -56,21 +51,12 @@ class _ProgressionSelectionPageState
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest,
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outline.withValues(alpha: 0.2),
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Filtrar por dificultad:',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Filtrar por dificultad:', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -112,9 +98,7 @@ class _ProgressionSelectionPageState
             // Filter templates by difficulty if selected
             final filteredTemplates =
                 _selectedDifficulty != null
-                    ? templates
-                        .where((t) => t.difficulty == _selectedDifficulty)
-                        .toList()
+                    ? templates.where((t) => t.difficulty == _selectedDifficulty).toList()
                     : templates;
 
             if (filteredTemplates.isEmpty) {
@@ -168,27 +152,20 @@ class _ProgressionSelectionPageState
                           template.name,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color:
-                                isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                    : null,
+                            color: isSelected ? colorScheme.onPrimaryContainer : null,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           template.description,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color:
-                                isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                    : null,
+                            color: isSelected ? colorScheme.onPrimaryContainer : null,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  if (isSelected)
-                    Icon(Icons.check_circle, color: colorScheme.primary),
+                  if (isSelected) Icon(Icons.check_circle, color: colorScheme.primary),
                 ],
               ),
               const SizedBox(height: 12),
@@ -198,17 +175,10 @@ class _ProgressionSelectionPageState
                 spacing: 8,
                 runSpacing: 4,
                 children: [
-                  _buildInfoChip(
-                    template.difficulty,
-                    _getDifficultyColor(template.difficulty),
-                  ),
-                  _buildInfoChip(
-                    context.tr(template.type.displayNameKey),
-                    colorScheme.secondary,
-                  ),
+                  _buildInfoChip(template.difficulty, _getDifficultyColor(template.difficulty)),
+                  _buildInfoChip(context.tr(template.type.displayNameKey), colorScheme.secondary),
                   ...template.recommendedFor.map(
-                    (recommendation) =>
-                        _buildInfoChip(recommendation, colorScheme.tertiary),
+                    (recommendation) => _buildInfoChip(recommendation, colorScheme.tertiary),
                   ),
                 ],
               ),
@@ -219,20 +189,13 @@ class _ProgressionSelectionPageState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.5,
-                  ),
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Ejemplo:',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text('Ejemplo:', style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(template.example, style: theme.textTheme.bodySmall),
                   ],
@@ -253,14 +216,7 @@ class _ProgressionSelectionPageState
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      child: Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500)),
     );
   }
 
@@ -284,24 +240,16 @@ class _ProgressionSelectionPageState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.fitness_center,
-            size: 64,
-            color: theme.colorScheme.outline,
-          ),
+          Icon(Icons.fitness_center, size: 64, color: theme.colorScheme.outline),
           const SizedBox(height: 16),
           Text(
             'No se encontraron plantillas',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.outline),
           ),
           const SizedBox(height: 8),
           Text(
             'Intenta cambiar los filtros de búsqueda',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
           ),
         ],
       ),
@@ -318,16 +266,12 @@ class _ProgressionSelectionPageState
           const SizedBox(height: 16),
           Text(
             'Error al cargar plantillas',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.error,
-            ),
+            style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.error),
           ),
           const SizedBox(height: 8),
           Text(
             error,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.error,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error),
             textAlign: TextAlign.center,
           ),
         ],
@@ -337,10 +281,7 @@ class _ProgressionSelectionPageState
 
   void _navigateToConfiguration() {
     if (_selectedType != null) {
-      context.push(
-        '/progression-configuration',
-        extra: {'progressionType': _selectedType!},
-      );
+      context.push('/progression-configuration', extra: {'progressionType': _selectedType!});
     }
   }
 }

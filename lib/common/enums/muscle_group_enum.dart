@@ -344,9 +344,7 @@ extension MuscleGroupExtension on MuscleGroup {
   }
 
   static List<MuscleGroup> getByCategory(String category) {
-    return MuscleGroup.values
-        .where((muscle) => muscle.category == category)
-        .toList();
+    return MuscleGroup.values.where((muscle) => muscle.category == category).toList();
   }
 
   static List<String> get allCategories => [

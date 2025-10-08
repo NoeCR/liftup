@@ -40,28 +40,21 @@ class ExerciseService extends _$ExerciseService {
     // Check whether cache is valid
     if (_cachedExercises != null &&
         _lastCacheUpdate != null &&
-        now.difference(_lastCacheUpdate!).compareTo(_cacheValidityDuration) <
-            0) {
+        now.difference(_lastCacheUpdate!).compareTo(_cacheValidityDuration) < 0) {
       return _cachedExercises!;
     }
 
     // Actualizar cache
     final box = _box;
-    _cachedExercises =
-        box.values.cast<Exercise>().toList()
-          ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    _cachedExercises = box.values.cast<Exercise>().toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     _lastCacheUpdate = now;
 
     return _cachedExercises!;
   }
 
-  Future<List<Exercise>> getExercisesByCategory(
-    ExerciseCategory category,
-  ) async {
+  Future<List<Exercise>> getExercisesByCategory(ExerciseCategory category) async {
     final allExercises = await getAllExercises();
-    return allExercises
-        .where((exercise) => exercise.category == category)
-        .toList();
+    return allExercises.where((exercise) => exercise.category == category).toList();
   }
 
   Future<List<Exercise>> searchExercises(String query) async {

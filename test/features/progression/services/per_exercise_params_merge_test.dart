@@ -17,10 +17,7 @@ void main() {
         },
       };
 
-      final merged = buildMergedCustomForExercise(
-        globalCustom: global,
-        exerciseId: exerciseId,
-      );
+      final merged = buildMergedCustomForExercise(globalCustom: global, exerciseId: exerciseId);
 
       expect(merged['multi_increment_min'], 3.0); // override
       expect(merged['multi_increment_max'], 5.0); // global
@@ -40,10 +37,7 @@ void main() {
         },
       };
 
-      final merged = buildMergedCustomForExercise(
-        globalCustom: global,
-        exerciseId: exerciseId,
-      );
+      final merged = buildMergedCustomForExercise(globalCustom: global, exerciseId: exerciseId);
 
       expect(merged['multi_increment_min'], 3.0);
       expect(merged['multi_increment_max'], 5.0);
@@ -68,10 +62,7 @@ void main() {
         'iso_reps_max': 12,
       };
 
-      final merged = buildMergedCustomForExercise(
-        globalCustom: global,
-        exerciseId: exerciseId,
-      );
+      final merged = buildMergedCustomForExercise(globalCustom: global, exerciseId: exerciseId);
 
       expect(merged['iso_increment_min'], 1.25);
       expect(merged['iso_increment_max'], 2.5);
@@ -79,25 +70,19 @@ void main() {
       expect(merged['iso_reps_max'], 12);
     });
 
-    test(
-      'si per_exercise no tiene entrada para el ejercicio, usa globales',
-      () {
-        const exerciseId = 'ex-3';
-        final global = <String, dynamic>{
-          'multi_increment_min': 2.5,
-          'per_exercise': {
-            'otro': {'multi_increment_min': 4.0},
-          },
-        };
+    test('si per_exercise no tiene entrada para el ejercicio, usa globales', () {
+      const exerciseId = 'ex-3';
+      final global = <String, dynamic>{
+        'multi_increment_min': 2.5,
+        'per_exercise': {
+          'otro': {'multi_increment_min': 4.0},
+        },
+      };
 
-        final merged = buildMergedCustomForExercise(
-          globalCustom: global,
-          exerciseId: exerciseId,
-        );
+      final merged = buildMergedCustomForExercise(globalCustom: global, exerciseId: exerciseId);
 
-        expect(merged['multi_increment_min'], 2.5);
-      },
-    );
+      expect(merged['multi_increment_min'], 2.5);
+    });
   });
 
   group('debugAdjustByExerciseType con merged params', () {
@@ -121,12 +106,7 @@ void main() {
     });
 
     test('fallback a global si no hay overrides (isolation)', () {
-      final global = {
-        'iso_increment_min': 1.25,
-        'iso_increment_max': 2.5,
-        'iso_reps_min': 8,
-        'iso_reps_max': 12,
-      };
+      final global = {'iso_increment_min': 1.25, 'iso_increment_max': 2.5, 'iso_reps_min': 8, 'iso_reps_max': 12};
       final result = debugAdjustByExerciseType(
         exerciseType: ExerciseType.isolation,
         currentWeight: 20,

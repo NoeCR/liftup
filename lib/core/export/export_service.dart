@@ -27,9 +27,7 @@ class CSVExportService extends ExportService {
     required List<ProgressData> progressData,
   }) async {
     final directory = await getApplicationDocumentsDirectory();
-    final file = File(
-      '${directory.path}/liftly_data_${DateTime.now().millisecondsSinceEpoch}.csv',
-    );
+    final file = File('${directory.path}/liftly_data_${DateTime.now().millisecondsSinceEpoch}.csv');
 
     final csvContent = StringBuffer();
 
@@ -47,9 +45,7 @@ class CSVExportService extends ExportService {
     // Exercises
     csvContent.writeln('Ejercicios,${exercises.length}');
     for (final exercise in exercises) {
-      csvContent.writeln(
-        'Ejercicio,${exercise.name},${exercise.category},${exercise.difficulty}',
-      );
+      csvContent.writeln('Ejercicio,${exercise.name},${exercise.category},${exercise.difficulty}');
     }
 
     // Routines
@@ -90,19 +86,13 @@ class PDFExportService extends ExportService {
               level: 0,
               child: pw.Text(
                 'Reporte de Progreso - Liftly',
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
-                ),
+                style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
               ),
             ),
             pw.SizedBox(height: 20),
 
             // Summary
-            pw.Text(
-              'Resumen General',
-              style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold),
-            ),
+            pw.Text('Resumen General', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 10),
             pw.Text('Total de sesiones: ${sessions.length}'),
             pw.Text('Total de ejercicios: ${exercises.length}'),
@@ -111,10 +101,7 @@ class PDFExportService extends ExportService {
             pw.SizedBox(height: 20),
 
             // Sessions
-            pw.Text(
-              'Sesiones de Entrenamiento',
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-            ),
+            pw.Text('Sesiones de Entrenamiento', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 10),
             ...sessions.map(
               (session) => pw.Text(
@@ -124,15 +111,10 @@ class PDFExportService extends ExportService {
             pw.SizedBox(height: 20),
 
             // Exercises
-            pw.Text(
-              'Ejercicios',
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
-            ),
+            pw.Text('Ejercicios', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 10),
             ...exercises.map(
-              (exercise) => pw.Text(
-                '${exercise.name} - ${exercise.category.name} - ${exercise.difficulty.name}',
-              ),
+              (exercise) => pw.Text('${exercise.name} - ${exercise.category.name} - ${exercise.difficulty.name}'),
             ),
           ];
         },
@@ -140,9 +122,7 @@ class PDFExportService extends ExportService {
     );
 
     final directory = await getApplicationDocumentsDirectory();
-    final file = File(
-      '${directory.path}/liftly_report_${DateTime.now().millisecondsSinceEpoch}.pdf',
-    );
+    final file = File('${directory.path}/liftly_report_${DateTime.now().millisecondsSinceEpoch}.pdf');
     await file.writeAsBytes(await pdf.save());
 
     return file.path;
@@ -167,9 +147,7 @@ class JSONExportService extends ExportService {
     };
 
     final directory = await getApplicationDocumentsDirectory();
-    final file = File(
-      '${directory.path}/liftly_backup_${DateTime.now().millisecondsSinceEpoch}.json',
-    );
+    final file = File('${directory.path}/liftly_backup_${DateTime.now().millisecondsSinceEpoch}.json');
     await file.writeAsString(jsonEncode(data));
 
     return file.path;

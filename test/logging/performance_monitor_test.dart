@@ -7,8 +7,7 @@ void main() {
 
     setUp(() {
       performanceMonitor = PerformanceMonitor.instance;
-      performanceMonitor
-          .clearStats(); // Limpiar estadísticas antes de cada test
+      performanceMonitor.clearStats(); // Limpiar estadísticas antes de cada test
     });
 
     test('should initialize successfully', () {
@@ -19,29 +18,20 @@ void main() {
       final operationId = performanceMonitor.startOperation('test_operation');
       expect(operationId, isNotEmpty);
 
-      expect(
-        () => performanceMonitor.endOperation(operationId),
-        returnsNormally,
-      );
+      expect(() => performanceMonitor.endOperation(operationId), returnsNormally);
     });
 
     test('should monitor async operation', () async {
-      final result = await performanceMonitor.monitorAsync(
-        'test_async_operation',
-        () async {
-          await Future.delayed(Duration(milliseconds: 10));
-          return 'test_result';
-        },
-      );
+      final result = await performanceMonitor.monitorAsync('test_async_operation', () async {
+        await Future.delayed(Duration(milliseconds: 10));
+        return 'test_result';
+      });
 
       expect(result, equals('test_result'));
     });
 
     test('should monitor sync operation', () {
-      final result = performanceMonitor.monitorSync(
-        'test_sync_operation',
-        () => 'test_result',
-      );
+      final result = performanceMonitor.monitorSync('test_sync_operation', () => 'test_result');
 
       expect(result, equals('test_result'));
     });
@@ -55,9 +45,7 @@ void main() {
     });
 
     test('should get operation stats', () {
-      final operationId = performanceMonitor.startOperation(
-        'test_stats_operation',
-      );
+      final operationId = performanceMonitor.startOperation('test_stats_operation');
       performanceMonitor.endOperation(operationId);
 
       final stats = performanceMonitor.getOperationStats('test');
@@ -67,9 +55,7 @@ void main() {
     });
 
     test('should get all stats', () {
-      final operationId = performanceMonitor.startOperation(
-        'test_all_stats_operation',
-      );
+      final operationId = performanceMonitor.startOperation('test_all_stats_operation');
       performanceMonitor.endOperation(operationId);
 
       final allStats = performanceMonitor.getAllStats();
@@ -78,9 +64,7 @@ void main() {
     });
 
     test('should clear stats', () {
-      final operationId = performanceMonitor.startOperation(
-        'test_clear_operation',
-      );
+      final operationId = performanceMonitor.startOperation('test_clear_operation');
       performanceMonitor.endOperation(operationId);
 
       performanceMonitor.clearStats();

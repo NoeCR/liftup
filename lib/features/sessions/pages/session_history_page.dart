@@ -24,18 +24,14 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
 
     return sessionsAsync.when(
       data: (sessions) {
-        final sorted = [...sessions]
-          ..sort((a, b) => (b.startTime).compareTo(a.startTime));
+        final sorted = [...sessions]..sort((a, b) => (b.startTime).compareTo(a.startTime));
 
         // Aplicar filtros
         final filtered =
             sorted.where((s) {
-              final inRoutine =
-                  _routineFilterId == null || s.routineId == _routineFilterId;
+              final inRoutine = _routineFilterId == null || s.routineId == _routineFilterId;
               final inRange =
-                  _range == null ||
-                  (s.startTime.isAfter(_range!.start) &&
-                      s.startTime.isBefore(_range!.end));
+                  _range == null || (s.startTime.isAfter(_range!.start) && s.startTime.isBefore(_range!.end));
               return inRoutine && inRange;
             }).toList();
 
@@ -57,50 +53,31 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
               Expanded(
                 child:
                     filtered.isEmpty
-                        ? const Center(
-                          child: Text(
-                            'No hay sesiones para los filtros seleccionados',
-                          ),
-                        )
+                        ? const Center(child: Text('No hay sesiones para los filtros seleccionados'))
                         : ListView.separated(
                           itemCount: filtered.length,
                           separatorBuilder: (_, __) => const Divider(height: 1),
                           itemBuilder: (context, index) {
                             final s = filtered[index];
-                            final isActive =
-                                s.status == SessionStatus.active ||
-                                s.status == SessionStatus.paused;
+                            final isActive = s.status == SessionStatus.active || s.status == SessionStatus.paused;
                             final subtitle =
                                 isActive
                                     ? 'En curso'
                                     : s.endTime != null
-                                    ? _formatDuration(
-                                      s.endTime!.difference(s.startTime),
-                                    )
+                                    ? _formatDuration(s.endTime!.difference(s.startTime))
                                     : 'Sin finalizar';
                             return ListTile(
                               leading: Icon(
-                                isActive
-                                    ? Icons.play_circle
-                                    : Icons.check_circle,
+                                isActive ? Icons.play_circle : Icons.check_circle,
                                 color:
                                     isActive
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(
-                                          context,
-                                        ).colorScheme.secondary,
+                                        : Theme.of(context).colorScheme.secondary,
                               ),
-                              title: Text(
-                                s.name.isNotEmpty ? s.name : 'Sesión',
-                              ),
-                              subtitle: Text(
-                                '${_formatDate(s.startTime)} · $subtitle',
-                              ),
+                              title: Text(s.name.isNotEmpty ? s.name : 'Sesión'),
+                              subtitle: Text('${_formatDate(s.startTime)} · $subtitle'),
                               trailing: const Icon(Icons.chevron_right),
-                              onTap:
-                                  () => context.push(
-                                    '/session-summary?sessionId=${s.id}',
-                                  ),
+                              onTap: () => context.push('/session-summary?sessionId=${s.id}'),
                             );
                           },
                         ),
@@ -109,9 +86,7 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
           ),
         );
       },
-      loading:
-          () =>
-              const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
     );
   }
@@ -125,10 +100,7 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
             child: Text('Todas las rutinas', overflow: TextOverflow.ellipsis),
           ),
           ...routines.map(
-            (r) => DropdownMenuItem<String?>(
-              value: r.id,
-              child: Text(r.name, overflow: TextOverflow.ellipsis),
-            ),
+            (r) => DropdownMenuItem<String?>(value: r.id, child: Text(r.name, overflow: TextOverflow.ellipsis)),
           ),
         ];
         return DropdownButtonFormField<String?>(
@@ -151,10 +123,7 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
   }
 
   Widget _buildDateFilterButton() {
-    final label =
-        _range == null
-            ? 'Rango de fechas'
-            : '${_formatDate(_range!.start)} → ${_formatDate(_range!.end)}';
+    final label = _range == null ? 'Rango de fechas' : '${_formatDate(_range!.start)} → ${_formatDate(_range!.end)}';
     return OutlinedButton.icon(
       onPressed: () async {
         final now = DateTime.now();
@@ -164,12 +133,7 @@ class _SessionHistoryPageState extends ConsumerState<SessionHistoryPage> {
           context: context,
           firstDate: firstDate,
           lastDate: lastDate,
-          initialDateRange:
-              _range ??
-              DateTimeRange(
-                start: now.subtract(const Duration(days: 30)),
-                end: now,
-              ),
+          initialDateRange: _range ?? DateTimeRange(start: now.subtract(const Duration(days: 30)), end: now),
         );
         if (picked != null) {
           setState(() => _range = picked);

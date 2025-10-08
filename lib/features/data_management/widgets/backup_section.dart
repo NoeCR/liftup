@@ -67,10 +67,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  'Intervalo: $_backupIntervalHours horas',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                child: Text('Intervalo: $_backupIntervalHours horas', style: Theme.of(context).textTheme.bodyMedium),
               ),
               Slider(
                 value: _backupIntervalHours.toDouble(),
@@ -87,12 +84,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           // Maximum number of backups
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  'Máximo backups: $_maxBackups',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ),
+              Expanded(child: Text('Máximo backups: $_maxBackups', style: Theme.of(context).textTheme.bodyMedium)),
               Slider(
                 value: _maxBackups.toDouble(),
                 min: 5,
@@ -140,18 +132,8 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                Text(title, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+                Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
               ],
             ),
           ),
@@ -196,10 +178,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       Navigator.of(context).pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('dataManagement.backupCreatedSuccessfully')),
-          backgroundColor: Colors.green,
-        ),
+        SnackBar(content: Text(context.tr('dataManagement.backupCreatedSuccessfully')), backgroundColor: Colors.green),
       );
     } catch (e) {
       // Close progress indicator if open and show error
@@ -208,12 +187,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            context.tr(
-              'dataManagement.backupCreationError',
-              namedArgs: {'error': e.toString()},
-            ),
-          ),
+          content: Text(context.tr('dataManagement.backupCreationError', namedArgs: {'error': e.toString()})),
           backgroundColor: Colors.red,
         ),
       );
@@ -231,49 +205,21 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
               height: 300,
               child: ListView(
                 children: [
-                  _buildBackupItem(
-                    'Backup Manual',
-                    'Hace 2 horas',
-                    '2.3 MB',
-                    BackupStatus.completed,
-                  ),
-                  _buildBackupItem(
-                    'Backup Automático',
-                    'Hace 1 día',
-                    '2.1 MB',
-                    BackupStatus.completed,
-                  ),
-                  _buildBackupItem(
-                    'Backup Automático',
-                    'Hace 2 días',
-                    '2.0 MB',
-                    BackupStatus.completed,
-                  ),
-                  _buildBackupItem(
-                    'Backup Manual',
-                    'Hace 1 semana',
-                    '1.8 MB',
-                    BackupStatus.completed,
-                  ),
+                  _buildBackupItem('Backup Manual', 'Hace 2 horas', '2.3 MB', BackupStatus.completed),
+                  _buildBackupItem('Backup Automático', 'Hace 1 día', '2.1 MB', BackupStatus.completed),
+                  _buildBackupItem('Backup Automático', 'Hace 2 días', '2.0 MB', BackupStatus.completed),
+                  _buildBackupItem('Backup Manual', 'Hace 1 semana', '1.8 MB', BackupStatus.completed),
                 ],
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.close')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.close'))),
             ],
           ),
     );
   }
 
-  Widget _buildBackupItem(
-    String name,
-    String date,
-    String size,
-    BackupStatus status,
-  ) {
+  Widget _buildBackupItem(String name, String date, String size, BackupStatus status) {
     final statusColor =
         status == BackupStatus.completed
             ? Colors.green
@@ -287,10 +233,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
         leading: Icon(Icons.cloud_done, color: statusColor),
         title: Text(name),
         subtitle: Text('$date • $size'),
-        trailing: IconButton(
-          icon: const Icon(Icons.more_vert),
-          onPressed: () => _showBackupOptions(context, name),
-        ),
+        trailing: IconButton(icon: const Icon(Icons.more_vert), onPressed: () => _showBackupOptions(context, name)),
       ),
     );
   }
@@ -307,13 +250,9 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
                 title: Text(context.tr('dataManagement.download')),
                 onTap: () {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        context.tr('dataManagement.downloadingBackup'),
-                      ),
-                    ),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(context.tr('dataManagement.downloadingBackup'))));
                 },
               ),
               ListTile(
@@ -335,25 +274,15 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
       builder:
           (context) => AlertDialog(
             title: Text(context.tr('dataManagement.deleteBackup')),
-            content: Text(
-              context.tr(
-                'dataManagement.confirmDeleteBackup',
-                namedArgs: {'backupName': backupName},
-              ),
-            ),
+            content: Text(context.tr('dataManagement.confirmDeleteBackup', namedArgs: {'backupName': backupName})),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.cancel')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
               FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.tr('dataManagement.backupDeleted')),
-                    ),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(context.tr('dataManagement.backupDeleted'))));
                 },
                 child: Text(context.tr('common.delete')),
               ),

@@ -107,19 +107,12 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         backgroundColor: surfaceColor,
         foregroundColor: neutral800,
-        titleTextStyle: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: neutral800,
-          letterSpacing: -0.5,
-        ),
+        titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: neutral800, letterSpacing: -0.5),
       ),
       // Card Theme - Consistent elevation and radius
       cardTheme: CardThemeData(
         elevation: elevationS,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusL),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusL)),
         margin: EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
       ),
       // Button Themes - Consistent styling and accessibility
@@ -127,13 +120,8 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingL,
-            vertical: spacingM,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
         ),
       ),
@@ -141,59 +129,36 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: secondaryColor,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingL,
-            vertical: spacingM,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: primaryColor.withValues(alpha: 0.6)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingL,
-            vertical: spacingM,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryDark,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingM,
-            vertical: spacingS,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
           minimumSize: const Size(64, 48), // Accessibility: min 48dp height
         ),
       ),
       // Input Decoration Theme - Modern and accessible
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusM),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(radiusM)),
         filled: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: spacingM,
-          vertical: spacingM,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingM),
         isDense: true,
       ),
       // Bottom Navigation Theme
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(type: BottomNavigationBarType.fixed, elevation: 0),
       // Floating Action Button Theme
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         elevation: elevationM,
@@ -202,22 +167,14 @@ class AppTheme {
       ),
       // List Tile Theme - Consistent spacing
       listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: spacingM,
-          vertical: spacingS,
-        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
         minVerticalPadding: spacingS,
         minLeadingWidth: 40,
       ),
       // Chip Theme - Modern styling
       chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusS),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: spacingS,
-          vertical: spacingXS,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusS)),
+        padding: const EdgeInsets.symmetric(horizontal: spacingS, vertical: spacingXS),
         labelPadding: const EdgeInsets.symmetric(horizontal: spacingXS),
       ),
     );
@@ -266,19 +223,12 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         backgroundColor: neutral900,
         foregroundColor: neutral100,
-        titleTextStyle: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: neutral100,
-          letterSpacing: -0.5,
-        ),
+        titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: neutral100, letterSpacing: -0.5),
       ),
       // Card Theme - Dark mode
       cardTheme: CardThemeData(
         elevation: elevationS,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusL),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusL)),
         margin: EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
       ),
       // Button Themes - Dark mode with accessibility
@@ -286,13 +236,8 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryLight,
           foregroundColor: neutral900,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingL,
-            vertical: spacingM,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48),
         ),
       ),
@@ -300,59 +245,36 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: secondaryLight,
           foregroundColor: neutral900,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingL,
-            vertical: spacingM,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           side: BorderSide(color: primaryLight.withValues(alpha: 0.6)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingL,
-            vertical: spacingM,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingL, vertical: spacingM),
           minimumSize: const Size(64, 48),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryLight,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(radiusM),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: spacingM,
-            vertical: spacingS,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusM)),
+          padding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
           minimumSize: const Size(64, 48),
         ),
       ),
       // Input Decoration Theme - Dark mode
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(radiusM),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(radiusM)),
         filled: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: spacingM,
-          vertical: spacingM,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingM),
         isDense: true,
       ),
       // Bottom Navigation Theme - Dark mode
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(type: BottomNavigationBarType.fixed, elevation: 0),
       // Floating Action Button Theme - Dark mode
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         elevation: elevationM,
@@ -361,22 +283,14 @@ class AppTheme {
       ),
       // List Tile Theme - Dark mode
       listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: spacingM,
-          vertical: spacingS,
-        ),
+        contentPadding: EdgeInsets.symmetric(horizontal: spacingM, vertical: spacingS),
         minVerticalPadding: spacingS,
         minLeadingWidth: 40,
       ),
       // Chip Theme - Dark mode
       chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusS),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: spacingS,
-          vertical: spacingXS,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusS)),
+        padding: const EdgeInsets.symmetric(horizontal: spacingS, vertical: spacingXS),
         labelPadding: const EdgeInsets.symmetric(horizontal: spacingXS),
       ),
     );

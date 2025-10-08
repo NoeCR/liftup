@@ -7,8 +7,7 @@ import '../../../core/logging/logging.dart';
 /// Service for automatic routine selection based on the weekday
 class AutoRoutineSelectionService {
   static AutoRoutineSelectionService? _instance;
-  static AutoRoutineSelectionService get instance =>
-      _instance ??= AutoRoutineSelectionService._();
+  static AutoRoutineSelectionService get instance => _instance ??= AutoRoutineSelectionService._();
 
   AutoRoutineSelectionService._();
 
@@ -22,8 +21,7 @@ class AutoRoutineSelectionService {
   /// Finds routines that match the current weekday
   List<Routine> findRoutinesForToday(List<Routine> routines) {
     final today = getCurrentWeekDay();
-    final todayRoutines =
-        routines.where((routine) => routine.days.contains(today)).toList();
+    final todayRoutines = routines.where((routine) => routine.days.contains(today)).toList();
 
     LoggingService.instance.debug('Finding routines for today', {
       'today': today.displayName,
@@ -48,46 +46,37 @@ class AutoRoutineSelectionService {
   /// Automatically selects routine for today.
   /// Prioritizes routines with lower order, then by creation date.
   Routine? selectRoutineForToday(List<Routine> routines) {
-    return PerformanceMonitor.instance.monitorSync(
-      'select_routine_for_today',
-      () {
-        final todayRoutines = findRoutinesForToday(routines);
+    return PerformanceMonitor.instance.monitorSync('select_routine_for_today', () {
+      final todayRoutines = findRoutinesForToday(routines);
 
-        if (todayRoutines.isEmpty) {
-          LoggingService.instance.info('No routines available for today', {
-            'component': 'auto_routine_selection',
-          });
-          return null;
+      if (todayRoutines.isEmpty) {
+        LoggingService.instance.info('No routines available for today', {'component': 'auto_routine_selection'});
+        return null;
+      }
+
+      // Sort by order (ascending), then by creation date (ascending)
+      todayRoutines.sort((a, b) {
+        // Primero por orden
+        final orderA = a.order ?? 999;
+        final orderB = b.order ?? 999;
+        if (orderA != orderB) {
+          return orderA.compareTo(orderB);
         }
+        // Then by creation date
+        return a.createdAt.compareTo(b.createdAt);
+      });
 
-        // Sort by order (ascending), then by creation date (ascending)
-        todayRoutines.sort((a, b) {
-          // Primero por orden
-          final orderA = a.order ?? 999;
-          final orderB = b.order ?? 999;
-          if (orderA != orderB) {
-            return orderA.compareTo(orderB);
-          }
-          // Then by creation date
-          return a.createdAt.compareTo(b.createdAt);
-        });
-
-        final selectedRoutine = todayRoutines.first;
-        LoggingService.instance.info('Routine selected for today', {
-          'selected_routine_name': selectedRoutine.name,
-          'selected_routine_id': selectedRoutine.id,
-          'selected_routine_order': selectedRoutine.order,
-          'total_available': todayRoutines.length,
-          'component': 'auto_routine_selection',
-        });
-
-        return selectedRoutine;
-      },
-      context: {
-        'total_routines': routines.length,
+      final selectedRoutine = todayRoutines.first;
+      LoggingService.instance.info('Routine selected for today', {
+        'selected_routine_name': selectedRoutine.name,
+        'selected_routine_id': selectedRoutine.id,
+        'selected_routine_order': selectedRoutine.order,
+        'total_available': todayRoutines.length,
         'component': 'auto_routine_selection',
-      },
-    );
+      });
+
+      return selectedRoutine;
+    }, context: {'total_routines': routines.length, 'component': 'auto_routine_selection'});
   }
 
   /// Returns info about the automatic selection
@@ -134,10 +123,9 @@ class AutoSelectionInfo {
 }
 
 /// Provider for the automatic selection service
-final autoRoutineSelectionServiceProvider =
-    Provider<AutoRoutineSelectionService>((ref) {
-      return AutoRoutineSelectionService.instance;
-    });
+final autoRoutineSelectionServiceProvider = Provider<AutoRoutineSelectionService>((ref) {
+  return AutoRoutineSelectionService.instance;
+});
 
 /// Provider to obtain automatic selection info
 final autoSelectionInfoProvider = Provider<AutoSelectionInfo>((ref) {

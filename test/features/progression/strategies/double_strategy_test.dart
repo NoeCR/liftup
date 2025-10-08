@@ -8,11 +8,7 @@ void main() {
   group('DoubleProgressionStrategy', () {
     final strategy = DoubleProgressionStrategy();
 
-    ProgressionConfig _config({
-      double increment = 2.5,
-      int cycle = 4,
-      int deloadWeek = 0,
-    }) {
+    ProgressionConfig _config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -35,11 +31,7 @@ void main() {
       );
     }
 
-    ProgressionState _state({
-      int session = 1,
-      int reps = 10,
-      double weight = 100,
-    }) {
+    ProgressionState _state({int session = 1, int reps = 10, double weight = 100}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -65,13 +57,7 @@ void main() {
     test('increase reps until max', () {
       final cfg = _config();
       final st = _state(reps: 10, weight: 100);
-      final res = strategy.calculate(
-        config: cfg,
-        state: st,
-        currentWeight: 100,
-        currentReps: 10,
-        currentSets: 4,
-      );
+      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
       expect(res.incrementApplied, true);
       expect(res.newReps, 11);
       expect(res.newWeight, 100);
@@ -80,13 +66,7 @@ void main() {
     test('increase weight and reset reps when max reached', () {
       final cfg = _config(increment: 2.5);
       final st = _state(reps: 12, weight: 100);
-      final res = strategy.calculate(
-        config: cfg,
-        state: st,
-        currentWeight: 100,
-        currentReps: 12,
-        currentSets: 4,
-      );
+      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 12, currentSets: 4);
       expect(res.incrementApplied, true);
       expect(res.newWeight, 102.5);
       expect(res.newReps, 8);

@@ -25,13 +25,7 @@ class ExerciseFormPage extends ConsumerStatefulWidget {
   final String? sectionId;
   final String? returnTo;
 
-  const ExerciseFormPage({
-    super.key,
-    this.exerciseToEdit,
-    this.routineId,
-    this.sectionId,
-    this.returnTo,
-  });
+  const ExerciseFormPage({super.key, this.exerciseToEdit, this.routineId, this.sectionId, this.returnTo});
 
   @override
   ConsumerState<ExerciseFormPage> createState() => _ExerciseFormPageState();
@@ -125,28 +119,15 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       final exercise = widget.exerciseToEdit;
       if (config == null || exercise == null) return;
 
-      final perExercise =
-          (config.customParameters['per_exercise'] as Map?)
-              ?.cast<String, dynamic>();
-      final current =
-          perExercise != null
-              ? (perExercise[exercise.id] as Map?)?.cast<String, dynamic>()
-              : null;
+      final perExercise = (config.customParameters['per_exercise'] as Map?)?.cast<String, dynamic>();
+      final current = perExercise != null ? (perExercise[exercise.id] as Map?)?.cast<String, dynamic>() : null;
       if (current == null) return;
 
       // Prefill usando primero multi_* y si faltan valores, caer a iso_*
-      _multiIncMinController.text =
-          (current['multi_increment_min'] ?? current['iso_increment_min'] ?? '')
-              .toString();
-      _multiIncMaxController.text =
-          (current['multi_increment_max'] ?? current['iso_increment_max'] ?? '')
-              .toString();
-      _multiRepsMinController.text =
-          (current['multi_reps_min'] ?? current['iso_reps_min'] ?? '')
-              .toString();
-      _multiRepsMaxController.text =
-          (current['multi_reps_max'] ?? current['iso_reps_max'] ?? '')
-              .toString();
+      _multiIncMinController.text = (current['multi_increment_min'] ?? current['iso_increment_min'] ?? '').toString();
+      _multiIncMaxController.text = (current['multi_increment_max'] ?? current['iso_increment_max'] ?? '').toString();
+      _multiRepsMinController.text = (current['multi_reps_min'] ?? current['iso_reps_min'] ?? '').toString();
+      _multiRepsMaxController.text = (current['multi_reps_max'] ?? current['iso_reps_max'] ?? '').toString();
       _isoIncMinController.text = '';
       _isoIncMaxController.text = '';
       _isoRepsMinController.text = '';
@@ -154,14 +135,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       _setsMinController.text = (current['sets_min'] ?? '').toString();
       _setsMaxController.text = (current['sets_max'] ?? '').toString();
       _targetRpeController.text = (current['target_rpe'] ?? '').toString();
-      _incFreqController.text =
-          (current['increment_frequency'] ?? '').toString();
+      _incFreqController.text = (current['increment_frequency'] ?? '').toString();
       final unitStr = (current['unit'] ?? '').toString();
-      _perExerciseUnit =
-          ProgressionUnit.values
-              .where((u) => u.name == unitStr)
-              .cast<ProgressionUnit?>()
-              .firstOrNull;
+      _perExerciseUnit = ProgressionUnit.values.where((u) => u.name == unitStr).cast<ProgressionUnit?>().firstOrNull;
       if (mounted) setState(() {});
     } catch (_) {}
   }
@@ -189,31 +165,20 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          isEditing
-              ? context.tr('exercises.editExercise')
-              : context.tr('exercises.newExercise'),
-        ),
+        title: Text(isEditing ? context.tr('exercises.editExercise') : context.tr('exercises.newExercise')),
         backgroundColor: colorScheme.surface,
         actions: [
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
             )
           else
             TextButton(
               onPressed: _isLoading ? null : _saveExercise,
               child: Text(
                 isEditing ? 'Actualizar' : 'Guardar',
-                style: TextStyle(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
               ),
             ),
         ],
@@ -270,21 +235,13 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    InputDecoration deco(String label, {String? helper}) => InputDecoration(
-      labelText: label,
-      helperText: helper,
-      border: const OutlineInputBorder(),
-    );
+    InputDecoration deco(String label, {String? helper}) =>
+        InputDecoration(labelText: label, helperText: helper, border: const OutlineInputBorder());
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Progression settings',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Progression settings', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         // Parámetros genéricos por ejercicio (se aplicarán a multi/iso)
         Container(
@@ -296,10 +253,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Parámetros por ejercicio',
-                style: theme.textTheme.titleSmall,
-              ),
+              Text('Parámetros por ejercicio', style: theme.textTheme.titleSmall),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -344,20 +298,11 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               // Unidad de progresión específica del ejercicio (opcional)
               DropdownButtonFormField<ProgressionUnit>(
                 value: _perExerciseUnit,
-                decoration: deco(
-                  'Unidad de progresión',
-                  helper: 'Aplica a este ejercicio (opcional)',
-                ),
+                decoration: deco('Unidad de progresión', helper: 'Aplica a este ejercicio (opcional)'),
                 items: [
-                  const DropdownMenuItem<ProgressionUnit>(
-                    value: null,
-                    child: Text('Por defecto (global)'),
-                  ),
+                  const DropdownMenuItem<ProgressionUnit>(value: null, child: Text('Por defecto (global)')),
                   ...ProgressionUnit.values.map(
-                    (u) => DropdownMenuItem(
-                      value: u,
-                      child: Text(context.tr(u.displayNameKey)),
-                    ),
+                    (u) => DropdownMenuItem(value: u, child: Text(context.tr(u.displayNameKey))),
                   ),
                 ],
                 onChanged: (v) => setState(() => _perExerciseUnit = v),
@@ -418,12 +363,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Imagen del Ejercicio',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Imagen del Ejercicio', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Center(
           child: GestureDetector(
@@ -434,10 +374,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: colorScheme.outline,
-                  style: BorderStyle.solid,
-                ),
+                border: Border.all(color: colorScheme.outline, style: BorderStyle.solid),
               ),
               child: _buildPreviewImage(),
             ),
@@ -448,11 +385,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           child: TextButton.icon(
             onPressed: _pickImage,
             icon: const Icon(Icons.camera_alt),
-            label: Text(
-              _imagePath.isEmpty
-                  ? context.tr('exercises.selectImage')
-                  : context.tr('exercises.changeImage'),
-            ),
+            label: Text(_imagePath.isEmpty ? context.tr('exercises.selectImage') : context.tr('exercises.changeImage')),
           ),
         ),
         const SizedBox(height: 12),
@@ -490,17 +423,11 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Icons.add_photo_alternate,
-          size: 48,
-          color: colorScheme.onSurfaceVariant,
-        ),
+        Icon(Icons.add_photo_alternate, size: 48, color: colorScheme.onSurfaceVariant),
         const SizedBox(height: 8),
         Text(
           context.tr('exercises.addImage'),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -512,11 +439,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       if (url.startsWith('http')) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Image.network(
-            url,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-          ),
+          child: Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _buildImagePlaceholder()),
         );
       }
       if (url.startsWith('file:') || url.startsWith('/')) {
@@ -535,20 +458,12 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       if (_imagePath.startsWith('assets/')) {
         return ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            _imagePath,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-          ),
+          child: Image.asset(_imagePath, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _buildImagePlaceholder()),
         );
       }
       return ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.file(
-          File(_imagePath),
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => _buildImagePlaceholder(),
-        ),
+        child: Image.file(File(_imagePath), fit: BoxFit.cover, errorBuilder: (_, __, ___) => _buildImagePlaceholder()),
       );
     }
     return _buildImagePlaceholder();
@@ -562,9 +477,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       children: [
         Text(
           context.tr('exercises.basicInformation'),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         TextFormField(
@@ -609,9 +522,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       children: [
         Text(
           context.tr('exercises.categoryAndDifficulty'),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
@@ -619,16 +530,10 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: DropdownButtonFormField<ExerciseCategory>(
                 value: _selectedCategory,
-                decoration: InputDecoration(
-                  labelText: context.tr('exercises.category'),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: context.tr('exercises.category'), border: OutlineInputBorder()),
                 items:
                     ExerciseCategory.values.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Text(category.displayName),
-                      );
+                      return DropdownMenuItem(value: category, child: Text(category.displayName));
                     }).toList(),
                 onChanged: (value) {
                   if (value != null) {
@@ -649,10 +554,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 ),
                 items:
                     ExerciseDifficulty.values.map((difficulty) {
-                      return DropdownMenuItem(
-                        value: difficulty,
-                        child: Text(_getDifficultyName(difficulty)),
-                      );
+                      return DropdownMenuItem(value: difficulty, child: Text(_getDifficultyName(difficulty)));
                     }).toList(),
                 onChanged: (value) {
                   if (value != null) {
@@ -674,13 +576,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             border: OutlineInputBorder(),
             helperText: 'Usado para ajustar incrementos y rangos de reps',
           ),
-          items:
-              ExerciseType.values
-                  .map(
-                    (t) =>
-                        DropdownMenuItem(value: t, child: Text(t.displayName)),
-                  )
-                  .toList(),
+          items: ExerciseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayName))).toList(),
           onChanged: (value) {
             if (value != null) setState(() => _exerciseType = value);
           },
@@ -698,9 +594,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       children: [
         Text(
           context.tr('exercises.musclesWorked'),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Container(
@@ -712,10 +606,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                context.tr('exercises.selectMuscles'),
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text(context.tr('exercises.selectMuscles'), style: theme.textTheme.bodyMedium),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
@@ -745,9 +636,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     context.tr('exercises.selectAtLeastOneMuscle'),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.error,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.error),
                   ),
                 ),
             ],
@@ -763,12 +652,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Consejos y Errores Comunes',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Consejos y Errores Comunes', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         TextFormField(
           controller: _tipsController,
@@ -803,9 +687,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       children: [
         Text(
           context.tr('exercises.demoVideoOptional'),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
@@ -863,9 +745,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       children: [
         Text(
           context.tr('exercises.trainingParameters'),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
@@ -873,10 +753,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _setsController,
-                decoration: InputDecoration(
-                  labelText: context.tr('exercises.sets'),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: context.tr('exercises.sets'), border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 onChanged: (v) {
                   final parsed = int.tryParse(v.trim());
@@ -890,10 +767,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _repsController,
-                decoration: InputDecoration(
-                  labelText: context.tr('exercises.reps'),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: context.tr('exercises.reps'), border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 onChanged: (v) {
                   final parsed = int.tryParse(v.trim());
@@ -907,10 +781,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _weightController,
-                decoration: InputDecoration(
-                  labelText: context.tr('exercises.weight'),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: context.tr('exercises.weight'), border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 onChanged: (v) {
                   final parsed = double.tryParse(v.trim());
@@ -928,10 +799,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             Expanded(
               child: TextFormField(
                 controller: _restTimeController,
-                decoration: InputDecoration(
-                  labelText: 'Tiempo de descanso (segundos)',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Tiempo de descanso (segundos)', border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
                 onChanged: (v) {
                   final parsed = int.tryParse(v.trim());
@@ -1069,10 +937,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(null),
-              child: Text(context.tr('common.cancel')),
-            ),
+            TextButton(onPressed: () => Navigator.of(ctx).pop(null), child: Text(context.tr('common.cancel'))),
             ElevatedButton(
               onPressed: () async {
                 final state = editorKey.currentState;
@@ -1093,9 +958,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                     width: rect.width.round().clamp(1, img.width),
                     height: rect.height.round().clamp(1, img.height),
                   );
-                  croppedBytes = Uint8List.fromList(
-                    image.encodeJpg(crop, quality: 92),
-                  );
+                  croppedBytes = Uint8List.fromList(image.encodeJpg(crop, quality: 92));
                 } else {
                   croppedBytes = raw;
                 }
@@ -1105,8 +968,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
                 if (!await imagesDir.exists()) {
                   await imagesDir.create(recursive: true);
                 }
-                final filename =
-                    'img_${DateTime.now().millisecondsSinceEpoch}.jpg';
+                final filename = 'img_${DateTime.now().millisecondsSinceEpoch}.jpg';
                 final file = File('${imagesDir.path}/$filename');
                 await file.writeAsBytes(croppedBytes, flush: true);
                 if (ctx.mounted) Navigator.of(ctx).pop(file.path);
@@ -1120,10 +982,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   }
 
   Future<void> _pickVideoFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.video,
-      allowMultiple: false,
-    );
+    final result = await FilePicker.platform.pickFiles(type: FileType.video, allowMultiple: false);
     if (result != null && result.files.isNotEmpty) {
       final path = result.files.single.path;
       if (path != null && mounted) {
@@ -1161,10 +1020,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     if (_selectedMuscleGroups.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.tr('exercises.selectAtLeastOneMuscle')),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(context.tr('exercises.selectAtLeastOneMuscle')), backgroundColor: Colors.red),
       );
       return;
     }
@@ -1175,11 +1031,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     try {
       final tips =
-          _tipsController.text
-              .split('\n')
-              .where((tip) => tip.trim().isNotEmpty)
-              .map((tip) => tip.trim())
-              .toList();
+          _tipsController.text.split('\n').where((tip) => tip.trim().isNotEmpty).map((tip) => tip.trim()).toList();
 
       final commonMistakes =
           _commonMistakesController.text
@@ -1196,10 +1048,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         imageUrl: resolvedImagePath,
-        videoUrl:
-            _videoUrlController.text.trim().isNotEmpty
-                ? _videoUrlController.text.trim()
-                : null,
+        videoUrl: _videoUrlController.text.trim().isNotEmpty ? _videoUrlController.text.trim() : null,
         muscleGroups: _selectedMuscleGroups,
         tips: tips,
         commonMistakes: commonMistakes,
@@ -1217,27 +1066,19 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       // Debug: saving exercise with default values
 
       if (widget.exerciseToEdit != null) {
-        await ref
-            .read(exerciseNotifierProvider.notifier)
-            .updateExercise(exercise);
+        await ref.read(exerciseNotifierProvider.notifier).updateExercise(exercise);
         // Save per-exercise progression params into active ProgressionConfig
         await _savePerExerciseProgressionParams(exercise.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ejercicio actualizado correctamente'),
-              backgroundColor: Colors.green,
-            ),
+            const SnackBar(content: Text('Ejercicio actualizado correctamente'), backgroundColor: Colors.green),
           );
         }
       } else {
         await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ejercicio creado correctamente'),
-              backgroundColor: Colors.green,
-            ),
+            const SnackBar(content: Text('Ejercicio creado correctamente'), backgroundColor: Colors.green),
           );
         }
       }
@@ -1248,9 +1089,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
       if (mounted) {
         // Navigate back based on context
-        if (widget.returnTo == 'selection' &&
-            widget.routineId != null &&
-            widget.sectionId != null) {
+        if (widget.returnTo == 'selection' && widget.routineId != null && widget.sectionId != null) {
           // Return to exercise selection with context
           context.go(
             '/exercise-selection?routineId=${widget.routineId}&sectionId=${widget.sectionId}&title=Agregar Ejercicios',
@@ -1262,9 +1101,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -1280,12 +1117,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       final config = await ref.read(progressionNotifierProvider.future);
       if (config == null) return;
 
-      final Map<String, dynamic> updatedParams = Map<String, dynamic>.from(
-        config.customParameters,
-      );
+      final Map<String, dynamic> updatedParams = Map<String, dynamic>.from(config.customParameters);
       final Map<String, dynamic> perExercise = Map<String, dynamic>.from(
-        (updatedParams['per_exercise'] as Map?)?.cast<String, dynamic>() ??
-            <String, dynamic>{},
+        (updatedParams['per_exercise'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{},
       );
 
       final incMin = _parseNum(_multiIncMinController.text);
@@ -1315,14 +1149,9 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
       updatedParams['per_exercise'] = perExercise;
 
-      final updatedConfig = config.copyWith(
-        customParameters: updatedParams,
-        updatedAt: DateTime.now(),
-      );
+      final updatedConfig = config.copyWith(customParameters: updatedParams, updatedAt: DateTime.now());
 
-      await ref
-          .read(progressionServiceProvider.notifier)
-          .saveProgressionConfig(updatedConfig);
+      await ref.read(progressionServiceProvider.notifier).saveProgressionConfig(updatedConfig);
     } catch (_) {}
   }
 
@@ -1357,31 +1186,24 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       // Case 2: local image selected → copy to app directory if needed
       if (_imagePath.isNotEmpty) {
         if (_imagePath.startsWith('assets/')) return _imagePath;
-        final src = File(
-          _imagePath.startsWith('file:')
-              ? _imagePath.replaceFirst('file://', '')
-              : _imagePath,
-        );
+        final src = File(_imagePath.startsWith('file:') ? _imagePath.replaceFirst('file://', '') : _imagePath);
         if (!await src.exists()) return 'assets/images/default_exercise.png';
         final dir = await getApplicationDocumentsDirectory();
         final imagesDir = Directory('${dir.path}/images');
         if (!await imagesDir.exists()) await imagesDir.create(recursive: true);
-        final filename =
-            'img_${DateTime.now().millisecondsSinceEpoch}${p.extension(src.path)}';
+        final filename = 'img_${DateTime.now().millisecondsSinceEpoch}${p.extension(src.path)}';
         final dst = File('${imagesDir.path}/$filename');
         await dst.writeAsBytes(await src.readAsBytes(), flush: true);
         return dst.path;
       }
       // Caso 3: ruta local en campo URL (file:///)
-      if (remote.isNotEmpty &&
-          (remote.startsWith('file:') || remote.startsWith('/'))) {
+      if (remote.isNotEmpty && (remote.startsWith('file:') || remote.startsWith('/'))) {
         final src = File(remote.replaceFirst('file://', ''));
         if (!await src.exists()) return 'assets/images/default_exercise.png';
         final dir = await getApplicationDocumentsDirectory();
         final imagesDir = Directory('${dir.path}/images');
         if (!await imagesDir.exists()) await imagesDir.create(recursive: true);
-        final filename =
-            'img_${DateTime.now().millisecondsSinceEpoch}${p.extension(src.path)}';
+        final filename = 'img_${DateTime.now().millisecondsSinceEpoch}${p.extension(src.path)}';
         final dst = File('${imagesDir.path}/$filename');
         await dst.writeAsBytes(await src.readAsBytes(), flush: true);
         return dst.path;
