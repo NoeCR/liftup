@@ -143,11 +143,11 @@ class SessionNotifier extends _$SessionNotifier {
 
       final completedExerciseIds = <String>{};
       final exerciseValuesUsed = <String, Map<String, dynamic>>{};
-      
+
       // Collect actual values used for each exercise
       for (final set in exerciseSets) {
         completedExerciseIds.add(set.exerciseId);
-        
+
         if (!exerciseValuesUsed.containsKey(set.exerciseId)) {
           exerciseValuesUsed[set.exerciseId] = {
             'weight': set.weight,
@@ -171,7 +171,7 @@ class SessionNotifier extends _$SessionNotifier {
           // Update lastPerformedAt
           final updated = exercise.copyWith(lastPerformedAt: now);
           await exercisesNotifier.updateExercise(updated);
-          
+
           // Initialize progression state with actual values used in session
           final valuesUsed = exerciseValuesUsed[exercise.id];
           if (valuesUsed != null) {
@@ -186,7 +186,7 @@ class SessionNotifier extends _$SessionNotifier {
                   baseReps: valuesUsed['reps'] as int,
                   baseSets: valuesUsed['sets'] as int,
                 );
-                
+
                 LoggingService.instance.info('Initialized progression state with session values', {
                   'exerciseId': exercise.id,
                   'exerciseName': exercise.name,

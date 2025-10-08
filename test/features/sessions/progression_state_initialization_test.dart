@@ -255,11 +255,15 @@ void main() {
           sessionHistory: {},
           lastUpdated: DateTime.now(),
           isDeloadWeek: false,
-          customData: {'current_routine_id': 'different-routine-id'}, // Different routine
+          customData: {
+            'current_routine_id': 'different-routine-id',
+          }, // Different routine
         );
 
         when(
-          mockProgressionNotifier.getExerciseProgressionState('test-exercise-3'),
+          mockProgressionNotifier.getExerciseProgressionState(
+            'test-exercise-3',
+          ),
         ).thenAnswer((_) async => existingProgressionState);
 
         // Mock the initializeExerciseProgression method
@@ -293,8 +297,10 @@ void main() {
 
         // Act: Simulate the logic that checks if progression state is for current routine
         const currentRoutineId = 'current-routine-id';
-        final isForCurrentRoutine = existingProgressionState.customData['current_routine_id'] == currentRoutineId;
-        
+        final isForCurrentRoutine =
+            existingProgressionState.customData['current_routine_id'] ==
+            currentRoutineId;
+
         if (!isForCurrentRoutine) {
           // This should be called because the existing state is for a different routine
           await mockProgressionNotifier.initializeExerciseProgression(
