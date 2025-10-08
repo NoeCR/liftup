@@ -4,6 +4,50 @@ import '../../models/progression_calculation_result.dart';
 import '../../../../common/enums/progression_type_enum.dart';
 import '../progression_strategy.dart';
 
+/// Estrategia de Progresión Escalonada
+///
+/// Esta estrategia implementa una progresión escalonada donde se acumula carga progresivamente
+/// durante un período específico, típicamente seguido de un deload.
+///
+/// **Fundamentos teóricos:**
+/// - Basada en el concepto de acumulación de carga
+/// - Incrementa peso de manera acumulativa durante semanas específicas
+/// - Permite adaptación gradual a cargas crecientes
+/// - Ideal para fases de acumulación en periodización
+/// - Facilita la supercompensación
+///
+/// **Algoritmo:**
+/// 1. Calcula la posición actual en el ciclo
+/// 2. Verifica si es período de deload
+/// 3. Calcula incremento acumulativo:
+///    - Si currentInCycle <= accumulationWeeks:
+///      * totalIncrement = incrementValue * currentInCycle
+///    - Si currentInCycle > accumulationWeeks:
+///      * totalIncrement = incrementValue * accumulationWeeks
+/// 4. Aplica peso = baseWeight + totalIncrement
+/// 5. Mantiene repeticiones y series constantes
+/// 6. Durante deload:
+///    - Reduce peso manteniendo incremento sobre base
+///    - Reduce series al 70%
+///
+/// **Parámetros clave:**
+/// - accumulationWeeks: Número de semanas de acumulación
+/// - incrementValue: Cantidad de peso a incrementar por semana
+/// - deloadWeek: Semana de deload
+/// - deloadPercentage: Porcentaje de reducción durante deload
+///
+/// **Ventajas:**
+/// - Progresión gradual y sostenible
+/// - Permite adaptación a cargas crecientes
+/// - Efectiva para fases de acumulación
+/// - Reduce riesgo de sobreentrenamiento
+/// - Facilita la supercompensación
+///
+/// **Limitaciones:**
+/// - Progresión más lenta inicialmente
+/// - Requiere planificación cuidadosa de fases
+/// - Puede ser menos efectiva para ganancias rápidas
+/// - Necesita deloads apropiados
 class SteppedProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
@@ -18,18 +62,24 @@ class SteppedProgressionStrategy implements ProgressionStrategy {
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
 
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod =
+        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
     if (isDeloadPeriod) {
       // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+        0,
+        double.infinity,
+      );
+      final double deloadWeight =
+          state.baseWeight + (increaseOverBase * config.deloadPercentage);
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason: 'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -38,14 +88,17 @@ class SteppedProgressionStrategy implements ProgressionStrategy {
     final incrementValue = _getIncrementValue(config);
 
     final totalIncrement =
-        currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
+        currentInCycle <= accumulationWeeks
+            ? incrementValue * currentInCycle
+            : incrementValue * accumulationWeeks;
 
     return ProgressionCalculationResult(
       newWeight: state.baseWeight + totalIncrement,
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: true,
-      reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+      reason:
+          'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );
   }
 

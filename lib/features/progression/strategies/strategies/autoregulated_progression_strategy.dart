@@ -4,6 +4,57 @@ import '../../models/progression_calculation_result.dart';
 import '../../../../common/enums/progression_type_enum.dart';
 import '../progression_strategy.dart';
 
+/// Estrategia de Progresión Autoregulada
+///
+/// Esta estrategia implementa una progresión basada en RPE (Rate of Perceived Exertion)
+/// donde los ajustes se realizan según la percepción de esfuerzo del atleta,
+/// simulando un sistema de autoregulación.
+///
+/// **Fundamentos teóricos:**
+/// - Basada en el concepto de autoregulación del entrenamiento
+/// - Utiliza RPE (Rate of Perceived Exertion) para ajustar la carga
+/// - Permite adaptación individualizada según la condición del atleta
+/// - Considera fatiga acumulada y estado de recuperación
+/// - Optimiza el entrenamiento según la respuesta individual
+///
+/// **Algoritmo:**
+/// 1. Calcula la posición actual en el ciclo
+/// 2. Verifica si es período de deload
+/// 3. Obtiene parámetros de autoregulación:
+///    - targetRPE: RPE objetivo (default: 8.0)
+///    - rpeThreshold: Umbral de variación (default: 0.5)
+///    - targetReps: Repeticiones objetivo
+///    - minReps/maxReps: Rangos de repeticiones
+/// 4. Estima RPE basado en repeticiones realizadas:
+///    - Si reps >= targetReps: RPE = targetRPE - ((reps - targetReps) * 0.5)
+///    - Si reps < targetReps: RPE = targetRPE + ((targetReps - reps) * 0.8)
+/// 5. Ajusta según RPE estimado:
+///    - RPE bajo: Incrementa peso
+///    - RPE alto: Reduce peso y ajusta reps
+///    - RPE óptimo: Incrementa reps si es posible
+/// 6. Durante deload:
+///    - Reduce peso manteniendo incremento sobre base
+///    - Reduce series al 70%
+///
+/// **Parámetros clave:**
+/// - targetRPE: RPE objetivo (1-10)
+/// - rpeThreshold: Umbral de variación para ajustes
+/// - targetReps: Repeticiones objetivo
+/// - minReps/maxReps: Rangos de repeticiones
+/// - incrementValue: Cantidad de peso a ajustar
+///
+/// **Ventajas:**
+/// - Adaptación individualizada
+/// - Considera fatiga y recuperación
+/// - Flexible y responsiva
+/// - Efectiva para atletas experimentados
+/// - Reduce riesgo de sobreentrenamiento
+///
+/// **Limitaciones:**
+/// - Requiere experiencia en RPE
+/// - Más compleja de implementar
+/// - Dependiente de la autoevaluación del atleta
+/// - Puede ser inconsistente entre sesiones
 class AutoregulatedProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
@@ -18,18 +69,24 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
             ? ((state.currentSession - 1) % config.cycleLength) + 1
             : ((state.currentWeek - 1) % config.cycleLength) + 1;
 
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    final isDeloadPeriod =
+        config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
 
     if (isDeloadPeriod) {
       // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+        0,
+        double.infinity,
+      );
+      final double deloadWeight =
+          state.baseWeight + (increaseOverBase * config.deloadPercentage);
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: (currentSets * 0.7).round(),
         incrementApplied: true,
-        reason: 'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -41,8 +98,10 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
     final minReps = _getMinReps(config);
     final incrementValue = _getIncrementValue(config);
 
-    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
-    final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
+    final lastSessionData =
+        state.sessionHistory['session_${state.currentSession}'];
+    final performedReps =
+        (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
 
     double estimatedRPE;
     if (performedReps >= targetReps) {
@@ -64,7 +123,10 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
     } else if (estimatedRPE > targetRPE + rpeThreshold) {
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
       return ProgressionCalculationResult(
-        newWeight: (currentWeight - incrementValue * 0.5).clamp(0, currentWeight),
+        newWeight: (currentWeight - incrementValue * 0.5).clamp(
+          0,
+          currentWeight,
+        ),
         newReps: adjustedReps,
         newSets: currentSets,
         incrementApplied: true,
@@ -129,13 +191,18 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
       final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
       if (exerciseParams != null) {
         final maxReps =
-            exerciseParams['max_reps'] ?? exerciseParams['multi_reps_max'] ?? exerciseParams['iso_reps_max'];
+            exerciseParams['max_reps'] ??
+            exerciseParams['multi_reps_max'] ??
+            exerciseParams['iso_reps_max'];
         if (maxReps != null) return maxReps as int;
       }
     }
 
     // Fallback a global
-    return customParams['max_reps'] ?? customParams['multi_reps_max'] ?? customParams['iso_reps_max'] ?? 12; // default
+    return customParams['max_reps'] ??
+        customParams['multi_reps_max'] ??
+        customParams['iso_reps_max'] ??
+        12; // default
   }
 
   /// Obtiene el mínimo de repeticiones desde parámetros personalizados
@@ -148,13 +215,18 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
       final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
       if (exerciseParams != null) {
         final minReps =
-            exerciseParams['min_reps'] ?? exerciseParams['multi_reps_min'] ?? exerciseParams['iso_reps_min'];
+            exerciseParams['min_reps'] ??
+            exerciseParams['multi_reps_min'] ??
+            exerciseParams['iso_reps_min'];
         if (minReps != null) return minReps as int;
       }
     }
 
     // Fallback a global
-    return customParams['min_reps'] ?? customParams['multi_reps_min'] ?? customParams['iso_reps_min'] ?? 5; // default
+    return customParams['min_reps'] ??
+        customParams['multi_reps_min'] ??
+        customParams['iso_reps_min'] ??
+        5; // default
   }
 
   /// Obtiene el valor de incremento desde parámetros personalizados
