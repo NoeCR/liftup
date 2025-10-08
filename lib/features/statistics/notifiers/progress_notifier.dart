@@ -22,7 +22,9 @@ class ProgressNotifier extends _$ProgressNotifier {
       final sessions = await sessionNotifier.future;
 
       final progressService = ProgressService.instance;
-      final newProgressData = await progressService.refreshProgressData(sessions);
+      final newProgressData = await progressService.refreshProgressData(
+        sessions,
+      );
 
       state = AsyncValue.data(newProgressData);
     } catch (error, stackTrace) {
@@ -37,7 +39,10 @@ class ProgressNotifier extends _$ProgressNotifier {
   }
 
   /// Obtiene datos de progreso en un rango de fechas
-  Future<List<ProgressData>> getProgressInDateRange(DateTime startDate, DateTime endDate) async {
+  Future<List<ProgressData>> getProgressInDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     final progressService = ProgressService.instance;
     return await progressService.getProgressInDateRange(startDate, endDate);
   }

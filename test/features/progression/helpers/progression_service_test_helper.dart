@@ -9,7 +9,9 @@ class ProgressionServiceTestHelper {
     return ProgressionService(databaseService: mockDatabase);
   }
 
-  static ProgressionService createWithCustomDatabase(IDatabaseService databaseService) {
+  static ProgressionService createWithCustomDatabase(
+    IDatabaseService databaseService,
+  ) {
     return ProgressionService(databaseService: databaseService);
   }
 }

@@ -130,8 +130,18 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
-                Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Text(
+                  title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           ),
@@ -175,7 +185,9 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr('dataManagement.dataExportedToJsonSuccessfully')),
+          content: Text(
+            context.tr('dataManagement.dataExportedToJsonSuccessfully'),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -183,7 +195,12 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr('dataManagement.exportError', namedArgs: {'error': e.toString()})),
+          content: Text(
+            context.tr(
+              'dataManagement.exportError',
+              namedArgs: {'error': e.toString()},
+            ),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -227,7 +244,9 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr('dataManagement.dataExportedToCsvSuccessfully')),
+          content: Text(
+            context.tr('dataManagement.dataExportedToCsvSuccessfully'),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -235,7 +254,12 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr('dataManagement.exportError', namedArgs: {'error': e.toString()})),
+          content: Text(
+            context.tr(
+              'dataManagement.exportError',
+              namedArgs: {'error': e.toString()},
+            ),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -279,15 +303,20 @@ class _ExportSectionState extends ConsumerState<ExportSection> {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr('dataManagement.pdfReportGeneratedSuccessfully')),
+          content: Text(
+            context.tr('dataManagement.pdfReportGeneratedSuccessfully'),
+          ),
           backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('❌ Error al generar PDF: $e'), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error al generar PDF: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

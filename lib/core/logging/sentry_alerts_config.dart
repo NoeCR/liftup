@@ -16,9 +16,12 @@ class SentryAlertsConfig {
 
       LoggingService.instance.info('Sentry alerts configured successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Failed to configure Sentry alerts', e, stackTrace, {
-        'component': 'sentry_alerts_config',
-      });
+      LoggingService.instance.error(
+        'Failed to configure Sentry alerts',
+        e,
+        stackTrace,
+        {'component': 'sentry_alerts_config'},
+      );
     }
   }
 
@@ -61,7 +64,11 @@ class SentryAlertsConfig {
   }
 
   /// Envía alerta personalizada para errores críticos de base de datos
-  static void alertDatabaseCritical({required String operation, required String error, Map<String, dynamic>? context}) {
+  static void alertDatabaseCritical({
+    required String operation,
+    required String error,
+    Map<String, dynamic>? context,
+  }) {
     try {
       LoggingService.instance.fatal('Database critical error', {
         'operation': operation,
@@ -77,10 +84,16 @@ class SentryAlertsConfig {
         'Database critical error: $operation',
         category: 'alert.database.critical',
         level: SentryLevel.fatal,
-        data: {'operation': operation, 'error': error, 'timestamp': DateTime.now().toIso8601String()},
+        data: {
+          'operation': operation,
+          'error': error,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
       );
     } catch (e) {
-      LoggingService.instance.error('Failed to send database critical alert: $e');
+      LoggingService.instance.error(
+        'Failed to send database critical alert: $e',
+      );
     }
   }
 
@@ -99,7 +112,8 @@ class SentryAlertsConfig {
         'duration_ms': durationMs,
         'threshold_ms': thresholdMs,
         'exceeded_by': durationMs - thresholdMs,
-        'exceeded_by_percentage': ((durationMs - thresholdMs) / thresholdMs * 100).round(),
+        'exceeded_by_percentage':
+            ((durationMs - thresholdMs) / thresholdMs * 100).round(),
         'alert_type': 'performance',
         'severity': severity,
         ...?context,
@@ -110,7 +124,12 @@ class SentryAlertsConfig {
         'Performance issue: $operation took ${durationMs}ms',
         category: 'alert.performance',
         level: SentryLevel.warning,
-        data: {'operation': operation, 'duration_ms': durationMs, 'threshold_ms': thresholdMs, 'severity': severity},
+        data: {
+          'operation': operation,
+          'duration_ms': durationMs,
+          'threshold_ms': thresholdMs,
+          'severity': severity,
+        },
       );
     } catch (e) {
       LoggingService.instance.error('Failed to send performance alert: $e');
@@ -175,7 +194,12 @@ class SentryAlertsConfig {
         'UX issue: $issue in $component',
         category: 'alert.user_experience',
         level: SentryLevel.warning,
-        data: {'issue': issue, 'component': component, 'impact': impact, 'timestamp': DateTime.now().toIso8601String()},
+        data: {
+          'issue': issue,
+          'component': component,
+          'impact': impact,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
       );
     } catch (e) {
       LoggingService.instance.error('Failed to send UX alert: $e');

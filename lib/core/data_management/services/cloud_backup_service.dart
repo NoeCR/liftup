@@ -57,10 +57,13 @@ class MockCloudBackupService implements CloudBackupService {
       // Configure export
       final exportConfig = ExportConfig(
         includeSessions: config?.includeDataTypes.contains('sessions') ?? true,
-        includeExercises: config?.includeDataTypes.contains('exercises') ?? true,
+        includeExercises:
+            config?.includeDataTypes.contains('exercises') ?? true,
         includeRoutines: config?.includeDataTypes.contains('routines') ?? true,
-        includeProgressData: config?.includeDataTypes.contains('progressData') ?? true,
-        includeUserSettings: config?.includeDataTypes.contains('settings') ?? false,
+        includeProgressData:
+            config?.includeDataTypes.contains('progressData') ?? true,
+        includeUserSettings:
+            config?.includeDataTypes.contains('settings') ?? false,
         compressData: config?.compressBackups ?? true,
         includeMetadata: true,
       );
@@ -107,7 +110,11 @@ class MockCloudBackupService implements CloudBackupService {
       // Clean up temp file
       await file.delete();
 
-      return BackupResult.success(backupId: backupId, sizeBytes: sizeBytes, completedAt: DateTime.now());
+      return BackupResult.success(
+        backupId: backupId,
+        sizeBytes: sizeBytes,
+        completedAt: DateTime.now(),
+      );
     } catch (e) {
       return BackupResult.failure('Error uploading backup: $e');
     }
@@ -179,9 +186,11 @@ class AutoBackupService {
   final BackupConfig _config;
   DateTime? _lastBackupTime;
 
-  AutoBackupService({required CloudBackupService cloudService, required BackupConfig config})
-    : _cloudService = cloudService,
-      _config = config;
+  AutoBackupService({
+    required CloudBackupService cloudService,
+    required BackupConfig config,
+  }) : _cloudService = cloudService,
+       _config = config;
 
   /// Checks whether a backup is needed
   bool shouldBackup() {

@@ -68,7 +68,13 @@ void main() {
           'session_1': {'reps': 12},
         },
       );
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, 102.5);
     });
 
@@ -80,7 +86,13 @@ void main() {
           'session_1': {'reps': 6},
         },
       );
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 6, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 6,
+        currentSets: 4,
+      );
       expect(res.newWeight, 98.75);
       expect(res.newReps, 8);
     });

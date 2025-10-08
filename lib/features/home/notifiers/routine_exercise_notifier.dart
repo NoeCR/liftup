@@ -38,10 +38,18 @@ class RoutineExerciseNotifier extends _$RoutineExerciseNotifier {
     final currentState = state;
     final exercises = currentState[sectionId] ?? <RoutineExercise>[];
 
-    state = {...currentState, sectionId: exercises.where((exercise) => exercise.id != exerciseId).toList()};
+    state = {
+      ...currentState,
+      sectionId:
+          exercises.where((exercise) => exercise.id != exerciseId).toList(),
+    };
   }
 
-  void updateExerciseInSection(String sectionId, String exerciseId, RoutineExercise updatedExercise) {
+  void updateExerciseInSection(
+    String sectionId,
+    String exerciseId,
+    RoutineExercise updatedExercise,
+  ) {
     final currentState = state;
     final exercises = currentState[sectionId] ?? <RoutineExercise>[];
 

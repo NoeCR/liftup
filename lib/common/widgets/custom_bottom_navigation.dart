@@ -27,7 +27,10 @@ class CustomBottomNavigation extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingS),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.spacingM,
+            vertical: AppTheme.spacingS,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -93,7 +96,10 @@ class CustomBottomNavigation extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.go(route),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingS),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacingM,
+          vertical: AppTheme.spacingS,
+        ),
         decoration: BoxDecoration(
           color: isActive ? colorScheme.primaryContainer : Colors.transparent,
           borderRadius: BorderRadius.circular(AppTheme.radiusM),
@@ -103,7 +109,10 @@ class CustomBottomNavigation extends StatelessWidget {
           children: [
             Icon(
               isActive ? activeIcon : icon,
-              color: isActive ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+              color:
+                  isActive
+                      ? colorScheme.onPrimaryContainer
+                      : colorScheme.onSurfaceVariant,
               size: 24,
             ),
             const SizedBox(height: AppTheme.spacingXS),
@@ -111,7 +120,10 @@ class CustomBottomNavigation extends StatelessWidget {
               child: Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: isActive ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                  color:
+                      isActive
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.onSurfaceVariant,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                   fontSize: 12,
                 ),

@@ -49,7 +49,9 @@ class HiveAdapters {
       _registerAdapterSafely<MuscleGroup>(MuscleGroupAdapter());
 
       // Routine Section Template adapters
-      _registerAdapterSafely<RoutineSectionTemplate>(RoutineSectionTemplateAdapter());
+      _registerAdapterSafely<RoutineSectionTemplate>(
+        RoutineSectionTemplateAdapter(),
+      );
 
       // Section Muscle Group adapters
       _registerAdapterSafely<SectionMuscleGroup>(SectionMuscleGroupAdapter());
@@ -74,7 +76,8 @@ class HiveAdapters {
     try {
       // @ignore: cast ok for accessing typeId
       final dynamic dynAdapter = adapter;
-      final int? typeId = (dynAdapter is TypeAdapter) ? dynAdapter.typeId : null;
+      final int? typeId =
+          (dynAdapter is TypeAdapter) ? dynAdapter.typeId : null;
       if (typeId != null) {
         final bool already = Hive.isAdapterRegistered(typeId);
         if (already) {
@@ -85,7 +88,8 @@ class HiveAdapters {
       Hive.registerAdapter<T>(adapter);
     } catch (e) {
       final msg = e.toString().toLowerCase();
-      if (msg.contains('already registered') || msg.contains('there is already a typeadapter')) {
+      if (msg.contains('already registered') ||
+          msg.contains('there is already a typeadapter')) {
         return; // ignore duplicate registration errors
       }
       rethrow;

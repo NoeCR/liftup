@@ -17,7 +17,10 @@ class StatisticsPage extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(context.tr('statistics.title')), backgroundColor: colorScheme.surface),
+      appBar: AppBar(
+        title: Text(context.tr('statistics.title')),
+        backgroundColor: colorScheme.surface,
+      ),
       body: Consumer(
         builder: (context, ref, _) {
           final sessionsAsync = ref.watch(sessionNotifierProvider);
@@ -37,16 +40,24 @@ class StatisticsPage extends ConsumerWidget {
                           const SizedBox(height: 12),
                           _ExerciseProgressChart(),
                           const SizedBox(height: 24),
-                          _SectionTitle('Comparación por rutina (sets totales)'),
+                          _SectionTitle(
+                            'Comparación por rutina (sets totales)',
+                          ),
                           const SizedBox(height: 12),
                           _RoutineComparisonChart(),
                         ],
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading:
+                        () => const Center(child: CircularProgressIndicator()),
                     error:
                         (e, _) => Center(
-                          child: Text(context.tr('errors.errorLoadingData', namedArgs: {'error': e.toString()})),
+                          child: Text(
+                            context.tr(
+                              'errors.errorLoadingData',
+                              namedArgs: {'error': e.toString()},
+                            ),
+                          ),
                         ),
                   );
                 },
@@ -85,7 +96,8 @@ class _RoutineComparisonChart extends ConsumerWidget {
           final setsByRoutine = <String, int>{};
           for (final s in sessions) {
             final rid = s.routineId ?? 'Sin rutina';
-            setsByRoutine[rid] = (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
+            setsByRoutine[rid] =
+                (setsByRoutine[rid] ?? 0) + s.exerciseSets.length;
           }
           if (setsByRoutine.isEmpty) {
             return Center(child: Text(context.tr('statistics.noData')));
@@ -98,12 +110,20 @@ class _RoutineComparisonChart extends ConsumerWidget {
               PieChartSectionData(
                 value: e.value.toDouble(),
                 title: '${pct.toStringAsFixed(0)}%',
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3 + (pie.length * 0.1).clamp(0, 0.6)),
+                color: Theme.of(context).colorScheme.primary.withValues(
+                  alpha: 0.3 + (pie.length * 0.1).clamp(0, 0.6),
+                ),
                 radius: 60,
               ),
             );
           }
-          return PieChart(PieChartData(sections: pie, sectionsSpace: 2, centerSpaceRadius: 34));
+          return PieChart(
+            PieChartData(
+              sections: pie,
+              sectionsSpace: 2,
+              centerSpaceRadius: 34,
+            ),
+          );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -115,10 +135,12 @@ class _RoutineComparisonChart extends ConsumerWidget {
 class _ExerciseProgressChart extends ConsumerStatefulWidget {
   const _ExerciseProgressChart();
   @override
-  ConsumerState<_ExerciseProgressChart> createState() => _ExerciseProgressChartState();
+  ConsumerState<_ExerciseProgressChart> createState() =>
+      _ExerciseProgressChartState();
 }
 
-class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> {
+class _ExerciseProgressChartState
+    extends ConsumerState<_ExerciseProgressChart> {
   static const String allExercisesId = '__all__';
   String? _selectedExerciseId;
   DateTime? _from;
@@ -145,12 +167,19 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
         // Exercise selector
         DropdownButtonFormField<String>(
           value: _selectedExerciseId,
-          decoration: InputDecoration(labelText: context.tr('statistics.exercise')),
+          decoration: InputDecoration(
+            labelText: context.tr('statistics.exercise'),
+          ),
           items: exercisesAsync.when(
             data:
                 (exercises) => [
-                  DropdownMenuItem(value: allExercisesId, child: Text(context.tr('statistics.all'))),
-                  ...exercises.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))),
+                  DropdownMenuItem(
+                    value: allExercisesId,
+                    child: Text(context.tr('statistics.all')),
+                  ),
+                  ...exercises.map(
+                    (e) => DropdownMenuItem(value: e.id, child: Text(e.name)),
+                  ),
                 ],
             loading: () => const [],
             error: (_, __) => const [],
@@ -166,14 +195,20 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                 onPressed: () async {
                   final picked = await showDatePicker(
                     context: context,
-                    initialDate: _from ?? DateTime.now().subtract(const Duration(days: 30)),
+                    initialDate:
+                        _from ??
+                        DateTime.now().subtract(const Duration(days: 30)),
                     firstDate: DateTime(2020),
                     lastDate: DateTime.now(),
                   );
                   if (picked != null) setState(() => _from = picked);
                 },
                 icon: const Icon(Icons.calendar_today),
-                label: Text(_from == null ? 'Desde' : '${_from!.day}/${_from!.month}/${_from!.year}'),
+                label: Text(
+                  _from == null
+                      ? 'Desde'
+                      : '${_from!.day}/${_from!.month}/${_from!.year}',
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -189,7 +224,11 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                   if (picked != null) setState(() => _to = picked);
                 },
                 icon: const Icon(Icons.calendar_today),
-                label: Text(_to == null ? 'Hasta' : '${_to!.day}/${_to!.month}/${_to!.year}'),
+                label: Text(
+                  _to == null
+                      ? 'Hasta'
+                      : '${_to!.day}/${_to!.month}/${_to!.year}',
+                ),
               ),
             ),
           ],
@@ -203,17 +242,24 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
               // Filter by dates and sort chronologically
               final filtered =
                   sessions.where((s) {
-                      if (_from != null && s.startTime.isBefore(_from!)) return false;
-                      if (_to != null && s.startTime.isAfter(_to!)) return false;
+                      if (_from != null && s.startTime.isBefore(_from!))
+                        return false;
+                      if (_to != null && s.startTime.isAfter(_to!))
+                        return false;
                       // If a specific exercise is selected, require sessions to include it
-                      if (_selectedExerciseId != null && _selectedExerciseId != allExercisesId) {
-                        return s.exerciseSets.any((set) => set.exerciseId == _selectedExerciseId);
+                      if (_selectedExerciseId != null &&
+                          _selectedExerciseId != allExercisesId) {
+                        return s.exerciseSets.any(
+                          (set) => set.exerciseId == _selectedExerciseId,
+                        );
                       }
                       return true;
                     }).toList()
                     ..sort((a, b) => a.startTime.compareTo(b.startTime));
               if (filtered.isEmpty) {
-                return Center(child: Text(context.tr('statistics.noDataInRange')));
+                return Center(
+                  child: Text(context.tr('statistics.noDataInRange')),
+                );
               }
               // Compute weighted average (reps × weight) per session
               final rawSpots = <FlSpot>[];
@@ -222,9 +268,16 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                 final sets =
                     (_selectedExerciseId == allExercisesId)
                         ? s.exerciseSets
-                        : s.exerciseSets.where((set) => set.exerciseId == _selectedExerciseId).toList();
+                        : s.exerciseSets
+                            .where(
+                              (set) => set.exerciseId == _selectedExerciseId,
+                            )
+                            .toList();
                 if (sets.isEmpty) continue;
-                final total = sets.fold<double>(0, (a, b) => a + (b.reps * b.weight));
+                final total = sets.fold<double>(
+                  0,
+                  (a, b) => a + (b.reps * b.weight),
+                );
                 final avg = total / sets.length;
                 rawSpots.add(FlSpot(i.toDouble(), avg));
               }
@@ -232,7 +285,9 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
               // Apply advanced smoothing algorithm
               final spots = _applyAdvancedSmoothing(rawSpots, filtered);
               if (spots.isEmpty) {
-                return Center(child: Text(context.tr('statistics.noDataInRange')));
+                return Center(
+                  child: Text(context.tr('statistics.noDataInRange')),
+                );
               }
               // Compute Y range to keep the chart within bounds
               final yValues = spots.map((spot) => spot.y).toList();
@@ -251,7 +306,10 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                     drawVerticalLine: false,
                     horizontalInterval: _calculateYInterval(yMax - yMin),
                     getDrawingHorizontalLine: (value) {
-                      return FlLine(color: theme.colorScheme.outline.withValues(alpha: 0.2), strokeWidth: 1);
+                      return FlLine(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                        strokeWidth: 1,
+                      );
                     },
                   ),
                   titlesData: FlTitlesData(
@@ -263,7 +321,9 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                         getTitlesWidget: (value, meta) {
                           return Text(
                             value.toInt().toString(),
-                            style: theme.textTheme.bodySmall?.copyWith(fontSize: 10),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 10,
+                            ),
                           );
                         },
                       ),
@@ -274,14 +334,17 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                         reservedSize: 40,
                         interval: _calculateDateInterval(filtered.length),
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= 0 && value.toInt() < filtered.length) {
+                          if (value.toInt() >= 0 &&
+                              value.toInt() < filtered.length) {
                             final session = filtered[value.toInt()];
                             final date = session.startTime;
                             return Transform.rotate(
                               angle: -0.5, // ~30 degrees rotation
                               child: Text(
                                 '${date.day}/${date.month}',
-                                style: theme.textTheme.bodySmall?.copyWith(fontSize: 10),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             );
@@ -290,8 +353,12 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                         },
                       ),
                     ),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   lineBarsData: [
                     LineChartBarData(
@@ -330,7 +397,12 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
                       getTooltipItems:
                           (touchedSpots) =>
                               touchedSpots
-                                  .map((ts) => LineTooltipItem(ts.y.toStringAsFixed(0), theme.textTheme.labelMedium!))
+                                  .map(
+                                    (ts) => LineTooltipItem(
+                                      ts.y.toStringAsFixed(0),
+                                      theme.textTheme.labelMedium!,
+                                    ),
+                                  )
                                   .toList(),
                     ),
                   ),
@@ -364,7 +436,10 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
   }
 
   /// Applies advanced smoothing to remove jumps and fill gaps
-  List<FlSpot> _applyAdvancedSmoothing(List<FlSpot> rawSpots, List<WorkoutSession> sessions) {
+  List<FlSpot> _applyAdvancedSmoothing(
+    List<FlSpot> rawSpots,
+    List<WorkoutSession> sessions,
+  ) {
     if (rawSpots.isEmpty) return rawSpots;
 
     // Step 1: Linear interpolation to fill temporal gaps
@@ -380,7 +455,10 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
   }
 
   /// Interpolates missing values between sessions using linear interpolation
-  List<FlSpot> _interpolateMissingValues(List<FlSpot> rawSpots, List<WorkoutSession> sessions) {
+  List<FlSpot> _interpolateMissingValues(
+    List<FlSpot> rawSpots,
+    List<WorkoutSession> sessions,
+  ) {
     if (rawSpots.length < 2) return rawSpots;
 
     final interpolatedSpots = <FlSpot>[];
@@ -404,7 +482,13 @@ class _ExerciseProgressChartState extends ConsumerState<_ExerciseProgressChart> 
 
         if (prevDay != null && nextDay != null) {
           // Linear interpolation between existing values
-          final interpolatedValue = _linearInterpolation(prevDay.day, prevDay.value, nextDay.day, nextDay.value, day);
+          final interpolatedValue = _linearInterpolation(
+            prevDay.day,
+            prevDay.value,
+            nextDay.day,
+            nextDay.value,
+            day,
+          );
           interpolatedSpots.add(FlSpot(day.toDouble(), interpolatedValue));
         } else if (prevDay != null) {
           // Use previous value if no next value

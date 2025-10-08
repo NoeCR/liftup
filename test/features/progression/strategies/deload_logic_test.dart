@@ -93,7 +93,11 @@ void main() {
 
       test('deload con peso igual al base', () {
         final config = _createDeloadConfig(type: ProgressionType.linear);
-        final state = _createProgressedState(currentWeight: 100.0, baseWeight: 100.0, currentSession: 1);
+        final state = _createProgressedState(
+          currentWeight: 100.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -182,7 +186,11 @@ void main() {
 
       test('deload no afecta lógica de reps', () {
         final config = _createDeloadConfig(type: ProgressionType.double);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final state = _createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -250,8 +258,15 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('deload con porcentaje 0.0 (sin reducción)', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.0);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = _createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 0.0,
+        );
+        final state = _createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -267,8 +282,15 @@ void main() {
       });
 
       test('deload con porcentaje 1.0 (sin reducción)', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 1.0);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = _createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 1.0,
+        );
+        final state = _createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -284,7 +306,10 @@ void main() {
       });
 
       test('deload con incremento muy pequeño', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
+        final config = _createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 0.9,
+        );
         final state = _createProgressedState(
           currentWeight: 100.1, // Incremento muy pequeño
           baseWeight: 100.0,
@@ -305,7 +330,10 @@ void main() {
       });
 
       test('deload con incremento muy grande', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
+        final config = _createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 0.9,
+        );
         final state = _createProgressedState(
           currentWeight: 200.0, // Incremento muy grande
           baseWeight: 100.0,
@@ -328,10 +356,18 @@ void main() {
 
     group('Deload Consistency Across Strategies', () {
       test('todas las estrategias usan la misma lógica de deload', () {
-        final strategies = [LinearProgressionStrategy(), DoubleProgressionStrategy(), UndulatingProgressionStrategy()];
+        final strategies = [
+          LinearProgressionStrategy(),
+          DoubleProgressionStrategy(),
+          UndulatingProgressionStrategy(),
+        ];
 
         final config = _createDeloadConfig(type: ProgressionType.linear);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final state = _createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         for (final strategy in strategies) {
           final result = strategy.calculate(

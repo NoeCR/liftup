@@ -6,7 +6,10 @@ void main() {
     final initial = {
       'skip_next_by_routine': {'r1': true, 'r2': true},
     };
-    final res = evaluateAndConsumeSkipForRoutine(customData: initial, routineId: 'r1');
+    final res = evaluateAndConsumeSkipForRoutine(
+      customData: initial,
+      routineId: 'r1',
+    );
     expect(res['skip'], true);
     final cleaned = res['custom'] as Map<String, dynamic>;
     final map = cleaned['skip_next_by_routine'] as Map;
@@ -18,7 +21,10 @@ void main() {
     final initial = {
       'skip_next_by_routine': {'r2': true},
     };
-    final res = evaluateAndConsumeSkipForRoutine(customData: initial, routineId: 'r1');
+    final res = evaluateAndConsumeSkipForRoutine(
+      customData: initial,
+      routineId: 'r1',
+    );
     expect(res['skip'], false);
     final cleaned = res['custom'] as Map<String, dynamic>;
     final map = cleaned['skip_next_by_routine'] as Map;

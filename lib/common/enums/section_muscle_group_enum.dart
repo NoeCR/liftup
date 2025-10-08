@@ -142,5 +142,8 @@ extension SectionMuscleGroupExtension on SectionMuscleGroup {
     SectionMuscleGroup.cardio,
   ];
 
-  static List<SectionMuscleGroup> get specialGroups => [SectionMuscleGroup.warmup, SectionMuscleGroup.cooldown];
+  static List<SectionMuscleGroup> get specialGroups => [
+    SectionMuscleGroup.warmup,
+    SectionMuscleGroup.cooldown,
+  ];
 }

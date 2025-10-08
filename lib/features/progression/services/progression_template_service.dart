@@ -16,12 +16,15 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
     return await _getAllProgressionTemplates();
   }
 
-  Box get _templatesBox => DatabaseService.getInstance().progressionTemplatesBox;
+  Box get _templatesBox =>
+      DatabaseService.getInstance().progressionTemplatesBox;
 
   /// Inicializa las plantillas predefinidas de progresión
   Future<void> initializeBuiltInTemplates() async {
     try {
-      LoggingService.instance.info('Initializing built-in progression templates');
+      LoggingService.instance.info(
+        'Initializing built-in progression templates',
+      );
 
       final templates = _getBuiltInTemplates();
       int initializedCount = 0;
@@ -35,13 +38,18 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         }
       }
 
-      LoggingService.instance.info('Built-in progression templates initialized successfully', {
-        'total': templates.length,
-        'initialized': initializedCount,
-        'already_existed': templates.length - initializedCount,
-      });
+      LoggingService.instance
+          .info('Built-in progression templates initialized successfully', {
+            'total': templates.length,
+            'initialized': initializedCount,
+            'already_existed': templates.length - initializedCount,
+          });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing built-in progression templates', e, stackTrace);
+      LoggingService.instance.error(
+        'Error initializing built-in progression templates',
+        e,
+        stackTrace,
+      );
       rethrow;
     }
   }
@@ -62,10 +70,15 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         defaultCycleLength: 4,
         defaultDeloadWeek: 4,
         defaultDeloadPercentage: 0.9,
-        defaultParameters: {'max_weeks': 8, 'reset_percentage': 0.85, 'sessions_per_week': 3},
+        defaultParameters: {
+          'max_weeks': 8,
+          'reset_percentage': 0.85,
+          'sessions_per_week': 3,
+        },
         recommendedFor: ['Principiantes', 'Fuerza'],
         difficulty: 'Principiante',
-        example: 'Semana 1: 100kg x 5x5 → Semana 2: 102.5kg x 5x5 → Semana 3: 105kg x 5x5',
+        example:
+            'Semana 1: 100kg x 5x5 → Semana 2: 102.5kg x 5x5 → Semana 3: 105kg x 5x5',
         isBuiltIn: true,
         createdAt: DateTime.now(),
       ),
@@ -74,7 +87,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'undulating_intermediate',
         name: 'Progresión Ondulante - Intermedio',
-        description: 'Alterna entre días pesados y ligeros para estimular diferentes adaptaciones.',
+        description:
+            'Alterna entre días pesados y ligeros para estimular diferentes adaptaciones.',
         type: ProgressionType.undulating,
         defaultUnit: ProgressionUnit.session,
         defaultPrimaryTarget: ProgressionTarget.weight,
@@ -101,7 +115,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'stepped_advanced',
         name: 'Progresión Escalonada - Avanzado',
-        description: 'Acumula carga durante varias semanas y luego reduce para recuperación.',
+        description:
+            'Acumula carga durante varias semanas y luego reduce para recuperación.',
         type: ProgressionType.stepped,
         defaultUnit: ProgressionUnit.week,
         defaultPrimaryTarget: ProgressionTarget.weight,
@@ -110,10 +125,15 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         defaultCycleLength: 4,
         defaultDeloadWeek: 4,
         defaultDeloadPercentage: 0.8,
-        defaultParameters: {'accumulation_weeks': 3, 'deload_volume_reduction': 0.7, 'sessions_per_week': 3},
+        defaultParameters: {
+          'accumulation_weeks': 3,
+          'deload_volume_reduction': 0.7,
+          'sessions_per_week': 3,
+        },
         recommendedFor: ['Avanzados', 'Powerlifting'],
         difficulty: 'Avanzado',
-        example: 'Semana 1-3: 100kg → 105kg → 107.5kg → Semana 4: 80kg (deload)',
+        example:
+            'Semana 1-3: 100kg → 105kg → 107.5kg → Semana 4: 80kg (deload)',
         isBuiltIn: true,
         createdAt: DateTime.now(),
       ),
@@ -122,7 +142,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'double_hypertrophy',
         name: 'Progresión Doble - Hipertrofia',
-        description: 'Primero aumenta repeticiones hasta el máximo, luego incrementa peso.',
+        description:
+            'Primero aumenta repeticiones hasta el máximo, luego incrementa peso.',
         type: ProgressionType.double,
         defaultUnit: ProgressionUnit.session,
         defaultPrimaryTarget: ProgressionTarget.reps,
@@ -132,10 +153,16 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         defaultCycleLength: 6,
         defaultDeloadWeek: 6,
         defaultDeloadPercentage: 0.9,
-        defaultParameters: {'min_reps': 8, 'max_reps': 12, 'weight_increment': 2.5, 'sessions_per_week': 3},
+        defaultParameters: {
+          'min_reps': 8,
+          'max_reps': 12,
+          'weight_increment': 2.5,
+          'sessions_per_week': 3,
+        },
         recommendedFor: ['Intermedios', 'Hipertrofia'],
         difficulty: 'Intermedio',
-        example: 'Semana 1: 80kg x 3x8 → Semana 2: 80kg x 3x9 → Semana 3: 80kg x 3x10',
+        example:
+            'Semana 1: 80kg x 3x8 → Semana 2: 80kg x 3x9 → Semana 3: 80kg x 3x10',
         isBuiltIn: true,
         createdAt: DateTime.now(),
       ),
@@ -144,7 +171,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'wave_advanced',
         name: 'Progresión por Oleadas - Avanzado',
-        description: 'Ciclos de 3 semanas: alta intensidad, alto volumen, descarga.',
+        description:
+            'Ciclos de 3 semanas: alta intensidad, alto volumen, descarga.',
         type: ProgressionType.wave,
         defaultUnit: ProgressionUnit.week,
         defaultPrimaryTarget: ProgressionTarget.weight,
@@ -172,7 +200,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'static_technique',
         name: 'Progresión Estática - Técnica',
-        description: 'Mantiene carga constante para enfocarse en técnica y tolerancia.',
+        description:
+            'Mantiene carga constante para enfocarse en técnica y tolerancia.',
         type: ProgressionType.static,
         defaultUnit: ProgressionUnit.week,
         defaultPrimaryTarget: ProgressionTarget.volume,
@@ -181,7 +210,11 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         defaultCycleLength: 4,
         defaultDeloadWeek: 0,
         defaultDeloadPercentage: 1.0,
-        defaultParameters: {'focus': 'technique', 'rpe_target': 6, 'sessions_per_week': 1},
+        defaultParameters: {
+          'focus': 'technique',
+          'rpe_target': 6,
+          'sessions_per_week': 1,
+        },
         recommendedFor: ['Principiantes', 'Técnica'],
         difficulty: 'Principiante',
         example: '4 semanas: 80kg x 3x8 (mantener carga constante)',
@@ -193,7 +226,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'reverse_peaking',
         name: 'Progresión Inversa - Pico',
-        description: 'Inicia con alta intensidad y reduce progresivamente para llegar al pico.',
+        description:
+            'Inicia con alta intensidad y reduce progresivamente para llegar al pico.',
         type: ProgressionType.reverse,
         defaultUnit: ProgressionUnit.week,
         defaultPrimaryTarget: ProgressionTarget.weight,
@@ -229,7 +263,12 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         defaultCycleLength: 8,
         defaultDeloadWeek: 8,
         defaultDeloadPercentage: 0.8,
-        defaultParameters: {'target_rpe': 8, 'rpe_range': 2, 'auto_adjust': true, 'sessions_per_week': 3},
+        defaultParameters: {
+          'target_rpe': 8,
+          'rpe_range': 2,
+          'auto_adjust': true,
+          'sessions_per_week': 3,
+        },
         recommendedFor: ['Intermedios', 'Avanzados'],
         difficulty: 'Intermedio',
         example: '3x5 @RPE 8 (peso se ajusta automáticamente)',
@@ -241,7 +280,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'double_factor_advanced',
         name: 'Progresión Doble Factor - Avanzado',
-        description: 'Balance entre fitness y fatiga, ajustando volumen e intensidad según la recuperación.',
+        description:
+            'Balance entre fitness y fatiga, ajustando volumen e intensidad según la recuperación.',
         type: ProgressionType.doubleFactor,
         defaultUnit: ProgressionUnit.week,
         defaultPrimaryTarget: ProgressionTarget.intensity,
@@ -270,7 +310,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       ProgressionTemplate(
         id: 'overload_progressive',
         name: 'Progresión de Sobrecarga - Progresiva',
-        description: 'Incremento gradual de volumen o intensidad para maximizar adaptaciones.',
+        description:
+            'Incremento gradual de volumen o intensidad para maximizar adaptaciones.',
         type: ProgressionType.overload,
         defaultUnit: ProgressionUnit.week,
         defaultPrimaryTarget: ProgressionTarget.volume,
@@ -289,7 +330,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         },
         recommendedFor: ['Intermedios', 'Avanzados'],
         difficulty: 'Intermedio',
-        example: 'Semana 1: 80kg x 3x8 → Semana 2: 80kg x 4x8 → Semana 3: 80kg x 5x8 → Semana 4: 80kg x 6x8',
+        example:
+            'Semana 1: 80kg x 3x8 → Semana 2: 80kg x 4x8 → Semana 3: 80kg x 5x8 → Semana 4: 80kg x 6x8',
         isBuiltIn: true,
         createdAt: DateTime.now(),
       ),
@@ -298,7 +340,8 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
 
   Future<List<ProgressionTemplate>> _getAllProgressionTemplates() async {
     try {
-      final allTemplates = _templatesBox.values.cast<ProgressionTemplate>().toList();
+      final allTemplates =
+          _templatesBox.values.cast<ProgressionTemplate>().toList();
 
       // Verificar si hay plantillas integradas, si no las hay, inicializarlas
       final builtInTemplates = allTemplates.where((t) => t.isBuiltIn).toList();
@@ -315,17 +358,22 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
       }
 
       // Verificar si faltan plantillas específicas (para casos donde se agregaron nuevas)
-      final expectedTemplateIds = _getBuiltInTemplates().map((t) => t.id).toSet();
+      final expectedTemplateIds =
+          _getBuiltInTemplates().map((t) => t.id).toSet();
       final existingTemplateIds = builtInTemplates.map((t) => t.id).toSet();
-      final missingTemplateIds = expectedTemplateIds.difference(existingTemplateIds);
+      final missingTemplateIds = expectedTemplateIds.difference(
+        existingTemplateIds,
+      );
 
       if (missingTemplateIds.isNotEmpty) {
-        LoggingService.instance.info('Missing built-in templates found, initializing missing ones...', {
-          'missing': missingTemplateIds.toList(),
-        });
+        LoggingService.instance.info(
+          'Missing built-in templates found, initializing missing ones...',
+          {'missing': missingTemplateIds.toList()},
+        );
         await initializeBuiltInTemplates();
         // Recargar las plantillas después de la inicialización
-        final reloadedTemplates = _templatesBox.values.cast<ProgressionTemplate>().toList();
+        final reloadedTemplates =
+            _templatesBox.values.cast<ProgressionTemplate>().toList();
         reloadedTemplates.sort((a, b) {
           // Primero las plantillas integradas, luego las personalizadas
           if (a.isBuiltIn && !b.isBuiltIn) return -1;
@@ -359,22 +407,38 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
     return await _getAllProgressionTemplates();
   }
 
-  Future<List<ProgressionTemplate>> getTemplatesByDifficulty(String difficulty) async {
+  Future<List<ProgressionTemplate>> getTemplatesByDifficulty(
+    String difficulty,
+  ) async {
     try {
       final allTemplates = await _getAllProgressionTemplates();
-      return allTemplates.where((template) => template.difficulty == difficulty).toList();
+      return allTemplates
+          .where((template) => template.difficulty == difficulty)
+          .toList();
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting templates by difficulty', e, stackTrace, {'difficulty': difficulty});
+      LoggingService.instance.error(
+        'Error getting templates by difficulty',
+        e,
+        stackTrace,
+        {'difficulty': difficulty},
+      );
       return [];
     }
   }
 
-  Future<List<ProgressionTemplate>> getTemplatesByType(ProgressionType type) async {
+  Future<List<ProgressionTemplate>> getTemplatesByType(
+    ProgressionType type,
+  ) async {
     try {
       final allTemplates = await _getAllProgressionTemplates();
       return allTemplates.where((template) => template.type == type).toList();
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting templates by type', e, stackTrace, {'type': type.name});
+      LoggingService.instance.error(
+        'Error getting templates by type',
+        e,
+        stackTrace,
+        {'type': type.name},
+      );
       return [];
     }
   }
@@ -383,7 +447,12 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
     try {
       return _templatesBox.get(templateId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting progression template', e, stackTrace, {'templateId': templateId});
+      LoggingService.instance.error(
+        'Error getting progression template',
+        e,
+        stackTrace,
+        {'templateId': templateId},
+      );
       return null;
     }
   }
@@ -391,9 +460,17 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
   Future<void> saveTemplate(ProgressionTemplate template) async {
     try {
       await _templatesBox.put(template.id, template);
-      LoggingService.instance.info('Progression template saved', {'templateId': template.id, 'name': template.name});
+      LoggingService.instance.info('Progression template saved', {
+        'templateId': template.id,
+        'name': template.name,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error saving progression template', e, stackTrace, {'templateId': template.id});
+      LoggingService.instance.error(
+        'Error saving progression template',
+        e,
+        stackTrace,
+        {'templateId': template.id},
+      );
       rethrow;
     }
   }
@@ -401,9 +478,16 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
   Future<void> deleteTemplate(String templateId) async {
     try {
       await _templatesBox.delete(templateId);
-      LoggingService.instance.info('Progression template deleted', {'templateId': templateId});
+      LoggingService.instance.info('Progression template deleted', {
+        'templateId': templateId,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error deleting progression template', e, stackTrace, {'templateId': templateId});
+      LoggingService.instance.error(
+        'Error deleting progression template',
+        e,
+        stackTrace,
+        {'templateId': templateId},
+      );
       rethrow;
     }
   }
@@ -411,7 +495,9 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
   /// Fuerza la restauración de todas las plantillas integradas
   Future<void> restoreBuiltInTemplates() async {
     try {
-      LoggingService.instance.info('Restoring all built-in progression templates');
+      LoggingService.instance.info(
+        'Restoring all built-in progression templates',
+      );
 
       final templates = _getBuiltInTemplates();
 
@@ -419,9 +505,16 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
         await _templatesBox.put(template.id, template);
       }
 
-      LoggingService.instance.info('Built-in progression templates restored successfully', {'count': templates.length});
+      LoggingService.instance.info(
+        'Built-in progression templates restored successfully',
+        {'count': templates.length},
+      );
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error restoring built-in progression templates', e, stackTrace);
+      LoggingService.instance.error(
+        'Error restoring built-in progression templates',
+        e,
+        stackTrace,
+      );
       rethrow;
     }
   }
@@ -469,14 +562,19 @@ class ProgressionTemplateService extends _$ProgressionTemplateService {
 
       await saveTemplate(template);
 
-      LoggingService.instance.info('Custom progression template created', {'templateId': template.id, 'name': name});
+      LoggingService.instance.info('Custom progression template created', {
+        'templateId': template.id,
+        'name': name,
+      });
 
       return template;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error creating custom progression template', e, stackTrace, {
-        'name': name,
-        'type': type.name,
-      });
+      LoggingService.instance.error(
+        'Error creating custom progression template',
+        e,
+        stackTrace,
+        {'name': name, 'type': type.name},
+      );
       rethrow;
     }
   }

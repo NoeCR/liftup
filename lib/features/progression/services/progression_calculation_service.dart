@@ -48,11 +48,12 @@ class ProgressionCalculationService {
 
       return result;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error calculating progression', e, stackTrace, {
-        'configId': config.id,
-        'exerciseId': state.exerciseId,
-        'type': config.type.name,
-      });
+      LoggingService.instance
+          .error('Error calculating progression', e, stackTrace, {
+            'configId': config.id,
+            'exerciseId': state.exerciseId,
+            'type': config.type.name,
+          });
       rethrow;
     }
   }
@@ -71,15 +72,24 @@ class ProgressionCalculationService {
   }
 
   /// Calcula la posición actual en el ciclo
-  int calculateCurrentCyclePosition({required ProgressionConfig config, required ProgressionState state}) {
+  int calculateCurrentCyclePosition({
+    required ProgressionConfig config,
+    required ProgressionState state,
+  }) {
     return config.unit == ProgressionUnit.session
         ? ((state.currentSession - 1) % config.cycleLength) + 1
         : ((state.currentWeek - 1) % config.cycleLength) + 1;
   }
 
   /// Determina si estamos en una semana de deload
-  bool isDeloadWeek({required ProgressionConfig config, required ProgressionState state}) {
-    final currentPosition = calculateCurrentCyclePosition(config: config, state: state);
+  bool isDeloadWeek({
+    required ProgressionConfig config,
+    required ProgressionState state,
+  }) {
+    final currentPosition = calculateCurrentCyclePosition(
+      config: config,
+      state: state,
+    );
     return config.deloadWeek > 0 && currentPosition == config.deloadWeek;
   }
 

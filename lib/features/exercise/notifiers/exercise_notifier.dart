@@ -25,7 +25,11 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     final exerciseService = ref.read(exerciseServiceProvider);
     final uuid = const Uuid();
 
-    final newExercise = exercise.copyWith(id: uuid.v4(), createdAt: DateTime.now(), updatedAt: DateTime.now());
+    final newExercise = exercise.copyWith(
+      id: uuid.v4(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
 
     await exerciseService.saveExercise(newExercise);
 
@@ -61,7 +65,9 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     return await exerciseService.getExerciseById(id);
   }
 
-  Future<List<Exercise>> getExercisesByCategory(ExerciseCategory category) async {
+  Future<List<Exercise>> getExercisesByCategory(
+    ExerciseCategory category,
+  ) async {
     final exerciseService = ref.read(exerciseServiceProvider);
     return await exerciseService.getExercisesByCategory(category);
   }
@@ -79,10 +85,15 @@ class ExerciseNotifier extends _$ExerciseNotifier {
       Exercise(
         id: uuid.v4(),
         name: 'Press de Banca',
-        description: 'Ejercicio fundamental para el desarrollo del pecho, hombros y tríceps.',
+        description:
+            'Ejercicio fundamental para el desarrollo del pecho, hombros y tríceps.',
         imageUrl: 'assets/images/bench_press.png',
         videoUrl: 'https://example.com/bench_press.mp4',
-        muscleGroups: [MuscleGroup.pectoralMajor, MuscleGroup.anteriorDeltoid, MuscleGroup.tricepsLateralHead],
+        muscleGroups: [
+          MuscleGroup.pectoralMajor,
+          MuscleGroup.anteriorDeltoid,
+          MuscleGroup.tricepsLateralHead,
+        ],
         tips: [
           'Mantén los pies firmes en el suelo',
           'Contrae el core durante todo el movimiento',
@@ -101,10 +112,15 @@ class ExerciseNotifier extends _$ExerciseNotifier {
       Exercise(
         id: uuid.v4(),
         name: 'Sentadillas',
-        description: 'Ejercicio compuesto que trabaja principalmente las piernas y glúteos.',
+        description:
+            'Ejercicio compuesto que trabaja principalmente las piernas y glúteos.',
         imageUrl: 'assets/images/squats.png',
         videoUrl: 'https://example.com/squats.mp4',
-        muscleGroups: [MuscleGroup.rectusFemoris, MuscleGroup.gluteusMaximus, MuscleGroup.bicepsFemoris],
+        muscleGroups: [
+          MuscleGroup.rectusFemoris,
+          MuscleGroup.gluteusMaximus,
+          MuscleGroup.bicepsFemoris,
+        ],
         tips: [
           'Mantén el pecho erguido',
           'Baja hasta que los muslos estén paralelos al suelo',
@@ -123,11 +139,20 @@ class ExerciseNotifier extends _$ExerciseNotifier {
       Exercise(
         id: uuid.v4(),
         name: 'Dominadas',
-        description: 'Ejercicio de tracción que desarrolla la espalda y bíceps.',
+        description:
+            'Ejercicio de tracción que desarrolla la espalda y bíceps.',
         imageUrl: 'assets/images/pull_ups.png',
         videoUrl: 'https://example.com/pull_ups.mp4',
-        muscleGroups: [MuscleGroup.latissimusDorsi, MuscleGroup.bicepsLongHead, MuscleGroup.rhomboids],
-        tips: ['Mantén el core activado', 'Tira con los codos hacia abajo', 'Completa el rango de movimiento'],
+        muscleGroups: [
+          MuscleGroup.latissimusDorsi,
+          MuscleGroup.bicepsLongHead,
+          MuscleGroup.rhomboids,
+        ],
+        tips: [
+          'Mantén el core activado',
+          'Tira con los codos hacia abajo',
+          'Completa el rango de movimiento',
+        ],
         commonMistakes: [
           'Balancearse excesivamente',
           'No subir hasta que el mentón pase la barra',

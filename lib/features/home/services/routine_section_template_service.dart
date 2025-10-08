@@ -26,11 +26,16 @@ class RoutineSectionTemplateService extends _$RoutineSectionTemplateService {
     ref.invalidateSelf();
   }
 
-  Future<void> reorderSectionTemplates(List<RoutineSectionTemplate> templates) async {
+  Future<void> reorderSectionTemplates(
+    List<RoutineSectionTemplate> templates,
+  ) async {
     final box = DatabaseService.getInstance().routineSectionTemplatesBox;
 
     for (int i = 0; i < templates.length; i++) {
-      final template = templates[i].copyWith(order: i, updatedAt: DateTime.now());
+      final template = templates[i].copyWith(
+        order: i,
+        updatedAt: DateTime.now(),
+      );
       await box.put(template.id, template);
     }
 
@@ -41,7 +46,8 @@ class RoutineSectionTemplateService extends _$RoutineSectionTemplateService {
     final box = DatabaseService.getInstance().routineSectionTemplatesBox;
 
     // Solo agregar templates por defecto si no existen
-    final existingTemplates = box.values.cast<RoutineSectionTemplate>().toList();
+    final existingTemplates =
+        box.values.cast<RoutineSectionTemplate>().toList();
     final existingIds = existingTemplates.map((t) => t.id).toSet();
 
     for (final template in DefaultSectionTemplates.templates) {

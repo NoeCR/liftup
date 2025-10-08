@@ -9,7 +9,8 @@ class SectionTemplatesPage extends ConsumerStatefulWidget {
   const SectionTemplatesPage({super.key});
 
   @override
-  ConsumerState<SectionTemplatesPage> createState() => _SectionTemplatesPageState();
+  ConsumerState<SectionTemplatesPage> createState() =>
+      _SectionTemplatesPageState();
 }
 
 class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
@@ -24,14 +25,23 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
-        actions: [IconButton(icon: const Icon(Icons.add), onPressed: () => _showAddSectionDialog(context))],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _showAddSectionDialog(context),
+          ),
+        ],
       ),
       body: Consumer(
         builder: (context, ref, child) {
-          final sectionTemplatesAsync = ref.watch(routineSectionTemplateNotifierProvider);
+          final sectionTemplatesAsync = ref.watch(
+            routineSectionTemplateNotifierProvider,
+          );
 
           return sectionTemplatesAsync.when(
-            data: (templates) => _buildSectionTemplatesList(templates, colorScheme),
+            data:
+                (templates) =>
+                    _buildSectionTemplatesList(templates, colorScheme),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stack) => _buildErrorState(error, colorScheme),
           );
@@ -41,7 +51,10 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     );
   }
 
-  Widget _buildSectionTemplatesList(List<RoutineSectionTemplate> templates, ColorScheme colorScheme) {
+  Widget _buildSectionTemplatesList(
+    List<RoutineSectionTemplate> templates,
+    ColorScheme colorScheme,
+  ) {
     if (templates.isEmpty) {
       return _buildEmptyState(colorScheme);
     }
@@ -55,7 +68,9 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
         }
         final item = templates.removeAt(oldIndex);
         templates.insert(newIndex, item);
-        ref.read(routineSectionTemplateNotifierProvider.notifier).reorderSectionTemplates(templates);
+        ref
+            .read(routineSectionTemplateNotifierProvider.notifier)
+            .reorderSectionTemplates(templates);
       },
       itemBuilder: (context, index) {
         final template = templates[index];
@@ -64,24 +79,37 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     );
   }
 
-  Widget _buildSectionTemplateCard(RoutineSectionTemplate template, ColorScheme colorScheme) {
+  Widget _buildSectionTemplateCard(
+    RoutineSectionTemplate template,
+    ColorScheme colorScheme,
+  ) {
     return Card(
       key: ValueKey(template.id),
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: colorScheme.primaryContainer,
-          child: Icon(_getIconData(template.iconName), color: colorScheme.onPrimaryContainer),
+          child: Icon(
+            _getIconData(template.iconName),
+            color: colorScheme.onPrimaryContainer,
+          ),
         ),
         title: Text(template.name),
-        subtitle: template.description != null ? Text(template.description!) : null,
+        subtitle:
+            template.description != null ? Text(template.description!) : null,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!template.isDefault)
-              IconButton(icon: const Icon(Icons.edit), onPressed: () => _showEditSectionDialog(context, template)),
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _showEditSectionDialog(context, template),
+              ),
             if (!template.isDefault)
-              IconButton(icon: const Icon(Icons.delete), onPressed: () => _showDeleteConfirmation(context, template)),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _showDeleteConfirmation(context, template),
+              ),
             const Icon(Icons.drag_handle),
           ],
         ),
@@ -95,9 +123,16 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.settings_suggest_outlined, size: 64, color: colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.settings_suggest_outlined,
+            size: 64,
+            color: colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 16),
-          Text('No hay secciones configuradas', style: TextStyle(fontSize: 18, color: colorScheme.onSurfaceVariant)),
+          Text(
+            'No hay secciones configuradas',
+            style: TextStyle(fontSize: 18, color: colorScheme.onSurfaceVariant),
+          ),
           const SizedBox(height: 8),
           Text(
             'Toca el botón + para agregar tu primera sección',
@@ -115,9 +150,16 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
         children: [
           Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text('Error al cargar las secciones', style: TextStyle(fontSize: 18, color: colorScheme.error)),
+          Text(
+            'Error al cargar las secciones',
+            style: TextStyle(fontSize: 18, color: colorScheme.error),
+          ),
           const SizedBox(height: 8),
-          Text(error.toString(), style: TextStyle(color: colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+          Text(
+            error.toString(),
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -186,15 +228,24 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     _showSectionDialog(context, null);
   }
 
-  void _showEditSectionDialog(BuildContext context, RoutineSectionTemplate template) {
+  void _showEditSectionDialog(
+    BuildContext context,
+    RoutineSectionTemplate template,
+  ) {
     _showSectionDialog(context, template);
   }
 
-  void _showSectionDialog(BuildContext context, RoutineSectionTemplate? template) {
+  void _showSectionDialog(
+    BuildContext context,
+    RoutineSectionTemplate? template,
+  ) {
     final nameController = TextEditingController(text: template?.name ?? '');
-    final descriptionController = TextEditingController(text: template?.description ?? '');
+    final descriptionController = TextEditingController(
+      text: template?.description ?? '',
+    );
     String selectedIcon = template?.iconName ?? 'fitness_center';
-    SectionMuscleGroup selectedMuscleGroup = template?.muscleGroup ?? SectionMuscleGroup.chest;
+    SectionMuscleGroup selectedMuscleGroup =
+        template?.muscleGroup ?? SectionMuscleGroup.chest;
 
     showDialog(
       context: context,
@@ -202,7 +253,9 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
           (context) => StatefulBuilder(
             builder:
                 (context, setState) => AlertDialog(
-                  title: Text(template == null ? 'Agregar Sección' : 'Editar Sección'),
+                  title: Text(
+                    template == null ? 'Agregar Sección' : 'Editar Sección',
+                  ),
                   content: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -224,14 +277,22 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                           maxLines: 2,
                         ),
                         const SizedBox(height: 16),
-                        Text('Grupo muscular:', style: Theme.of(context).textTheme.titleSmall),
+                        Text(
+                          'Grupo muscular:',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<SectionMuscleGroup>(
                           value: selectedMuscleGroup,
-                          decoration: const InputDecoration(border: OutlineInputBorder()),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
                           items:
                               SectionMuscleGroup.values.map((group) {
-                                return DropdownMenuItem(value: group, child: Text(group.displayName));
+                                return DropdownMenuItem(
+                                  value: group,
+                                  child: Text(group.displayName),
+                                );
                               }).toList(),
                           onChanged: (value) {
                             if (value != null) {
@@ -244,20 +305,29 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        Text('Seleccionar ícono:', style: Theme.of(context).textTheme.titleSmall),
+                        Text(
+                          'Seleccionar ícono:',
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
                         const SizedBox(height: 8),
                         _buildIconSelector(context, setState, selectedIcon),
                       ],
                     ),
                   ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancelar'),
+                    ),
                     FilledButton(
                       onPressed: () {
                         if (nameController.text.trim().isNotEmpty) {
                           if (template == null) {
                             ref
-                                .read(routineSectionTemplateNotifierProvider.notifier)
+                                .read(
+                                  routineSectionTemplateNotifierProvider
+                                      .notifier,
+                                )
                                 .addSectionTemplate(
                                   name: nameController.text.trim(),
                                   description:
@@ -269,12 +339,17 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                                 );
                           } else {
                             ref
-                                .read(routineSectionTemplateNotifierProvider.notifier)
+                                .read(
+                                  routineSectionTemplateNotifierProvider
+                                      .notifier,
+                                )
                                 .updateSectionTemplate(
                                   template.copyWith(
                                     name: nameController.text.trim(),
                                     description:
-                                        descriptionController.text.trim().isEmpty
+                                        descriptionController.text
+                                                .trim()
+                                                .isEmpty
                                             ? null
                                             : descriptionController.text.trim(),
                                     iconName: selectedIcon,
@@ -293,18 +368,28 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, RoutineSectionTemplate template) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    RoutineSectionTemplate template,
+  ) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             title: const Text('Eliminar Sección'),
-            content: Text('¿Estás seguro de que quieres eliminar la sección "${template.name}"?'),
+            content: Text(
+              '¿Estás seguro de que quieres eliminar la sección "${template.name}"?',
+            ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
               FilledButton(
                 onPressed: () {
-                  ref.read(routineSectionTemplateNotifierProvider.notifier).deleteSectionTemplate(template.id);
+                  ref
+                      .read(routineSectionTemplateNotifierProvider.notifier)
+                      .deleteSectionTemplate(template.id);
                   Navigator.of(context).pop();
                 },
                 child: const Text('Eliminar'),
@@ -314,13 +399,23 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
     );
   }
 
-  Widget _buildIconSelector(BuildContext context, StateSetter setState, String selectedIcon) {
+  Widget _buildIconSelector(
+    BuildContext context,
+    StateSetter setState,
+    String selectedIcon,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     // Organize icons by categories
     final iconCategories = {
-      'Calentamiento/Enfriamiento': ['warm_up', 'self_improvement', 'spa', 'air', 'thermostat'],
+      'Calentamiento/Enfriamiento': [
+        'warm_up',
+        'self_improvement',
+        'spa',
+        'air',
+        'thermostat',
+      ],
       'Pecho/Torso': [
         'fitness_center',
         'sports_gymnastics',
@@ -328,10 +423,21 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
         'sports_tennis',
         'sports_volleyball',
       ],
-      'Espalda/Hombros': ['sports_handball', 'sports_kabaddi', 'sports_mma', 'sports_rugby', 'sports_cricket'],
+      'Espalda/Hombros': [
+        'sports_handball',
+        'sports_kabaddi',
+        'sports_mma',
+        'sports_rugby',
+        'sports_cricket',
+      ],
       'Brazos': ['sports_basketball'],
       'Piernas': ['directions_run', 'sports_soccer'],
-      'Core': ['sports_golf', 'sports_hockey', 'sports_baseball', 'sports_football'],
+      'Core': [
+        'sports_golf',
+        'sports_hockey',
+        'sports_baseball',
+        'sports_football',
+      ],
       'Cardio': ['pool', 'sports_esports', 'sports', 'sports_score'],
       'Otros': ['sports_bar', 'sports_cafe'],
     };
@@ -345,7 +451,10 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
               children: [
                 Text(
                   category.key,
-                  style: theme.textTheme.labelMedium?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Wrap(
@@ -359,14 +468,24 @@ class _SectionTemplatesPageState extends ConsumerState<SectionTemplatesPage> {
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color:
-                                  selectedIcon == iconName ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                                  selectedIcon == iconName
+                                      ? colorScheme.primary
+                                      : colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(8),
                               border:
-                                  selectedIcon == iconName ? Border.all(color: colorScheme.primary, width: 2) : null,
+                                  selectedIcon == iconName
+                                      ? Border.all(
+                                        color: colorScheme.primary,
+                                        width: 2,
+                                      )
+                                      : null,
                             ),
                             child: Icon(
                               _getIconData(iconName),
-                              color: selectedIcon == iconName ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                              color:
+                                  selectedIcon == iconName
+                                      ? colorScheme.onPrimary
+                                      : colorScheme.onSurfaceVariant,
                               size: 20,
                             ),
                           ),

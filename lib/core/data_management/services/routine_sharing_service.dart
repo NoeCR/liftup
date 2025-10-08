@@ -136,7 +136,9 @@ class MockRoutineSharingService implements RoutineSharingService {
       // Simular consulta a la nube
       await Future.delayed(const Duration(milliseconds: 500));
 
-      return _sharedRoutines.values.where((routine) => routine.ownerId == userId).toList()
+      return _sharedRoutines.values
+          .where((routine) => routine.ownerId == userId)
+          .toList()
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     } catch (e) {
       return [];
@@ -191,7 +193,9 @@ class MockRoutineSharingService implements RoutineSharingService {
   Future<void> incrementViewCount(String shareId) async {
     final routine = _sharedRoutines[shareId];
     if (routine != null) {
-      _sharedRoutines[shareId] = routine.copyWith(viewCount: routine.viewCount + 1);
+      _sharedRoutines[shareId] = routine.copyWith(
+        viewCount: routine.viewCount + 1,
+      );
     }
   }
 
@@ -199,7 +203,9 @@ class MockRoutineSharingService implements RoutineSharingService {
   Future<void> incrementDownloadCount(String shareId) async {
     final routine = _sharedRoutines[shareId];
     if (routine != null) {
-      _sharedRoutines[shareId] = routine.copyWith(downloadCount: routine.downloadCount + 1);
+      _sharedRoutines[shareId] = routine.copyWith(
+        downloadCount: routine.downloadCount + 1,
+      );
     }
   }
 
@@ -227,7 +233,8 @@ class MockRoutineSharingService implements RoutineSharingService {
 class SharedRoutineImportService {
   final RoutineSharingService _sharingService;
 
-  SharedRoutineImportService({required RoutineSharingService sharingService}) : _sharingService = sharingService;
+  SharedRoutineImportService({required RoutineSharingService sharingService})
+    : _sharingService = sharingService;
 
   /// Importa una rutina compartida
   Future<ImportResult> importSharedRoutine(String shareId) async {
@@ -251,7 +258,8 @@ class SharedRoutineImportService {
       }
 
       // Verificar si la rutina ha expirado
-      if (sharedRoutine.expiresAt != null && DateTime.now().isAfter(sharedRoutine.expiresAt!)) {
+      if (sharedRoutine.expiresAt != null &&
+          DateTime.now().isAfter(sharedRoutine.expiresAt!)) {
         return ImportResult(
           success: false,
           importedCount: 0,
@@ -297,7 +305,9 @@ class SharedRoutineImportService {
         final routinesData = data['routines'] as List;
         for (final routineData in routinesData) {
           try {
-            final routine = Routine.fromJson(routineData as Map<String, dynamic>);
+            final routine = Routine.fromJson(
+              routineData as Map<String, dynamic>,
+            );
             importedRoutines.add(routine);
           } catch (e) {
             // Error importing specific routine
@@ -309,7 +319,9 @@ class SharedRoutineImportService {
         final exercisesData = data['exercises'] as List;
         for (final exerciseData in exercisesData) {
           try {
-            final exercise = Exercise.fromJson(exerciseData as Map<String, dynamic>);
+            final exercise = Exercise.fromJson(
+              exerciseData as Map<String, dynamic>,
+            );
             importedExercises.add(exercise);
           } catch (e) {
             // Error importing specific exercise

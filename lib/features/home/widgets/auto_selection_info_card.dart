@@ -32,18 +32,27 @@ class AutoSelectionInfoCard extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(AppTheme.radiusS),
                   ),
                   child: Icon(
-                    autoSelectionInfo.hasSelection ? Icons.auto_awesome : Icons.info_outline,
+                    autoSelectionInfo.hasSelection
+                        ? Icons.auto_awesome
+                        : Icons.info_outline,
                     color:
-                        autoSelectionInfo.hasSelection ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
+                        autoSelectionInfo.hasSelection
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                 ),
                 const SizedBox(width: AppTheme.spacingM),
                 Expanded(
                   child: Text(
-                    autoSelectionInfo.hasSelection ? 'Rutina Sugerida' : 'Información',
+                    autoSelectionInfo.hasSelection
+                        ? 'Rutina Sugerida'
+                        : 'Información',
                     style: theme.textTheme.titleSmall?.copyWith(
-                      color: autoSelectionInfo.hasSelection ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                      color:
+                          autoSelectionInfo.hasSelection
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -56,12 +65,19 @@ class AutoSelectionInfoCard extends ConsumerWidget {
               autoSelectionInfo.hasSelection
                   ? autoSelectionInfo.description
                   : 'No hay rutinas específicas para ${autoSelectionInfo.currentDay.displayName}. Mostrando la primera rutina disponible.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant, height: 1.4),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                height: 1.4,
+              ),
             ),
-            if (autoSelectionInfo.hasSelection && autoSelectionInfo.availableRoutines.length > 1) ...[
+            if (autoSelectionInfo.hasSelection &&
+                autoSelectionInfo.availableRoutines.length > 1) ...[
               const SizedBox(height: AppTheme.spacingS),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: AppTheme.spacingXS),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingS,
+                  vertical: AppTheme.spacingXS,
+                ),
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppTheme.radiusS),
@@ -87,14 +103,20 @@ class AutoSelectionInfoCard extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: AppTheme.spacingXS),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.spacingS,
+        vertical: AppTheme.spacingXS,
+      ),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(AppTheme.radiusM),
       ),
       child: Text(
         day.shortName,
-        style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onPrimaryContainer, fontWeight: FontWeight.w600),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: colorScheme.onPrimaryContainer,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

@@ -69,7 +69,8 @@ abstract class ExportBuilder {
     if (!config.includeSessions) return [];
 
     return sessions.where((session) {
-      if (config.fromDate != null && session.startTime.isBefore(config.fromDate!)) {
+      if (config.fromDate != null &&
+          session.startTime.isBefore(config.fromDate!)) {
         return false;
       }
       if (config.toDate != null && session.startTime.isAfter(config.toDate!)) {
@@ -84,7 +85,9 @@ abstract class ExportBuilder {
     if (!config.includeExercises) return [];
 
     if (config.exerciseIds != null && config.exerciseIds!.isNotEmpty) {
-      return exercises.where((exercise) => config.exerciseIds!.contains(exercise.id)).toList();
+      return exercises
+          .where((exercise) => config.exerciseIds!.contains(exercise.id))
+          .toList();
     }
 
     return exercises;
@@ -95,7 +98,9 @@ abstract class ExportBuilder {
     if (!config.includeRoutines) return [];
 
     if (config.routineIds != null && config.routineIds!.isNotEmpty) {
-      return routines.where((routine) => config.routineIds!.contains(routine.id)).toList();
+      return routines
+          .where((routine) => config.routineIds!.contains(routine.id))
+          .toList();
     }
 
     return routines;

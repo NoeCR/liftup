@@ -14,15 +14,45 @@ import 'package:liftly/features/progression/strategies/strategies/overload_progr
 
 void main() {
   test('Factory maps types to expected strategies', () {
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.linear), isA<LinearProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.double), isA<DoubleProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.undulating), isA<UndulatingProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.stepped), isA<SteppedProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.wave), isA<WaveProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.static), isA<StaticProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.reverse), isA<ReverseProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.autoregulated), isA<AutoregulatedProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.doubleFactor), isA<DoubleFactorProgressionStrategy>());
-    expect(ProgressionStrategyFactory.fromType(ProgressionType.overload), isA<OverloadProgressionStrategy>());
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.linear),
+      isA<LinearProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.double),
+      isA<DoubleProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.undulating),
+      isA<UndulatingProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.stepped),
+      isA<SteppedProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.wave),
+      isA<WaveProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.static),
+      isA<StaticProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.reverse),
+      isA<ReverseProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.autoregulated),
+      isA<AutoregulatedProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.doubleFactor),
+      isA<DoubleFactorProgressionStrategy>(),
+    );
+    expect(
+      ProgressionStrategyFactory.fromType(ProgressionType.overload),
+      isA<OverloadProgressionStrategy>(),
+    );
   });
 }
