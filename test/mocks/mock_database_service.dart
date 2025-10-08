@@ -16,13 +16,16 @@ class MockDatabaseService implements IDatabaseService {
   bool get isInitialized => _isInitialized;
 
   @override
-  Box<ProgressionConfig> get progressionConfigsBox => _MockBox<ProgressionConfig>(_configs);
+  Box<ProgressionConfig> get progressionConfigsBox =>
+      _MockBox<ProgressionConfig>(_configs);
 
   @override
-  Box<ProgressionState> get progressionStatesBox => _MockBox<ProgressionState>(_states);
+  Box<ProgressionState> get progressionStatesBox =>
+      _MockBox<ProgressionState>(_states);
 
   @override
-  Box<ProgressionTemplate> get progressionTemplatesBox => _MockBox<ProgressionTemplate>(_templates);
+  Box<ProgressionTemplate> get progressionTemplatesBox =>
+      _MockBox<ProgressionTemplate>(_templates);
 
   @override
   Future<void> initialize() async {

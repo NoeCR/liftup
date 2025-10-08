@@ -57,7 +57,13 @@ void main() {
     test('week 1 high intensity', () {
       final cfg = _config();
       final st = _state(week: 1);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, 105);
       expect(res.newReps, 9);
     });
@@ -65,7 +71,13 @@ void main() {
     test('week 3 deload', () {
       final cfg = _config();
       final st = _state(week: 3);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 120, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 120,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, 70.0); // baseWeight * deloadPercentage = 100 * 0.7
       expect(res.newSets, 3);
     });

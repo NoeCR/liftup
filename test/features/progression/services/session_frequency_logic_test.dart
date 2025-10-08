@@ -4,7 +4,10 @@ void main() {
   group('Session Frequency Logic Tests', () {
     test('should validate single session per week logic', () {
       // Simular la lógica de decisión para rutinas de 1 sesión por semana
-      bool shouldApplyProgression(int sessionsPerWeek, bool isFirstSessionOfWeek) {
+      bool shouldApplyProgression(
+        int sessionsPerWeek,
+        bool isFirstSessionOfWeek,
+      ) {
         if (sessionsPerWeek == 1) {
           return true; // Aplicar siempre para rutinas de 1 sesión
         } else {
@@ -17,9 +20,15 @@ void main() {
       expect(shouldApplyProgression(1, true), isTrue); // 1 sesión, primera
 
       // Casos de prueba para rutinas de múltiples sesiones por semana
-      expect(shouldApplyProgression(3, false), isFalse); // 3 sesiones, no primera
+      expect(
+        shouldApplyProgression(3, false),
+        isFalse,
+      ); // 3 sesiones, no primera
       expect(shouldApplyProgression(3, true), isTrue); // 3 sesiones, primera
-      expect(shouldApplyProgression(5, false), isFalse); // 5 sesiones, no primera
+      expect(
+        shouldApplyProgression(5, false),
+        isFalse,
+      ); // 5 sesiones, no primera
       expect(shouldApplyProgression(5, true), isTrue); // 5 sesiones, primera
     });
 
@@ -49,7 +58,11 @@ void main() {
         {'cycleLength': 4, 'deloadWeek': 4, 'sessionsPerWeek': 3},
         {'cycleLength': 6, 'deloadWeek': 6, 'sessionsPerWeek': 3},
         {'cycleLength': 8, 'deloadWeek': 4, 'sessionsPerWeek': 3},
-        {'cycleLength': 4, 'deloadWeek': 4, 'sessionsPerWeek': 1}, // Rutina de 1 día
+        {
+          'cycleLength': 4,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 1,
+        }, // Rutina de 1 día
       ];
 
       for (final testCase in testCases) {
@@ -79,9 +92,24 @@ void main() {
     test('should validate progression timing consistency', () {
       // Validar que la frecuencia de sesiones es consistente con otros parámetros
       final testConfigs = [
-        {'sessionsPerWeek': 1, 'incrementFrequency': 1, 'unit': 'week', 'expected': 'single_session'},
-        {'sessionsPerWeek': 3, 'incrementFrequency': 1, 'unit': 'week', 'expected': 'multi_session'},
-        {'sessionsPerWeek': 5, 'incrementFrequency': 2, 'unit': 'week', 'expected': 'multi_session'},
+        {
+          'sessionsPerWeek': 1,
+          'incrementFrequency': 1,
+          'unit': 'week',
+          'expected': 'single_session',
+        },
+        {
+          'sessionsPerWeek': 3,
+          'incrementFrequency': 1,
+          'unit': 'week',
+          'expected': 'multi_session',
+        },
+        {
+          'sessionsPerWeek': 5,
+          'incrementFrequency': 2,
+          'unit': 'week',
+          'expected': 'multi_session',
+        },
       ];
 
       for (final config in testConfigs) {
@@ -147,18 +175,58 @@ void main() {
       // Casos de prueba completos
       final testCases = [
         // Sin progresión activa
-        {'sessionsPerWeek': 1, 'isFirstSessionOfWeek': true, 'hasActiveProgression': false, 'expected': false},
-        {'sessionsPerWeek': 3, 'isFirstSessionOfWeek': true, 'hasActiveProgression': false, 'expected': false},
+        {
+          'sessionsPerWeek': 1,
+          'isFirstSessionOfWeek': true,
+          'hasActiveProgression': false,
+          'expected': false,
+        },
+        {
+          'sessionsPerWeek': 3,
+          'isFirstSessionOfWeek': true,
+          'hasActiveProgression': false,
+          'expected': false,
+        },
 
         // Con progresión activa - rutinas de 1 sesión
-        {'sessionsPerWeek': 1, 'isFirstSessionOfWeek': true, 'hasActiveProgression': true, 'expected': true},
-        {'sessionsPerWeek': 1, 'isFirstSessionOfWeek': false, 'hasActiveProgression': true, 'expected': true},
+        {
+          'sessionsPerWeek': 1,
+          'isFirstSessionOfWeek': true,
+          'hasActiveProgression': true,
+          'expected': true,
+        },
+        {
+          'sessionsPerWeek': 1,
+          'isFirstSessionOfWeek': false,
+          'hasActiveProgression': true,
+          'expected': true,
+        },
 
         // Con progresión activa - rutinas de múltiples sesiones
-        {'sessionsPerWeek': 3, 'isFirstSessionOfWeek': true, 'hasActiveProgression': true, 'expected': true},
-        {'sessionsPerWeek': 3, 'isFirstSessionOfWeek': false, 'hasActiveProgression': true, 'expected': false},
-        {'sessionsPerWeek': 5, 'isFirstSessionOfWeek': true, 'hasActiveProgression': true, 'expected': true},
-        {'sessionsPerWeek': 5, 'isFirstSessionOfWeek': false, 'hasActiveProgression': true, 'expected': false},
+        {
+          'sessionsPerWeek': 3,
+          'isFirstSessionOfWeek': true,
+          'hasActiveProgression': true,
+          'expected': true,
+        },
+        {
+          'sessionsPerWeek': 3,
+          'isFirstSessionOfWeek': false,
+          'hasActiveProgression': true,
+          'expected': false,
+        },
+        {
+          'sessionsPerWeek': 5,
+          'isFirstSessionOfWeek': true,
+          'hasActiveProgression': true,
+          'expected': true,
+        },
+        {
+          'sessionsPerWeek': 5,
+          'isFirstSessionOfWeek': false,
+          'hasActiveProgression': true,
+          'expected': false,
+        },
       ];
 
       for (final testCase in testCases) {
@@ -186,7 +254,11 @@ void main() {
 
     test('should validate deload application with session frequency', () {
       // Validar que el deload se aplica correctamente según la frecuencia de sesiones
-      bool shouldApplyDeload({required int weekInCycle, required int deloadWeek, required int sessionsPerWeek}) {
+      bool shouldApplyDeload({
+        required int weekInCycle,
+        required int deloadWeek,
+        required int sessionsPerWeek,
+      }) {
         // El deload se aplica en la semana correspondiente del ciclo
         final isDeloadWeek = weekInCycle == deloadWeek;
 
@@ -198,20 +270,75 @@ void main() {
       // Test casos para diferentes configuraciones
       final testCases = [
         // Ciclo de 4 semanas, deload en semana 4
-        {'weekInCycle': 1, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': false},
-        {'weekInCycle': 2, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': false},
-        {'weekInCycle': 3, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': false},
-        {'weekInCycle': 4, 'deloadWeek': 4, 'sessionsPerWeek': 1, 'expected': true},
+        {
+          'weekInCycle': 1,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 1,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 2,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 1,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 3,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 1,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 4,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 1,
+          'expected': true,
+        },
 
-        {'weekInCycle': 1, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': false},
-        {'weekInCycle': 2, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': false},
-        {'weekInCycle': 3, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': false},
-        {'weekInCycle': 4, 'deloadWeek': 4, 'sessionsPerWeek': 3, 'expected': true},
+        {
+          'weekInCycle': 1,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 3,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 2,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 3,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 3,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 3,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 4,
+          'deloadWeek': 4,
+          'sessionsPerWeek': 3,
+          'expected': true,
+        },
 
         // Ciclo de 3 semanas, deload en semana 3
-        {'weekInCycle': 1, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': false},
-        {'weekInCycle': 2, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': false},
-        {'weekInCycle': 3, 'deloadWeek': 3, 'sessionsPerWeek': 1, 'expected': true},
+        {
+          'weekInCycle': 1,
+          'deloadWeek': 3,
+          'sessionsPerWeek': 1,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 2,
+          'deloadWeek': 3,
+          'sessionsPerWeek': 1,
+          'expected': false,
+        },
+        {
+          'weekInCycle': 3,
+          'deloadWeek': 3,
+          'sessionsPerWeek': 1,
+          'expected': true,
+        },
 
         // Nuevo ciclo
         {

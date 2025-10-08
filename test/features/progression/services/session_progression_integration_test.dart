@@ -13,11 +13,21 @@ import '../mocks/progression_mock_factory.dart';
 import 'session_progression_integration_test.mocks.dart';
 
 // Helper functions for setting up specific progression mocks
-void _setupLinearProgressionMock(MockProgressionService mockService, ProgressionConfig config, ProgressionState state) {
-  when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+void _setupLinearProgressionMock(
+  MockProgressionService mockService,
+  ProgressionConfig config,
+  ProgressionState state,
+) {
+  when(
+    mockService.getActiveProgressionConfig(),
+  ).thenAnswer((_) async => config);
+  when(
+    mockService.getProgressionStateByExercise(any, any),
+  ).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
     final currentWeight = args[2] as double;
     final currentReps = args[3] as int;
@@ -42,10 +52,16 @@ void _setupUndulatingProgressionMock(
   ProgressionState state, {
   required bool isHeavyDay,
 }) {
-  when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(
+    mockService.getActiveProgressionConfig(),
+  ).thenAnswer((_) async => config);
+  when(
+    mockService.getProgressionStateByExercise(any, any),
+  ).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
     final currentWeight = args[2] as double;
     final currentReps = args[3] as int;
@@ -60,7 +76,8 @@ void _setupUndulatingProgressionMock(
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: true,
-      reason: 'Undulating progression: ${isHeavyDay ? 'Heavy' : 'Light'} day (${(multiplier * 100).toInt()}%)',
+      reason:
+          'Undulating progression: ${isHeavyDay ? 'Heavy' : 'Light'} day (${(multiplier * 100).toInt()}%)',
     );
   });
 }
@@ -71,10 +88,16 @@ void _setupSteppedProgressionMock(
   ProgressionState state, {
   required bool isDeloadWeek,
 }) {
-  when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(
+    mockService.getActiveProgressionConfig(),
+  ).thenAnswer((_) async => config);
+  when(
+    mockService.getProgressionStateByExercise(any, any),
+  ).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
     final currentWeight = args[2] as double;
     final currentReps = args[3] as int;
@@ -92,7 +115,8 @@ void _setupSteppedProgressionMock(
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: true,
-      reason: 'Stepped progression: ${isDeloadWeek ? 'Deload week (-15%)' : 'Normal week (+2.5kg)'}',
+      reason:
+          'Stepped progression: ${isDeloadWeek ? 'Deload week (-15%)' : 'Normal week (+2.5kg)'}',
     );
   });
 }
@@ -103,10 +127,16 @@ void _setupDoubleProgressionMock(
   ProgressionState state, {
   required bool isAtMaxReps,
 }) {
-  when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(
+    mockService.getActiveProgressionConfig(),
+  ).thenAnswer((_) async => config);
+  when(
+    mockService.getProgressionStateByExercise(any, any),
+  ).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
     final currentWeight = args[2] as double;
     final currentReps = args[3] as int;
@@ -139,10 +169,16 @@ void _setupWaveProgressionMock(
   ProgressionState state, {
   required int weekNumber,
 }) {
-  when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(
+    mockService.getActiveProgressionConfig(),
+  ).thenAnswer((_) async => config);
+  when(
+    mockService.getProgressionStateByExercise(any, any),
+  ).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
     final currentWeight = args[2] as double;
     final currentReps = args[3] as int;
@@ -158,7 +194,8 @@ void _setupWaveProgressionMock(
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: true,
-      reason: 'Wave progression: Week $weekNumber (${(multiplier * 100).toInt()}%)',
+      reason:
+          'Wave progression: Week $weekNumber (${(multiplier * 100).toInt()}%)',
     );
   });
 }
@@ -168,10 +205,16 @@ void _setupReverseProgressionMock(
   ProgressionConfig config,
   ProgressionState state,
 ) {
-  when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(
+    mockService.getActiveProgressionConfig(),
+  ).thenAnswer((_) async => config);
+  when(
+    mockService.getProgressionStateByExercise(any, any),
+  ).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
     final currentWeight = args[2] as double;
     final currentReps = args[3] as int;
@@ -233,12 +276,36 @@ void main() {
 
         // Assert - Comprehensive validation
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, equals(102.5), reason: 'Weight should increase by increment value (100.0 + 2.5)');
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in linear progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in linear progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied');
-        expect(result.reason, contains('Linear progression'), reason: 'Reason should indicate linear progression');
-        expect(result.reason, contains('+2.5 kg'), reason: 'Reason should show the increment value');
+        expect(
+          result.newWeight,
+          equals(102.5),
+          reason: 'Weight should increase by increment value (100.0 + 2.5)',
+        );
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in linear progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in linear progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied',
+        );
+        expect(
+          result.reason,
+          contains('Linear progression'),
+          reason: 'Reason should indicate linear progression',
+        );
+        expect(
+          result.reason,
+          contains('+2.5 kg'),
+          reason: 'Reason should show the increment value',
+        );
 
         // Verify mock interactions
         verify(
@@ -267,9 +334,15 @@ void main() {
         );
 
         // Setup specific mock for frequency not met scenario
-        when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
-        when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+        when(
+          mockProgressionService.getActiveProgressionConfig(),
+        ).thenAnswer((_) async => config);
+        when(
+          mockProgressionService.getProgressionStateByExercise(any, any),
+        ).thenAnswer((_) async => state);
+        when(
+          mockProgressionService.calculateProgression(any, any, any, any, any),
+        ).thenAnswer((invocation) async {
           final args = invocation.positionalArguments;
           final currentWeight = args[2] as double;
           final currentReps = args[3] as int;
@@ -310,7 +383,10 @@ void main() {
         // Arrange
         final config = ProgressionMockFactory.createProgressionConfig(
           type: ProgressionType.undulating,
-          customParameters: {'heavy_day_multiplier': 1.1, 'light_day_multiplier': 0.9},
+          customParameters: {
+            'heavy_day_multiplier': 1.1,
+            'light_day_multiplier': 0.9,
+          },
         );
         final state = ProgressionMockFactory.createProgressionState(
           currentWeight: 100.0,
@@ -320,7 +396,12 @@ void main() {
         );
 
         // Setup specific undulating progression mock for heavy day
-        _setupUndulatingProgressionMock(mockProgressionService, config, state, isHeavyDay: true);
+        _setupUndulatingProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          isHeavyDay: true,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -333,17 +414,41 @@ void main() {
 
         // Assert - Comprehensive validation for heavy day
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, closeTo(110.0, 0.01), reason: 'Heavy day should increase weight by 10% (100.0 * 1.1)');
-        expect(result.newReps, equals(8), reason: 'Reps should remain unchanged in undulating progression');
-        expect(result.newSets, equals(4), reason: 'Sets should remain unchanged in undulating progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied on heavy day');
+        expect(
+          result.newWeight,
+          closeTo(110.0, 0.01),
+          reason: 'Heavy day should increase weight by 10% (100.0 * 1.1)',
+        );
+        expect(
+          result.newReps,
+          equals(8),
+          reason: 'Reps should remain unchanged in undulating progression',
+        );
+        expect(
+          result.newSets,
+          equals(4),
+          reason: 'Sets should remain unchanged in undulating progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied on heavy day',
+        );
         expect(
           result.reason,
           contains('Undulating progression'),
           reason: 'Reason should indicate undulating progression',
         );
-        expect(result.reason, contains('Heavy day'), reason: 'Reason should indicate heavy day');
-        expect(result.reason, contains('110%'), reason: 'Reason should show the multiplier percentage');
+        expect(
+          result.reason,
+          contains('Heavy day'),
+          reason: 'Reason should indicate heavy day',
+        );
+        expect(
+          result.reason,
+          contains('110%'),
+          reason: 'Reason should show the multiplier percentage',
+        );
 
         // Verify mock interactions
         verify(
@@ -361,7 +466,10 @@ void main() {
         // Arrange
         final config = ProgressionMockFactory.createProgressionConfig(
           type: ProgressionType.undulating,
-          customParameters: {'heavy_day_multiplier': 1.1, 'light_day_multiplier': 0.9},
+          customParameters: {
+            'heavy_day_multiplier': 1.1,
+            'light_day_multiplier': 0.9,
+          },
         );
         final state = ProgressionMockFactory.createProgressionState(
           currentWeight: 100.0,
@@ -371,7 +479,12 @@ void main() {
         );
 
         // Setup specific undulating progression mock for light day
-        _setupUndulatingProgressionMock(mockProgressionService, config, state, isHeavyDay: false);
+        _setupUndulatingProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          isHeavyDay: false,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -384,17 +497,41 @@ void main() {
 
         // Assert - Comprehensive validation for light day
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, closeTo(90.0, 0.01), reason: 'Light day should decrease weight by 10% (100.0 * 0.9)');
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in undulating progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in undulating progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied on light day');
+        expect(
+          result.newWeight,
+          closeTo(90.0, 0.01),
+          reason: 'Light day should decrease weight by 10% (100.0 * 0.9)',
+        );
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in undulating progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in undulating progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied on light day',
+        );
         expect(
           result.reason,
           contains('Undulating progression'),
           reason: 'Reason should indicate undulating progression',
         );
-        expect(result.reason, contains('Light day'), reason: 'Reason should indicate light day');
-        expect(result.reason, contains('90%'), reason: 'Reason should show the multiplier percentage');
+        expect(
+          result.reason,
+          contains('Light day'),
+          reason: 'Reason should indicate light day',
+        );
+        expect(
+          result.reason,
+          contains('90%'),
+          reason: 'Reason should show the multiplier percentage',
+        );
 
         // Verify mock interactions
         verify(
@@ -425,7 +562,12 @@ void main() {
         );
 
         // Setup specific stepped progression mock for normal week
-        _setupSteppedProgressionMock(mockProgressionService, config, state, isDeloadWeek: false);
+        _setupSteppedProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          isDeloadWeek: false,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -441,14 +583,39 @@ void main() {
         expect(
           result.newWeight,
           equals(102.5),
-          reason: 'Normal week should increase weight by increment value (100.0 + 2.5)',
+          reason:
+              'Normal week should increase weight by increment value (100.0 + 2.5)',
         );
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in stepped progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in stepped progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied on normal week');
-        expect(result.reason, contains('Stepped progression'), reason: 'Reason should indicate stepped progression');
-        expect(result.reason, contains('Normal week'), reason: 'Reason should indicate normal week');
-        expect(result.reason, contains('+2.5kg'), reason: 'Reason should show the increment value');
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in stepped progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in stepped progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied on normal week',
+        );
+        expect(
+          result.reason,
+          contains('Stepped progression'),
+          reason: 'Reason should indicate stepped progression',
+        );
+        expect(
+          result.reason,
+          contains('Normal week'),
+          reason: 'Reason should indicate normal week',
+        );
+        expect(
+          result.reason,
+          contains('+2.5kg'),
+          reason: 'Reason should show the increment value',
+        );
 
         // Verify mock interactions
         verify(
@@ -478,7 +645,12 @@ void main() {
         );
 
         // Setup specific stepped progression mock for deload week
-        _setupSteppedProgressionMock(mockProgressionService, config, state, isDeloadWeek: true);
+        _setupSteppedProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          isDeloadWeek: true,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -491,13 +663,41 @@ void main() {
 
         // Assert - Comprehensive validation for deload week
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, closeTo(85.0, 0.01), reason: 'Deload week should reduce weight by 15% (100.0 * 0.85)');
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in stepped progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in stepped progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied on deload week');
-        expect(result.reason, contains('Stepped progression'), reason: 'Reason should indicate stepped progression');
-        expect(result.reason, contains('Deload week'), reason: 'Reason should indicate deload week');
-        expect(result.reason, contains('-15%'), reason: 'Reason should show the deload percentage');
+        expect(
+          result.newWeight,
+          closeTo(85.0, 0.01),
+          reason: 'Deload week should reduce weight by 15% (100.0 * 0.85)',
+        );
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in stepped progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in stepped progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied on deload week',
+        );
+        expect(
+          result.reason,
+          contains('Stepped progression'),
+          reason: 'Reason should indicate stepped progression',
+        );
+        expect(
+          result.reason,
+          contains('Deload week'),
+          reason: 'Reason should indicate deload week',
+        );
+        expect(
+          result.reason,
+          contains('-15%'),
+          reason: 'Reason should show the deload percentage',
+        );
 
         // Verify mock interactions
         verify(
@@ -528,7 +728,12 @@ void main() {
         );
 
         // Setup specific double progression mock for reps increase
-        _setupDoubleProgressionMock(mockProgressionService, config, state, isAtMaxReps: false);
+        _setupDoubleProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          isAtMaxReps: false,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -541,12 +746,36 @@ void main() {
 
         // Assert - Comprehensive validation for reps increase
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, equals(100.0), reason: 'Weight should remain unchanged when increasing reps');
-        expect(result.newReps, equals(11), reason: 'Reps should increase by 1 when below max');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in double progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied for reps increase');
-        expect(result.reason, contains('Double progression'), reason: 'Reason should indicate double progression');
-        expect(result.reason, contains('Reps increased'), reason: 'Reason should indicate reps increase');
+        expect(
+          result.newWeight,
+          equals(100.0),
+          reason: 'Weight should remain unchanged when increasing reps',
+        );
+        expect(
+          result.newReps,
+          equals(11),
+          reason: 'Reps should increase by 1 when below max',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in double progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied for reps increase',
+        );
+        expect(
+          result.reason,
+          contains('Double progression'),
+          reason: 'Reason should indicate double progression',
+        );
+        expect(
+          result.reason,
+          contains('Reps increased'),
+          reason: 'Reason should indicate reps increase',
+        );
 
         // Verify mock interactions
         verify(
@@ -575,7 +804,12 @@ void main() {
         );
 
         // Setup specific double progression mock for weight increase and reps reset
-        _setupDoubleProgressionMock(mockProgressionService, config, state, isAtMaxReps: true);
+        _setupDoubleProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          isAtMaxReps: true,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -588,13 +822,41 @@ void main() {
 
         // Assert - Comprehensive validation for weight increase and reps reset
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, equals(102.5), reason: 'Weight should increase by increment value when at max reps');
-        expect(result.newReps, equals(8), reason: 'Reps should reset to minimum when at max');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in double progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied for weight increase');
-        expect(result.reason, contains('Double progression'), reason: 'Reason should indicate double progression');
-        expect(result.reason, contains('Weight increased'), reason: 'Reason should indicate weight increase');
-        expect(result.reason, contains('reps reset'), reason: 'Reason should indicate reps reset');
+        expect(
+          result.newWeight,
+          equals(102.5),
+          reason: 'Weight should increase by increment value when at max reps',
+        );
+        expect(
+          result.newReps,
+          equals(8),
+          reason: 'Reps should reset to minimum when at max',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in double progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied for weight increase',
+        );
+        expect(
+          result.reason,
+          contains('Double progression'),
+          reason: 'Reason should indicate double progression',
+        );
+        expect(
+          result.reason,
+          contains('Weight increased'),
+          reason: 'Reason should indicate weight increase',
+        );
+        expect(
+          result.reason,
+          contains('reps reset'),
+          reason: 'Reason should indicate reps reset',
+        );
 
         // Verify mock interactions
         verify(
@@ -615,7 +877,11 @@ void main() {
         final config = ProgressionMockFactory.createProgressionConfig(
           type: ProgressionType.wave,
           cycleLength: 3,
-          customParameters: {'week_1_multiplier': 1.0, 'week_2_multiplier': 1.05, 'week_3_multiplier': 1.1},
+          customParameters: {
+            'week_1_multiplier': 1.0,
+            'week_2_multiplier': 1.05,
+            'week_3_multiplier': 1.1,
+          },
         );
         final state = ProgressionMockFactory.createProgressionState(
           currentWeight: 100.0,
@@ -625,9 +891,15 @@ void main() {
         );
 
         // Setup specific mock for frequency not met scenario
-        when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
-        when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+        when(
+          mockProgressionService.getActiveProgressionConfig(),
+        ).thenAnswer((_) async => config);
+        when(
+          mockProgressionService.getProgressionStateByExercise(any, any),
+        ).thenAnswer((_) async => state);
+        when(
+          mockProgressionService.calculateProgression(any, any, any, any, any),
+        ).thenAnswer((invocation) async {
           final args = invocation.positionalArguments;
           final currentWeight = args[2] as double;
           final currentReps = args[3] as int;
@@ -668,7 +940,11 @@ void main() {
         final config = ProgressionMockFactory.createProgressionConfig(
           type: ProgressionType.wave,
           cycleLength: 3,
-          customParameters: {'week_1_multiplier': 1.0, 'week_2_multiplier': 1.05, 'week_3_multiplier': 1.1},
+          customParameters: {
+            'week_1_multiplier': 1.0,
+            'week_2_multiplier': 1.05,
+            'week_3_multiplier': 1.1,
+          },
         );
         final state = ProgressionMockFactory.createProgressionState(
           currentWeight: 100.0,
@@ -678,7 +954,12 @@ void main() {
         );
 
         // Setup specific wave progression mock for week 2
-        _setupWaveProgressionMock(mockProgressionService, config, state, weekNumber: 2);
+        _setupWaveProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          weekNumber: 2,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -691,13 +972,41 @@ void main() {
 
         // Assert - Comprehensive validation for week 2
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, closeTo(105.0, 0.01), reason: 'Week 2 should increase weight by 5% (100.0 * 1.05)');
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in wave progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in wave progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied on week 2');
-        expect(result.reason, contains('Wave progression'), reason: 'Reason should indicate wave progression');
-        expect(result.reason, contains('Week 2'), reason: 'Reason should indicate week 2');
-        expect(result.reason, contains('105%'), reason: 'Reason should show the multiplier percentage');
+        expect(
+          result.newWeight,
+          closeTo(105.0, 0.01),
+          reason: 'Week 2 should increase weight by 5% (100.0 * 1.05)',
+        );
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in wave progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in wave progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied on week 2',
+        );
+        expect(
+          result.reason,
+          contains('Wave progression'),
+          reason: 'Reason should indicate wave progression',
+        );
+        expect(
+          result.reason,
+          contains('Week 2'),
+          reason: 'Reason should indicate week 2',
+        );
+        expect(
+          result.reason,
+          contains('105%'),
+          reason: 'Reason should show the multiplier percentage',
+        );
 
         // Verify mock interactions
         verify(
@@ -716,7 +1025,11 @@ void main() {
         final config = ProgressionMockFactory.createProgressionConfig(
           type: ProgressionType.wave,
           cycleLength: 3,
-          customParameters: {'week_1_multiplier': 1.0, 'week_2_multiplier': 1.05, 'week_3_multiplier': 1.1},
+          customParameters: {
+            'week_1_multiplier': 1.0,
+            'week_2_multiplier': 1.05,
+            'week_3_multiplier': 1.1,
+          },
         );
         final state = ProgressionMockFactory.createProgressionState(
           currentWeight: 100.0,
@@ -726,7 +1039,12 @@ void main() {
         );
 
         // Setup specific wave progression mock for week 3
-        _setupWaveProgressionMock(mockProgressionService, config, state, weekNumber: 3);
+        _setupWaveProgressionMock(
+          mockProgressionService,
+          config,
+          state,
+          weekNumber: 3,
+        );
 
         // Act - Test progression calculation directly
         final result = await mockProgressionService.calculateProgression(
@@ -739,13 +1057,41 @@ void main() {
 
         // Assert - Comprehensive validation for week 3
         expect(result, isNotNull, reason: 'Result should not be null');
-        expect(result.newWeight, closeTo(110.0, 0.01), reason: 'Week 3 should increase weight by 10% (100.0 * 1.1)');
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in wave progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in wave progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied on week 3');
-        expect(result.reason, contains('Wave progression'), reason: 'Reason should indicate wave progression');
-        expect(result.reason, contains('Week 3'), reason: 'Reason should indicate week 3');
-        expect(result.reason, contains('110%'), reason: 'Reason should show the multiplier percentage');
+        expect(
+          result.newWeight,
+          closeTo(110.0, 0.01),
+          reason: 'Week 3 should increase weight by 10% (100.0 * 1.1)',
+        );
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in wave progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in wave progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied on week 3',
+        );
+        expect(
+          result.reason,
+          contains('Wave progression'),
+          reason: 'Reason should indicate wave progression',
+        );
+        expect(
+          result.reason,
+          contains('Week 3'),
+          reason: 'Reason should indicate week 3',
+        );
+        expect(
+          result.reason,
+          contains('110%'),
+          reason: 'Reason should show the multiplier percentage',
+        );
 
         // Verify mock interactions
         verify(
@@ -774,9 +1120,15 @@ void main() {
         );
 
         // Setup specific mock for frequency not met scenario
-        when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
-        when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+        when(
+          mockProgressionService.getActiveProgressionConfig(),
+        ).thenAnswer((_) async => config);
+        when(
+          mockProgressionService.getProgressionStateByExercise(any, any),
+        ).thenAnswer((_) async => state);
+        when(
+          mockProgressionService.calculateProgression(any, any, any, any, any),
+        ).thenAnswer((invocation) async {
           final args = invocation.positionalArguments;
           final currentWeight = args[2] as double;
           final currentReps = args[3] as int;
@@ -843,13 +1195,34 @@ void main() {
         expect(
           result.newWeight,
           equals(97.5),
-          reason: 'Reverse progression should decrease weight by increment value (100.0 - 2.5)',
+          reason:
+              'Reverse progression should decrease weight by increment value (100.0 - 2.5)',
         );
-        expect(result.newReps, equals(10), reason: 'Reps should remain unchanged in reverse progression');
-        expect(result.newSets, equals(3), reason: 'Sets should remain unchanged in reverse progression');
-        expect(result.incrementApplied, isTrue, reason: 'Increment should be applied in reverse progression');
-        expect(result.reason, contains('Reverse progression'), reason: 'Reason should indicate reverse progression');
-        expect(result.reason, contains('-2.5 kg'), reason: 'Reason should show the negative increment value');
+        expect(
+          result.newReps,
+          equals(10),
+          reason: 'Reps should remain unchanged in reverse progression',
+        );
+        expect(
+          result.newSets,
+          equals(3),
+          reason: 'Sets should remain unchanged in reverse progression',
+        );
+        expect(
+          result.incrementApplied,
+          isTrue,
+          reason: 'Increment should be applied in reverse progression',
+        );
+        expect(
+          result.reason,
+          contains('Reverse progression'),
+          reason: 'Reason should indicate reverse progression',
+        );
+        expect(
+          result.reason,
+          contains('-2.5 kg'),
+          reason: 'Reason should show the negative increment value',
+        );
 
         // Verify mock interactions
         verify(
@@ -867,10 +1240,13 @@ void main() {
     group('Error Handling', () {
       test('should handle no active progression config', () async {
         // Arrange
-        when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => null);
+        when(
+          mockProgressionService.getActiveProgressionConfig(),
+        ).thenAnswer((_) async => null);
 
         // Act - Test that no progression is applied when no config exists
-        final config = await mockProgressionService.getActiveProgressionConfig();
+        final config =
+            await mockProgressionService.getActiveProgressionConfig();
 
         // Assert
         expect(config, isNull);
@@ -879,11 +1255,16 @@ void main() {
       test('should handle missing progression state', () async {
         // Arrange
         final config = ProgressionMockFactory.createProgressionConfig();
-        when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => null);
+        when(
+          mockProgressionService.getActiveProgressionConfig(),
+        ).thenAnswer((_) async => config);
+        when(
+          mockProgressionService.getProgressionStateByExercise(any, any),
+        ).thenAnswer((_) async => null);
 
         // Act - Test that service handles missing state gracefully
-        final state = await mockProgressionService.getProgressionStateByExercise(config.id, 'test-exercise-id');
+        final state = await mockProgressionService
+            .getProgressionStateByExercise(config.id, 'test-exercise-id');
 
         // Assert
         expect(state, isNull);

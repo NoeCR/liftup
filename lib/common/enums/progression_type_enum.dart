@@ -11,7 +11,10 @@ enum ProgressionType {
   linear('progression.types.linear', 'progression.types.linearDescription'),
 
   @HiveField(2)
-  undulating('progression.types.undulating', 'progression.types.undulatingDescription'),
+  undulating(
+    'progression.types.undulating',
+    'progression.types.undulatingDescription',
+  ),
 
   @HiveField(3)
   stepped('progression.types.stepped', 'progression.types.steppedDescription'),
@@ -20,13 +23,22 @@ enum ProgressionType {
   double('progression.types.double', 'progression.types.doubleDescription'),
 
   @HiveField(5)
-  autoregulated('progression.types.autoregulated', 'progression.types.autoregulatedDescription'),
+  autoregulated(
+    'progression.types.autoregulated',
+    'progression.types.autoregulatedDescription',
+  ),
 
   @HiveField(6)
-  doubleFactor('progression.types.doubleFactor', 'progression.types.doubleFactorDescription'),
+  doubleFactor(
+    'progression.types.doubleFactor',
+    'progression.types.doubleFactorDescription',
+  ),
 
   @HiveField(7)
-  overload('progression.types.overload', 'progression.types.overloadDescription'),
+  overload(
+    'progression.types.overload',
+    'progression.types.overloadDescription',
+  ),
 
   @HiveField(8)
   wave('progression.types.wave', 'progression.types.waveDescription'),
@@ -43,7 +55,10 @@ enum ProgressionType {
   final String descriptionKey;
 
   static ProgressionType fromString(String value) {
-    return ProgressionType.values.firstWhere((type) => type.name == value, orElse: () => ProgressionType.none);
+    return ProgressionType.values.firstWhere(
+      (type) => type.name == value,
+      orElse: () => ProgressionType.none,
+    );
   }
 }
 

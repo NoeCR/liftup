@@ -121,3 +121,6 @@ Thumbs.db
 
 # Sentry native files
 .sentry-native/
+
+# Development scripts
+scripts/

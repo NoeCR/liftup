@@ -48,7 +48,8 @@ class Routine extends Equatable {
     this.order,
   });
 
-  factory Routine.fromJson(Map<String, dynamic> json) => _$RoutineFromJson(json);
+  factory Routine.fromJson(Map<String, dynamic> json) =>
+      _$RoutineFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineToJson(this);
 
   Routine copyWith({
@@ -76,7 +77,17 @@ class Routine extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, description, days, sections, createdAt, updatedAt, imageUrl, order];
+  List<Object?> get props => [
+    id,
+    name,
+    description,
+    days,
+    sections,
+    createdAt,
+    updatedAt,
+    imageUrl,
+    order,
+  ];
 }
 
 @HiveType(typeId: 7)
@@ -121,7 +132,8 @@ class RoutineSection extends Equatable {
     this.muscleGroup,
   });
 
-  factory RoutineSection.fromJson(Map<String, dynamic> json) => _$RoutineSectionFromJson(json);
+  factory RoutineSection.fromJson(Map<String, dynamic> json) =>
+      _$RoutineSectionFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineSectionToJson(this);
 
   RoutineSection copyWith({
@@ -188,10 +200,17 @@ class RoutineExercise extends Equatable {
     required this.order,
   });
 
-  factory RoutineExercise.fromJson(Map<String, dynamic> json) => _$RoutineExerciseFromJson(json);
+  factory RoutineExercise.fromJson(Map<String, dynamic> json) =>
+      _$RoutineExerciseFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineExerciseToJson(this);
 
-  RoutineExercise copyWith({String? id, String? routineSectionId, String? exerciseId, String? notes, int? order}) {
+  RoutineExercise copyWith({
+    String? id,
+    String? routineSectionId,
+    String? exerciseId,
+    String? notes,
+    int? order,
+  }) {
     return RoutineExercise(
       id: id ?? this.id,
       routineSectionId: routineSectionId ?? this.routineSectionId,

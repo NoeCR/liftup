@@ -132,7 +132,11 @@ class ProgressionMockFactory {
   }
 
   /// Genera un ejercicio mock
-  static Exercise createExercise({String? id, String? name, String? description}) {
+  static Exercise createExercise({
+    String? id,
+    String? name,
+    String? description,
+  }) {
     return Exercise(
       id: id ?? 'test-exercise-${DateTime.now().millisecondsSinceEpoch}',
       name: name ?? 'Test Exercise',
@@ -149,9 +153,15 @@ class ProgressionMockFactory {
   }
 
   /// Genera un ejercicio de rutina mock
-  static RoutineExercise createRoutineExercise({String? id, String? exerciseId, String? notes}) {
+  static RoutineExercise createRoutineExercise({
+    String? id,
+    String? exerciseId,
+    String? notes,
+  }) {
     return RoutineExercise(
-      id: id ?? 'test-routine-exercise-${DateTime.now().millisecondsSinceEpoch}',
+      id:
+          id ??
+          'test-routine-exercise-${DateTime.now().millisecondsSinceEpoch}',
       routineSectionId: 'test-section-1',
       exerciseId: exerciseId ?? 'test-exercise-1',
       notes: notes ?? '',
@@ -183,8 +193,14 @@ class ProgressionMockFactory {
   }
 
   /// Genera una rutina mock
-  static Routine createRoutine({String? id, String? name, String? description, List<RoutineExercise>? exercises}) {
-    final routineId = id ?? 'test-routine-${DateTime.now().millisecondsSinceEpoch}';
+  static Routine createRoutine({
+    String? id,
+    String? name,
+    String? description,
+    List<RoutineExercise>? exercises,
+  }) {
+    final routineId =
+        id ?? 'test-routine-${DateTime.now().millisecondsSinceEpoch}';
     return Routine(
       id: routineId,
       name: name ?? 'Test Routine',
@@ -195,7 +211,12 @@ class ProgressionMockFactory {
           id: 'test-section-1',
           routineId: routineId,
           name: 'Test Section',
-          exercises: exercises ?? [createRoutineExercise(), createRoutineExercise(exerciseId: 'test-exercise-2')],
+          exercises:
+              exercises ??
+              [
+                createRoutineExercise(),
+                createRoutineExercise(exerciseId: 'test-exercise-2'),
+              ],
           isCollapsed: false,
           order: 1,
         ),
@@ -217,7 +238,10 @@ class ProgressionMockFactory {
         type: ProgressionType.undulating,
         incrementValue: 5.0,
         incrementFrequency: 2,
-        customParameters: {'heavy_day_multiplier': 1.1, 'light_day_multiplier': 0.9},
+        customParameters: {
+          'heavy_day_multiplier': 1.1,
+          'light_day_multiplier': 0.9,
+        },
       ),
       ProgressionType.stepped: createProgressionConfig(
         type: ProgressionType.stepped,
@@ -237,7 +261,11 @@ class ProgressionMockFactory {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 3,
-        customParameters: {'week_1_multiplier': 1.0, 'week_2_multiplier': 1.05, 'week_3_multiplier': 1.1},
+        customParameters: {
+          'week_1_multiplier': 1.0,
+          'week_2_multiplier': 1.05,
+          'week_3_multiplier': 1.1,
+        },
       ),
       ProgressionType.static: createProgressionConfig(
         type: ProgressionType.static,

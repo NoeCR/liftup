@@ -51,7 +51,8 @@ class WorkoutSession extends Equatable {
     this.totalReps,
   });
 
-  factory WorkoutSession.fromJson(Map<String, dynamic> json) => _$WorkoutSessionFromJson(json);
+  factory WorkoutSession.fromJson(Map<String, dynamic> json) =>
+      _$WorkoutSessionFromJson(json);
   Map<String, dynamic> toJson() => _$WorkoutSessionToJson(this);
 
   Duration? get duration {

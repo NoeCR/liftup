@@ -31,7 +31,11 @@ void main() {
       );
     }
 
-    ProgressionState _state({int week = 1, double weight = 100, int reps = 10}) {
+    ProgressionState _state({
+      int week = 1,
+      double weight = 100,
+      int reps = 10,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -57,7 +61,13 @@ void main() {
     test('week 1 heavy day', () {
       final cfg = _config();
       final st = _state(week: 1, weight: 100, reps: 10);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
       expect(res.newWeight, closeTo(102.5, 0.0001));
       expect(res.newReps, 9);
@@ -66,7 +76,13 @@ void main() {
     test('week 2 light day', () {
       final cfg = _config();
       final st = _state(week: 2, weight: 100, reps: 10);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
       expect(res.newWeight, closeTo(97.5, 0.0001));
       expect(res.newReps, 12);

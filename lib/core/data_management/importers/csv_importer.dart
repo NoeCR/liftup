@@ -19,7 +19,10 @@ class CsvImporter extends ImportBuilder {
 
       return await _processCsvData(csvContent);
     } catch (e) {
-      return ImportResult.failure(errorMessage: 'Error al leer el archivo CSV: $e', errors: ['Error de formato: $e']);
+      return ImportResult.failure(
+        errorMessage: 'Error al leer el archivo CSV: $e',
+        errors: ['Error de formato: $e'],
+      );
     }
   }
 
@@ -31,7 +34,10 @@ class CsvImporter extends ImportBuilder {
 
     // For now, validate only the basic file format
     if (lines.isEmpty) {
-      return ImportResult.failure(errorMessage: 'CSV file is empty', errors: ['Empty CSV file']);
+      return ImportResult.failure(
+        errorMessage: 'CSV file is empty',
+        errors: ['Empty CSV file'],
+      );
     }
 
     // TODO: Implement full CSV parsing

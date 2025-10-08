@@ -7,11 +7,16 @@ import 'dart:async' as _i6;
 
 import 'package:liftly/common/enums/progression_type_enum.dart' as _i9;
 import 'package:liftly/features/exercise/models/exercise.dart' as _i3;
-import 'package:liftly/features/exercise/notifiers/exercise_notifier.dart' as _i5;
-import 'package:liftly/features/progression/models/progression_calculation_result.dart' as _i10;
-import 'package:liftly/features/progression/models/progression_config.dart' as _i8;
-import 'package:liftly/features/progression/models/progression_state.dart' as _i4;
-import 'package:liftly/features/progression/notifiers/progression_notifier.dart' as _i7;
+import 'package:liftly/features/exercise/notifiers/exercise_notifier.dart'
+    as _i5;
+import 'package:liftly/features/progression/models/progression_calculation_result.dart'
+    as _i10;
+import 'package:liftly/features/progression/models/progression_config.dart'
+    as _i8;
+import 'package:liftly/features/progression/models/progression_state.dart'
+    as _i4;
+import 'package:liftly/features/progression/notifiers/progression_notifier.dart'
+    as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
 
@@ -31,20 +36,26 @@ import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
 
 class _FakeAutoDisposeAsyncNotifierProviderRef_0<T> extends _i1.SmartFake
     implements _i2.AutoDisposeAsyncNotifierProviderRef<T> {
-  _FakeAutoDisposeAsyncNotifierProviderRef_0(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
+  _FakeAutoDisposeAsyncNotifierProviderRef_0(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(parent, parentInvocation);
 }
 
 class _FakeAsyncValue_1<T> extends _i1.SmartFake implements _i2.AsyncValue<T> {
-  _FakeAsyncValue_1(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeAsyncValue_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 class _FakeExercise_2 extends _i1.SmartFake implements _i3.Exercise {
-  _FakeExercise_2(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+  _FakeExercise_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
-class _FakeProgressionState_3 extends _i1.SmartFake implements _i4.ProgressionState {
-  _FakeProgressionState_3(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
+class _FakeProgressionState_3 extends _i1.SmartFake
+    implements _i4.ProgressionState {
+  _FakeProgressionState_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
 }
 
 /// A class which mocks [ExerciseNotifier].
@@ -59,7 +70,11 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
   _i2.AutoDisposeAsyncNotifierProviderRef<List<_i3.Exercise>> get ref =>
       (super.noSuchMethod(
             Invocation.getter(#ref),
-            returnValue: _FakeAutoDisposeAsyncNotifierProviderRef_0<List<_i3.Exercise>>(this, Invocation.getter(#ref)),
+            returnValue:
+                _FakeAutoDisposeAsyncNotifierProviderRef_0<List<_i3.Exercise>>(
+                  this,
+                  Invocation.getter(#ref),
+                ),
           )
           as _i2.AutoDisposeAsyncNotifierProviderRef<List<_i3.Exercise>>);
 
@@ -67,13 +82,18 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
   _i2.AsyncValue<List<_i3.Exercise>> get state =>
       (super.noSuchMethod(
             Invocation.getter(#state),
-            returnValue: _FakeAsyncValue_1<List<_i3.Exercise>>(this, Invocation.getter(#state)),
+            returnValue: _FakeAsyncValue_1<List<_i3.Exercise>>(
+              this,
+              Invocation.getter(#state),
+            ),
           )
           as _i2.AsyncValue<List<_i3.Exercise>>);
 
   @override
-  set state(_i2.AsyncValue<List<_i3.Exercise>>? newState) =>
-      super.noSuchMethod(Invocation.setter(#state, newState), returnValueForMissingStub: null);
+  set state(_i2.AsyncValue<List<_i3.Exercise>>? newState) => super.noSuchMethod(
+    Invocation.setter(#state, newState),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i6.Future<List<_i3.Exercise>> get future =>
@@ -96,7 +116,10 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
       (super.noSuchMethod(
             Invocation.method(#addExercise, [exercise]),
             returnValue: _i6.Future<_i3.Exercise>.value(
-              _FakeExercise_2(this, Invocation.method(#addExercise, [exercise])),
+              _FakeExercise_2(
+                this,
+                Invocation.method(#addExercise, [exercise]),
+              ),
             ),
           )
           as _i6.Future<_i3.Exercise>);
@@ -121,11 +144,16 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
 
   @override
   _i6.Future<_i3.Exercise?> getExerciseById(String? id) =>
-      (super.noSuchMethod(Invocation.method(#getExerciseById, [id]), returnValue: _i6.Future<_i3.Exercise?>.value())
+      (super.noSuchMethod(
+            Invocation.method(#getExerciseById, [id]),
+            returnValue: _i6.Future<_i3.Exercise?>.value(),
+          )
           as _i6.Future<_i3.Exercise?>);
 
   @override
-  _i6.Future<List<_i3.Exercise>> getExercisesByCategory(_i3.ExerciseCategory? category) =>
+  _i6.Future<List<_i3.Exercise>> getExercisesByCategory(
+    _i3.ExerciseCategory? category,
+  ) =>
       (super.noSuchMethod(
             Invocation.method(#getExercisesByCategory, [category]),
             returnValue: _i6.Future<List<_i3.Exercise>>.value(<_i3.Exercise>[]),
@@ -142,7 +170,11 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
 
   @override
   void listenSelf(
-    void Function(_i2.AsyncValue<List<_i3.Exercise>>?, _i2.AsyncValue<List<_i3.Exercise>>)? listener, {
+    void Function(
+      _i2.AsyncValue<List<_i3.Exercise>>?,
+      _i2.AsyncValue<List<_i3.Exercise>>,
+    )?
+    listener, {
     void Function(Object, StackTrace)? onError,
   }) => super.noSuchMethod(
     Invocation.method(#listenSelf, [listener], {#onError: onError}),
@@ -161,30 +193,41 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
           as _i6.Future<List<_i3.Exercise>>);
 
   @override
-  bool updateShouldNotify(_i2.AsyncValue<List<_i3.Exercise>>? previous, _i2.AsyncValue<List<_i3.Exercise>>? next) =>
-      (super.noSuchMethod(Invocation.method(#updateShouldNotify, [previous, next]), returnValue: false) as bool);
+  bool updateShouldNotify(
+    _i2.AsyncValue<List<_i3.Exercise>>? previous,
+    _i2.AsyncValue<List<_i3.Exercise>>? next,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateShouldNotify, [previous, next]),
+            returnValue: false,
+          )
+          as bool);
 }
 
 /// A class which mocks [ProgressionNotifier].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifier {
+class MockProgressionNotifier extends _i1.Mock
+    implements _i7.ProgressionNotifier {
   MockProgressionNotifier() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   bool get hasActiveProgression =>
-      (super.noSuchMethod(Invocation.getter(#hasActiveProgression), returnValue: false) as bool);
+      (super.noSuchMethod(
+            Invocation.getter(#hasActiveProgression),
+            returnValue: false,
+          )
+          as bool);
 
   @override
   _i2.AutoDisposeAsyncNotifierProviderRef<_i8.ProgressionConfig?> get ref =>
       (super.noSuchMethod(
             Invocation.getter(#ref),
-            returnValue: _FakeAutoDisposeAsyncNotifierProviderRef_0<_i8.ProgressionConfig?>(
-              this,
-              Invocation.getter(#ref),
-            ),
+            returnValue: _FakeAutoDisposeAsyncNotifierProviderRef_0<
+              _i8.ProgressionConfig?
+            >(this, Invocation.getter(#ref)),
           )
           as _i2.AutoDisposeAsyncNotifierProviderRef<_i8.ProgressionConfig?>);
 
@@ -192,22 +235,34 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
   _i2.AsyncValue<_i8.ProgressionConfig?> get state =>
       (super.noSuchMethod(
             Invocation.getter(#state),
-            returnValue: _FakeAsyncValue_1<_i8.ProgressionConfig?>(this, Invocation.getter(#state)),
+            returnValue: _FakeAsyncValue_1<_i8.ProgressionConfig?>(
+              this,
+              Invocation.getter(#state),
+            ),
           )
           as _i2.AsyncValue<_i8.ProgressionConfig?>);
 
   @override
   set state(_i2.AsyncValue<_i8.ProgressionConfig?>? newState) =>
-      super.noSuchMethod(Invocation.setter(#state, newState), returnValueForMissingStub: null);
+      super.noSuchMethod(
+        Invocation.setter(#state, newState),
+        returnValueForMissingStub: null,
+      );
 
   @override
   _i6.Future<_i8.ProgressionConfig?> get future =>
-      (super.noSuchMethod(Invocation.getter(#future), returnValue: _i6.Future<_i8.ProgressionConfig?>.value())
+      (super.noSuchMethod(
+            Invocation.getter(#future),
+            returnValue: _i6.Future<_i8.ProgressionConfig?>.value(),
+          )
           as _i6.Future<_i8.ProgressionConfig?>);
 
   @override
   _i6.Future<_i8.ProgressionConfig?> build() =>
-      (super.noSuchMethod(Invocation.method(#build, []), returnValue: _i6.Future<_i8.ProgressionConfig?>.value())
+      (super.noSuchMethod(
+            Invocation.method(#build, []),
+            returnValue: _i6.Future<_i8.ProgressionConfig?>.value(),
+          )
           as _i6.Future<_i8.ProgressionConfig?>);
 
   @override
@@ -269,7 +324,9 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
           as _i6.Future<void>);
 
   @override
-  _i6.Future<_i4.ProgressionState?> getExerciseProgressionState(String? exerciseId) =>
+  _i6.Future<_i4.ProgressionState?> getExerciseProgressionState(
+    String? exerciseId,
+  ) =>
       (super.noSuchMethod(
             Invocation.method(#getExerciseProgressionState, [exerciseId]),
             returnValue: _i6.Future<_i4.ProgressionState?>.value(),
@@ -346,7 +403,11 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
 
   @override
   void listenSelf(
-    void Function(_i2.AsyncValue<_i8.ProgressionConfig?>?, _i2.AsyncValue<_i8.ProgressionConfig?>)? listener, {
+    void Function(
+      _i2.AsyncValue<_i8.ProgressionConfig?>?,
+      _i2.AsyncValue<_i8.ProgressionConfig?>,
+    )?
+    listener, {
     void Function(Object, StackTrace)? onError,
   }) => super.noSuchMethod(
     Invocation.method(#listenSelf, [listener], {#onError: onError}),
@@ -368,5 +429,10 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
   bool updateShouldNotify(
     _i2.AsyncValue<_i8.ProgressionConfig?>? previous,
     _i2.AsyncValue<_i8.ProgressionConfig?>? next,
-  ) => (super.noSuchMethod(Invocation.method(#updateShouldNotify, [previous, next]), returnValue: false) as bool);
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateShouldNotify, [previous, next]),
+            returnValue: false,
+          )
+          as bool);
 }

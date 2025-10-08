@@ -23,7 +23,10 @@ class JsonImporter extends ImportBuilder {
 
       // Validate file size
       if (await file.length() > config.maxFileSize) {
-        return ImportResult.failure(errorMessage: 'File is too large', errors: ['File exceeds maximum allowed size']);
+        return ImportResult.failure(
+          errorMessage: 'File is too large',
+          errors: ['File exceeds maximum allowed size'],
+        );
       }
 
       final jsonString = await file.readAsString();
@@ -32,12 +35,18 @@ class JsonImporter extends ImportBuilder {
       // Validar datos
       final validationErrors = await validateData(data);
       if (validationErrors.isNotEmpty) {
-        return ImportResult.failure(errorMessage: 'Invalid data', errors: validationErrors);
+        return ImportResult.failure(
+          errorMessage: 'Invalid data',
+          errors: validationErrors,
+        );
       }
 
       return await _processData(data);
     } catch (e) {
-      return ImportResult.failure(errorMessage: 'Error al leer el archivo JSON: $e', errors: ['Error de formato: $e']);
+      return ImportResult.failure(
+        errorMessage: 'Error al leer el archivo JSON: $e',
+        errors: ['Error de formato: $e'],
+      );
     }
   }
 
@@ -58,7 +67,9 @@ class JsonImporter extends ImportBuilder {
       final sessionsData = data['sessions'] as List;
       for (final sessionData in sessionsData) {
         try {
-          final session = WorkoutSession.fromJson(sessionData as Map<String, dynamic>);
+          final session = WorkoutSession.fromJson(
+            sessionData as Map<String, dynamic>,
+          );
 
           if (shouldImportSession(session)) {
             importedSessions.add(session);
@@ -77,7 +88,9 @@ class JsonImporter extends ImportBuilder {
       final exercisesData = data['exercises'] as List;
       for (final exerciseData in exercisesData) {
         try {
-          final exercise = Exercise.fromJson(exerciseData as Map<String, dynamic>);
+          final exercise = Exercise.fromJson(
+            exerciseData as Map<String, dynamic>,
+          );
 
           if (shouldImportExercise(exercise)) {
             importedExercises.add(exercise);
@@ -115,7 +128,9 @@ class JsonImporter extends ImportBuilder {
       final progressData = data['progressData'] as List;
       for (final progressItem in progressData) {
         try {
-          final progress = ProgressData.fromJson(progressItem as Map<String, dynamic>);
+          final progress = ProgressData.fromJson(
+            progressItem as Map<String, dynamic>,
+          );
 
           if (shouldImportProgressData(progress)) {
             importedProgressData.add(progress);
@@ -131,7 +146,9 @@ class JsonImporter extends ImportBuilder {
 
     // Add warnings if there were duplicates
     if (skippedCount > 0) {
-      warnings.add('$skippedCount items were skipped because they already exist');
+      warnings.add(
+        '$skippedCount items were skipped because they already exist',
+      );
     }
 
     return ImportResult(

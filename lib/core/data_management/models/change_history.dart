@@ -65,9 +65,13 @@ class ChangeRecord extends Equatable {
   factory ChangeRecord.fromJson(Map<String, dynamic> json) {
     return ChangeRecord(
       id: json['id'] as String,
-      entityType: EntityType.values.firstWhere((e) => e.name == json['entityType']),
+      entityType: EntityType.values.firstWhere(
+        (e) => e.name == json['entityType'],
+      ),
       entityId: json['entityId'] as String,
-      changeType: ChangeType.values.firstWhere((e) => e.name == json['changeType']),
+      changeType: ChangeType.values.firstWhere(
+        (e) => e.name == json['changeType'],
+      ),
       timestamp: DateTime.parse(json['timestamp'] as String),
       userId: json['userId'] as String,
       previousData: json['previousData'] as Map<String, dynamic>?,

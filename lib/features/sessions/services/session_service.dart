@@ -28,13 +28,18 @@ class SessionService extends _$SessionService {
 
   Future<List<WorkoutSession>> getAllSessions() async {
     final box = _box;
-    return box.values.cast<WorkoutSession>().toList()..sort((a, b) => b.startTime.compareTo(a.startTime));
+    return box.values.cast<WorkoutSession>().toList()
+      ..sort((a, b) => b.startTime.compareTo(a.startTime));
   }
 
-  Future<List<WorkoutSession>> getSessionsByDateRange(DateTime startDate, DateTime endDate) async {
+  Future<List<WorkoutSession>> getSessionsByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
     final allSessions = await getAllSessions();
     return allSessions.where((session) {
-      return session.startTime.isAfter(startDate) && session.startTime.isBefore(endDate);
+      return session.startTime.isAfter(startDate) &&
+          session.startTime.isBefore(endDate);
     }).toList();
   }
 

@@ -79,12 +79,19 @@ class ExportConfig extends Equatable {
 
   /// Verifica si se incluye algún tipo de dato
   bool get hasAnyData {
-    return includeSessions || includeExercises || includeRoutines || includeProgressData || includeUserSettings;
+    return includeSessions ||
+        includeExercises ||
+        includeRoutines ||
+        includeProgressData ||
+        includeUserSettings;
   }
 
   /// Verifica si se incluyen todos los tipos de datos
   bool get hasAllData {
-    return includeSessions && includeExercises && includeRoutines && includeProgressData;
+    return includeSessions &&
+        includeExercises &&
+        includeRoutines &&
+        includeProgressData;
   }
 
   /// Obtiene una descripción de los datos incluidos
@@ -156,7 +163,13 @@ class ExportMetadata extends Equatable {
   });
 
   @override
-  List<Object?> get props => [version, exportDate, appVersion, deviceId, customData];
+  List<Object?> get props => [
+    version,
+    exportDate,
+    appVersion,
+    deviceId,
+    customData,
+  ];
 
   Map<String, dynamic> toJson() {
     return {

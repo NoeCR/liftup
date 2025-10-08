@@ -27,7 +27,10 @@ class ProgressionCoordinatorService {
     try {
       // 1. Obtener o crear el estado de progresión
       ProgressionState state =
-          await _stateService.getProgressionStateByExercise(config.id, exerciseId) ??
+          await _stateService.getProgressionStateByExercise(
+            config.id,
+            exerciseId,
+          ) ??
           await _stateService.createProgressionState(
             configId: config.id,
             exerciseId: exerciseId,
@@ -38,11 +41,16 @@ class ProgressionCoordinatorService {
 
       // 2. Detectar estancamiento
       final stalledWeeks = _stateService.detectStallWeeks(state);
-      final customDataUpdates = <String, dynamic>{'stalled_weeks': stalledWeeks};
+      final customDataUpdates = <String, dynamic>{
+        'stalled_weeks': stalledWeeks,
+      };
 
       if (stalledWeeks >= 4) {
         customDataUpdates['deload_suggested'] = true;
-        LoggingService.instance.warning('Stall detected', {'exerciseId': exerciseId, 'stalledWeeks': stalledWeeks});
+        LoggingService.instance.warning('Stall detected', {
+          'exerciseId': exerciseId,
+          'stalledWeeks': stalledWeeks,
+        });
       } else if (state.customData.containsKey('deload_suggested')) {
         customDataUpdates.remove('deload_suggested');
       }
@@ -57,11 +65,21 @@ class ProgressionCoordinatorService {
       );
 
       // 4. Calcular próximos valores
-      final nextSessionWeek = _calculationService.calculateNextSessionAndWeek(config: config, state: state);
+      final nextSessionWeek = _calculationService.calculateNextSessionAndWeek(
+        config: config,
+        state: state,
+      );
 
-      final isDeloadWeek = _calculationService.isDeloadWeek(config: config, state: state);
+      final isDeloadWeek = _calculationService.isDeloadWeek(
+        config: config,
+        state: state,
+      );
 
-      final nextBaseWeight = _calculationService.calculateNextBaseWeight(config: config, state: state, result: result);
+      final nextBaseWeight = _calculationService.calculateNextBaseWeight(
+        config: config,
+        state: state,
+        result: result,
+      );
 
       // 5. Actualizar el estado
       await _stateService.updateProgressionState(
@@ -87,17 +105,25 @@ class ProgressionCoordinatorService {
 
       return result;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error processing progression', e, stackTrace, {
-        'configId': config.id,
-        'exerciseId': exerciseId,
-      });
+      LoggingService.instance.error(
+        'Error processing progression',
+        e,
+        stackTrace,
+        {'configId': config.id, 'exerciseId': exerciseId},
+      );
       rethrow;
     }
   }
 
   /// Obtiene el estado actual de progresión para un ejercicio
-  Future<ProgressionState?> getCurrentState({required String configId, required String exerciseId}) async {
-    return await _stateService.getProgressionStateByExercise(configId, exerciseId);
+  Future<ProgressionState?> getCurrentState({
+    required String configId,
+    required String exerciseId,
+  }) async {
+    return await _stateService.getProgressionStateByExercise(
+      configId,
+      exerciseId,
+    );
   }
 
   /// Obtiene todos los estados de una configuración

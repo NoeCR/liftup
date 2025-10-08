@@ -29,19 +29,31 @@ class ProgressionStateService {
 
       await _statesBox.put(state.id, state);
 
-      LoggingService.instance.info('Progression state saved successfully', {'stateId': state.id});
+      LoggingService.instance.info('Progression state saved successfully', {
+        'stateId': state.id,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error saving progression state', e, stackTrace, {'stateId': state.id});
+      LoggingService.instance.error(
+        'Error saving progression state',
+        e,
+        stackTrace,
+        {'stateId': state.id},
+      );
       rethrow;
     }
   }
 
   /// Obtiene un estado de progresión por ejercicio
-  Future<ProgressionState?> getProgressionStateByExercise(String configId, String exerciseId) async {
+  Future<ProgressionState?> getProgressionStateByExercise(
+    String configId,
+    String exerciseId,
+  ) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
       return allStates.firstWhere(
-        (state) => state.progressionConfigId == configId && state.exerciseId == exerciseId,
+        (state) =>
+            state.progressionConfigId == configId &&
+            state.exerciseId == exerciseId,
         orElse: () => throw StateError('No progression state found'),
       );
     } catch (e) {
@@ -54,14 +66,21 @@ class ProgressionStateService {
   }
 
   /// Obtiene todos los estados de progresión por configuración
-  Future<List<ProgressionState>> getProgressionStatesByConfig(String configId) async {
+  Future<List<ProgressionState>> getProgressionStatesByConfig(
+    String configId,
+  ) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
-      return allStates.where((state) => state.progressionConfigId == configId).toList();
+      return allStates
+          .where((state) => state.progressionConfigId == configId)
+          .toList();
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting progression states by config', e, stackTrace, {
-        'configId': configId,
-      });
+      LoggingService.instance.error(
+        'Error getting progression states by config',
+        e,
+        stackTrace,
+        {'configId': configId},
+      );
       return [];
     }
   }
@@ -109,7 +128,9 @@ class ProgressionStateService {
     required double? newBaseWeight,
     required Map<String, dynamic> additionalCustomData,
   }) async {
-    final updatedCustomData = Map<String, dynamic>.from(currentState.customData);
+    final updatedCustomData = Map<String, dynamic>.from(
+      currentState.customData,
+    );
     updatedCustomData.addAll(additionalCustomData);
 
     final updatedState = currentState.copyWith(
@@ -142,12 +163,17 @@ class ProgressionStateService {
     final history = state.sessionHistory;
     if (history.isEmpty) return 0;
 
-    final sessions = history.keys.map((key) => int.parse(key.replaceFirst('session_', ''))).toList()..sort();
+    final sessions =
+        history.keys
+            .map((key) => int.parse(key.replaceFirst('session_', '')))
+            .toList()
+          ..sort();
 
     if (sessions.length < 4) return 0;
 
     // Verificar si las últimas 4 sesiones tienen el mismo peso
-    final lastSessions = sessions.length >= 4 ? sessions.sublist(sessions.length - 4) : sessions;
+    final lastSessions =
+        sessions.length >= 4 ? sessions.sublist(sessions.length - 4) : sessions;
     final weights =
         lastSessions
             .map((session) => history['session_$session']?['weight'] as double?)
@@ -166,17 +192,28 @@ class ProgressionStateService {
   Future<void> cleanupInactiveStates(List<String> activeConfigIds) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
-      final statesToDelete = allStates.where((state) => !activeConfigIds.contains(state.progressionConfigId)).toList();
+      final statesToDelete =
+          allStates
+              .where(
+                (state) => !activeConfigIds.contains(state.progressionConfigId),
+              )
+              .toList();
 
       for (final state in statesToDelete) {
         await _statesBox.delete(state.id);
       }
 
       if (statesToDelete.isNotEmpty) {
-        LoggingService.instance.info('Cleaned up inactive progression states', {'deletedCount': statesToDelete.length});
+        LoggingService.instance.info('Cleaned up inactive progression states', {
+          'deletedCount': statesToDelete.length,
+        });
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error cleaning up inactive progression states', e, stackTrace);
+      LoggingService.instance.error(
+        'Error cleaning up inactive progression states',
+        e,
+        stackTrace,
+      );
       rethrow;
     }
   }

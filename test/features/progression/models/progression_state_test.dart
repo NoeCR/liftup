@@ -90,10 +90,17 @@ void main() {
 
     test('should handle custom state parameters', () {
       // Arrange
-      final customState = {'last_rpe': 8.5, 'fatigue_level': 0.7, 'motivation': 0.9, 'notes': 'Feeling strong today'};
+      final customState = {
+        'last_rpe': 8.5,
+        'fatigue_level': 0.7,
+        'motivation': 0.9,
+        'notes': 'Feeling strong today',
+      };
 
       // Act
-      final state = ProgressionMockFactory.createProgressionState(customData: customState);
+      final state = ProgressionMockFactory.createProgressionState(
+        customData: customState,
+      );
 
       // Assert
       expect(state.customData, customState);
@@ -253,11 +260,19 @@ void main() {
       final baseTime = DateTime(2024, 1, 1, 10, 0, 0);
 
       // Act
-      final state1 = ProgressionMockFactory.createProgressionState(lastUpdated: baseTime);
+      final state1 = ProgressionMockFactory.createProgressionState(
+        lastUpdated: baseTime,
+      );
 
-      final state2 = state1.copyWith(currentWeight: 102.5, lastUpdated: baseTime.add(const Duration(hours: 1)));
+      final state2 = state1.copyWith(
+        currentWeight: 102.5,
+        lastUpdated: baseTime.add(const Duration(hours: 1)),
+      );
 
-      final state3 = state2.copyWith(currentWeight: 105.0, lastUpdated: baseTime.add(const Duration(hours: 2)));
+      final state3 = state2.copyWith(
+        currentWeight: 105.0,
+        lastUpdated: baseTime.add(const Duration(hours: 2)),
+      );
 
       // Assert
       expect(state1.lastUpdated, baseTime);

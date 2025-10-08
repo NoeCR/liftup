@@ -11,7 +11,11 @@ void main() {
       testConfig = ProgressionConfig(
         id: 'test-config',
         isGlobal: true,
-        customParameters: {'sessions_per_week': 3, 'max_weeks': 8, 'reset_percentage': 0.85},
+        customParameters: {
+          'sessions_per_week': 3,
+          'max_weeks': 8,
+          'reset_percentage': 0.85,
+        },
         type: ProgressionType.linear,
         unit: ProgressionUnit.week,
         primaryTarget: ProgressionTarget.weight,
@@ -88,9 +92,17 @@ void main() {
           final isDeloadWeek = weekInCycle == deloadWeek3;
 
           if (week % 3 == 0) {
-            expect(isDeloadWeek, isTrue, reason: 'Week $week should be deload week');
+            expect(
+              isDeloadWeek,
+              isTrue,
+              reason: 'Week $week should be deload week',
+            );
           } else {
-            expect(isDeloadWeek, isFalse, reason: 'Week $week should not be deload week');
+            expect(
+              isDeloadWeek,
+              isFalse,
+              reason: 'Week $week should not be deload week',
+            );
           }
         }
 
@@ -103,9 +115,17 @@ void main() {
           final isDeloadWeek = weekInCycle == deloadWeek6;
 
           if (week % 6 == 0) {
-            expect(isDeloadWeek, isTrue, reason: 'Week $week should be deload week');
+            expect(
+              isDeloadWeek,
+              isTrue,
+              reason: 'Week $week should be deload week',
+            );
           } else {
-            expect(isDeloadWeek, isFalse, reason: 'Week $week should not be deload week');
+            expect(
+              isDeloadWeek,
+              isFalse,
+              reason: 'Week $week should not be deload week',
+            );
           }
         }
       });
@@ -177,24 +197,39 @@ void main() {
     });
 
     group('Session Frequency Logic', () {
-      test('should determine progression application based on session frequency', () {
-        // Simulate the logic for determining when to apply progression
-        bool shouldApplyProgression(int sessionsPerWeek, bool isFirstSessionOfWeek) {
-          if (sessionsPerWeek == 1) {
-            return true; // Apply always for single session routines
-          } else {
-            return isFirstSessionOfWeek; // Only first session for multiple sessions
+      test(
+        'should determine progression application based on session frequency',
+        () {
+          // Simulate the logic for determining when to apply progression
+          bool shouldApplyProgression(
+            int sessionsPerWeek,
+            bool isFirstSessionOfWeek,
+          ) {
+            if (sessionsPerWeek == 1) {
+              return true; // Apply always for single session routines
+            } else {
+              return isFirstSessionOfWeek; // Only first session for multiple sessions
+            }
           }
-        }
 
-        // Test cases
-        expect(shouldApplyProgression(1, false), isTrue); // 1 session, not first
-        expect(shouldApplyProgression(1, true), isTrue); // 1 session, first
-        expect(shouldApplyProgression(3, false), isFalse); // 3 sessions, not first
-        expect(shouldApplyProgression(3, true), isTrue); // 3 sessions, first
-        expect(shouldApplyProgression(5, false), isFalse); // 5 sessions, not first
-        expect(shouldApplyProgression(5, true), isTrue); // 5 sessions, first
-      });
+          // Test cases
+          expect(
+            shouldApplyProgression(1, false),
+            isTrue,
+          ); // 1 session, not first
+          expect(shouldApplyProgression(1, true), isTrue); // 1 session, first
+          expect(
+            shouldApplyProgression(3, false),
+            isFalse,
+          ); // 3 sessions, not first
+          expect(shouldApplyProgression(3, true), isTrue); // 3 sessions, first
+          expect(
+            shouldApplyProgression(5, false),
+            isFalse,
+          ); // 5 sessions, not first
+          expect(shouldApplyProgression(5, true), isTrue); // 5 sessions, first
+        },
+      );
 
       test('should validate session frequency parameters', () {
         final validFrequencies = [1, 2, 3, 4, 5, 6, 7];
@@ -228,12 +263,20 @@ void main() {
         for (int week = 1; week <= cycleLength * 2; week++) {
           final weekInCycle = ((week - 1) % cycleLength) + 1;
           final isDeloadWeek = weekInCycle == noDeloadConfig.deloadWeek;
-          expect(isDeloadWeek, isFalse, reason: 'Week $week should never be deload week');
+          expect(
+            isDeloadWeek,
+            isFalse,
+            reason: 'Week $week should never be deload week',
+          );
         }
       });
 
       test('should handle very long cycles', () {
-        final longCycleConfig = testConfig.copyWith(cycleLength: 12, deloadWeek: 12, deloadPercentage: 0.7);
+        final longCycleConfig = testConfig.copyWith(
+          cycleLength: 12,
+          deloadWeek: 12,
+          deloadPercentage: 0.7,
+        );
 
         expect(longCycleConfig.cycleLength, equals(12));
         expect(longCycleConfig.deloadWeek, equals(12));
@@ -254,11 +297,21 @@ void main() {
         expect(midCycleConfig.deloadWeek, equals(4));
 
         // Test that deload occurs at week 4 and 12 (week 4 of second cycle)
-        final testWeeks = [4, 12, 20, 28]; // Weeks 4, 12, 20, 28 should all be deload weeks
+        final testWeeks = [
+          4,
+          12,
+          20,
+          28,
+        ]; // Weeks 4, 12, 20, 28 should all be deload weeks
         for (final week in testWeeks) {
           final weekInCycle = ((week - 1) % midCycleConfig.cycleLength) + 1;
           final isDeloadWeek = weekInCycle == midCycleConfig.deloadWeek;
-          expect(isDeloadWeek, isTrue, reason: 'Week $week (cycle week $weekInCycle) should be deload week');
+          expect(
+            isDeloadWeek,
+            isTrue,
+            reason:
+                'Week $week (cycle week $weekInCycle) should be deload week',
+          );
         }
 
         // Test that non-deload weeks don't trigger deload
@@ -266,7 +319,12 @@ void main() {
         for (final week in nonDeloadWeeks) {
           final weekInCycle = ((week - 1) % midCycleConfig.cycleLength) + 1;
           final isDeloadWeek = weekInCycle == midCycleConfig.deloadWeek;
-          expect(isDeloadWeek, isFalse, reason: 'Week $week (cycle week $weekInCycle) should not be deload week');
+          expect(
+            isDeloadWeek,
+            isFalse,
+            reason:
+                'Week $week (cycle week $weekInCycle) should not be deload week',
+          );
         }
       });
     });

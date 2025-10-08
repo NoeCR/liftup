@@ -72,7 +72,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
           Expanded(
             child: Text(
               context.tr('dataManagement.sharingDescription'),
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
             ),
           ),
         ],
@@ -89,7 +91,10 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
             title: Text(context.tr('dataManagement.shareRoutineTitle')),
             content: Text(context.tr('dataManagement.shareRoutineDescription')),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
               FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -123,7 +128,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                           controller: titleController,
                           decoration: InputDecoration(
                             labelText: context.tr('dataManagement.title'),
-                            hintText: context.tr('dataManagement.sharedRoutineName'),
+                            hintText: context.tr(
+                              'dataManagement.sharedRoutineName',
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -131,17 +138,24 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                           controller: descriptionController,
                           decoration: InputDecoration(
                             labelText: context.tr('dataManagement.description'),
-                            hintText: context.tr('dataManagement.describeRoutine'),
+                            hintText: context.tr(
+                              'dataManagement.describeRoutine',
+                            ),
                           ),
                           maxLines: 3,
                         ),
                         const SizedBox(height: 16),
                         DropdownButtonFormField<RoutineVisibility>(
                           value: visibility,
-                          decoration: InputDecoration(labelText: context.tr('dataManagement.visibility')),
+                          decoration: InputDecoration(
+                            labelText: context.tr('dataManagement.visibility'),
+                          ),
                           items:
                               RoutineVisibility.values.map((v) {
-                                return DropdownMenuItem(value: v, child: Text(_getVisibilityLabel(v)));
+                                return DropdownMenuItem(
+                                  value: v,
+                                  child: Text(_getVisibilityLabel(v)),
+                                );
                               }).toList(),
                           onChanged: (value) {
                             if (value != null) {
@@ -153,11 +167,19 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                     ),
                   ),
                   actions: [
-                    TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(context.tr('common.cancel')),
+                    ),
                     FilledButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        _createSharedRoutine(context, titleController.text, descriptionController.text, visibility);
+                        _createSharedRoutine(
+                          context,
+                          titleController.text,
+                          descriptionController.text,
+                          visibility,
+                        );
                       },
                       child: Text(context.tr('common.share')),
                     ),
@@ -217,9 +239,12 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
       if (!context.mounted) return;
       Navigator.of(context).pop();
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.tr('dataManagement.shareSuccess')), backgroundColor: Colors.green));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.tr('dataManagement.shareSuccess')),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
       // Close progress indicator if open and show error
       if (!context.mounted) return;
@@ -227,7 +252,12 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.tr('dataManagement.shareError', namedArgs: {'error': e.toString()})),
+          content: Text(
+            context.tr(
+              'dataManagement.shareError',
+              namedArgs: {'error': e.toString()},
+            ),
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -260,12 +290,22 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                 ],
               ),
             ),
-            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Close'))],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Close'),
+              ),
+            ],
           ),
     );
   }
 
-  Widget _buildSharedRoutineItem(String name, String visibility, String stats, SharedRoutineStatus status) {
+  Widget _buildSharedRoutineItem(
+    String name,
+    String visibility,
+    String stats,
+    SharedRoutineStatus status,
+  ) {
     final statusColor =
         status == SharedRoutineStatus.active
             ? Colors.green
@@ -299,9 +339,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                 title: const Text('Edit'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('Editing shared routine...')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Editing shared routine...')),
+                  );
                 },
               ),
               ListTile(
@@ -309,7 +349,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
                 title: const Text('Copy Link'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Link copied to clipboard')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Link copied to clipboard')),
+                  );
                 },
               ),
               ListTile(
@@ -332,14 +374,22 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
           (context) => AlertDialog(
             title: const Text('Delete Shared Routine'),
             content: Text(
-              context.tr('dataManagement.deleteSharedRoutineDescription', namedArgs: {'routineName': routineName}),
+              context.tr(
+                'dataManagement.deleteSharedRoutineDescription',
+                namedArgs: {'routineName': routineName},
+              ),
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
               FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Shared routine deleted')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Shared routine deleted')),
+                  );
                 },
                 child: const Text('Delete'),
               ),
@@ -359,7 +409,9 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Enter the ID or link of the shared routine you want to import.'),
+                const Text(
+                  'Enter the ID or link of the shared routine you want to import.',
+                ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: shareIdController,
@@ -371,7 +423,10 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.tr('common.cancel')),
+              ),
               FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -384,7 +439,10 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
     );
   }
 
-  Future<void> _processSharedRoutineImport(BuildContext context, String shareId) async {
+  Future<void> _processSharedRoutineImport(
+    BuildContext context,
+    String shareId,
+  ) async {
     try {
       // Show progress indicator
       showDialog(
@@ -392,7 +450,13 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
         barrierDismissible: false,
         builder:
             (context) => const AlertDialog(
-              content: Row(children: [CircularProgressIndicator(), SizedBox(width: 16), Text('Importando rutina...')]),
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 16),
+                  Text('Importando rutina...'),
+                ],
+              ),
             ),
       );
 
@@ -405,18 +469,24 @@ class _SharingSectionState extends ConsumerState<SharingSection> {
 
       // Show result
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('✅ Routine imported successfully'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Routine imported successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       // Close progress indicator if open
       if (context.mounted) Navigator.of(context).pop();
 
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('❌ Import error: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Import error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }

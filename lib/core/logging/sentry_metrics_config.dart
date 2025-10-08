@@ -9,7 +9,9 @@ class SentryMetricsConfig {
   /// Initializes metrics configuration
   static Future<void> initialize() async {
     if (_isInitialized) {
-      LoggingService.instance.info('SentryMetricsConfig already initialized, skipping');
+      LoggingService.instance.info(
+        'SentryMetricsConfig already initialized, skipping',
+      );
       return;
     }
 
@@ -29,11 +31,16 @@ class SentryMetricsConfig {
       _setupDatabaseMetrics();
 
       _isInitialized = true;
-      LoggingService.instance.info('Sentry metrics configuration initialized successfully');
+      LoggingService.instance.info(
+        'Sentry metrics configuration initialized successfully',
+      );
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Failed to initialize Sentry metrics configuration', e, stackTrace, {
-        'component': 'sentry_metrics_config',
-      });
+      LoggingService.instance.error(
+        'Failed to initialize Sentry metrics configuration',
+        e,
+        stackTrace,
+        {'component': 'sentry_metrics_config'},
+      );
     }
   }
 
@@ -101,7 +108,10 @@ class SentryMetricsConfig {
           message: 'App startup completed',
           category: 'performance.startup',
           level: SentryLevel.info,
-          data: {'startup_time_ms': startupTimeMs, 'is_slow': startupTimeMs > 3000},
+          data: {
+            'startup_time_ms': startupTimeMs,
+            'is_slow': startupTimeMs > 3000,
+          },
         ),
       );
     } catch (e) {
@@ -194,7 +204,9 @@ class SentryMetricsConfig {
         ),
       );
     } catch (e) {
-      LoggingService.instance.error('Failed to track import/export operation: $e');
+      LoggingService.instance.error(
+        'Failed to track import/export operation: $e',
+      );
     }
   }
 

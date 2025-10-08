@@ -20,7 +20,14 @@ class ImportConfig extends Equatable {
   });
 
   @override
-  List<Object?> get props => [mergeData, overwriteExisting, validateData, createBackup, allowedTypes, maxFileSize];
+  List<Object?> get props => [
+    mergeData,
+    overwriteExisting,
+    validateData,
+    createBackup,
+    allowedTypes,
+    maxFileSize,
+  ];
 
   ImportConfig copyWith({
     bool? mergeData,
@@ -139,8 +146,12 @@ class ImportConfig extends Equatable {
 
     buffer.write(' | Validate: ${validateData ? 'Yes' : 'No'}');
     buffer.write(' | Backup: ${createBackup ? 'Yes' : 'No'}');
-    buffer.write(' | Types: ${allowedTypes.map((t) => t.displayName).join(', ')}');
-    buffer.write(' | Max: ${(maxFileSize / (1024 * 1024)).toStringAsFixed(1)}MB');
+    buffer.write(
+      ' | Types: ${allowedTypes.map((t) => t.displayName).join(', ')}',
+    );
+    buffer.write(
+      ' | Max: ${(maxFileSize / (1024 * 1024)).toStringAsFixed(1)}MB',
+    );
 
     return buffer.toString();
   }

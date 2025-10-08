@@ -56,14 +56,26 @@ void main() {
     test('volume overload increases sets', () {
       final cfg = _config(type: 'volume');
       final st = _state();
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newSets, 4 + (4 * 0.1).round());
     });
 
     test('intensity overload increases weight', () {
       final cfg = _config(type: 'intensity');
       final st = _state();
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, closeTo(110, 10)); // allow some tolerance
     });
   });

@@ -32,7 +32,9 @@ class SentryDsnConfig {
   /// Verifica si el DSN está configurado correctamente
   static bool get isConfigured {
     final dsn = EnvironmentService.instance.getEnv('SENTRY_DSN');
-    return dsn.isNotEmpty && dsn != 'YOUR_SENTRY_DSN_HERE' && dsn.startsWith('https://');
+    return dsn.isNotEmpty &&
+        dsn != 'YOUR_SENTRY_DSN_HERE' &&
+        dsn.startsWith('https://');
   }
 
   /// Obtiene información sobre la configuración del DSN
@@ -78,36 +80,57 @@ class SentryDsnConfig {
 
   /// Verifica si el logging debug está habilitado
   static bool get isDebugLoggingEnabled {
-    return EnvironmentService.instance.getEnvBool('DEBUG_LOGGING', defaultValue: true);
+    return EnvironmentService.instance.getEnvBool(
+      'DEBUG_LOGGING',
+      defaultValue: true,
+    );
   }
 
   /// Verifica si el monitoreo de métricas está habilitado
   static bool get isMetricsMonitoringEnabled {
-    return EnvironmentService.instance.getEnvBool('ENABLE_METRICS_MONITORING', defaultValue: true);
+    return EnvironmentService.instance.getEnvBool(
+      'ENABLE_METRICS_MONITORING',
+      defaultValue: true,
+    );
   }
 
   /// Verifica si las alertas están habilitadas
   static bool get isAlertsEnabled {
-    return EnvironmentService.instance.getEnvBool('ENABLE_ALERTS', defaultValue: true);
+    return EnvironmentService.instance.getEnvBool(
+      'ENABLE_ALERTS',
+      defaultValue: true,
+    );
   }
 
   /// Verifica si las capturas de pantalla están habilitadas
   static bool get isScreenshotsEnabled {
-    return EnvironmentService.instance.getEnvBool('ENABLE_SCREENSHOTS', defaultValue: true);
+    return EnvironmentService.instance.getEnvBool(
+      'ENABLE_SCREENSHOTS',
+      defaultValue: true,
+    );
   }
 
   /// Verifica si la captura de jerarquía de vistas está habilitada
   static bool get isViewHierarchyEnabled {
-    return EnvironmentService.instance.getEnvBool('ENABLE_VIEW_HIERARCHY', defaultValue: true);
+    return EnvironmentService.instance.getEnvBool(
+      'ENABLE_VIEW_HIERARCHY',
+      defaultValue: true,
+    );
   }
 
   /// Obtiene el nivel de muestreo para transacciones
   static double get tracesSampleRate {
-    return EnvironmentService.instance.getEnvDouble('TRACES_SAMPLE_RATE', defaultValue: 1.0);
+    return EnvironmentService.instance.getEnvDouble(
+      'TRACES_SAMPLE_RATE',
+      defaultValue: 1.0,
+    );
   }
 
   /// Obtiene el nivel de muestreo para perfiles
   static double get profilesSampleRate {
-    return EnvironmentService.instance.getEnvDouble('PROFILES_SAMPLE_RATE', defaultValue: 1.0);
+    return EnvironmentService.instance.getEnvDouble(
+      'PROFILES_SAMPLE_RATE',
+      defaultValue: 1.0,
+    );
   }
 }
