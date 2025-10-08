@@ -57,7 +57,13 @@ void main() {
     test('accumulation adds based on week', () {
       final cfg = _config();
       final st = _state(week: 2, baseW: 100);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
       expect(res.newWeight, 100 + 2 * 2.5);
     });
@@ -65,8 +71,17 @@ void main() {
     test('deload applied at deloadWeek', () {
       final cfg = _config(deloadWeek: 2);
       final st = _state(week: 2, baseW: 100);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 110, currentReps: 10, currentSets: 4);
-      expect(res.newWeight, closeTo(108.0, 0.0001));
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 110,
+        currentReps: 10,
+        currentSets: 4,
+      );
+      expect(
+        res.newWeight,
+        closeTo(108.0, 0.0001),
+      ); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
       expect(res.newSets, 3);
     });
   });

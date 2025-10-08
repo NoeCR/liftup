@@ -1,8 +1,8 @@
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
-import '../../../../common/enums/progression_type_enum.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Escalonada
@@ -49,7 +49,8 @@ import '../progression_strategy.dart';
 /// - Requiere planificación cuidadosa de fases
 /// - Puede ser menos efectiva para ganancias rápidas
 /// - Necesita deloads apropiados
-class SteppedProgressionStrategy implements ProgressionStrategy {
+class SteppedProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -59,39 +60,66 @@ class SteppedProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
-    final currentInCycle =
-        config.unit == ProgressionUnit.session
-            ? ((state.currentSession - 1) % config.cycleLength) + 1
-            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final currentInCycle = getCurrentInCycle(config, state);
+    final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
-
-    if (isDeloadPeriod) {
-      // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-      return ProgressionCalculationResult(
-        newWeight: deloadWeight,
-        newReps: currentReps,
-        newSets: (currentSets * 0.7).round(),
-        incrementApplied: true,
-        reason: 'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    // Si es deload, aplicar deload directamente sobre el peso actual
+    if (isDeload) {
+      return _applyDeload(
+        config,
+        state,
+        currentWeight,
+        currentReps,
+        currentSets,
+        currentInCycle,
       );
     }
 
-    // Progresión escalonada: acumula incrementos durante semanas específicas
+    // 1. Aplicar lógica específica de progresión escalonada
     final accumulationWeeks = _getAccumulationWeeks(config);
-    final incrementValue = _getIncrementValue(config);
+    final incrementValue = getIncrementValue(
+      config,
+      exerciseType: exerciseType,
+    );
 
     final totalIncrement =
-        currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
+        currentInCycle <= accumulationWeeks
+            ? incrementValue * currentInCycle
+            : incrementValue * accumulationWeeks;
 
     return ProgressionCalculationResult(
       newWeight: state.baseWeight + totalIncrement,
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: true,
-      reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+      reason:
+          'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+    );
+  }
+
+  /// Aplica deload específico para progresión escalonada
+  ProgressionCalculationResult _applyDeload(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+    int currentInCycle,
+  ) {
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    return ProgressionCalculationResult(
+      newWeight: deloadWeight,
+      newReps: currentReps,
+      newSets: (currentSets * 0.7).round(),
+      incrementApplied: true,
+      reason:
+          'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
 
@@ -111,29 +139,5 @@ class SteppedProgressionStrategy implements ProgressionStrategy {
 
     // Fallback a global
     return customParams['accumulation_weeks'] ?? 3; // default
-  }
-
-  /// Obtiene el valor de incremento desde parámetros personalizados
-  double _getIncrementValue(ProgressionConfig config) {
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final increment =
-            exerciseParams['increment_value'] ??
-            exerciseParams['multi_increment_min'] ??
-            exerciseParams['iso_increment_min'];
-        if (increment != null) return (increment as num).toDouble();
-      }
-    }
-
-    // Fallback a global
-    return customParams['increment_value'] ??
-        customParams['multi_increment_min'] ??
-        customParams['iso_increment_min'] ??
-        config.incrementValue; // fallback al valor base
   }
 }

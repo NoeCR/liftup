@@ -1,8 +1,8 @@
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
-import '../../../../common/enums/progression_type_enum.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión por Oleadas
@@ -54,7 +54,8 @@ import '../progression_strategy.dart';
 /// - Requiere mayor experiencia
 /// - Puede ser abrumadora para principiantes
 /// - Necesita planificación cuidadosa de ciclos
-class WaveProgressionStrategy implements ProgressionStrategy {
+class WaveProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -64,28 +65,27 @@ class WaveProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
-    final currentInCycle =
-        config.unit == ProgressionUnit.session
-            ? ((state.currentSession - 1) % config.cycleLength) + 1
-            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final currentInCycle = getCurrentInCycle(config, state);
+    final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    final incrementValue = _getIncrementValue(config);
-
-    // Verificar si es semana de deload
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
-
-    if (isDeloadPeriod) {
-      // Deload: reduce peso proporcionalmente, reduce series
-      final double deloadWeight = state.baseWeight * config.deloadPercentage;
-      return ProgressionCalculationResult(
-        newWeight: deloadWeight,
-        newReps: currentReps,
-        newSets: (currentSets * 0.7).round(),
-        incrementApplied: true,
-        reason: 'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    // Si es deload, aplicar deload directamente sobre el peso actual
+    if (isDeload) {
+      return _applyDeload(
+        config,
+        state,
+        currentWeight,
+        currentReps,
+        currentSets,
+        currentInCycle,
       );
     }
 
+    final incrementValue = getIncrementValue(
+      config,
+      exerciseType: exerciseType,
+    );
+
+    // 1. Aplicar lógica específica de progresión por oleadas
     switch (currentInCycle) {
       case 1:
         // Semana 1: Alta intensidad (más peso, menos reps)
@@ -95,16 +95,20 @@ class WaveProgressionStrategy implements ProgressionStrategy {
           newSets: currentSets,
           incrementApplied: true,
           reason:
-              'Wave progression: high intensity ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+              'Wave progression: high intensity +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
         );
       case 2:
         // Semana 2: Alto volumen (menos peso, más reps, más series)
         return ProgressionCalculationResult(
-          newWeight: (currentWeight - incrementValue * 0.3).clamp(0, currentWeight),
+          newWeight: (currentWeight - incrementValue * 0.3).clamp(
+            0,
+            currentWeight,
+          ),
           newReps: (currentReps * 1.2).round(),
           newSets: currentSets + 1,
           incrementApplied: true,
-          reason: 'Wave progression: high volume ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+          reason:
+              'Wave progression: high volume -${(incrementValue * 0.3).toStringAsFixed(1)}kg (week $currentInCycle of ${config.cycleLength})',
         );
       default:
         // Semanas adicionales: progresión normal
@@ -113,32 +117,31 @@ class WaveProgressionStrategy implements ProgressionStrategy {
           newReps: currentReps,
           newSets: currentSets,
           incrementApplied: true,
-          reason: 'Wave progression: normal ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+          reason:
+              'Wave progression: normal +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
         );
     }
   }
 
-  /// Obtiene el valor de incremento desde parámetros personalizados
-  double _getIncrementValue(ProgressionConfig config) {
-    final customParams = config.customParameters;
+  /// Aplica deload específico para progresión por oleadas
+  ProgressionCalculationResult _applyDeload(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+    int currentInCycle,
+  ) {
+    // Deload específico para wave: reduce peso proporcionalmente
+    final double deloadWeight = state.baseWeight * config.deloadPercentage;
 
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final increment =
-            exerciseParams['increment_value'] ??
-            exerciseParams['multi_increment_min'] ??
-            exerciseParams['iso_increment_min'];
-        if (increment != null) return (increment as num).toDouble();
-      }
-    }
-
-    // Fallback a global
-    return customParams['increment_value'] ??
-        customParams['multi_increment_min'] ??
-        customParams['iso_increment_min'] ??
-        config.incrementValue; // fallback al valor base
+    return ProgressionCalculationResult(
+      newWeight: deloadWeight,
+      newReps: currentReps,
+      newSets: (currentSets * 0.7).round(),
+      incrementApplied: true,
+      reason:
+          'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    );
   }
 }

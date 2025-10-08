@@ -38,7 +38,13 @@ void main() {
       );
     }
 
-    ProgressionState _state({int session = 1, int week = 1, double baseW = 100, int baseR = 10, int baseS = 4}) {
+    ProgressionState _state({
+      int session = 1,
+      int week = 1,
+      double baseW = 100,
+      int baseR = 10,
+      int baseS = 4,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -64,25 +70,50 @@ void main() {
     test('increments weight on frequency match', () {
       final cfg = _config(freq: 1, unit: ProgressionUnit.session);
       final st = _state(session: 1);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
       expect(res.newWeight, 102.5);
       expect(res.newReps, 10);
     });
 
     test('applies deload on deloadWeek', () {
-      final cfg = _config(unit: ProgressionUnit.session, deloadWeek: 1, deloadPct: 0.9);
+      final cfg = _config(
+        unit: ProgressionUnit.session,
+        deloadWeek: 1,
+        deloadPct: 0.9,
+      );
       final st = _state(session: 1);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 120, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 120,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, closeTo(118, 0.0001));
+      // Deload: baseWeight + (increaseOverBase * deloadPercentage)
+      // increaseOverBase = 120 - 100 = 20
+      // deloadWeight = 100 + (20 * 0.9) = 118.0
+      expect(res.newWeight, closeTo(118.0, 0.0001));
       expect(res.newSets, 3); // 4 * 0.7 round
     });
 
     test('no increment when frequency not matched', () {
       final cfg = _config(freq: 2, unit: ProgressionUnit.session);
       final st = _state(session: 1);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, false);
       expect(res.newWeight, 100);
     });

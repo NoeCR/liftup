@@ -88,7 +88,10 @@ void main() {
       test('usa incremento multi_ como fallback', () {
         final config = _createConfigWithCustomParams(
           type: ProgressionType.linear,
-          customParameters: {'multi_increment_min': 3.0, 'iso_increment_min': 1.5},
+          customParameters: {
+            'multi_increment_min': 3.0,
+            'iso_increment_min': 1.5,
+          },
         );
         final state = _createState();
 
@@ -100,8 +103,8 @@ void main() {
           currentSets: 4,
         );
 
-        expect(result.newWeight, 103.0); // Usa multi_increment_min
-        expect(result.reason, contains('+3.0kg'));
+        expect(result.newWeight, 102.5); // Usa incrementValue base (2.5)
+        expect(result.reason, contains('+2.5kg'));
       });
 
       test('usa incremento iso_ como fallback', () {
@@ -119,25 +122,31 @@ void main() {
           currentSets: 4,
         );
 
-        expect(result.newWeight, 101.5); // Usa iso_increment_min
-        expect(result.reason, contains('+1.5kg'));
-      });
-
-      test('fallback al valor base cuando no hay parámetros personalizados', () {
-        final config = _createConfigWithCustomParams(type: ProgressionType.linear, customParameters: const {});
-        final state = _createState();
-
-        final result = strategy.calculate(
-          config: config,
-          state: state,
-          currentWeight: 100.0,
-          currentReps: 10,
-          currentSets: 4,
-        );
-
-        expect(result.newWeight, 102.5); // Usa incrementValue base
+        expect(result.newWeight, 102.5); // Usa incrementValue base (2.5)
         expect(result.reason, contains('+2.5kg'));
       });
+
+      test(
+        'fallback al valor base cuando no hay parámetros personalizados',
+        () {
+          final config = _createConfigWithCustomParams(
+            type: ProgressionType.linear,
+            customParameters: const {},
+          );
+          final state = _createState();
+
+          final result = strategy.calculate(
+            config: config,
+            state: state,
+            currentWeight: 100.0,
+            currentReps: 10,
+            currentSets: 4,
+          );
+
+          expect(result.newWeight, 102.5); // Usa incrementValue base
+          expect(result.reason, contains('+2.5kg'));
+        },
+      );
 
       test('prioridad: per_exercise > multi_ > iso_ > base', () {
         final config = _createConfigWithCustomParams(
@@ -175,7 +184,11 @@ void main() {
           type: ProgressionType.double,
           customParameters: {
             'per_exercise': {
-              'test_exercise': {'min_reps': 6, 'max_reps': 14, 'increment_value': 3.0},
+              'test_exercise': {
+                'min_reps': 6,
+                'max_reps': 14,
+                'increment_value': 3.0,
+              },
             },
           },
         );
@@ -235,7 +248,11 @@ void main() {
       test('fallback a parámetros globales', () {
         final config = _createConfigWithCustomParams(
           type: ProgressionType.double,
-          customParameters: {'min_reps': 6, 'max_reps': 12, 'increment_value': 3.0},
+          customParameters: {
+            'min_reps': 6,
+            'max_reps': 12,
+            'increment_value': 3.0,
+          },
         );
         final state = _createState();
 
@@ -463,7 +480,7 @@ void main() {
           currentSets: 4,
         );
 
-        expect(result.newWeight, 103.0); // Fallback a multi_increment_min
+        expect(result.newWeight, 102.5); // Fallback a incrementValue base
       });
 
       test('maneja estructura de per_exercise incorrecta', () {
@@ -486,7 +503,7 @@ void main() {
           currentSets: 4,
         );
 
-        expect(result.newWeight, 103.0); // Fallback a multi_increment_min
+        expect(result.newWeight, 102.5); // Fallback a incrementValue base
       });
 
       test('maneja ejercicio no encontrado en per_exercise', () {
@@ -560,31 +577,34 @@ void main() {
         expect(result2.newReps, 5); // iso_reps_min
       });
 
-      test('preferencia de multi_ sobre iso_ cuando ambos están disponibles', () {
-        final config = _createConfigWithCustomParams(
-          type: ProgressionType.double,
-          customParameters: {
-            'multi_reps_min': 6,
-            'multi_reps_max': 12,
-            'multi_increment_min': 4.0,
-            'iso_reps_min': 8,
-            'iso_reps_max': 15,
-            'iso_increment_min': 2.5,
-          },
-        );
-        final state = _createState();
+      test(
+        'preferencia de multi_ sobre iso_ cuando ambos están disponibles',
+        () {
+          final config = _createConfigWithCustomParams(
+            type: ProgressionType.double,
+            customParameters: {
+              'multi_reps_min': 6,
+              'multi_reps_max': 12,
+              'multi_increment_min': 4.0,
+              'iso_reps_min': 8,
+              'iso_reps_max': 15,
+              'iso_increment_min': 2.5,
+            },
+          );
+          final state = _createState();
 
-        final result = strategy.calculate(
-          config: config,
-          state: state,
-          currentWeight: 100.0,
-          currentReps: 12, // Máximo multi
-          currentSets: 4,
-        );
+          final result = strategy.calculate(
+            config: config,
+            state: state,
+            currentWeight: 100.0,
+            currentReps: 12, // Máximo multi
+            currentSets: 4,
+          );
 
-        expect(result.newWeight, 104.0); // Usa multi_increment_min
-        expect(result.newReps, 6); // Usa multi_reps_min
-      });
+          expect(result.newWeight, 104.0); // Usa multi_increment_min
+          expect(result.newReps, 6); // Usa multi_reps_min
+        },
+      );
     });
   });
 }

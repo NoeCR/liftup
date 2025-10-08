@@ -2,6 +2,7 @@ import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Estática
@@ -37,7 +38,8 @@ import '../progression_strategy.dart';
 /// - Puede llevar a estancamiento a largo plazo
 /// - No es efectiva para ganancias continuas
 /// - Requiere cambio eventual de estrategia
-class StaticProgressionStrategy implements ProgressionStrategy {
+class StaticProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -47,6 +49,7 @@ class StaticProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
+    // La progresión estática no aplica deloads ni cambios
     return ProgressionCalculationResult(
       newWeight: currentWeight,
       newReps: currentReps,

@@ -1,8 +1,8 @@
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
-import '../../../../common/enums/progression_type_enum.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Autoregulada
@@ -56,7 +56,8 @@ import '../progression_strategy.dart';
 /// - Más compleja de implementar
 /// - Dependiente de la autoevaluación del atleta
 /// - Puede ser inconsistente entre sesiones
-class AutoregulatedProgressionStrategy implements ProgressionStrategy {
+class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -66,36 +67,36 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
-    final currentInCycle =
-        config.unit == ProgressionUnit.session
-            ? ((state.currentSession - 1) % config.cycleLength) + 1
-            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final currentInCycle = getCurrentInCycle(config, state);
+    final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
-
-    if (isDeloadPeriod) {
-      // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-      return ProgressionCalculationResult(
-        newWeight: deloadWeight,
-        newReps: currentReps,
-        newSets: (currentSets * 0.7).round(),
-        incrementApplied: true,
-        reason: 'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    // Si es deload, aplicar deload directamente sobre el peso actual
+    if (isDeload) {
+      return _applyDeload(
+        config,
+        state,
+        currentWeight,
+        currentReps,
+        currentSets,
+        currentInCycle,
       );
     }
 
-    // Obtener parámetros de autoregulación
+    // 1. Aplicar lógica específica de progresión autoregulada
     final targetRPE = _getTargetRPE(config);
     final rpeThreshold = _getRPEThreshold(config);
     final targetReps = _getTargetReps(config);
-    final maxReps = _getMaxReps(config);
-    final minReps = _getMinReps(config);
-    final incrementValue = _getIncrementValue(config);
+    final maxReps = getMaxReps(config, exerciseType: exerciseType);
+    final minReps = getMinReps(config, exerciseType: exerciseType);
+    final incrementValue = getIncrementValue(
+      config,
+      exerciseType: exerciseType,
+    );
 
-    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
-    final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
+    final lastSessionData =
+        state.sessionHistory['session_${state.currentSession}'];
+    final performedReps =
+        (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
 
     double estimatedRPE;
     if (performedReps >= targetReps) {
@@ -117,7 +118,10 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
     } else if (estimatedRPE > targetRPE + rpeThreshold) {
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
       return ProgressionCalculationResult(
-        newWeight: (currentWeight - incrementValue * 0.5).clamp(0, currentWeight),
+        newWeight: (currentWeight - incrementValue * 0.5).clamp(
+          0,
+          currentWeight,
+        ),
         newReps: adjustedReps,
         newSets: currentSets,
         incrementApplied: true,
@@ -140,6 +144,32 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
                 : 'Autoregulated progression: RPE optimal (${estimatedRPE.toStringAsFixed(1)}), max reps reached',
       );
     }
+  }
+
+  /// Aplica deload específico para progresión autoregulada
+  ProgressionCalculationResult _applyDeload(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+    int currentInCycle,
+  ) {
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    return ProgressionCalculationResult(
+      newWeight: deloadWeight,
+      newReps: currentReps,
+      newSets: (currentSets * 0.7).round(),
+      incrementApplied: true,
+      reason:
+          'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    );
   }
 
   /// Obtiene el RPE objetivo desde parámetros personalizados
@@ -170,67 +200,5 @@ class AutoregulatedProgressionStrategy implements ProgressionStrategy {
   int _getTargetReps(ProgressionConfig config) {
     final customParams = config.customParameters;
     return (customParams['target_reps'] as num?)?.toInt() ?? 10;
-  }
-
-  /// Obtiene el máximo de repeticiones desde parámetros personalizados
-  int _getMaxReps(ProgressionConfig config) {
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final maxReps =
-            exerciseParams['max_reps'] ?? exerciseParams['multi_reps_max'] ?? exerciseParams['iso_reps_max'];
-        if (maxReps != null) return maxReps as int;
-      }
-    }
-
-    // Fallback a global
-    return customParams['max_reps'] ?? customParams['multi_reps_max'] ?? customParams['iso_reps_max'] ?? 12; // default
-  }
-
-  /// Obtiene el mínimo de repeticiones desde parámetros personalizados
-  int _getMinReps(ProgressionConfig config) {
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final minReps =
-            exerciseParams['min_reps'] ?? exerciseParams['multi_reps_min'] ?? exerciseParams['iso_reps_min'];
-        if (minReps != null) return minReps as int;
-      }
-    }
-
-    // Fallback a global
-    return customParams['min_reps'] ?? customParams['multi_reps_min'] ?? customParams['iso_reps_min'] ?? 5; // default
-  }
-
-  /// Obtiene el valor de incremento desde parámetros personalizados
-  double _getIncrementValue(ProgressionConfig config) {
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final increment =
-            exerciseParams['increment_value'] ??
-            exerciseParams['multi_increment_min'] ??
-            exerciseParams['iso_increment_min'];
-        if (increment != null) return (increment as num).toDouble();
-      }
-    }
-
-    // Fallback a global
-    return customParams['increment_value'] ??
-        customParams['multi_increment_min'] ??
-        customParams['iso_increment_min'] ??
-        config.incrementValue; // fallback al valor base
   }
 }

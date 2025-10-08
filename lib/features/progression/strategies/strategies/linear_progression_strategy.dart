@@ -1,8 +1,8 @@
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
-import '../../../../common/enums/progression_type_enum.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Lineal
@@ -42,7 +42,8 @@ import '../progression_strategy.dart';
 /// - Puede volverse insostenible a largo plazo
 /// - No considera fatiga acumulada
 /// - Puede llevar a estancamiento
-class LinearProgressionStrategy implements ProgressionStrategy {
+class LinearProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -52,96 +53,73 @@ class LinearProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
-    final currentInCycle =
-        config.unit == ProgressionUnit.session
-            ? ((state.currentSession - 1) % config.cycleLength) + 1
-            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final currentInCycle = getCurrentInCycle(config, state);
+    final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
-
-    if (isDeloadPeriod) {
-      // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-      return ProgressionCalculationResult(
-        newWeight: deloadWeight,
-        newReps: currentReps,
-        newSets: (currentSets * 0.7).round(),
-        incrementApplied: true,
-        reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    // Si es deload, aplicar deload directamente sobre el peso actual
+    if (isDeload) {
+      return _applyDeload(
+        config,
+        state,
+        currentWeight,
+        currentReps,
+        currentSets,
+        currentInCycle,
       );
     }
 
-    // Verificar si es momento de incrementar según la frecuencia
+    // 1. Aplicar lógica específica de progresión lineal
     if (currentInCycle % config.incrementFrequency == 0) {
       // Obtener incremento apropiado según parámetros personalizados y tipo de ejercicio
-      final incrementValue = _getIncrementValue(config, exerciseType: exerciseType);
+      final incrementValue = getIncrementValue(
+        config,
+        exerciseType: exerciseType,
+      );
 
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: currentReps,
         newSets: currentSets,
         incrementApplied: true,
-        reason: 'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+      );
+    } else {
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: currentReps,
+        newSets: currentSets,
+        incrementApplied: false,
+        reason:
+            'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
       );
     }
+  }
+
+  /// Aplica deload específico para progresión lineal
+  ProgressionCalculationResult _applyDeload(
+    ProgressionConfig config,
+    ProgressionState state,
+    double currentWeight,
+    int currentReps,
+    int currentSets,
+    int currentInCycle,
+  ) {
+    // Deload: reduce peso manteniendo el incremento sobre base, reduce series
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     return ProgressionCalculationResult(
-      newWeight: currentWeight,
+      newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: currentSets,
-      incrementApplied: false,
-      reason: 'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
+      newSets: (currentSets * 0.7).round(),
+      incrementApplied: true,
+      reason:
+          'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
-  }
-
-  /// Obtiene el valor de incremento desde parámetros personalizados
-  /// Prioridad: per_exercise > global > defaults por tipo
-  /// Considera el tipo de ejercicio para elegir el incremento apropiado
-  double _getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    try {
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          // Priorizar incremento específico por tipo de ejercicio
-          final increment =
-              _getIncrementByExerciseType(exerciseParams, exerciseType) ?? exerciseParams['increment_value'];
-          if (increment != null && increment is num) {
-            return increment.toDouble();
-          }
-        }
-      }
-    } catch (e) {
-      // Si hay error en per_exercise, continuar con fallbacks
-    }
-
-    // Fallback a global
-    try {
-      // Priorizar incremento específico por tipo de ejercicio
-      final globalIncrement =
-          _getIncrementByExerciseType(customParams, exerciseType) ?? customParams['increment_value'];
-      if (globalIncrement != null && globalIncrement is num) {
-        return globalIncrement.toDouble();
-      }
-    } catch (e) {
-      // Si hay error en global, usar valor base
-    }
-
-    return config.incrementValue; // fallback al valor base
-  }
-
-  /// Obtiene el incremento apropiado según el tipo de ejercicio
-  double? _getIncrementByExerciseType(Map<String, dynamic> params, ExerciseType? exerciseType) {
-    if (exerciseType == null) return null;
-
-    final bool isMulti = exerciseType == ExerciseType.multiJoint;
-    final String prefix = isMulti ? 'multi' : 'iso';
-
-    final value = params['${prefix}_increment_min'] as num?;
-    return value?.toDouble();
   }
 }

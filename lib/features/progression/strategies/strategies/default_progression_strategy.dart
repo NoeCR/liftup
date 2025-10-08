@@ -2,6 +2,7 @@ import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión por Defecto
@@ -39,7 +40,8 @@ import '../progression_strategy.dart';
 /// - Requiere conocimiento del usuario
 /// - Puede llevar a estancamiento sin planificación
 /// - No optimiza automáticamente las cargas
-class DefaultProgressionStrategy implements ProgressionStrategy {
+class DefaultProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -49,6 +51,7 @@ class DefaultProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
+    // La progresión por defecto no aplica deloads ni cambios
     return ProgressionCalculationResult(
       newWeight: currentWeight,
       newReps: currentReps,

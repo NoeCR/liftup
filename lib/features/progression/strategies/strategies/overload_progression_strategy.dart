@@ -1,8 +1,8 @@
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
-import '../../../../common/enums/progression_type_enum.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Sobrecarga Progresiva
@@ -52,7 +52,8 @@ import '../progression_strategy.dart';
 /// - Puede llevar a sobreentrenamiento si no se maneja bien
 /// - Necesita deloads apropiados
 /// - Requiere monitoreo de fatiga
-class OverloadProgressionStrategy implements ProgressionStrategy {
+class OverloadProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -62,31 +63,18 @@ class OverloadProgressionStrategy implements ProgressionStrategy {
     required int currentSets,
     ExerciseType? exerciseType,
   }) {
-    final currentInCycle =
-        config.unit == ProgressionUnit.session
-            ? ((state.currentSession - 1) % config.cycleLength) + 1
-            : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final currentInCycle = getCurrentInCycle(config, state);
+    final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    final isDeloadPeriod = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+    // 1. Aplicar lógica específica de sobrecarga progresiva
+    final overloadType =
+        (config.customParameters['overload_type'] as String?) ?? 'volume';
+    final overloadRate =
+        (config.customParameters['overload_rate'] as num?)?.toDouble() ?? 0.1;
 
-    if (isDeloadPeriod) {
-      // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-      return ProgressionCalculationResult(
-        newWeight: deloadWeight,
-        newReps: currentReps,
-        newSets: (currentSets * 0.7).round(),
-        incrementApplied: true,
-        reason: 'Overload progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
-      );
-    }
-
-    final overloadType = (config.customParameters['overload_type'] as String?) ?? 'volume';
-    final overloadRate = (config.customParameters['overload_rate'] as num?)?.toDouble() ?? 0.1;
-
+    ProgressionCalculationResult result;
     if (overloadType == 'volume') {
-      return ProgressionCalculationResult(
+      result = ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
         newSets: (currentSets * (1 + overloadRate)).round(),
@@ -94,7 +82,7 @@ class OverloadProgressionStrategy implements ProgressionStrategy {
         reason: 'Overload progression: increasing volume',
       );
     } else {
-      return ProgressionCalculationResult(
+      result = ProgressionCalculationResult(
         newWeight: currentWeight * (1 + overloadRate),
         newReps: currentReps,
         newSets: currentSets,
@@ -102,5 +90,36 @@ class OverloadProgressionStrategy implements ProgressionStrategy {
         reason: 'Overload progression: increasing intensity',
       );
     }
+
+    // 2. Aplicar deload si es necesario
+    if (isDeload) {
+      return _applyDeload(config, state, result, currentInCycle);
+    }
+
+    return result;
+  }
+
+  /// Aplica deload específico para sobrecarga progresiva
+  ProgressionCalculationResult _applyDeload(
+    ProgressionConfig config,
+    ProgressionState state,
+    ProgressionCalculationResult result,
+    int currentInCycle,
+  ) {
+    final double increaseOverBase = (result.newWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    return ProgressionCalculationResult(
+      newWeight: deloadWeight,
+      newReps: result.newReps,
+      newSets: (result.newSets * 0.7).round(),
+      incrementApplied: true,
+      reason:
+          'Overload progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+    );
   }
 }
