@@ -2,6 +2,7 @@ import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../../../common/enums/progression_type_enum.dart';
+import '../../../../features/exercise/models/exercise.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Doble Factor (Doble Progresión)
@@ -59,6 +60,7 @@ class DoubleFactorProgressionStrategy implements ProgressionStrategy {
     required double currentWeight,
     required int currentReps,
     required int currentSets,
+    ExerciseType? exerciseType,
   }) {
     final currentInCycle =
         config.unit == ProgressionUnit.session
@@ -84,7 +86,7 @@ class DoubleFactorProgressionStrategy implements ProgressionStrategy {
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
-      final incrementValue = _getIncrementValue(config);
+      final incrementValue = _getIncrementValue(config, exerciseType: exerciseType);
       result = ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: minReps,
@@ -154,7 +156,8 @@ class DoubleFactorProgressionStrategy implements ProgressionStrategy {
 
   /// Obtiene el valor de incremento desde parámetros personalizados
   /// Prioridad: per_exercise > global > defaults por tipo
-  double _getIncrementValue(ProgressionConfig config) {
+  /// Considera el tipo de ejercicio para elegir el incremento apropiado
+  double _getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
     final customParams = config.customParameters;
 
     // Buscar en per_exercise primero
@@ -162,18 +165,29 @@ class DoubleFactorProgressionStrategy implements ProgressionStrategy {
     if (perExercise is Map) {
       final exerciseParams = perExercise.values.first;
       if (exerciseParams is Map) {
+        // Priorizar incremento específico por tipo de ejercicio
         final increment =
-            exerciseParams['increment_value'] ??
-            exerciseParams['multi_increment_min'] ??
-            exerciseParams['iso_increment_min'];
+            _getIncrementByExerciseType(exerciseParams.cast<String, dynamic>(), exerciseType) ??
+            exerciseParams['increment_value'];
         if (increment != null) return (increment as num).toDouble();
       }
     }
 
     // Fallback a global
-    return customParams['increment_value'] ??
-        customParams['multi_increment_min'] ??
-        customParams['iso_increment_min'] ??
-        config.incrementValue; // fallback al valor base
+    final globalIncrement = _getIncrementByExerciseType(customParams, exerciseType) ?? customParams['increment_value'];
+    if (globalIncrement != null) return (globalIncrement as num).toDouble();
+
+    return config.incrementValue; // fallback al valor base
+  }
+
+  /// Obtiene el incremento apropiado según el tipo de ejercicio
+  double? _getIncrementByExerciseType(Map<String, dynamic> params, ExerciseType? exerciseType) {
+    if (exerciseType == null) return null;
+
+    final bool isMulti = exerciseType == ExerciseType.multiJoint;
+    final String prefix = isMulti ? 'multi' : 'iso';
+
+    final value = params['${prefix}_increment_min'] as num?;
+    return value?.toDouble();
   }
 }

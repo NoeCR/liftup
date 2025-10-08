@@ -1,6 +1,7 @@
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
+import '../../../../features/exercise/models/exercise.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión por Defecto
@@ -46,6 +47,7 @@ class DefaultProgressionStrategy implements ProgressionStrategy {
     required double currentWeight,
     required int currentReps,
     required int currentSets,
+    ExerciseType? exerciseType,
   }) {
     return ProgressionCalculationResult(
       newWeight: currentWeight,

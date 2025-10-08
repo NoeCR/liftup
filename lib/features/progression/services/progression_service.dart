@@ -7,6 +7,7 @@ import '../models/progression_state.dart';
 import '../models/progression_calculation_result.dart';
 import '../models/progression_template.dart';
 import '../../../common/enums/progression_type_enum.dart';
+import '../../../features/exercise/models/exercise.dart';
 import '../strategies/progression_strategy.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/database/i_database_service.dart';
@@ -247,8 +248,9 @@ class ProgressionService extends _$ProgressionService {
     String exerciseId,
     double currentWeight,
     int currentReps,
-    int currentSets,
-  ) async {
+    int currentSets, {
+    ExerciseType? exerciseType,
+  }) async {
     try {
       final config = await getProgressionConfig(configId);
       if (config == null) {
@@ -268,6 +270,7 @@ class ProgressionService extends _$ProgressionService {
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: currentSets,
+        exerciseType: exerciseType,
       );
 
       // Compute current week based on session count (3 sessions/week by default; configurable)

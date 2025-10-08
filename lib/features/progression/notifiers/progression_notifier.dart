@@ -5,6 +5,7 @@ import '../models/progression_calculation_result.dart';
 import '../services/progression_service.dart';
 import '../services/progression_template_service.dart';
 import '../../../common/enums/progression_type_enum.dart';
+import '../../../features/exercise/models/exercise.dart';
 import '../../../core/logging/logging.dart';
 
 part 'progression_notifier.g.dart';
@@ -188,6 +189,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
     required double currentWeight,
     required int currentReps,
     required int currentSets,
+    ExerciseType? exerciseType,
   }) async {
     try {
       final config = await future;
@@ -200,6 +202,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         currentWeight,
         currentReps,
         currentSets,
+        exerciseType: exerciseType,
       );
     } catch (e, stackTrace) {
       LoggingService.instance.error('Error calculating exercise progression', e, stackTrace, {

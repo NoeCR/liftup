@@ -2,6 +2,7 @@ import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../../../common/enums/progression_type_enum.dart';
+import '../../../../features/exercise/models/exercise.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Lineal
@@ -49,6 +50,7 @@ class LinearProgressionStrategy implements ProgressionStrategy {
     required double currentWeight,
     required int currentReps,
     required int currentSets,
+    ExerciseType? exerciseType,
   }) {
     final currentInCycle =
         config.unit == ProgressionUnit.session
@@ -72,8 +74,8 @@ class LinearProgressionStrategy implements ProgressionStrategy {
 
     // Verificar si es momento de incrementar según la frecuencia
     if (currentInCycle % config.incrementFrequency == 0) {
-      // Obtener incremento apropiado según parámetros personalizados
-      final incrementValue = _getIncrementValue(config);
+      // Obtener incremento apropiado según parámetros personalizados y tipo de ejercicio
+      final incrementValue = _getIncrementValue(config, exerciseType: exerciseType);
 
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
@@ -95,7 +97,8 @@ class LinearProgressionStrategy implements ProgressionStrategy {
 
   /// Obtiene el valor de incremento desde parámetros personalizados
   /// Prioridad: per_exercise > global > defaults por tipo
-  double _getIncrementValue(ProgressionConfig config) {
+  /// Considera el tipo de ejercicio para elegir el incremento apropiado
+  double _getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
     final customParams = config.customParameters;
 
     // Buscar en per_exercise primero
@@ -104,10 +107,9 @@ class LinearProgressionStrategy implements ProgressionStrategy {
       if (perExercise != null) {
         final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
         if (exerciseParams != null) {
+          // Priorizar incremento específico por tipo de ejercicio
           final increment =
-              exerciseParams['increment_value'] ??
-              exerciseParams['multi_increment_min'] ??
-              exerciseParams['iso_increment_min'];
+              _getIncrementByExerciseType(exerciseParams, exerciseType) ?? exerciseParams['increment_value'];
           if (increment != null && increment is num) {
             return increment.toDouble();
           }
@@ -119,8 +121,9 @@ class LinearProgressionStrategy implements ProgressionStrategy {
 
     // Fallback a global
     try {
+      // Priorizar incremento específico por tipo de ejercicio
       final globalIncrement =
-          customParams['increment_value'] ?? customParams['multi_increment_min'] ?? customParams['iso_increment_min'];
+          _getIncrementByExerciseType(customParams, exerciseType) ?? customParams['increment_value'];
       if (globalIncrement != null && globalIncrement is num) {
         return globalIncrement.toDouble();
       }
@@ -129,5 +132,16 @@ class LinearProgressionStrategy implements ProgressionStrategy {
     }
 
     return config.incrementValue; // fallback al valor base
+  }
+
+  /// Obtiene el incremento apropiado según el tipo de ejercicio
+  double? _getIncrementByExerciseType(Map<String, dynamic> params, ExerciseType? exerciseType) {
+    if (exerciseType == null) return null;
+
+    final bool isMulti = exerciseType == ExerciseType.multiJoint;
+    final String prefix = isMulti ? 'multi' : 'iso';
+
+    final value = params['${prefix}_increment_min'] as num?;
+    return value?.toDouble();
   }
 }

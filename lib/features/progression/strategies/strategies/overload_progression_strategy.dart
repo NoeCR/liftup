@@ -2,6 +2,7 @@ import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../../../common/enums/progression_type_enum.dart';
+import '../../../../features/exercise/models/exercise.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Sobrecarga Progresiva
@@ -59,6 +60,7 @@ class OverloadProgressionStrategy implements ProgressionStrategy {
     required double currentWeight,
     required int currentReps,
     required int currentSets,
+    ExerciseType? exerciseType,
   }) {
     final currentInCycle =
         config.unit == ProgressionUnit.session
