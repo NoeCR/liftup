@@ -26,11 +26,7 @@ void main() {
         cycleLength: 4,
         deloadWeek: 0,
         deloadPercentage: 0.9,
-        customParameters: const {
-          'min_reps': 6,
-          'max_reps': 10,
-          'increment_value': 2.5,
-        },
+        customParameters: const {'min_reps': 6, 'max_reps': 10, 'increment_value': 2.5},
         startDate: now,
         endDate: null,
         isActive: true,
@@ -189,10 +185,7 @@ void main() {
 
       expect(result.incrementApplied, true);
       expect(result.newWeight, 74.0); // 70 + (5 * 0.8) = 74.0
-      expect(
-        result.newReps,
-        9,
-      ); // Reps se incrementan primero (8 -> 9), luego se mantienen en deload
+      expect(result.newReps, 9); // Reps se incrementan primero (8 -> 9), luego se mantienen en deload
       expect(result.newSets, 2); // Sets reducidos al 70% (3 * 0.7 = 2.1 ≈ 2)
       expect(result.reason, contains('deload'));
     });
@@ -231,265 +224,218 @@ void main() {
       expect(result.newReps, 5); // min_reps por defecto
     });
 
-    test(
-      'simula 3 ciclos completos con deload cada 6 semanas para validar progresión a largo plazo',
-      () {
-        // Configuración para simulación a largo plazo con deloads cada 6 semanas
-        final configLongTerm = ProgressionConfig(
-          id: 'cfg',
-          isGlobal: true,
-          type: ProgressionType.doubleFactor,
-          unit: ProgressionUnit.week,
-          primaryTarget: ProgressionTarget.weight,
-          secondaryTarget: null,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 6, // Ciclo de 6 semanas
-          deloadWeek: 6, // Deload en semana 6
-          deloadPercentage: 0.8, // Reducción del 20%
-          customParameters: const {
-            'min_reps': 6,
-            'max_reps': 10,
-            'increment_value': 2.5,
-          },
-          startDate: now,
-          endDate: null,
-          isActive: true,
-          createdAt: now,
-          updatedAt: now,
+    test('simula 3 ciclos completos con deload cada 6 semanas para validar progresión a largo plazo', () {
+      // Configuración para simulación a largo plazo con deloads cada 6 semanas
+      final configLongTerm = ProgressionConfig(
+        id: 'cfg',
+        isGlobal: true,
+        type: ProgressionType.doubleFactor,
+        unit: ProgressionUnit.week,
+        primaryTarget: ProgressionTarget.weight,
+        secondaryTarget: null,
+        incrementValue: 2.5,
+        incrementFrequency: 1,
+        cycleLength: 6, // Ciclo de 6 semanas
+        deloadWeek: 6, // Deload en semana 6
+        deloadPercentage: 0.8, // Reducción del 20%
+        customParameters: const {'min_reps': 6, 'max_reps': 10, 'increment_value': 2.5},
+        startDate: now,
+        endDate: null,
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      // Estado inicial
+      var currentWeight = 70.0;
+      var currentReps = 6;
+      var currentSets = 3;
+      var currentWeek = 1;
+      var currentCycle = 1;
+
+      // Registro de progresión para validación
+      final progressionHistory = <Map<String, dynamic>>[];
+
+      // Simular 3 ciclos completos (18 semanas)
+      for (var week = 1; week <= 18; week++) {
+        // Calcular semana actual en el ciclo
+        currentWeek = ((week - 1) % configLongTerm.cycleLength) + 1;
+        currentCycle = ((week - 1) ~/ configLongTerm.cycleLength) + 1;
+
+        final state = ProgressionState(
+          id: 'st',
+          progressionConfigId: 'cfg',
+          exerciseId: 'ex',
+          currentCycle: currentCycle,
+          currentWeek: currentWeek,
+          currentSession: 1,
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          baseWeight: 70.0,
+          baseReps: 6,
+          baseSets: 3,
+          sessionHistory: const {},
+          lastUpdated: now,
+          isDeloadWeek: false,
+          oneRepMax: null,
+          customData: const {},
         );
 
-        // Estado inicial
-        var currentWeight = 70.0;
-        var currentReps = 6;
-        var currentSets = 3;
-        var currentWeek = 1;
-        var currentCycle = 1;
+        final result = strategy.calculate(
+          config: configLongTerm,
+          state: state,
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+        );
 
-        // Registro de progresión para validación
-        final progressionHistory = <Map<String, dynamic>>[];
+        // Registrar progresión
+        progressionHistory.add({
+          'week': week,
+          'cycle': currentCycle,
+          'weekInCycle': currentWeek,
+          'oldWeight': currentWeight,
+          'oldReps': currentReps,
+          'oldSets': currentSets,
+          'newWeight': result.newWeight,
+          'newReps': result.newReps,
+          'newSets': result.newSets,
+          'isDeload': currentWeek == configLongTerm.deloadWeek,
+          'reason': result.reason,
+        });
 
-        // Simular 3 ciclos completos (18 semanas)
-        for (var week = 1; week <= 18; week++) {
-          // Calcular semana actual en el ciclo
-          currentWeek = ((week - 1) % configLongTerm.cycleLength) + 1;
-          currentCycle = ((week - 1) ~/ configLongTerm.cycleLength) + 1;
+        // Actualizar valores para la siguiente iteración
+        currentWeight = result.newWeight;
+        currentReps = result.newReps;
+        currentSets = result.newSets;
+      }
 
-          final state = ProgressionState(
-            id: 'st',
-            progressionConfigId: 'cfg',
-            exerciseId: 'ex',
-            currentCycle: currentCycle,
-            currentWeek: currentWeek,
-            currentSession: 1,
-            currentWeight: currentWeight,
-            currentReps: currentReps,
-            currentSets: currentSets,
-            baseWeight: 70.0,
-            baseReps: 6,
-            baseSets: 3,
-            sessionHistory: const {},
-            lastUpdated: now,
-            isDeloadWeek: false,
-            oneRepMax: null,
-            customData: const {},
-          );
+      // Validaciones de progresión a largo plazo
 
-          final result = strategy.calculate(
-            config: configLongTerm,
-            state: state,
-            currentWeight: currentWeight,
-            currentReps: currentReps,
-            currentSets: currentSets,
-          );
-
-          // Registrar progresión
-          progressionHistory.add({
-            'week': week,
-            'cycle': currentCycle,
-            'weekInCycle': currentWeek,
-            'oldWeight': currentWeight,
-            'oldReps': currentReps,
-            'oldSets': currentSets,
-            'newWeight': result.newWeight,
-            'newReps': result.newReps,
-            'newSets': result.newSets,
-            'isDeload': currentWeek == configLongTerm.deloadWeek,
-            'reason': result.reason,
-          });
-
-          // Actualizar valores para la siguiente iteración
-          currentWeight = result.newWeight;
-          currentReps = result.newReps;
-          currentSets = result.newSets;
-        }
-
-        // Validaciones de progresión a largo plazo
-
-        // Debug: Imprimir progresión para análisis
-        print('\n=== PROGRESIÓN A LARGO PLAZO ===');
-        for (var entry in progressionHistory) {
-          print(
-            'Semana ${entry['week']}: Ciclo ${entry['cycle']}, Semana ${entry['weekInCycle']} - '
-            'Peso: ${entry['oldWeight']} -> ${entry['newWeight']}, '
-            'Reps: ${entry['oldReps']} -> ${entry['newReps']}, '
-            'Sets: ${entry['oldSets']} -> ${entry['newSets']} '
-            '${entry['isDeload'] ? '[DELOAD]' : ''}',
-          );
-        }
-        print('================================\n');
-
-        // 1. Verificar que el peso ha progresado significativamente
-        final finalWeight = progressionHistory.last['newWeight'] as double;
-        final initialWeight = progressionHistory.first['oldWeight'] as double;
+      // Debug: Imprimir progresión para análisis
+      print('\n=== PROGRESIÓN A LARGO PLAZO ===');
+      for (var entry in progressionHistory) {
         print(
-          'Peso inicial: $initialWeight, Peso final: $finalWeight, Diferencia: ${finalWeight - initialWeight}',
+          'Semana ${entry['week']}: Ciclo ${entry['cycle']}, Semana ${entry['weekInCycle']} - '
+          'Peso: ${entry['oldWeight']} -> ${entry['newWeight']}, '
+          'Reps: ${entry['oldReps']} -> ${entry['newReps']}, '
+          'Sets: ${entry['oldSets']} -> ${entry['newSets']} '
+          '${entry['isDeload'] ? '[DELOAD]' : ''}',
         );
-        expect(
-          finalWeight,
-          greaterThan(initialWeight + 4.0),
-        ); // Al menos 4kg de progresión (realista con deloads)
+      }
+      print('================================\n');
 
-        // 2. Verificar que los deloads se aplicaron correctamente
-        final deloadWeeks =
-            progressionHistory
-                .where((entry) => entry['isDeload'] as bool)
-                .toList();
-        expect(deloadWeeks.length, 3); // 3 deloads en 3 ciclos
+      // 1. Verificar que el peso ha progresado significativamente
+      final finalWeight = progressionHistory.last['newWeight'] as double;
+      final initialWeight = progressionHistory.first['oldWeight'] as double;
+      print('Peso inicial: $initialWeight, Peso final: $finalWeight, Diferencia: ${finalWeight - initialWeight}');
+      expect(finalWeight, greaterThan(initialWeight + 4.0)); // Al menos 4kg de progresión (realista con deloads)
 
-        // Verificar que cada deload redujo el peso apropiadamente
-        for (var deloadEntry in deloadWeeks) {
-          final oldWeight = deloadEntry['oldWeight'] as double;
-          final newWeight = deloadEntry['newWeight'] as double;
+      // 2. Verificar que los deloads se aplicaron correctamente
+      final deloadWeeks = progressionHistory.where((entry) => entry['isDeload'] as bool).toList();
+      expect(deloadWeeks.length, 3); // 3 deloads en 3 ciclos
 
-          // El peso después del deload debe ser menor o igual que antes
-          expect(newWeight, lessThanOrEqualTo(oldWeight));
+      // Verificar que cada deload redujo el peso apropiadamente
+      for (var deloadEntry in deloadWeeks) {
+        final oldWeight = deloadEntry['oldWeight'] as double;
+        final newWeight = deloadEntry['newWeight'] as double;
 
-          // El peso después del deload debe ser mayor o igual que el peso base (70kg)
-          expect(newWeight, greaterThanOrEqualTo(70.0));
-        }
+        // El peso después del deload debe ser menor o igual que antes
+        expect(newWeight, lessThanOrEqualTo(oldWeight));
 
-        // 3. Verificar progresión de reps dentro de cada ciclo
-        for (var cycle = 1; cycle <= 3; cycle++) {
-          final cycleWeeks =
-              progressionHistory
-                  .where(
-                    (entry) =>
-                        entry['cycle'] == cycle && !(entry['isDeload'] as bool),
-                  )
-                  .toList();
+        // El peso después del deload debe ser mayor o igual que el peso base (70kg)
+        expect(newWeight, greaterThanOrEqualTo(70.0));
+      }
 
-          if (cycleWeeks.isNotEmpty) {
-            // En semanas no-deload, las reps deben incrementar progresivamente
-            // EXCEPTO cuando se incrementa el peso (reps se resetean a min_reps)
-            for (var i = 1; i < cycleWeeks.length; i++) {
-              final prevReps = cycleWeeks[i - 1]['newReps'] as int;
-              final currentReps = cycleWeeks[i]['newReps'] as int;
-              final prevWeight = cycleWeeks[i - 1]['newWeight'] as double;
-              final currentWeight = cycleWeeks[i]['newWeight'] as double;
+      // 3. Verificar progresión de reps dentro de cada ciclo
+      for (var cycle = 1; cycle <= 3; cycle++) {
+        final cycleWeeks =
+            progressionHistory.where((entry) => entry['cycle'] == cycle && !(entry['isDeload'] as bool)).toList();
 
-              // Si el peso incrementó, las reps pueden resetearse (decrementar)
-              if (currentWeight > prevWeight) {
-                // Peso incrementó, reps pueden resetearse
-                expect(currentReps, equals(6)); // Debe resetearse a min_reps
-              } else {
-                // Peso no incrementó, reps deben incrementar o mantenerse
-                expect(currentReps, greaterThanOrEqualTo(prevReps));
-              }
+        if (cycleWeeks.isNotEmpty) {
+          // En semanas no-deload, las reps deben incrementar progresivamente
+          // EXCEPTO cuando se incrementa el peso (reps se resetean a min_reps)
+          for (var i = 1; i < cycleWeeks.length; i++) {
+            final prevReps = cycleWeeks[i - 1]['newReps'] as int;
+            final currentReps = cycleWeeks[i]['newReps'] as int;
+            final prevWeight = cycleWeeks[i - 1]['newWeight'] as double;
+            final currentWeight = cycleWeeks[i]['newWeight'] as double;
+
+            // Si el peso incrementó, las reps pueden resetearse (decrementar)
+            if (currentWeight > prevWeight) {
+              // Peso incrementó, reps pueden resetearse
+              expect(currentReps, equals(6)); // Debe resetearse a min_reps
+            } else {
+              // Peso no incrementó, reps deben incrementar o mantenerse
+              expect(currentReps, greaterThanOrEqualTo(prevReps));
             }
           }
         }
+      }
 
-        // 4. Verificar que después de cada deload, las reps se mantienen apropiadas
-        for (var deloadEntry in deloadWeeks) {
-          final deloadReps = deloadEntry['newReps'] as int;
-          // Las reps durante deload deben estar en un rango razonable
-          expect(deloadReps, inInclusiveRange(6, 10));
+      // 4. Verificar que después de cada deload, las reps se mantienen apropiadas
+      for (var deloadEntry in deloadWeeks) {
+        final deloadReps = deloadEntry['newReps'] as int;
+        // Las reps durante deload deben estar en un rango razonable
+        expect(deloadReps, inInclusiveRange(6, 10));
+      }
+
+      // 5. Verificar que la progresión de peso es consistente
+      var totalWeightIncreases = 0.0;
+      for (var i = 1; i < progressionHistory.length; i++) {
+        final prevWeight = progressionHistory[i - 1]['newWeight'] as double;
+        final currentWeight = progressionHistory[i]['newWeight'] as double;
+
+        if (currentWeight > prevWeight) {
+          totalWeightIncreases += (currentWeight - prevWeight);
         }
+      }
 
-        // 5. Verificar que la progresión de peso es consistente
-        var totalWeightIncreases = 0.0;
-        for (var i = 1; i < progressionHistory.length; i++) {
-          final prevWeight = progressionHistory[i - 1]['newWeight'] as double;
-          final currentWeight = progressionHistory[i]['newWeight'] as double;
+      // Debe haber habido incrementos de peso significativos
+      expect(totalWeightIncreases, greaterThan(7.0)); // Al menos 7kg de incrementos totales
 
-          if (currentWeight > prevWeight) {
-            totalWeightIncreases += (currentWeight - prevWeight);
-          }
+      // 6. Verificar que las reps se mantienen dentro del rango configurado
+      for (var entry in progressionHistory) {
+        final reps = entry['newReps'] as int;
+        expect(reps, inInclusiveRange(6, 10)); // min_reps a max_reps
+      }
+
+      // 7. Verificar que los sets se mantienen apropiados
+      for (var entry in progressionHistory) {
+        final sets = entry['newSets'] as int;
+        if (entry['isDeload'] as bool) {
+          expect(sets, lessThanOrEqualTo(3)); // Sets reducidos durante deload
+        } else {
+          // Durante progresión normal, los sets pueden ser 3 o menos (si vienen de un deload)
+          expect(sets, lessThanOrEqualTo(3));
         }
+      }
 
-        // Debe haber habido incrementos de peso significativos
-        expect(
-          totalWeightIncreases,
-          greaterThan(7.0),
-        ); // Al menos 7kg de incrementos totales
+      // 8. Verificar progresión específica del primer ciclo como ejemplo
+      final firstCycle = progressionHistory.take(6).toList();
+      expect(firstCycle[0]['newReps'], 7); // Semana 1: 6 -> 7 reps
+      expect(firstCycle[1]['newReps'], 8); // Semana 2: 7 -> 8 reps
+      expect(firstCycle[2]['newReps'], 9); // Semana 3: 8 -> 9 reps
+      expect(firstCycle[3]['newReps'], 10); // Semana 4: 9 -> 10 reps
+      expect(firstCycle[4]['newReps'], 6); // Semana 5: 10 -> 6 reps (incrementa peso y resetea)
+      expect(firstCycle[5]['newReps'], 7); // Semana 6: deload, reps se incrementan primero (6->7) luego se mantienen
 
-        // 6. Verificar que las reps se mantienen dentro del rango configurado
-        for (var entry in progressionHistory) {
-          final reps = entry['newReps'] as int;
-          expect(reps, inInclusiveRange(6, 10)); // min_reps a max_reps
-        }
+      // 9. Verificar que el peso progresa después del primer ciclo completo
+      final startOfSecondCycle =
+          progressionHistory[6]['newWeight'] as double; // Semana 7: segundo ciclo (72.0 después del deload)
+      // El peso después del deload puede ser menor, pero debe ser mayor que el peso base
+      expect(startOfSecondCycle, greaterThan(70.0)); // Peso debe ser mayor que el peso base
 
-        // 7. Verificar que los sets se mantienen apropiados
-        for (var entry in progressionHistory) {
-          final sets = entry['newSets'] as int;
-          if (entry['isDeload'] as bool) {
-            expect(sets, lessThanOrEqualTo(3)); // Sets reducidos durante deload
-          } else {
-            // Durante progresión normal, los sets pueden ser 3 o menos (si vienen de un deload)
-            expect(sets, lessThanOrEqualTo(3));
-          }
-        }
+      // 10. Verificar consistencia en la razón de progresión
+      final progressionReasons = progressionHistory.map((e) => e['reason'] as String).toList();
+      final increasingRepsReasons = progressionReasons.where((r) => r.contains('increasing reps')).length;
+      final increasingWeightReasons = progressionReasons.where((r) => r.contains('increasing weight')).length;
+      final deloadReasons = progressionReasons.where((r) => r.contains('deload')).length;
 
-        // 8. Verificar progresión específica del primer ciclo como ejemplo
-        final firstCycle = progressionHistory.take(6).toList();
-        expect(firstCycle[0]['newReps'], 7); // Semana 1: 6 -> 7 reps
-        expect(firstCycle[1]['newReps'], 8); // Semana 2: 7 -> 8 reps
-        expect(firstCycle[2]['newReps'], 9); // Semana 3: 8 -> 9 reps
-        expect(firstCycle[3]['newReps'], 10); // Semana 4: 9 -> 10 reps
-        expect(
-          firstCycle[4]['newReps'],
-          6,
-        ); // Semana 5: 10 -> 6 reps (incrementa peso y resetea)
-        expect(
-          firstCycle[5]['newReps'],
-          7,
-        ); // Semana 6: deload, reps se incrementan primero (6->7) luego se mantienen
-
-        // 9. Verificar que el peso progresa después del primer ciclo completo
-        final startOfSecondCycle =
-            progressionHistory[6]['newWeight']
-                as double; // Semana 7: segundo ciclo (72.0 después del deload)
-        // El peso después del deload puede ser menor, pero debe ser mayor que el peso base
-        expect(
-          startOfSecondCycle,
-          greaterThan(70.0),
-        ); // Peso debe ser mayor que el peso base
-
-        // 10. Verificar consistencia en la razón de progresión
-        final progressionReasons =
-            progressionHistory.map((e) => e['reason'] as String).toList();
-        final increasingRepsReasons =
-            progressionReasons
-                .where((r) => r.contains('increasing reps'))
-                .length;
-        final increasingWeightReasons =
-            progressionReasons
-                .where((r) => r.contains('increasing weight'))
-                .length;
-        final deloadReasons =
-            progressionReasons.where((r) => r.contains('deload')).length;
-
-        expect(
-          increasingRepsReasons,
-          greaterThan(8),
-        ); // Debe haber muchas semanas incrementando reps
-        expect(
-          increasingWeightReasons,
-          greaterThanOrEqualTo(3),
-        ); // Debe haber al menos 3 semanas incrementando peso
-        expect(deloadReasons, equals(3)); // Exactamente 3 deloads
-      },
-    );
+      expect(increasingRepsReasons, greaterThan(8)); // Debe haber muchas semanas incrementando reps
+      expect(increasingWeightReasons, greaterThanOrEqualTo(3)); // Debe haber al menos 3 semanas incrementando peso
+      expect(deloadReasons, equals(3)); // Exactamente 3 deloads
+    });
   });
 }
