@@ -1,7 +1,7 @@
+import '../../../../features/exercise/models/exercise.dart';
+import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
-import '../../models/progression_calculation_result.dart';
-import '../../../../features/exercise/models/exercise.dart';
 import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
@@ -45,10 +45,12 @@ class DefaultProgressionStrategy extends BaseProgressionStrategy implements Prog
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
     required ProgressionState state,
+    required String routineId,
     required double currentWeight,
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    bool isExerciseLocked = false,
   }) {
     // La progresión por defecto no aplica deloads ni cambios
     return ProgressionCalculationResult(
@@ -56,6 +58,7 @@ class DefaultProgressionStrategy extends BaseProgressionStrategy implements Prog
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: false,
+      isDeload: false,
       reason: 'Default progression: no changes applied',
     );
   }

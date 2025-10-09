@@ -1,39 +1,35 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'package:hive/hive.dart';
-import '../models/progression_config.dart';
-import '../models/progression_state.dart';
-import '../models/progression_calculation_result.dart';
-import '../models/progression_template.dart';
+
 import '../../../common/enums/progression_type_enum.dart';
-import '../../../features/exercise/models/exercise.dart';
-import '../strategies/progression_strategy.dart';
 import '../../../core/database/database_service.dart';
 import '../../../core/database/i_database_service.dart';
 import '../../../core/logging/logging.dart';
+import '../../../features/exercise/models/exercise.dart';
+import '../models/progression_calculation_result.dart';
+import '../models/progression_config.dart';
+import '../models/progression_state.dart';
+import '../models/progression_template.dart';
+import '../strategies/progression_strategy.dart';
 
 part 'progression_service.g.dart';
 
-// Provider used in production (backed by real DatabaseService)
-@riverpod
-ProgressionService productionProgressionService(Ref ref) {
-  return ProgressionService();
-}
-
-// (Eliminado) Provider para pruebas con inyección de dependencias
+// Provider para pruebas con inyección de dependencias (si es necesario en el futuro)
 
 @riverpod
 class ProgressionService extends _$ProgressionService {
   final IDatabaseService _databaseService;
 
-  // Constructor with dependency injection
-  ProgressionService({IDatabaseService? databaseService})
-    : _databaseService = databaseService ?? DatabaseService.getInstance();
+  // Default constructor required by Riverpod
+  ProgressionService() : _databaseService = DatabaseService.getInstance();
+
+  // Constructor with dependency injection for testing
+  ProgressionService.withDependencies({required IDatabaseService databaseService}) : _databaseService = databaseService;
 
   @override
   ProgressionService build() {
-    return this;
+    return ProgressionService();
   }
 
   Box get _configsBox => _databaseService.progressionConfigsBox;
@@ -180,17 +176,19 @@ class ProgressionService extends _$ProgressionService {
     }
   }
 
-  Future<ProgressionState?> getProgressionStateByExercise(String configId, String exerciseId) async {
+  Future<ProgressionState?> getProgressionStateByExercise(String configId, String exerciseId, String routineId) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
       return allStates.firstWhere(
-        (state) => state.progressionConfigId == configId && state.exerciseId == exerciseId,
+        (state) =>
+            state.progressionConfigId == configId && state.exerciseId == exerciseId && state.routineId == routineId,
         orElse: () => throw StateError('No progression state found'),
       );
     } catch (e) {
       LoggingService.instance.debug('No progression state found for exercise', {
         'configId': configId,
         'exerciseId': exerciseId,
+        'routineId': routineId,
       });
       return null;
     }
@@ -246,10 +244,12 @@ class ProgressionService extends _$ProgressionService {
   Future<ProgressionCalculationResult> calculateProgression(
     String configId,
     String exerciseId,
+    String routineId,
     double currentWeight,
     int currentReps,
     int currentSets, {
     ExerciseType? exerciseType,
+    bool isExerciseLocked = false,
   }) async {
     try {
       final config = await getProgressionConfig(configId);
@@ -257,7 +257,7 @@ class ProgressionService extends _$ProgressionService {
         throw Exception('Progression config not found');
       }
 
-      final state = await getProgressionStateByExercise(configId, exerciseId);
+      final state = await getProgressionStateByExercise(configId, exerciseId, routineId);
       if (state == null) {
         throw Exception('Progression state not found');
       }
@@ -267,38 +267,42 @@ class ProgressionService extends _$ProgressionService {
       final result = strategy.calculate(
         config: config,
         state: state,
+        routineId: routineId,
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: currentSets,
         exerciseType: exerciseType,
+        isExerciseLocked: isExerciseLocked,
       );
 
-      // Compute current week based on session count (3 sessions/week by default; configurable)
-      final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
-      final newSession = state.currentSession + 1;
-      final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
+      // Compute next session and week using centralized logic
+      // Use the same strategy that was used for calculation to ensure consistency
+      final nextSessionAndWeek = strategy.calculateNextSessionAndWeek(config: config, state: state);
+      final newSession = nextSessionAndWeek.session;
+      final newWeek = nextSessionAndWeek.week;
 
-      // Detect if we are in deload position of the cycle (recomputable here)
-      final int currentInCycle =
-          config.unit == ProgressionUnit.session
-              ? ((state.currentSession - 1) % config.cycleLength) + 1
-              : ((state.currentWeek - 1) % config.cycleLength) + 1;
-      final bool isDeloadNow = config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+      // Trust the strategy's calculation - it already handles deload logic internally
+      // The strategy's result.newWeight already reflects whether deload was applied or not
+      final double nextBaseWeight = state.baseWeight;
 
-      // If deload just applied, set baseWeight to deloaded weight to resume next period from there
-      final double nextBaseWeight = isDeloadNow ? result.newWeight : state.baseWeight;
+      // For deloads, we need to handle sets differently:
+      // - currentSets should reflect the deloaded value for this session
+      // - baseSets should remain unchanged so we can recover in the next cycle
+      final int nextCurrentSets = result.newSets;
+      final int nextBaseSets = result.isDeload ? state.baseSets : result.newSets;
 
       // Track deload application to avoid confusion and for debugging
       // Update progression state
       final updatedState = state.copyWith(
         currentWeight: result.newWeight,
         currentReps: result.newReps,
-        currentSets: result.newSets,
+        currentSets: nextCurrentSets,
         currentSession: newSession,
         currentWeek: newWeek,
         lastUpdated: DateTime.now(),
         baseWeight: nextBaseWeight,
-        isDeloadWeek: isDeloadNow,
+        baseSets: nextBaseSets,
+        isDeloadWeek: result.isDeload,
         sessionHistory: {
           ...state.sessionHistory,
           'session_$newSession': {
@@ -313,6 +317,9 @@ class ProgressionService extends _$ProgressionService {
       );
 
       await saveProgressionState(updatedState);
+
+      // Note: Exercise defaults will be updated by the calling code (session_notifier.dart)
+      // This service only handles progression state updates
 
       LoggingService.instance.info('Progression calculated successfully', {
         'exerciseId': exerciseId,
@@ -386,6 +393,7 @@ class ProgressionService extends _$ProgressionService {
   Future<ProgressionState> initializeExerciseProgression({
     required String configId,
     required String exerciseId,
+    required String routineId,
     required double baseWeight,
     required int baseReps,
     required int baseSets,
@@ -397,6 +405,7 @@ class ProgressionService extends _$ProgressionService {
         id: uuid.v4(),
         progressionConfigId: configId,
         exerciseId: exerciseId,
+        routineId: routineId,
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 0,

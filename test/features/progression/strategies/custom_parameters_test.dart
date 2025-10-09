@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
 
 void main() {
   group('Custom Parameters Tests', () {
     // Helper para crear configuraciones con parámetros personalizados
-    ProgressionConfig _createConfigWithCustomParams({
+    ProgressionConfig createConfigWithCustomParams({
       required ProgressionType type,
       Map<String, dynamic> customParameters = const {},
     }) {
@@ -36,12 +36,13 @@ void main() {
     }
 
     // Helper para crear estados
-    ProgressionState _createState({String exerciseId = 'test_exercise'}) {
+    ProgressionState createState({String exerciseId = 'test_exercise'}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'custom_test_state',
         progressionConfigId: 'custom_test_config',
         exerciseId: exerciseId,
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -63,7 +64,7 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('usa incremento personalizado por ejercicio', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -71,11 +72,12 @@ void main() {
             },
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -86,15 +88,16 @@ void main() {
       });
 
       test('usa incremento multi_ como fallback', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {'multi_increment_min': 3.0, 'iso_increment_min': 1.5},
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -105,15 +108,16 @@ void main() {
       });
 
       test('usa incremento iso_ como fallback', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {'iso_increment_min': 1.5},
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -124,12 +128,13 @@ void main() {
       });
 
       test('fallback al valor base cuando no hay parámetros personalizados', () {
-        final config = _createConfigWithCustomParams(type: ProgressionType.linear, customParameters: const {});
-        final state = _createState();
+        final config = createConfigWithCustomParams(type: ProgressionType.linear, customParameters: const {});
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -140,7 +145,7 @@ void main() {
       });
 
       test('prioridad: per_exercise > multi_ > iso_ > base', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -152,11 +157,12 @@ void main() {
             'iso_increment_min': 3.0,
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -171,7 +177,7 @@ void main() {
       final strategy = DoubleProgressionStrategy();
 
       test('usa min/max reps personalizados por ejercicio', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.double,
           customParameters: {
             'per_exercise': {
@@ -179,12 +185,13 @@ void main() {
             },
           },
         );
-        final state = _createState();
+        final state = createState();
 
         // Test incremento de reps
         final result1 = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -197,6 +204,7 @@ void main() {
         final result2 = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 14, // Máximo personalizado
           currentSets: 4,
@@ -207,7 +215,7 @@ void main() {
       });
 
       test('usa parámetros multi_ vs iso_ según contexto', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.double,
           customParameters: {
             'multi_reps_min': 5,
@@ -218,11 +226,12 @@ void main() {
             'iso_increment_min': 2.5,
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10, // Máximo multi
           currentSets: 4,
@@ -233,15 +242,16 @@ void main() {
       });
 
       test('fallback a parámetros globales', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.double,
           customParameters: {'min_reps': 6, 'max_reps': 12, 'increment_value': 3.0},
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 12,
           currentSets: 4,
@@ -256,7 +266,7 @@ void main() {
       final strategy = AutoregulatedProgressionStrategy();
 
       test('usa RPE objetivo personalizado', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.autoregulated,
           customParameters: {
             'per_exercise': {
@@ -271,11 +281,12 @@ void main() {
             },
           },
         );
-        final state = _createState();
+        final state = createState();
         final stateWithHistory = ProgressionState(
           id: state.id,
           progressionConfigId: state.progressionConfigId,
           exerciseId: state.exerciseId,
+          routineId: 'test-routine-1',
           currentCycle: state.currentCycle,
           currentWeek: state.currentWeek,
           currentSession: state.currentSession,
@@ -299,6 +310,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -309,7 +321,7 @@ void main() {
       });
 
       test('usa parámetros globales como fallback', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.autoregulated,
           customParameters: {
             'target_rpe': 8.5,
@@ -320,11 +332,12 @@ void main() {
             'increment_value': 2.0,
           },
         );
-        final state = _createState();
+        final state = createState();
         final stateWithHistory = ProgressionState(
           id: state.id,
           progressionConfigId: state.progressionConfigId,
           exerciseId: state.exerciseId,
+          routineId: 'test-routine-1',
           currentCycle: state.currentCycle,
           currentWeek: state.currentWeek,
           currentSession: state.currentSession,
@@ -348,6 +361,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -358,7 +372,7 @@ void main() {
       });
 
       test('combina parámetros per_exercise con globales', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.autoregulated,
           customParameters: {
             'per_exercise': {
@@ -372,11 +386,12 @@ void main() {
             'increment_value': 2.5, // Global
           },
         );
-        final state = _createState();
+        final state = createState();
         final stateWithHistory = ProgressionState(
           id: state.id,
           progressionConfigId: state.progressionConfigId,
           exerciseId: state.exerciseId,
+          routineId: 'test-routine-1',
           currentCycle: state.currentCycle,
           currentWeek: state.currentWeek,
           currentSession: state.currentSession,
@@ -400,6 +415,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -415,7 +431,7 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('maneja parámetros faltantes correctamente', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -428,11 +444,12 @@ void main() {
             // Falta iso_increment_min
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -442,7 +459,7 @@ void main() {
       });
 
       test('maneja tipos de datos incorrectos', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -453,11 +470,12 @@ void main() {
             'multi_increment_min': 3.0,
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -467,7 +485,7 @@ void main() {
       });
 
       test('maneja estructura de per_exercise incorrecta', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -476,11 +494,12 @@ void main() {
             'multi_increment_min': 3.0,
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -490,7 +509,7 @@ void main() {
       });
 
       test('maneja ejercicio no encontrado en per_exercise', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -502,11 +521,12 @@ void main() {
             'multi_increment_min': 3.0,
           },
         );
-        final state = _createState(exerciseId: 'test_exercise');
+        final state = createState(exerciseId: 'test_exercise');
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -521,7 +541,7 @@ void main() {
       final strategy = DoubleProgressionStrategy();
 
       test('diferencia entre parámetros multi e iso', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.double,
           customParameters: {
             'multi_reps_min': 5,
@@ -532,12 +552,13 @@ void main() {
             'iso_increment_min': 2.5,
           },
         );
-        final state = _createState();
+        final state = createState();
 
         // Test con reps en máximo multi
         final result1 = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10, // Máximo multi
           currentSets: 4,
@@ -550,6 +571,7 @@ void main() {
         final result2 = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 15, // Máximo iso
           currentSets: 4,
@@ -561,7 +583,7 @@ void main() {
       });
 
       test('preferencia de multi_ sobre iso_ cuando ambos están disponibles', () {
-        final config = _createConfigWithCustomParams(
+        final config = createConfigWithCustomParams(
           type: ProgressionType.double,
           customParameters: {
             'multi_reps_min': 6,
@@ -572,11 +594,12 @@ void main() {
             'iso_increment_min': 2.5,
           },
         );
-        final state = _createState();
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 12, // Máximo multi
           currentSets: 4,

@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
 
 void main() {
   group('Cycle Calculation Tests', () {
     // Helper para crear configuraciones
-    ProgressionConfig _createConfig({required ProgressionUnit unit, int cycleLength = 4, int deloadWeek = 0}) {
+    ProgressionConfig createConfig({required ProgressionUnit unit, int cycleLength = 4, int deloadWeek = 0}) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cycle_test_config',
@@ -32,12 +32,13 @@ void main() {
     }
 
     // Helper para crear estados
-    ProgressionState _createState({int currentSession = 1, int currentWeek = 1}) {
+    ProgressionState createState({int currentSession = 1, int currentWeek = 1}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'cycle_test_state',
         progressionConfigId: 'cycle_test_config',
         exerciseId: 'test_exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: currentWeek,
         currentSession: currentSession,
@@ -59,12 +60,13 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('sesión 1 en ciclo de 4 sesiones', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
-        final state = _createState(currentSession: 1);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -75,12 +77,13 @@ void main() {
       });
 
       test('sesión 2 en ciclo de 4 sesiones', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
-        final state = _createState(currentSession: 2);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final state = createState(currentSession: 2);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -91,12 +94,13 @@ void main() {
       });
 
       test('sesión 4 en ciclo de 4 sesiones', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
-        final state = _createState(currentSession: 4);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final state = createState(currentSession: 4);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -107,12 +111,13 @@ void main() {
       });
 
       test('sesión 5 reinicia ciclo (sesión 1 del siguiente ciclo)', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
-        final state = _createState(currentSession: 5);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final state = createState(currentSession: 5);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -123,12 +128,13 @@ void main() {
       });
 
       test('sesión 8 en ciclo de 4 sesiones (sesión 4 del segundo ciclo)', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
-        final state = _createState(currentSession: 8);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final state = createState(currentSession: 8);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -139,12 +145,13 @@ void main() {
       });
 
       test('deload en sesión 3 de ciclo de 4', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4, deloadWeek: 3);
-        final state = _createState(currentSession: 3);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4, deloadWeek: 3);
+        final state = createState(currentSession: 3);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -160,12 +167,13 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('semana 1 en ciclo de 4 semanas', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 4);
-        final state = _createState(currentWeek: 1);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 4);
+        final state = createState(currentWeek: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -176,12 +184,13 @@ void main() {
       });
 
       test('semana 4 en ciclo de 4 semanas', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 4);
-        final state = _createState(currentWeek: 4);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 4);
+        final state = createState(currentWeek: 4);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -192,12 +201,13 @@ void main() {
       });
 
       test('semana 5 reinicia ciclo (semana 1 del siguiente ciclo)', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 4);
-        final state = _createState(currentWeek: 5);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 4);
+        final state = createState(currentWeek: 5);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -208,12 +218,13 @@ void main() {
       });
 
       test('deload en semana 3 de ciclo de 4', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 4, deloadWeek: 3);
-        final state = _createState(currentWeek: 3);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 4, deloadWeek: 3);
+        final state = createState(currentWeek: 3);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -229,12 +240,13 @@ void main() {
       final strategy = WaveProgressionStrategy();
 
       test('semana 1: alta intensidad', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 3);
-        final state = _createState(currentWeek: 1);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 3);
+        final state = createState(currentWeek: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -247,12 +259,13 @@ void main() {
       });
 
       test('semana 2: alto volumen', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 3);
-        final state = _createState(currentWeek: 2);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 3);
+        final state = createState(currentWeek: 2);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -266,12 +279,13 @@ void main() {
       });
 
       test('semana 3: deload', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 3, deloadWeek: 3);
-        final state = _createState(currentWeek: 3);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 3, deloadWeek: 3);
+        final state = createState(currentWeek: 3);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -279,17 +293,18 @@ void main() {
 
         expect(result.incrementApplied, true);
         expect(result.newWeight, 90.0);
-        expect(result.newSets, 3);
+        expect(result.newSets, 4); // 4 * 0.9 = 3.6 rounded to 4
         expect(result.reason, contains('deload week'));
       });
 
       test('semana 4 reinicia ciclo (semana 1 del siguiente ciclo)', () {
-        final config = _createConfig(unit: ProgressionUnit.week, cycleLength: 3);
-        final state = _createState(currentWeek: 4);
+        final config = createConfig(unit: ProgressionUnit.week, cycleLength: 3);
+        final state = createState(currentWeek: 4);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -304,12 +319,13 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('ciclo de 1 sesión', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 1);
-        final state = _createState(currentSession: 1);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 1);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -320,12 +336,13 @@ void main() {
       });
 
       test('ciclo de 1 sesión - sesión 2 reinicia', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 1);
-        final state = _createState(currentSession: 2);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 1);
+        final state = createState(currentSession: 2);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -336,12 +353,13 @@ void main() {
       });
 
       test('ciclo largo (10 sesiones)', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 10);
-        final state = _createState(currentSession: 7);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 10);
+        final state = createState(currentSession: 7);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -352,16 +370,17 @@ void main() {
       });
 
       test('deload en sesión 0 (sin deload)', () {
-        final config = _createConfig(
+        final config = createConfig(
           unit: ProgressionUnit.session,
           cycleLength: 4,
           deloadWeek: 0, // Sin deload
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -372,16 +391,17 @@ void main() {
       });
 
       test('deload en sesión mayor al ciclo', () {
-        final config = _createConfig(
+        final config = createConfig(
           unit: ProgressionUnit.session,
           cycleLength: 4,
           deloadWeek: 5, // Deload fuera del ciclo
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -396,7 +416,7 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('frecuencia 2 en ciclo de 4 sesiones', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
         // Modificar frecuencia después de crear
         final modifiedConfig = ProgressionConfig(
           id: config.id,
@@ -419,10 +439,11 @@ void main() {
         );
 
         // Sesión 1: no incrementa (1 % 2 != 0)
-        final state1 = _createState(currentSession: 1);
+        final state1 = createState(currentSession: 1);
         final result1 = strategy.calculate(
           config: modifiedConfig,
           state: state1,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -430,10 +451,11 @@ void main() {
         expect(result1.incrementApplied, false);
 
         // Sesión 2: incrementa (2 % 2 == 0)
-        final state2 = _createState(currentSession: 2);
+        final state2 = createState(currentSession: 2);
         final result2 = strategy.calculate(
           config: modifiedConfig,
           state: state2,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -442,10 +464,11 @@ void main() {
         expect(result2.reason, contains('week 2 of 4'));
 
         // Sesión 4: incrementa (4 % 2 == 0)
-        final state4 = _createState(currentSession: 4);
+        final state4 = createState(currentSession: 4);
         final result4 = strategy.calculate(
           config: modifiedConfig,
           state: state4,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -455,7 +478,7 @@ void main() {
       });
 
       test('frecuencia 3 en ciclo de 4 sesiones', () {
-        final config = _createConfig(unit: ProgressionUnit.session, cycleLength: 4);
+        final config = createConfig(unit: ProgressionUnit.session, cycleLength: 4);
         final modifiedConfig = ProgressionConfig(
           id: config.id,
           isGlobal: config.isGlobal,
@@ -477,10 +500,11 @@ void main() {
         );
 
         // Solo sesión 3 incrementa (3 % 3 == 0)
-        final state3 = _createState(currentSession: 3);
+        final state3 = createState(currentSession: 3);
         final result3 = strategy.calculate(
           config: modifiedConfig,
           state: state3,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,

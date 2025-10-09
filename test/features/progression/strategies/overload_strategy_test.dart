@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/overload_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/overload_progression_strategy.dart';
 
 void main() {
   group('OverloadProgressionStrategy', () {
     final strategy = OverloadProgressionStrategy();
     final now = DateTime.now();
 
-    ProgressionConfig _config({String type = 'volume'}) {
+    ProgressionConfig config({String type = 'volume'}) {
       return ProgressionConfig(
         id: 'cfg',
         isGlobal: true,
@@ -31,11 +31,12 @@ void main() {
       );
     }
 
-    ProgressionState _state() {
+    ProgressionState state() {
       return ProgressionState(
         id: 'st',
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -54,16 +55,30 @@ void main() {
     }
 
     test('volume overload increases sets', () {
-      final cfg = _config(type: 'volume');
-      final st = _state();
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final cfg = config(type: 'volume');
+      final st = state();
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newSets, 4 + (4 * 0.1).round());
     });
 
     test('intensity overload increases weight', () {
-      final cfg = _config(type: 'intensity');
-      final st = _state();
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final cfg = config(type: 'intensity');
+      final st = state();
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, closeTo(110, 10)); // allow some tolerance
     });
   });

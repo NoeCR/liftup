@@ -269,9 +269,9 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
           as _i6.Future<void>);
 
   @override
-  _i6.Future<_i4.ProgressionState?> getExerciseProgressionState(String? exerciseId) =>
+  _i6.Future<_i4.ProgressionState?> getExerciseProgressionState(String? exerciseId, String? routineId) =>
       (super.noSuchMethod(
-            Invocation.method(#getExerciseProgressionState, [exerciseId]),
+            Invocation.method(#getExerciseProgressionState, [exerciseId, routineId]),
             returnValue: _i6.Future<_i4.ProgressionState?>.value(),
           )
           as _i6.Future<_i4.ProgressionState?>);
@@ -279,6 +279,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
   @override
   _i6.Future<_i4.ProgressionState> initializeExerciseProgression({
     required String? exerciseId,
+    required String? routineId,
     required double? baseWeight,
     required int? baseReps,
     required int? baseSets,
@@ -287,6 +288,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
       (super.noSuchMethod(
             Invocation.method(#initializeExerciseProgression, [], {
               #exerciseId: exerciseId,
+              #routineId: routineId,
               #baseWeight: baseWeight,
               #baseReps: baseReps,
               #baseSets: baseSets,
@@ -297,6 +299,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
                 this,
                 Invocation.method(#initializeExerciseProgression, [], {
                   #exerciseId: exerciseId,
+                  #routineId: routineId,
                   #baseWeight: baseWeight,
                   #baseReps: baseReps,
                   #baseSets: baseSets,
@@ -310,6 +313,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
   @override
   _i6.Future<_i10.ProgressionCalculationResult?> calculateExerciseProgression({
     required String? exerciseId,
+    required String? routineId,
     required double? currentWeight,
     required int? currentReps,
     required int? currentSets,
@@ -318,6 +322,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
       (super.noSuchMethod(
             Invocation.method(#calculateExerciseProgression, [], {
               #exerciseId: exerciseId,
+              #routineId: routineId,
               #currentWeight: currentWeight,
               #currentReps: currentReps,
               #currentSets: currentSets,
@@ -335,6 +340,23 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
   }) =>
       (super.noSuchMethod(
             Invocation.method(#setSkipNextProgressionForRoutine, [], {
+              #routineId: routineId,
+              #exerciseIds: exerciseIds,
+              #skip: skip,
+            }),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> setSkipNextProgressionForExercises({
+    required String? routineId,
+    required List<String>? exerciseIds,
+    required bool? skip,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#setSkipNextProgressionForExercises, [], {
               #routineId: routineId,
               #exerciseIds: exerciseIds,
               #skip: skip,

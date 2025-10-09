@@ -1,7 +1,7 @@
+import '../../../../common/enums/progression_type_enum.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
-import '../../../../common/enums/progression_type_enum.dart';
 
 /// Clase base abstracta que proporciona funcionalidad común
 /// para las estrategias de progresión
@@ -10,13 +10,61 @@ import '../../../../common/enums/progression_type_enum.dart';
 abstract class BaseProgressionStrategy {
   /// Métodos de utilidad compartidos
   int getCurrentInCycle(ProgressionConfig config, ProgressionState state) {
-    return config.unit == ProgressionUnit.session
-        ? ((state.currentSession - 1) % config.cycleLength) + 1
-        : ((state.currentWeek - 1) % config.cycleLength) + 1;
+    final bool isSessionUnit = config.unit == ProgressionUnit.session;
+    final int rawIndex = isSessionUnit ? state.currentSession : state.currentWeek;
+    if (rawIndex <= 0) {
+      // Evita (-1 % n) -> n-1; la primera sesión/semana debe ser 1
+      return 1;
+    }
+    return ((rawIndex - 1) % config.cycleLength) + 1;
   }
 
   bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
     return config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
+  }
+
+  /// Calcula la próxima sesión y semana basado en la configuración
+  ({int session, int week}) calculateNextSessionAndWeek({
+    required ProgressionConfig config,
+    required ProgressionState state,
+  }) {
+    final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
+    final newSession = state.currentSession + 1;
+    final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
+
+    return (session: newSession, week: newWeek);
+  }
+
+  /// Verifica si la progresión está bloqueada para una rutina específica
+  bool isProgressionBlockedForRoutine(ProgressionState state, String routineId) {
+    final customData = state.customData;
+    final skipNextByRoutine = customData['skip_next_by_routine'] as Map<String, dynamic>?;
+    if (skipNextByRoutine == null) return false;
+
+    return skipNextByRoutine[routineId] == true;
+  }
+
+  /// Verifica si la progresión está bloqueada (por rutina O por ejercicio específico)
+  bool isProgressionBlocked(ProgressionState state, String exerciseId, String routineId, bool isExerciseLocked) {
+    // Verificar bloqueo por rutina completa
+    if (isProgressionBlockedForRoutine(state, routineId)) {
+      return true;
+    }
+
+    // Verificar bloqueo por ejercicio específico (usando el campo del modelo Exercise)
+    if (isExerciseLocked) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Helper method to check if progression values should be applied to an exercise
+  /// Returns true if progression values should be used, false if blocked
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+    if (progressionState == null) return false;
+
+    return !isProgressionBlocked(progressionState, progressionState.exerciseId, routineId, isExerciseLocked);
   }
 
   /// Obtiene el valor de incremento desde parámetros personalizados

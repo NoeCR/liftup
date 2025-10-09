@@ -5,7 +5,6 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i7;
 
-import 'package:flutter_riverpod/flutter_riverpod.dart' as _i2;
 import 'package:liftly/common/enums/progression_type_enum.dart' as _i10;
 import 'package:liftly/features/exercise/models/exercise.dart' as _i9;
 import 'package:liftly/features/progression/models/progression_calculation_result.dart' as _i4;
@@ -14,6 +13,7 @@ import 'package:liftly/features/progression/models/progression_state.dart' as _i
 import 'package:liftly/features/progression/models/progression_template.dart' as _i8;
 import 'package:liftly/features/progression/services/progression_service.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -154,9 +154,13 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
           as _i7.Future<_i6.ProgressionState?>);
 
   @override
-  _i7.Future<_i6.ProgressionState?> getProgressionStateByExercise(String? configId, String? exerciseId) =>
+  _i7.Future<_i6.ProgressionState?> getProgressionStateByExercise(
+    String? configId,
+    String? exerciseId,
+    String? routineId,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#getProgressionStateByExercise, [configId, exerciseId]),
+            Invocation.method(#getProgressionStateByExercise, [configId, exerciseId, routineId]),
             returnValue: _i7.Future<_i6.ProgressionState?>.value(),
           )
           as _i7.Future<_i6.ProgressionState?>);
@@ -198,24 +202,26 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
   _i7.Future<_i4.ProgressionCalculationResult> calculateProgression(
     String? configId,
     String? exerciseId,
+    String? routineId,
     double? currentWeight,
     int? currentReps,
     int? currentSets, {
     _i9.ExerciseType? exerciseType,
+    bool? isExerciseLocked = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #calculateProgression,
-              [configId, exerciseId, currentWeight, currentReps, currentSets],
-              {#exerciseType: exerciseType},
+              [configId, exerciseId, routineId, currentWeight, currentReps, currentSets],
+              {#exerciseType: exerciseType, #isExerciseLocked: isExerciseLocked},
             ),
             returnValue: _i7.Future<_i4.ProgressionCalculationResult>.value(
               _FakeProgressionCalculationResult_2(
                 this,
                 Invocation.method(
                   #calculateProgression,
-                  [configId, exerciseId, currentWeight, currentReps, currentSets],
-                  {#exerciseType: exerciseType},
+                  [configId, exerciseId, routineId, currentWeight, currentReps, currentSets],
+                  {#exerciseType: exerciseType, #isExerciseLocked: isExerciseLocked},
                 ),
               ),
             ),
@@ -275,6 +281,7 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
   _i7.Future<_i6.ProgressionState> initializeExerciseProgression({
     required String? configId,
     required String? exerciseId,
+    required String? routineId,
     required double? baseWeight,
     required int? baseReps,
     required int? baseSets,
@@ -284,6 +291,7 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
             Invocation.method(#initializeExerciseProgression, [], {
               #configId: configId,
               #exerciseId: exerciseId,
+              #routineId: routineId,
               #baseWeight: baseWeight,
               #baseReps: baseReps,
               #baseSets: baseSets,
@@ -295,6 +303,7 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
                 Invocation.method(#initializeExerciseProgression, [], {
                   #configId: configId,
                   #exerciseId: exerciseId,
+                  #routineId: routineId,
                   #baseWeight: baseWeight,
                   #baseReps: baseReps,
                   #baseSets: baseSets,

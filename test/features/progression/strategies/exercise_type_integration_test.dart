@@ -1,15 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
-import 'package:liftly/features/progression/models/progression_config.dart';
-import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
 
 void main() {
   group('Exercise Type Integration Tests', () {
@@ -50,6 +50,7 @@ void main() {
         id: 'test-state',
         progressionConfigId: 'test-config',
         exerciseId: 'test-exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -74,6 +75,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -91,6 +93,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -108,6 +111,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -128,6 +132,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 8, // Máximo para multi-joint
           currentSets: 3,
@@ -147,6 +152,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 15, // Máximo para isolation
           currentSets: 3,
@@ -165,6 +171,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5, // Dentro del rango multi-joint (3-8)
           currentSets: 3,
@@ -183,6 +190,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10, // Dentro del rango isolation (8-15)
           currentSets: 3,
@@ -205,6 +213,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek1,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -224,6 +233,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek1,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -243,6 +253,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek2,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -262,6 +273,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek2,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -283,6 +295,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek2,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -304,6 +317,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek3,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -327,6 +341,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek1,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -346,6 +361,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek1,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -365,6 +381,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek2,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -386,6 +403,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWeek2,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -407,6 +425,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -425,6 +444,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -451,6 +471,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -474,6 +495,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
@@ -525,6 +547,7 @@ void main() {
           final result = strategy.calculate(
             config: configWithoutSpecifics,
             state: testState,
+            routineId: 'test-routine',
             currentWeight: 100.0,
             currentReps: currentReps,
             currentSets: 3,
@@ -573,6 +596,7 @@ void main() {
           final result = strategy.calculate(
             config: configMinimal,
             state: testState,
+            routineId: 'test-routine',
             currentWeight: 100.0,
             currentReps: currentReps,
             currentSets: 3,

@@ -1,8 +1,9 @@
-import '../../models/progression_config.dart';
-import '../../models/progression_state.dart';
-import '../../models/progression_calculation_result.dart';
 import '../../../../common/enums/progression_type_enum.dart';
 import '../../../../features/exercise/models/exercise.dart';
+import '../../models/progression_calculation_result.dart';
+import '../../models/progression_config.dart';
+import '../../models/progression_state.dart';
+import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
 /// Estrategia de Progresión Doble
@@ -47,15 +48,17 @@ import '../progression_strategy.dart';
 /// - Progresión más lenta en peso absoluto
 /// - Requiere rangos de repeticiones apropiados
 /// - Puede ser menos efectiva para fuerza máxima
-class DoubleProgressionStrategy implements ProgressionStrategy {
+class DoubleProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
     required ProgressionState state,
+    required String routineId,
     required double currentWeight,
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    bool isExerciseLocked = false,
   }) {
     final currentInCycle =
         config.unit == ProgressionUnit.session

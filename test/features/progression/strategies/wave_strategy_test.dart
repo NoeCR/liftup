@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
 
 void main() {
   group('WaveProgressionStrategy', () {
     final strategy = WaveProgressionStrategy();
 
-    ProgressionConfig _config() {
+    ProgressionConfig config() {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -31,12 +31,13 @@ void main() {
       );
     }
 
-    ProgressionState _state({int week = 1}) {
+    ProgressionState state({int week = 1}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: week,
         currentSession: 1,
@@ -55,17 +56,31 @@ void main() {
     }
 
     test('week 1 high intensity', () {
-      final cfg = _config();
-      final st = _state(week: 1);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final cfg = config();
+      final st = state(week: 1);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, 105);
       expect(res.newReps, 9);
     });
 
     test('week 3 deload', () {
-      final cfg = _config();
-      final st = _state(week: 3);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 120, currentReps: 10, currentSets: 4);
+      final cfg = config();
+      final st = state(week: 3);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 120,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, 70.0); // baseWeight * deloadPercentage = 100 * 0.7
       expect(res.newSets, 3);
     });

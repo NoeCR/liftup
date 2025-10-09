@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
 
 void main() {
   group('DoubleFactorProgressionStrategy (Doble Progresión)', () {
@@ -37,6 +37,7 @@ void main() {
         id: 'st',
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -59,6 +60,7 @@ void main() {
       final result = strategy.calculate(
         config: config,
         state: state,
+        routineId: 'test-routine',
         currentWeight: 70.0,
         currentReps: 6,
         currentSets: 3,
@@ -76,6 +78,7 @@ void main() {
       final result = strategy.calculate(
         config: config,
         state: state,
+        routineId: 'test-routine',
         currentWeight: 70.0,
         currentReps: 10,
         currentSets: 3,
@@ -125,6 +128,7 @@ void main() {
       final result = strategy.calculate(
         config: configWithPerExercise,
         state: state,
+        routineId: 'test-routine',
         currentWeight: 70.0,
         currentReps: 15, // max_reps específico del ejercicio
         currentSets: 3,
@@ -159,6 +163,7 @@ void main() {
         id: 'st',
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 4, // Semana de deload
         currentSession: 1,
@@ -178,6 +183,7 @@ void main() {
       final result = strategy.calculate(
         config: configWithDeload,
         state: stateInDeloadWeek,
+        routineId: 'test-routine',
         currentWeight: 75.0,
         currentReps: 8,
         currentSets: 3,
@@ -215,6 +221,7 @@ void main() {
       final result = strategy.calculate(
         config: configMinimal,
         state: state,
+        routineId: 'test-routine',
         currentWeight: 70.0,
         currentReps: 12, // max_reps por defecto
         currentSets: 3,
@@ -266,6 +273,7 @@ void main() {
           id: 'st',
           progressionConfigId: 'cfg',
           exerciseId: 'ex',
+          routineId: 'test-routine-1',
           currentCycle: currentCycle,
           currentWeek: currentWeek,
           currentSession: 1,
@@ -285,6 +293,7 @@ void main() {
         final result = strategy.calculate(
           config: configLongTerm,
           state: state,
+          routineId: 'test-routine',
           currentWeight: currentWeight,
           currentReps: currentReps,
           currentSets: currentSets,

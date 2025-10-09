@@ -1,30 +1,34 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../common/themes/app_theme.dart';
+import '../../../common/widgets/exercise_card.dart';
+import '../../exercise/models/exercise.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../sessions/notifiers/exercise_completion_notifier.dart';
 import '../../sessions/notifiers/exercise_state_notifier.dart';
 import '../../sessions/notifiers/performed_sets_notifier.dart';
-import '../../../common/widgets/exercise_card.dart';
-import '../models/routine.dart';
-import '../../exercise/models/exercise.dart';
-import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../settings/notifiers/rest_prefs.dart';
+import '../models/routine.dart';
 import '../services/weekly_exercise_tracking_service.dart';
-import '../../../common/themes/app_theme.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
 class ExerciseCardWrapper extends ConsumerStatefulWidget {
   final RoutineExercise routineExercise;
   final Exercise exercise;
   final VoidCallback onTap;
   final bool showSetsControls;
+  final String? routineId;
 
   const ExerciseCardWrapper({
     required this.routineExercise,
     required this.exercise,
     required this.onTap,
     this.showSetsControls = false,
+    this.routineId,
     super.key,
   });
 
@@ -136,9 +140,11 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
           wasPerformedThisWeek: wasPerformedThisWeek,
           isLocked: widget.exercise.isProgressionLocked,
           onToggleLock: () async {
-            final notifier = ref.read(exerciseNotifierProvider.notifier);
+            final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
+
+            // Update the exercise's isProgressionLocked field
             final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
-            await notifier.updateExercise(updated);
+            await exerciseNotifier.updateExercise(updated);
           },
           performedSets: performedSets,
           showSetsControls: widget.showSetsControls,

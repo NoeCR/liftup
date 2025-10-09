@@ -1,12 +1,13 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../common/enums/progression_type_enum.dart';
+import '../../../core/logging/logging.dart';
+import '../../../features/exercise/models/exercise.dart';
+import '../models/progression_calculation_result.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
-import '../models/progression_calculation_result.dart';
 import '../services/progression_service.dart';
 import '../services/progression_template_service.dart';
-import '../../../common/enums/progression_type_enum.dart';
-import '../../../features/exercise/models/exercise.dart';
-import '../../../core/logging/logging.dart';
 
 part 'progression_notifier.g.dart';
 
@@ -130,16 +131,17 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   }
 
   /// Obtiene el estado de progresión para un ejercicio específico
-  Future<ProgressionState?> getExerciseProgressionState(String exerciseId) async {
+  Future<ProgressionState?> getExerciseProgressionState(String exerciseId, String routineId) async {
     try {
       final config = await future;
       if (config == null) return null;
 
       final progressionService = ref.read(progressionServiceProvider.notifier);
-      return await progressionService.getProgressionStateByExercise(config.id, exerciseId);
+      return await progressionService.getProgressionStateByExercise(config.id, exerciseId, routineId);
     } catch (e, stackTrace) {
       LoggingService.instance.error('Error getting exercise progression state', e, stackTrace, {
         'exerciseId': exerciseId,
+        'routineId': routineId,
       });
       return null;
     }
@@ -148,6 +150,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   /// Inicializa el estado de progresión para un ejercicio
   Future<ProgressionState> initializeExerciseProgression({
     required String exerciseId,
+    required String routineId,
     required double baseWeight,
     required int baseReps,
     required int baseSets,
@@ -163,6 +166,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
       final state = await progressionService.initializeExerciseProgression(
         configId: config.id,
         exerciseId: exerciseId,
+        routineId: routineId,
         baseWeight: baseWeight,
         baseReps: baseReps,
         baseSets: baseSets,
@@ -186,6 +190,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   /// Calcula la progresión para un ejercicio
   Future<ProgressionCalculationResult?> calculateExerciseProgression({
     required String exerciseId,
+    required String routineId,
     required double currentWeight,
     required int currentReps,
     required int currentSets,
@@ -199,6 +204,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
       return await progressionService.calculateProgression(
         config.id,
         exerciseId,
+        routineId,
         currentWeight,
         currentReps,
         currentSets,
@@ -212,7 +218,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
     }
   }
 
-  /// Marca/Desmarca que se omita la progresión en la próxima sesión de una rutina concreta
+  /// Marca/Desmarca que se omita la progresión en la próxima sesión para TODA la rutina
   /// Almacena en customData del ProgressionState un mapa: { 'skip_next_by_routine': { 'routineId': true/false } }
   Future<void> setSkipNextProgressionForRoutine({
     required String routineId,
@@ -226,7 +232,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
       final progressionService = ref.read(progressionServiceProvider.notifier);
 
       for (final exerciseId in exerciseIds) {
-        final state = await progressionService.getProgressionStateByExercise(config.id, exerciseId);
+        final state = await progressionService.getProgressionStateByExercise(config.id, exerciseId, routineId);
         if (state == null) continue;
 
         final existing = Map<String, dynamic>.from(state.customData);
@@ -236,8 +242,40 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         await progressionService.saveProgressionState(updatedState);
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error setting skip_next_progression flag', e, stackTrace, {
+      LoggingService.instance.error('Error setting skip_next_progression flag for routine', e, stackTrace, {
         'routineId': routineId,
+        'exerciseIds': exerciseIds,
+      });
+    }
+  }
+
+  /// Marca/Desmarca que se omita la progresión en la próxima sesión para ejercicios específicos
+  /// Almacena en customData del ProgressionState un mapa: { 'skip_next_by_exercise': { 'exerciseId': { 'routineId': true/false } } }
+  Future<void> setSkipNextProgressionForExercises({
+    required String routineId,
+    required List<String> exerciseIds,
+    required bool skip,
+  }) async {
+    try {
+      final config = await future;
+      if (config == null) return;
+
+      final progressionService = ref.read(progressionServiceProvider.notifier);
+
+      for (final exerciseId in exerciseIds) {
+        final state = await progressionService.getProgressionStateByExercise(config.id, exerciseId, routineId);
+        if (state == null) continue;
+
+        final existing = Map<String, dynamic>.from(state.customData);
+        final updated = updateSkipNextByExerciseMap(existing, exerciseId, routineId, skip);
+
+        final updatedState = state.copyWith(customData: updated);
+        await progressionService.saveProgressionState(updatedState);
+      }
+    } catch (e, stackTrace) {
+      LoggingService.instance.error('Error setting skip_next_progression flag for exercises', e, stackTrace, {
+        'routineId': routineId,
+        'exerciseIds': exerciseIds,
       });
     }
   }
@@ -263,5 +301,28 @@ Map<String, dynamic> updateSkipNextByRoutineMap(Map<String, dynamic> customData,
     byRoutine.remove(routineId);
   }
   next['skip_next_by_routine'] = byRoutine;
+  return next;
+}
+
+/// Helper pure function to update the skip_next_by_exercise structure
+Map<String, dynamic> updateSkipNextByExerciseMap(
+  Map<String, dynamic> customData,
+  String exerciseId,
+  String routineId,
+  bool skip,
+) {
+  final next = Map<String, dynamic>.from(customData);
+  final byExercise = Map<String, dynamic>.from((next['skip_next_by_exercise'] as Map?) ?? const {});
+
+  final exerciseData = Map<String, dynamic>.from((byExercise[exerciseId] as Map?) ?? const {});
+
+  if (skip) {
+    exerciseData[routineId] = true;
+  } else {
+    exerciseData.remove(routineId);
+  }
+
+  byExercise[exerciseId] = exerciseData;
+  next['skip_next_by_exercise'] = byExercise;
   return next;
 }

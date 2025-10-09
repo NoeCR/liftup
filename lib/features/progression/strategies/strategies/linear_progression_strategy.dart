@@ -1,7 +1,7 @@
+import '../../../../features/exercise/models/exercise.dart';
+import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
-import '../../models/progression_calculation_result.dart';
-import '../../../../features/exercise/models/exercise.dart';
 import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
@@ -47,11 +47,25 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
     required ProgressionState state,
+    required String routineId,
     required double currentWeight,
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    bool isExerciseLocked = false,
   }) {
+    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: currentReps,
+        newSets: currentSets,
+        incrementApplied: false,
+        isDeload: false,
+        reason: 'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+      );
+    }
+
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
@@ -76,7 +90,7 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: currentSets,
+        newSets: state.baseSets, // Use baseSets to recover from deload
         incrementApplied: false,
         reason: 'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
       );
@@ -99,8 +113,9 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: (currentSets * 0.7).round(),
+      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
+      isDeload: true,
       reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }

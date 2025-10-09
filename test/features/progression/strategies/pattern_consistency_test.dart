@@ -1,19 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/static_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/default_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/overload_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/base_progression_strategy.dart';
-import 'package:liftly/features/progression/models/progression_config.dart';
-import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/features/progression/strategies/base_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/default_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/overload_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/static_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
 
 /// Test para validar la consistencia del patrón entre todas las estrategias
 void main() {
@@ -45,6 +45,7 @@ void main() {
         id: 'test-state',
         progressionConfigId: 'test-config',
         exerciseId: 'test-exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -306,6 +307,7 @@ void main() {
         final staticResult = staticStrategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 3,
@@ -314,6 +316,7 @@ void main() {
         final defaultResult = defaultStrategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 3,

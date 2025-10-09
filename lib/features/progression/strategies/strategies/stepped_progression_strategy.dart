@@ -1,7 +1,7 @@
+import '../../../../features/exercise/models/exercise.dart';
+import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
-import '../../models/progression_calculation_result.dart';
-import '../../../../features/exercise/models/exercise.dart';
 import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
@@ -54,10 +54,12 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
     required ProgressionState state,
+    required String routineId,
     required double currentWeight,
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    bool isExerciseLocked = false,
   }) {
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
@@ -98,8 +100,9 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: (currentSets * 0.7).round(),
+      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
+      isDeload: true,
       reason: 'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }

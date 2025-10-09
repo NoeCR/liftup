@@ -37,6 +37,7 @@ void main() {
         id: 'test-state',
         progressionConfigId: 'test-config',
         exerciseId: 'test-exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -259,23 +260,4 @@ void main() {
 /// Clase de prueba que extiende BaseProgressionStrategy para testing
 class TestProgressionStrategy extends BaseProgressionStrategy {
   // Exponer métodos protegidos para testing
-  int getCurrentInCycle(ProgressionConfig config, ProgressionState state) {
-    return super.getCurrentInCycle(config, state);
-  }
-
-  bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
-    return super.isDeloadPeriod(config, currentInCycle);
-  }
-
-  double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
-    return super.getIncrementValue(config, exerciseType: exerciseType);
-  }
-
-  int getMaxReps(ProgressionConfig config, {ExerciseType? exerciseType}) {
-    return super.getMaxReps(config, exerciseType: exerciseType);
-  }
-
-  int getMinReps(ProgressionConfig config, {ExerciseType? exerciseType}) {
-    return super.getMinReps(config, exerciseType: exerciseType);
-  }
 }

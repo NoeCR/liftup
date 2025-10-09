@@ -1,11 +1,12 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../common/enums/progression_type_enum.dart';
 
 part 'progression_template.g.dart';
 
-@HiveType(typeId: 25)
+@HiveType(typeId: 36)
 @JsonSerializable()
 class ProgressionTemplate extends Equatable {
   @HiveField(0)

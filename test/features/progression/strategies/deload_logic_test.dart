@@ -1,15 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
 
 void main() {
   group('Deload Logic Tests', () {
     // Helper para crear configuraciones con deload
-    ProgressionConfig _createDeloadConfig({
+    ProgressionConfig createDeloadConfig({
       required ProgressionType type,
       int deloadWeek = 1,
       double deloadPercentage = 0.9,
@@ -37,7 +38,7 @@ void main() {
     }
 
     // Helper para crear estados con progreso acumulado
-    ProgressionState _createProgressedState({
+    ProgressionState createProgressedState({
       required double currentWeight,
       required double baseWeight,
       int currentSession = 1,
@@ -47,6 +48,7 @@ void main() {
         id: 'deload_test_state',
         progressionConfigId: 'deload_test_config',
         exerciseId: 'test_exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: currentSession,
@@ -68,8 +70,8 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('deload mantiene progreso sobre peso base', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.linear);
+        final state = createProgressedState(
           currentWeight: 120.0, // 20kg por encima del base
           baseWeight: 100.0,
           currentSession: 1, // Semana de deload
@@ -78,6 +80,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -92,12 +95,13 @@ void main() {
       });
 
       test('deload con peso igual al base', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear);
-        final state = _createProgressedState(currentWeight: 100.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(type: ProgressionType.linear);
+        final state = createProgressedState(currentWeight: 100.0, baseWeight: 100.0, currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -109,8 +113,8 @@ void main() {
       });
 
       test('deload con peso menor al base (caso edge)', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.linear);
+        final state = createProgressedState(
           currentWeight: 90.0, // Menor al base
           baseWeight: 100.0,
           currentSession: 1,
@@ -119,6 +123,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 90.0,
           currentReps: 10,
           currentSets: 4,
@@ -130,11 +135,11 @@ void main() {
       });
 
       test('no deload cuando no es semana de deload', () {
-        final config = _createDeloadConfig(
+        final config = createDeloadConfig(
           type: ProgressionType.linear,
           deloadWeek: 2, // Deload en semana 2
         );
-        final state = _createProgressedState(
+        final state = createProgressedState(
           currentWeight: 120.0,
           baseWeight: 100.0,
           currentSession: 1, // Semana 1, no deload
@@ -143,6 +148,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -159,8 +165,8 @@ void main() {
       final strategy = DoubleProgressionStrategy();
 
       test('deload correcto en progresión doble', () {
-        final config = _createDeloadConfig(type: ProgressionType.double);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.double);
+        final state = createProgressedState(
           currentWeight: 115.0, // 15kg por encima del base
           baseWeight: 100.0,
           currentSession: 1,
@@ -169,6 +175,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 115.0,
           currentReps: 10,
           currentSets: 4,
@@ -181,12 +188,13 @@ void main() {
       });
 
       test('deload no afecta lógica de reps', () {
-        final config = _createDeloadConfig(type: ProgressionType.double);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(type: ProgressionType.double);
+        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -202,8 +210,8 @@ void main() {
       final strategy = UndulatingProgressionStrategy();
 
       test('deload correcto en progresión ondulante', () {
-        final config = _createDeloadConfig(type: ProgressionType.undulating);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.undulating);
+        final state = createProgressedState(
           currentWeight: 125.0, // 25kg por encima del base
           baseWeight: 100.0,
           currentSession: 1,
@@ -212,6 +220,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 125.0,
           currentReps: 10,
           currentSets: 4,
@@ -224,8 +233,8 @@ void main() {
       });
 
       test('deload anula lógica de heavy/light day', () {
-        final config = _createDeloadConfig(type: ProgressionType.undulating);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.undulating);
+        final state = createProgressedState(
           currentWeight: 120.0,
           baseWeight: 100.0,
           currentSession: 1, // Sesión de deload
@@ -234,6 +243,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -250,12 +260,13 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('deload con porcentaje 0.0 (sin reducción)', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.0);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.0);
+        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -267,12 +278,13 @@ void main() {
       });
 
       test('deload con porcentaje 1.0 (sin reducción)', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 1.0);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 1.0);
+        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -284,8 +296,8 @@ void main() {
       });
 
       test('deload con incremento muy pequeño', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
+        final state = createProgressedState(
           currentWeight: 100.1, // Incremento muy pequeño
           baseWeight: 100.0,
           currentSession: 1,
@@ -294,6 +306,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.1,
           currentReps: 10,
           currentSets: 4,
@@ -305,8 +318,8 @@ void main() {
       });
 
       test('deload con incremento muy grande', () {
-        final config = _createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
-        final state = _createProgressedState(
+        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
+        final state = createProgressedState(
           currentWeight: 200.0, // Incremento muy grande
           baseWeight: 100.0,
           currentSession: 1,
@@ -315,6 +328,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 200.0,
           currentReps: 10,
           currentSets: 4,
@@ -330,13 +344,14 @@ void main() {
       test('todas las estrategias usan la misma lógica de deload', () {
         final strategies = [LinearProgressionStrategy(), DoubleProgressionStrategy(), UndulatingProgressionStrategy()];
 
-        final config = _createDeloadConfig(type: ProgressionType.linear);
-        final state = _createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(type: ProgressionType.linear);
+        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
 
         for (final strategy in strategies) {
-          final result = strategy.calculate(
+          final result = (strategy as ProgressionStrategy).calculate(
             config: config,
             state: state,
+            routineId: 'test-routine',
             currentWeight: 120.0,
             currentReps: 10,
             currentSets: 4,
@@ -351,10 +366,10 @@ void main() {
 
       test('deload respeta el peso base original', () {
         final strategy = LinearProgressionStrategy();
-        final config = _createDeloadConfig(type: ProgressionType.linear);
+        final config = createDeloadConfig(type: ProgressionType.linear);
 
         // Simular múltiples incrementos
-        final state = _createProgressedState(
+        final state = createProgressedState(
           currentWeight: 130.0, // 30kg por encima del base
           baseWeight: 100.0,
           currentSession: 1,
@@ -363,6 +378,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 130.0,
           currentReps: 10,
           currentSets: 4,

@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
 
 void main() {
   group('AutoregulatedProgressionStrategy', () {
     final strategy = AutoregulatedProgressionStrategy();
 
-    ProgressionConfig _config() {
+    ProgressionConfig config() {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -37,12 +37,13 @@ void main() {
       );
     }
 
-    ProgressionState _state({int session = 1, Map<String, dynamic>? hist}) {
+    ProgressionState state({int session = 1, Map<String, dynamic>? hist}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: session,
@@ -61,26 +62,40 @@ void main() {
     }
 
     test('RPE low -> increase weight', () {
-      final cfg = _config();
-      final st = _state(
+      final cfg = config();
+      final st = state(
         session: 1,
         hist: const {
           'session_1': {'reps': 12},
         },
       );
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.newWeight, 102.5);
     });
 
     test('RPE high -> reduce weight and clamp min reps', () {
-      final cfg = _config();
-      final st = _state(
+      final cfg = config();
+      final st = state(
         session: 1,
         hist: const {
           'session_1': {'reps': 6},
         },
       );
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 6, currentSets: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 6,
+        currentSets: 4,
+      );
       expect(res.newWeight, 98.75);
       expect(res.newReps, 8);
     });

@@ -1,8 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
+
 import '../helpers/progression_service_test_helper.dart';
 
 void main() {
@@ -35,6 +36,7 @@ void main() {
         id: 'test-state',
         progressionConfigId: 'test-config',
         exerciseId: 'test-exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -73,6 +75,7 @@ void main() {
         var result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -86,6 +89,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -99,6 +103,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -112,6 +117,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -127,6 +133,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -152,6 +159,7 @@ void main() {
         var result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -164,6 +172,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -176,6 +185,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -192,6 +202,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -205,6 +216,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -218,6 +230,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -251,6 +264,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -266,6 +280,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -293,6 +308,7 @@ void main() {
         var result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -307,6 +323,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -322,6 +339,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -336,6 +354,7 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -365,6 +384,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -387,6 +407,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
@@ -414,6 +435,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -438,6 +460,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -466,6 +489,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -482,6 +506,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -510,6 +535,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -525,6 +551,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -553,6 +580,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -568,6 +596,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -599,6 +628,7 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
@@ -623,6 +653,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -646,6 +677,7 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
@@ -658,6 +690,7 @@ void main() {
         final newCycleResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          newCycleState.routineId,
           newCycleState.currentWeight,
           newCycleState.currentReps,
           newCycleState.currentSets,

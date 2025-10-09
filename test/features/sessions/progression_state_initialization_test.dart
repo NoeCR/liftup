@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/features/exercise/models/exercise_set.dart';
 import 'package:liftly/features/exercise/notifiers/exercise_notifier.dart';
-import 'package:liftly/features/progression/notifiers/progression_notifier.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:mockito/mockito.dart';
+import 'package:liftly/features/progression/notifiers/progression_notifier.dart';
 import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
 // Generate mocks
 @GenerateMocks([ExerciseNotifier, ProgressionNotifier])
@@ -82,12 +82,15 @@ void main() {
 
     test('should initialize progression state with collected session values when no existing state', () async {
       // Arrange: Mock that no existing progression state exists
-      when(mockProgressionNotifier.getExerciseProgressionState('test-exercise-1')).thenAnswer((_) async => null);
+      when(
+        mockProgressionNotifier.getExerciseProgressionState('test-exercise-1', 'test-routine-1'),
+      ).thenAnswer((_) async => null);
 
       // Mock the initializeExerciseProgression method
       when(
         mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: anyNamed('exerciseId'),
+          routineId: anyNamed('routineId'),
           baseWeight: anyNamed('baseWeight'),
           baseReps: anyNamed('baseReps'),
           baseSets: anyNamed('baseSets'),
@@ -97,6 +100,7 @@ void main() {
           id: 'mock-state-id',
           progressionConfigId: 'mock-config-id',
           exerciseId: 'test-exercise-1',
+          routineId: 'test-routine-1',
           currentCycle: 1,
           currentWeek: 1,
           currentSession: 1,
@@ -117,11 +121,15 @@ void main() {
       final valuesUsed = {'weight': 67.5, 'reps': 10, 'sets': 4};
 
       // Check if progression state already exists
-      final existingState = await mockProgressionNotifier.getExerciseProgressionState('test-exercise-1');
+      final existingState = await mockProgressionNotifier.getExerciseProgressionState(
+        'test-exercise-1',
+        'test-routine-1',
+      );
       if (existingState == null) {
         // Create progression state with actual values used
         await mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: 'test-exercise-1',
+          routineId: 'test-routine-1',
           baseWeight: valuesUsed['weight'] as double,
           baseReps: valuesUsed['reps'] as int,
           baseSets: valuesUsed['sets'] as int,
@@ -132,6 +140,7 @@ void main() {
       verify(
         mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: 'test-exercise-1',
+          routineId: 'test-routine-1',
           baseWeight: 67.5,
           baseReps: 10,
           baseSets: 4,
@@ -145,6 +154,7 @@ void main() {
         id: 'existing-state-id',
         progressionConfigId: 'config-id',
         exerciseId: 'test-exercise-2',
+        routineId: 'test-routine-2',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -161,7 +171,7 @@ void main() {
       );
 
       when(
-        mockProgressionNotifier.getExerciseProgressionState('test-exercise-2'),
+        mockProgressionNotifier.getExerciseProgressionState('test-exercise-2', 'test-routine-2'),
       ).thenAnswer((_) async => existingProgressionState);
 
       // Act: Simulate the initialization logic from completeSession()
@@ -172,11 +182,15 @@ void main() {
       };
 
       // Check if progression state already exists
-      final existingState = await mockProgressionNotifier.getExerciseProgressionState('test-exercise-2');
+      final existingState = await mockProgressionNotifier.getExerciseProgressionState(
+        'test-exercise-2',
+        'test-routine-2',
+      );
       if (existingState == null) {
         // This should NOT be called because existing state exists
         await mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: 'test-exercise-2',
+          routineId: 'test-routine-2',
           baseWeight: valuesUsed['weight'] as double,
           baseReps: valuesUsed['reps'] as int,
           baseSets: valuesUsed['sets'] as int,
@@ -187,6 +201,7 @@ void main() {
       verifyNever(
         mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: anyNamed('exerciseId'),
+          routineId: anyNamed('routineId'),
           baseWeight: anyNamed('baseWeight'),
           baseReps: anyNamed('baseReps'),
           baseSets: anyNamed('baseSets'),
@@ -200,6 +215,7 @@ void main() {
         id: 'existing-state-id',
         progressionConfigId: 'config-id',
         exerciseId: 'test-exercise-3',
+        routineId: 'different-routine-id',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -216,13 +232,14 @@ void main() {
       );
 
       when(
-        mockProgressionNotifier.getExerciseProgressionState('test-exercise-3'),
-      ).thenAnswer((_) async => existingProgressionState);
+        mockProgressionNotifier.getExerciseProgressionState('test-exercise-3', 'current-routine-id'),
+      ).thenAnswer((_) async => null);
 
       // Mock the initializeExerciseProgression method
       when(
         mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: anyNamed('exerciseId'),
+          routineId: anyNamed('routineId'),
           baseWeight: anyNamed('baseWeight'),
           baseReps: anyNamed('baseReps'),
           baseSets: anyNamed('baseSets'),
@@ -232,6 +249,7 @@ void main() {
           id: 'new-state-id',
           progressionConfigId: 'config-id',
           exerciseId: 'test-exercise-3',
+          routineId: 'current-routine-id',
           currentCycle: 1,
           currentWeek: 1,
           currentSession: 1,
@@ -256,6 +274,7 @@ void main() {
         // This should be called because the existing state is for a different routine
         await mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: 'test-exercise-3',
+          routineId: currentRoutineId,
           baseWeight: 60.0, // New configured values
           baseReps: 10,
           baseSets: 4,
@@ -266,6 +285,7 @@ void main() {
       verify(
         mockProgressionNotifier.initializeExerciseProgression(
           exerciseId: 'test-exercise-3',
+          routineId: currentRoutineId,
           baseWeight: 60.0,
           baseReps: 10,
           baseSets: 4,

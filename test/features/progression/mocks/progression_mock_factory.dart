@@ -1,11 +1,11 @@
+import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/common/enums/week_day_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/exercise/models/exercise_set.dart';
+import 'package:liftly/features/home/models/routine.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/models/progression_template.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
-import 'package:liftly/features/exercise/models/exercise.dart';
-import 'package:liftly/features/home/models/routine.dart';
-import 'package:liftly/features/exercise/models/exercise_set.dart';
-import 'package:liftly/common/enums/week_day_enum.dart';
 
 /// Factory para generar datos mock específicos para pruebas de progresión
 class ProgressionMockFactory {
@@ -53,6 +53,7 @@ class ProgressionMockFactory {
     String? id,
     String? progressionConfigId,
     String? exerciseId,
+    String? routineId,
     int? currentCycle,
     int? currentWeek,
     int? currentSession,
@@ -72,6 +73,7 @@ class ProgressionMockFactory {
       id: id ?? 'test-state-${DateTime.now().millisecondsSinceEpoch}',
       progressionConfigId: progressionConfigId ?? 'test-config-1',
       exerciseId: exerciseId ?? 'test-exercise-1',
+      routineId: routineId ?? 'test-routine-1',
       currentCycle: currentCycle ?? 1,
       currentWeek: currentWeek ?? 1,
       currentSession: currentSession ?? 1,

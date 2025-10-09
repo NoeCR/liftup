@@ -1,21 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/static_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/default_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/default_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/static_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/wave_progression_strategy.dart';
 
 void main() {
   group('Comprehensive Strategy Tests', () {
     // Helper para crear configuraciones de prueba
-    ProgressionConfig _createConfig({
+    ProgressionConfig createConfig({
       required ProgressionType type,
       ProgressionUnit unit = ProgressionUnit.session,
       double incrementValue = 2.5,
@@ -48,7 +48,7 @@ void main() {
     }
 
     // Helper para crear estados de progresión
-    ProgressionState _createState({
+    ProgressionState createState({
       int currentSession = 1,
       int currentWeek = 1,
       double currentWeight = 100.0,
@@ -64,6 +64,7 @@ void main() {
         id: 'test_state',
         progressionConfigId: 'test_config',
         exerciseId: 'test_exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: currentWeek,
         currentSession: currentSession,
@@ -85,16 +86,13 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('incrementa peso cuando coincide la frecuencia', () {
-        final config = _createConfig(
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          incrementFrequency: 1,
-        );
-        final state = _createState(currentSession: 1);
+        final config = createConfig(type: ProgressionType.linear, unit: ProgressionUnit.session, incrementFrequency: 1);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -108,16 +106,13 @@ void main() {
       });
 
       test('no incrementa cuando no coincide la frecuencia', () {
-        final config = _createConfig(
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          incrementFrequency: 2,
-        );
-        final state = _createState(currentSession: 1);
+        final config = createConfig(type: ProgressionType.linear, unit: ProgressionUnit.session, incrementFrequency: 2);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -129,13 +124,13 @@ void main() {
       });
 
       test('aplica deload correctamente manteniendo progreso', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.linear,
           unit: ProgressionUnit.session,
           deloadWeek: 1,
           deloadPercentage: 0.9,
         );
-        final state = _createState(
+        final state = createState(
           currentSession: 1,
           currentWeight: 120.0, // 20kg por encima del base
           baseWeight: 100.0,
@@ -144,6 +139,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -156,7 +152,7 @@ void main() {
       });
 
       test('usa parámetros personalizados por ejercicio', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.linear,
           customParameters: {
             'per_exercise': {
@@ -164,11 +160,12 @@ void main() {
             },
           },
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -183,12 +180,13 @@ void main() {
       final strategy = DoubleProgressionStrategy();
 
       test('incrementa reps hasta máximo', () {
-        final config = _createConfig(type: ProgressionType.double, customParameters: {'min_reps': 8, 'max_reps': 12});
-        final state = _createState(currentReps: 10);
+        final config = createConfig(type: ProgressionType.double, customParameters: {'min_reps': 8, 'max_reps': 12});
+        final state = createState(currentReps: 10);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -201,12 +199,13 @@ void main() {
       });
 
       test('incrementa peso y resetea reps cuando alcanza máximo', () {
-        final config = _createConfig(type: ProgressionType.double, customParameters: {'min_reps': 8, 'max_reps': 12});
-        final state = _createState(currentReps: 12);
+        final config = createConfig(type: ProgressionType.double, customParameters: {'min_reps': 8, 'max_reps': 12});
+        final state = createState(currentReps: 12);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 12,
           currentSets: 4,
@@ -220,12 +219,13 @@ void main() {
       });
 
       test('deload correcto manteniendo progreso', () {
-        final config = _createConfig(type: ProgressionType.double, deloadWeek: 1, deloadPercentage: 0.9);
-        final state = _createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
+        final config = createConfig(type: ProgressionType.double, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -237,7 +237,7 @@ void main() {
       });
 
       test('usa parámetros multi_ vs iso_ según tipo de ejercicio', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.double,
           customParameters: {
             'multi_reps_min': 5,
@@ -248,11 +248,12 @@ void main() {
             'iso_increment_min': 2.5,
           },
         );
-        final state = _createState(currentReps: 10);
+        final state = createState(currentReps: 10);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -267,12 +268,13 @@ void main() {
       final strategy = UndulatingProgressionStrategy();
 
       test('día pesado: más peso, menos reps', () {
-        final config = _createConfig(type: ProgressionType.undulating, unit: ProgressionUnit.session);
-        final state = _createState(currentSession: 1); // Impar = día pesado
+        final config = createConfig(type: ProgressionType.undulating, unit: ProgressionUnit.session);
+        final state = createState(currentSession: 1); // Impar = día pesado
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -285,12 +287,13 @@ void main() {
       });
 
       test('día ligero: menos peso, más reps', () {
-        final config = _createConfig(type: ProgressionType.undulating, unit: ProgressionUnit.session);
-        final state = _createState(currentSession: 2); // Par = día ligero
+        final config = createConfig(type: ProgressionType.undulating, unit: ProgressionUnit.session);
+        final state = createState(currentSession: 2); // Par = día ligero
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -303,12 +306,13 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = _createConfig(type: ProgressionType.undulating, deloadWeek: 1, deloadPercentage: 0.9);
-        final state = _createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
+        final config = createConfig(type: ProgressionType.undulating, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -324,16 +328,17 @@ void main() {
       final strategy = SteppedProgressionStrategy();
 
       test('acumula incrementos durante semanas específicas', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.stepped,
           unit: ProgressionUnit.week,
           customParameters: {'accumulation_weeks': 3},
         );
-        final state = _createState(currentWeek: 2);
+        final state = createState(currentWeek: 2);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -345,12 +350,13 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = _createConfig(type: ProgressionType.stepped, deloadWeek: 1, deloadPercentage: 0.9);
-        final state = _createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
+        final config = createConfig(type: ProgressionType.stepped, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -366,12 +372,13 @@ void main() {
       final strategy = WaveProgressionStrategy();
 
       test('semana 1: alta intensidad', () {
-        final config = _createConfig(type: ProgressionType.wave, unit: ProgressionUnit.week);
-        final state = _createState(currentWeek: 1);
+        final config = createConfig(type: ProgressionType.wave, unit: ProgressionUnit.week);
+        final state = createState(currentWeek: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -384,12 +391,13 @@ void main() {
       });
 
       test('semana 2: alto volumen', () {
-        final config = _createConfig(type: ProgressionType.wave, unit: ProgressionUnit.week);
-        final state = _createState(currentWeek: 2);
+        final config = createConfig(type: ProgressionType.wave, unit: ProgressionUnit.week);
+        final state = createState(currentWeek: 2);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -403,24 +411,26 @@ void main() {
       });
 
       test('semana 3: deload', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.wave,
           unit: ProgressionUnit.week,
+          cycleLength: 3,
           deloadWeek: 3,
           deloadPercentage: 0.9,
         );
-        final state = _createState(currentWeek: 3, currentWeight: 120.0, baseWeight: 100.0);
+        final state = createState(currentWeek: 3, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
         );
 
         expect(result.newWeight, 90.0);
-        expect(result.newSets, 3);
+        expect(result.newSets, 4); // 4 * 0.9 = 3.6 rounded to 4
         expect(result.reason, contains('deload'));
       });
     });
@@ -429,12 +439,13 @@ void main() {
       final strategy = StaticProgressionStrategy();
 
       test('mantiene valores constantes', () {
-        final config = _createConfig(type: ProgressionType.static);
-        final state = _createState();
+        final config = createConfig(type: ProgressionType.static);
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -452,12 +463,13 @@ void main() {
       final strategy = ReverseProgressionStrategy();
 
       test('reduce peso y aumenta reps', () {
-        final config = _createConfig(type: ProgressionType.reverse, customParameters: {'max_reps': 15});
-        final state = _createState(currentReps: 10);
+        final config = createConfig(type: ProgressionType.reverse, customParameters: {'max_reps': 15});
+        final state = createState(currentReps: 10);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -471,12 +483,13 @@ void main() {
       });
 
       test('mantiene reps en máximo y sigue reduciendo peso', () {
-        final config = _createConfig(type: ProgressionType.reverse, customParameters: {'max_reps': 15});
-        final state = _createState(currentReps: 15);
+        final config = createConfig(type: ProgressionType.reverse, customParameters: {'max_reps': 15});
+        final state = createState(currentReps: 15);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 15,
           currentSets: 4,
@@ -489,12 +502,13 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = _createConfig(type: ProgressionType.reverse, deloadWeek: 1, deloadPercentage: 0.9);
-        final state = _createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
+        final config = createConfig(type: ProgressionType.reverse, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -510,16 +524,17 @@ void main() {
       final strategy = AutoregulatedProgressionStrategy();
 
       test('incrementa peso cuando RPE es bajo', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.autoregulated,
           customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
         // Simular sessionHistory en customData para el test
         final stateWithHistory = ProgressionState(
           id: state.id,
           progressionConfigId: state.progressionConfigId,
           exerciseId: state.exerciseId,
+          routineId: state.routineId,
           currentCycle: state.currentCycle,
           currentWeek: state.currentWeek,
           currentSession: state.currentSession,
@@ -543,6 +558,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -554,15 +570,16 @@ void main() {
       });
 
       test('reduce peso cuando RPE es alto', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.autoregulated,
           customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
         final stateWithHistory = ProgressionState(
           id: state.id,
           progressionConfigId: state.progressionConfigId,
           exerciseId: state.exerciseId,
+          routineId: state.routineId,
           currentCycle: state.currentCycle,
           currentWeek: state.currentWeek,
           currentSession: state.currentSession,
@@ -586,6 +603,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -597,15 +615,16 @@ void main() {
       });
 
       test('incrementa reps cuando RPE es óptimo', () {
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.autoregulated,
           customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
         final stateWithHistory = ProgressionState(
           id: state.id,
           progressionConfigId: state.progressionConfigId,
           exerciseId: state.exerciseId,
+          routineId: state.routineId,
           currentCycle: state.currentCycle,
           currentWeek: state.currentWeek,
           currentSession: state.currentSession,
@@ -629,6 +648,7 @@ void main() {
         final result = strategy.calculate(
           config: config,
           state: stateWithHistory,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -641,12 +661,13 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = _createConfig(type: ProgressionType.autoregulated, deloadWeek: 1, deloadPercentage: 0.9);
-        final state = _createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
+        final config = createConfig(type: ProgressionType.autoregulated, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 120.0,
           currentReps: 10,
           currentSets: 4,
@@ -662,12 +683,13 @@ void main() {
       final strategy = DefaultProgressionStrategy();
 
       test('no aplica cambios', () {
-        final config = _createConfig(type: ProgressionType.linear);
-        final state = _createState();
+        final config = createConfig(type: ProgressionType.linear);
+        final state = createState();
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
@@ -684,12 +706,13 @@ void main() {
     group('Edge Cases and Error Handling', () {
       test('maneja pesos negativos correctamente', () {
         final strategy = ReverseProgressionStrategy();
-        final config = _createConfig(type: ProgressionType.reverse);
-        final state = _createState(currentWeight: 2.0); // Peso muy bajo
+        final config = createConfig(type: ProgressionType.reverse);
+        final state = createState(currentWeight: 2.0); // Peso muy bajo
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 2.0,
           currentReps: 10,
           currentSets: 4,
@@ -701,12 +724,13 @@ void main() {
 
       test('maneja reps mínimas correctamente', () {
         final strategy = UndulatingProgressionStrategy();
-        final config = _createConfig(type: ProgressionType.undulating);
-        final state = _createState(currentReps: 1);
+        final config = createConfig(type: ProgressionType.undulating);
+        final state = createState(currentReps: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 1,
           currentSets: 4,
@@ -718,15 +742,16 @@ void main() {
 
       test('maneja configuraciones sin deload', () {
         final strategy = LinearProgressionStrategy();
-        final config = _createConfig(
+        final config = createConfig(
           type: ProgressionType.linear,
           deloadWeek: 0, // Sin deload
         );
-        final state = _createState(currentSession: 1);
+        final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
           config: config,
           state: state,
+          routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,

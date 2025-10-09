@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
 
 void main() {
   group('DoubleProgressionStrategy', () {
     final strategy = DoubleProgressionStrategy();
 
-    ProgressionConfig _config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
+    ProgressionConfig config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -31,12 +31,13 @@ void main() {
       );
     }
 
-    ProgressionState _state({int session = 1, int reps = 10, double weight = 100}) {
+    ProgressionState state({int session = 1, int reps = 10, double weight = 100}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: session,
@@ -55,18 +56,32 @@ void main() {
     }
 
     test('increase reps until max', () {
-      final cfg = _config();
-      final st = _state(reps: 10, weight: 100);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+      final cfg = config();
+      final st = state(reps: 10, weight: 100);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
       expect(res.newReps, 11);
       expect(res.newWeight, 100);
     });
 
     test('increase weight and reset reps when max reached', () {
-      final cfg = _config(increment: 2.5);
-      final st = _state(reps: 12, weight: 100);
-      final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 12, currentSets: 4);
+      final cfg = config(increment: 2.5);
+      final st = state(reps: 12, weight: 100);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 12,
+        currentSets: 4,
+      );
       expect(res.incrementApplied, true);
       expect(res.newWeight, 102.5);
       expect(res.newReps, 8);

@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
 
 void main() {
   test('ReverseProgressionStrategy decreases weight and increases reps', () {
@@ -31,6 +31,7 @@ void main() {
       id: 'st',
       progressionConfigId: 'cfg',
       exerciseId: 'ex',
+      routineId: 'test-routine-1',
       currentCycle: 1,
       currentWeek: 1,
       currentSession: 1,
@@ -46,7 +47,14 @@ void main() {
       oneRepMax: null,
       customData: const {},
     );
-    final res = strategy.calculate(config: cfg, state: st, currentWeight: 100, currentReps: 10, currentSets: 4);
+    final res = strategy.calculate(
+      config: cfg,
+      state: st,
+      routineId: 'test-routine',
+      currentWeight: 100,
+      currentReps: 10,
+      currentSets: 4,
+    );
     expect(res.incrementApplied, true);
     expect(res.newWeight, 97.5);
     expect(res.newReps, 11);
