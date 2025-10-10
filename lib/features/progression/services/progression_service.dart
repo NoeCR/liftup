@@ -291,26 +291,33 @@ class ProgressionService extends _$ProgressionService {
       final int nextCurrentSets = result.newSets;
       final int nextBaseSets = result.isDeload ? state.baseSets : result.newSets;
 
+      // Handle cycle reset if strategy indicates it
+      final nextCycle = result.shouldResetCycle ? state.currentCycle + 1 : state.currentCycle;
+      final nextWeek = result.shouldResetCycle ? 1 : newWeek;
+      final nextSession = result.shouldResetCycle ? 1 : newSession;
+
       // Track deload application to avoid confusion and for debugging
       // Update progression state
       final updatedState = state.copyWith(
         currentWeight: result.newWeight,
         currentReps: result.newReps,
         currentSets: nextCurrentSets,
-        currentSession: newSession,
-        currentWeek: newWeek,
+        currentSession: nextSession,
+        currentWeek: nextWeek,
+        currentCycle: nextCycle,
         lastUpdated: DateTime.now(),
         baseWeight: nextBaseWeight,
         baseSets: nextBaseSets,
         isDeloadWeek: result.isDeload,
         sessionHistory: {
           ...state.sessionHistory,
-          'session_$newSession': {
+          'session_$nextSession': {
             'weight': result.newWeight,
             'reps': result.newReps,
             'sets': result.newSets,
             'date': DateTime.now().toIso8601String(),
             'increment_applied': result.incrementApplied,
+            'cycle_reset': result.shouldResetCycle,
           },
         },
         customData: {},

@@ -145,6 +145,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy implements Progres
       newSets: (currentSets * config.deloadPercentage).round(), // Use currentSets for deload calculation
       incrementApplied: true,
       isDeload: true,
+      shouldResetCycle: true, // Reiniciar ciclo después del deload
       reason: 'Wave progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }

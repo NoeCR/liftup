@@ -310,5 +310,36 @@ void main() {
         expect(result.reason, contains('Missing custom parameters'));
       });
     });
+
+    group('Cycle Reset Functionality', () {
+      test('should handle cycle reset when strategy indicates it', () async {
+        // Arrange
+        final configId = 'test-config-1';
+        final routineId = 'test-routine-1';
+        final exerciseId = 'test-exercise-1';
+        final expectedResult = ProgressionCalculationResult(
+          newWeight: 95.0,
+          newReps: 8,
+          newSets: 2,
+          incrementApplied: true,
+          isDeload: true,
+          shouldResetCycle: true,
+          reason: 'Test strategy: deload with cycle reset',
+        );
+
+        when(
+          mockProgressionService.calculateProgression(configId, exerciseId, routineId, 100.0, 10, 3),
+        ).thenAnswer((_) async => expectedResult);
+
+        // Act
+        final result = await mockProgressionService.calculateProgression(configId, exerciseId, routineId, 100.0, 10, 3);
+
+        // Assert
+        expect(result, isNotNull);
+        expect(result.shouldResetCycle, true);
+        expect(result.isDeload, true);
+        expect(result.reason, contains('cycle reset'));
+      });
+    });
   });
 }

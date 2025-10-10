@@ -7,6 +7,7 @@ class ProgressionCalculationResult extends Equatable {
   final int newSets;
   final bool incrementApplied;
   final bool isDeload;
+  final bool shouldResetCycle;
   final String reason;
 
   const ProgressionCalculationResult({
@@ -15,14 +16,15 @@ class ProgressionCalculationResult extends Equatable {
     required this.newSets,
     required this.incrementApplied,
     this.isDeload = false,
+    this.shouldResetCycle = false,
     required this.reason,
   });
 
   @override
-  List<Object?> get props => [newWeight, newReps, newSets, incrementApplied, isDeload, reason];
+  List<Object?> get props => [newWeight, newReps, newSets, incrementApplied, isDeload, shouldResetCycle, reason];
 
   @override
   String toString() {
-    return 'ProgressionCalculationResult(newWeight: $newWeight, newReps: $newReps, newSets: $newSets, incrementApplied: $incrementApplied, isDeload: $isDeload, reason: $reason)';
+    return 'ProgressionCalculationResult(newWeight: $newWeight, newReps: $newReps, newSets: $newSets, incrementApplied: $incrementApplied, isDeload: $isDeload, shouldResetCycle: $shouldResetCycle, reason: $reason)';
   }
 }

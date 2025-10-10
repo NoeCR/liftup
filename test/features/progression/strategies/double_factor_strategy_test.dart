@@ -499,5 +499,23 @@ void main() {
       expect(res.newSets, 3);
       expect(res.reason, contains('blocked'));
     });
+
+    test('should reset cycle after deload', () {
+      final configWithDeload = config.copyWith(deloadWeek: 4);
+      final stateAtDeload = state.copyWith(currentWeek: 4);
+      
+      final result = strategy.calculate(
+        config: configWithDeload,
+        state: stateAtDeload,
+        routineId: 'test-routine',
+        currentWeight: 80.0,
+        currentReps: 8,
+        currentSets: 3,
+      );
+      
+      expect(result.isDeload, true);
+      expect(result.shouldResetCycle, true);
+      expect(result.reason, contains('Next cycle starts as week 1 (odd) for weight increment.'));
+    });
   });
 }

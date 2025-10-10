@@ -116,6 +116,7 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
       newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
+      shouldResetCycle: true, // Reiniciar ciclo después del deload
       reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
