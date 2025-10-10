@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
@@ -235,6 +236,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10, // Máximo multi
           currentSets: 4,
+          exerciseType: ExerciseType.multiJoint,
         );
 
         expect(result.newWeight, 105.0); // Usa multi_increment_min
@@ -562,6 +564,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10, // Máximo multi
           currentSets: 4,
+          exerciseType: ExerciseType.multiJoint,
         );
 
         expect(result1.newWeight, 105.0); // multi_increment_min
@@ -575,11 +578,12 @@ void main() {
           currentWeight: 100.0,
           currentReps: 15, // Máximo iso
           currentSets: 4,
+          exerciseType: ExerciseType.isolation,
         );
 
         expect(result2.incrementApplied, true);
         expect(result2.newWeight, greaterThan(100.0)); // Debe incrementar
-        expect(result2.newReps, 5); // iso_reps_min
+        expect(result2.newReps, 8); // iso_reps_min
       });
 
       test('preferencia de multi_ sobre iso_ cuando ambos están disponibles', () {
@@ -603,6 +607,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 12, // Máximo multi
           currentSets: 4,
+          exerciseType: ExerciseType.multiJoint,
         );
 
         expect(result.newWeight, 104.0); // Usa multi_increment_min

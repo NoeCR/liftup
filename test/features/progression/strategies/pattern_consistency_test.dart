@@ -182,7 +182,7 @@ void main() {
 
       test('Double Factor tiene su propia lógica de deload', () {
         final strategy = DoubleFactorProgressionStrategy();
-        
+
         // Double Factor aplica deload cuando se alcanza la semana configurada
         expect(strategy.isDeloadPeriod(config, 1), false);
         expect(strategy.isDeloadPeriod(config, 2), false);

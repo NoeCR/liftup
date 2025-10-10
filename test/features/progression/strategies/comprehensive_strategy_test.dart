@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
@@ -257,6 +258,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exerciseType: ExerciseType.multiJoint,
         );
 
         expect(result.newWeight, 105.0); // Usa multi_increment_min
