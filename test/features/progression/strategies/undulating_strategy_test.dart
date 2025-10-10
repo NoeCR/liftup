@@ -69,6 +69,8 @@ void main() {
       expect(res.incrementApplied, true);
       expect(res.newWeight, closeTo(102.5, 0.0001));
       expect(res.newReps, 9);
+      // clamp mínimo
+      expect(res.newReps, greaterThanOrEqualTo(6));
     });
 
     test('week 2 light day', () {
@@ -85,6 +87,8 @@ void main() {
       expect(res.incrementApplied, true);
       expect(res.newWeight, closeTo(97.5, 0.0001));
       expect(res.newReps, 12);
+      // clamp mínimo
+      expect(res.newReps, greaterThanOrEqualTo(6));
     });
   });
 }

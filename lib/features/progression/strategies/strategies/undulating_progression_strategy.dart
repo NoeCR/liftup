@@ -74,9 +74,10 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
 
     if (isHeavyDay) {
       // Día pesado: más peso, menos reps
+      final minReps = getMinReps(config, exerciseType: exerciseType);
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
-        newReps: (currentReps * 0.85).round().clamp(1, currentReps),
+        newReps: (currentReps * 0.85).round().clamp(minReps, currentReps),
         newSets: currentSets,
         incrementApplied: true,
         reason:
@@ -84,9 +85,10 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
       );
     } else {
       // Día ligero: menos peso, más reps
+      final minReps = getMinReps(config, exerciseType: exerciseType);
       return ProgressionCalculationResult(
         newWeight: (currentWeight - incrementValue).clamp(0, currentWeight),
-        newReps: (currentReps * 1.15).round(),
+        newReps: ((currentReps * 1.15).round()).clamp(minReps, 1000),
         newSets: currentSets,
         incrementApplied: true,
         reason:

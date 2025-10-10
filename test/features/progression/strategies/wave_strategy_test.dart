@@ -68,6 +68,8 @@ void main() {
       );
       expect(res.newWeight, 105);
       expect(res.newReps, 9);
+      // clamp mínimo
+      expect(res.newReps, greaterThanOrEqualTo(6));
     });
 
     test('week 3 deload', () {

@@ -80,9 +80,10 @@ class WaveProgressionStrategy extends BaseProgressionStrategy implements Progres
     switch (currentInCycle) {
       case 1:
         // Semana 1: Alta intensidad (más peso, menos reps)
+        final minReps = getMinReps(config, exerciseType: exerciseType);
         return ProgressionCalculationResult(
           newWeight: currentWeight + incrementValue,
-          newReps: (currentReps * 0.85).round().clamp(1, currentReps),
+          newReps: (currentReps * 0.85).round().clamp(minReps, currentReps),
           newSets: currentSets,
           incrementApplied: true,
           reason:
@@ -90,9 +91,10 @@ class WaveProgressionStrategy extends BaseProgressionStrategy implements Progres
         );
       case 2:
         // Semana 2: Alto volumen (menos peso, más reps, más series)
+        final minReps = getMinReps(config, exerciseType: exerciseType);
         return ProgressionCalculationResult(
           newWeight: (currentWeight - incrementValue * 0.3).clamp(0, currentWeight),
-          newReps: (currentReps * 1.2).round(),
+          newReps: ((currentReps * 1.2).round()).clamp(minReps, 1000),
           newSets: currentSets + 1,
           incrementApplied: true,
           reason:
@@ -100,9 +102,10 @@ class WaveProgressionStrategy extends BaseProgressionStrategy implements Progres
         );
       default:
         // Semanas adicionales: progresión normal
+        final minReps = getMinReps(config, exerciseType: exerciseType);
         return ProgressionCalculationResult(
           newWeight: currentWeight + incrementValue,
-          newReps: currentReps,
+          newReps: currentReps.clamp(minReps, 1000),
           newSets: currentSets,
           incrementApplied: true,
           reason: 'Wave progression: normal +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
