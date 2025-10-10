@@ -38,7 +38,13 @@ void main() {
       );
     }
 
-    ProgressionState state({int session = 1, int week = 1, double baseW = 100, int baseR = 10, int baseS = 4}) {
+    ProgressionState state({
+      int session = 1,
+      int week = 1,
+      double baseW = 100,
+      int baseR = 10,
+      int baseS = 4,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -79,7 +85,11 @@ void main() {
     });
 
     test('applies deload on deloadWeek', () {
-      final cfg = config(unit: ProgressionUnit.session, deloadWeek: 1, deloadPct: 0.9);
+      final cfg = config(
+        unit: ProgressionUnit.session,
+        deloadWeek: 1,
+        deloadPct: 0.9,
+      );
       final st = state(session: 1);
       final res = strategy.calculate(
         config: cfg,
@@ -95,6 +105,39 @@ void main() {
       // deloadWeight = 100 + (20 * 0.9) = 118.0
       expect(res.newWeight, closeTo(118.0, 0.0001));
       expect(res.newSets, 3); // 4 * 0.7 round
+    });
+
+    test('restores sets to base after deload when increment applies', () {
+      // freq=1 fuerza incremento; no es semana de deload
+      final cfg = config(freq: 1, unit: ProgressionUnit.session, deloadWeek: 0);
+      // Simulamos venir de deload: currentSets=3 pero baseSets=4
+      final st = state(session: 1, baseS: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 3, // heredado de deload anterior
+      );
+      expect(res.incrementApplied, true);
+      expect(res.newSets, 4); // debe restaurar a baseSets
+    });
+
+    test('restores sets to base after deload when no increment applies', () {
+      // freq=2 y session=1 -> no incremento; no es semana de deload
+      final cfg = config(freq: 2, unit: ProgressionUnit.session, deloadWeek: 0);
+      final st = state(session: 1, baseS: 4);
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 3, // heredado de deload anterior
+      );
+      expect(res.incrementApplied, false);
+      expect(res.newSets, 4); // debe restaurar a baseSets
     });
 
     test('no increment when frequency not matched', () {
