@@ -52,8 +52,7 @@ import '../progression_strategy.dart';
 /// - Requiere rangos de repeticiones apropiados
 /// - Necesita registro detallado de series
 /// - Puede ser menos efectiva para fuerza máxima pura
-class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -66,21 +65,14 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets:
-            state.baseSets, // Always use baseSets to avoid deload persistence
+        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: false,
         isDeload: false,
-        reason:
-            'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -89,14 +81,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(
-        config,
-        state,
-        currentWeight,
-        currentReps,
-        currentSets,
-        currentInCycle,
-      );
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
     }
 
     // Obtener parámetros de doble progresión
@@ -111,15 +96,11 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
         newReps: currentReps < minReps ? minReps : currentReps + 1,
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
-        reason:
-            'Double factor progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Double factor progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
-      final incrementValue = getIncrementValue(
-        config,
-        exerciseType: exerciseType,
-      );
+      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: minReps,
@@ -140,22 +121,16 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
     int currentSets,
     int currentInCycle,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-      0,
-      double.infinity,
-    );
-    final double deloadWeight =
-        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps, // Mantener las reps actuales
-      newSets:
-          (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
-      reason:
-          'Double factor progression: deload week $currentInCycle of ${config.cycleLength}',
+      reason: 'Double factor progression: deload week $currentInCycle of ${config.cycleLength}',
     );
   }
 }

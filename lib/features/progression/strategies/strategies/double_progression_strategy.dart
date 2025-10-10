@@ -47,8 +47,7 @@ import '../progression_strategy.dart';
 /// - Progresión más lenta en peso absoluto
 /// - Requiere rangos de repeticiones apropiados
 /// - Puede ser menos efectiva para fuerza máxima
-class DoubleProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class DoubleProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -61,21 +60,14 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets:
-            state.baseSets, // Always use baseSets to avoid deload persistence
+        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: false,
         isDeload: false,
-        reason:
-            'Double progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Double progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -84,20 +76,15 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy
 
     if (isDeload) {
       // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-        0,
-        double.infinity,
-      );
-      final double deloadWeight =
-          state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
       final deloadSets = (currentSets * 0.7).round();
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: deloadSets,
         incrementApplied: true,
-        reason:
-            'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }
 
@@ -111,8 +98,7 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy
         newReps: currentReps < minReps ? minReps : currentReps + 1,
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
-        reason:
-            'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
@@ -139,18 +125,13 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy
       final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
       if (exerciseParams != null) {
         final maxReps =
-            exerciseParams['max_reps'] ??
-            exerciseParams['multi_reps_max'] ??
-            exerciseParams['iso_reps_max'];
+            exerciseParams['max_reps'] ?? exerciseParams['multi_reps_max'] ?? exerciseParams['iso_reps_max'];
         if (maxReps != null) return maxReps as int;
       }
     }
 
     // Fallback a global
-    return customParams['max_reps'] ??
-        customParams['multi_reps_max'] ??
-        customParams['iso_reps_max'] ??
-        12; // default
+    return customParams['max_reps'] ?? customParams['multi_reps_max'] ?? customParams['iso_reps_max'] ?? 12; // default
   }
 
   /// Obtiene el mínimo de repeticiones desde los parámetros personalizados
@@ -164,18 +145,13 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy
       final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
       if (exerciseParams != null) {
         final minReps =
-            exerciseParams['min_reps'] ??
-            exerciseParams['multi_reps_min'] ??
-            exerciseParams['iso_reps_min'];
+            exerciseParams['min_reps'] ?? exerciseParams['multi_reps_min'] ?? exerciseParams['iso_reps_min'];
         if (minReps != null) return minReps as int;
       }
     }
 
     // Fallback a global
-    return customParams['min_reps'] ??
-        customParams['multi_reps_min'] ??
-        customParams['iso_reps_min'] ??
-        5; // default
+    return customParams['min_reps'] ?? customParams['multi_reps_min'] ?? customParams['iso_reps_min'] ?? 5; // default
   }
 
   /// Obtiene el valor de incremento desde parámetros personalizados

@@ -69,70 +69,67 @@ void main() {
       expect(result.reason, contains('blocked'));
     });
 
-    test(
-      'double factor progression: blocking during deload preserves baseSets',
-      () {
-        final strategy = DoubleFactorProgressionStrategy();
-        final now = DateTime.now();
+    test('double factor progression: blocking during deload preserves baseSets', () {
+      final strategy = DoubleFactorProgressionStrategy();
+      final now = DateTime.now();
 
-        final config = ProgressionConfig(
-          id: 'cfg',
-          isGlobal: true,
-          type: ProgressionType.doubleFactor,
-          unit: ProgressionUnit.week,
-          primaryTarget: ProgressionTarget.weight,
-          secondaryTarget: null,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 4, // Deload en semana 4
-          deloadPercentage: 0.8,
-          customParameters: const {'min_reps': 6, 'max_reps': 10},
-          startDate: now,
-          endDate: null,
-          isActive: true,
-          createdAt: now,
-          updatedAt: now,
-        );
+      final config = ProgressionConfig(
+        id: 'cfg',
+        isGlobal: true,
+        type: ProgressionType.doubleFactor,
+        unit: ProgressionUnit.week,
+        primaryTarget: ProgressionTarget.weight,
+        secondaryTarget: null,
+        incrementValue: 2.5,
+        incrementFrequency: 1,
+        cycleLength: 4,
+        deloadWeek: 4, // Deload en semana 4
+        deloadPercentage: 0.8,
+        customParameters: const {'min_reps': 6, 'max_reps': 10},
+        startDate: now,
+        endDate: null,
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      );
 
-        final state = ProgressionState(
-          id: 'st',
-          progressionConfigId: 'cfg',
-          exerciseId: 'ex',
-          routineId: 'test-routine-1',
-          currentCycle: 1,
-          currentWeek: 4, // Semana de deload
-          currentSession: 1,
-          currentWeight: 100.0,
-          currentReps: 8,
-          currentSets: 2, // Sets reducidos por deload anterior
-          baseWeight: 100.0,
-          baseReps: 6,
-          baseSets: 4, // Sets base originales
-          sessionHistory: const {},
-          lastUpdated: now,
-          isDeloadWeek: false,
-          oneRepMax: null,
-          customData: const {},
-        );
+      final state = ProgressionState(
+        id: 'st',
+        progressionConfigId: 'cfg',
+        exerciseId: 'ex',
+        routineId: 'test-routine-1',
+        currentCycle: 1,
+        currentWeek: 4, // Semana de deload
+        currentSession: 1,
+        currentWeight: 100.0,
+        currentReps: 8,
+        currentSets: 2, // Sets reducidos por deload anterior
+        baseWeight: 100.0,
+        baseReps: 6,
+        baseSets: 4, // Sets base originales
+        sessionHistory: const {},
+        lastUpdated: now,
+        isDeloadWeek: false,
+        oneRepMax: null,
+        customData: const {},
+      );
 
-        // Bloquear progresión durante deload
-        final result = strategy.calculate(
-          config: config,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 100.0,
-          currentReps: 8,
-          currentSets: 2, // Sets reducidos por deload
-          isExerciseLocked: true,
-        );
+      // Bloquear progresión durante deload
+      final result = strategy.calculate(
+        config: config,
+        state: state,
+        routineId: 'test-routine',
+        currentWeight: 100.0,
+        currentReps: 8,
+        currentSets: 2, // Sets reducidos por deload
+        isExerciseLocked: true,
+      );
 
-        // Verificar que se usan los baseSets, no los currentSets reducidos
-        expect(result.newSets, 4); // Debe usar baseSets, no currentSets (2)
-        expect(result.incrementApplied, false);
-        expect(result.reason, contains('blocked'));
-      },
-    );
+      // Verificar que se usan los baseSets, no los currentSets reducidos
+      expect(result.newSets, 4); // Debe usar baseSets, no currentSets (2)
+      expect(result.incrementApplied, false);
+      expect(result.reason, contains('blocked'));
+    });
 
     test('normal progression after deload blocking restores to baseSets', () {
       final strategy = LinearProgressionStrategy();
@@ -168,8 +165,7 @@ void main() {
         currentSession: 1,
         currentWeight: 100.0,
         currentReps: 10,
-        currentSets:
-            3, // Sets que podrían haber sido reducidos por deload anterior
+        currentSets: 3, // Sets que podrían haber sido reducidos por deload anterior
         baseWeight: 100.0,
         baseReps: 10,
         baseSets: 4, // Sets base originales
