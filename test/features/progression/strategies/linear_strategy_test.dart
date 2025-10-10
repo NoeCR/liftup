@@ -38,13 +38,7 @@ void main() {
       );
     }
 
-    ProgressionState state({
-      int session = 1,
-      int week = 1,
-      double baseW = 100,
-      int baseR = 10,
-      int baseS = 4,
-    }) {
+    ProgressionState state({int session = 1, int week = 1, double baseW = 100, int baseR = 10, int baseS = 4}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -85,11 +79,7 @@ void main() {
     });
 
     test('applies deload on deloadWeek', () {
-      final cfg = config(
-        unit: ProgressionUnit.session,
-        deloadWeek: 1,
-        deloadPct: 0.9,
-      );
+      final cfg = config(unit: ProgressionUnit.session, deloadWeek: 1, deloadPct: 0.9);
       final st = state(session: 1);
       final res = strategy.calculate(
         config: cfg,
