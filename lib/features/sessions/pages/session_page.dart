@@ -35,8 +35,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
   bool _sessionJustCompleted = false;
 
   /// Creates a sorted list of routine exercises with their corresponding Exercise objects
-  List<({RoutineExercise routineExercise, Exercise exercise})>
-  _createSortedExerciseList(
+  List<({RoutineExercise routineExercise, Exercise exercise})> _createSortedExerciseList(
     List<RoutineExercise> routineExercises,
     List<Exercise> exercises,
     BuildContext context,
@@ -111,10 +110,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               WorkoutSession? activeSession;
               try {
                 activeSession = sessions.firstWhere(
-                  (s) =>
-                      (s.status == SessionStatus.active ||
-                          s.status == SessionStatus.paused) &&
-                      s.endTime == null,
+                  (s) => (s.status == SessionStatus.active || s.status == SessionStatus.paused) && s.endTime == null,
                 );
               } catch (_) {
                 activeSession = null;
@@ -128,24 +124,16 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               }
 
               // If active and no ticker, compute clean base and start
-              if (_ticker == null &&
-                  activeSession.status == SessionStatus.active &&
-                  !_isManuallyPaused) {
+              if (_ticker == null && activeSession.status == SessionStatus.active && !_isManuallyPaused) {
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                _elapsedSecondsVN.value = notifier.calculateElapsedForUI(
-                  activeSession,
-                  now: DateTime.now(),
-                );
+                _elapsedSecondsVN.value = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
                 _startTicker();
               }
               // If paused, stop ticker and keep displayed _elapsedSeconds
               if (activeSession.status == SessionStatus.paused) {
                 _stopTicker();
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                _elapsedSecondsVN.value = notifier.calculateElapsedForUI(
-                  activeSession,
-                  now: DateTime.now(),
-                );
+                _elapsedSecondsVN.value = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
               }
 
               return _buildActiveSession(activeSession);
@@ -243,9 +231,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             }
             routine ??= routines.isNotEmpty ? routines.first : null;
             if (routine == null) {
-              return Center(
-                child: Text(context.tr('session.noRoutineAssociated')),
-              );
+              return Center(child: Text(context.tr('session.noRoutineAssociated')));
             }
 
             return exercisesAsync.when(
@@ -268,26 +254,17 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                           iconName: section.iconName,
                           muscleGroup: section.muscleGroup,
                           onToggleCollapsed: () {
-                            ref
-                                .read(routineNotifierProvider.notifier)
-                                .toggleSectionCollapsed(section.id);
+                            ref.read(routineNotifierProvider.notifier).toggleSectionCollapsed(section.id);
                           },
                         ),
                         if (!section.isCollapsed) ...[
                           if (section.exercises.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: AppTheme.spacingM,
-                              ),
+                              padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
                               child: Text(
                                 context.tr('session.noExercises'),
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   fontStyle: FontStyle.italic,
                                 ),
                               ),
@@ -297,22 +274,14 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                               height: 360,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppTheme.spacingS,
-                                ),
-                                itemCount:
-                                    _createSortedExerciseList(
-                                      section.exercises,
-                                      exercises,
-                                      context,
-                                    ).length,
+                                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+                                itemCount: _createSortedExerciseList(section.exercises, exercises, context).length,
                                 itemBuilder: (context, idx) {
-                                  final sortedExerciseList =
-                                      _createSortedExerciseList(
-                                        section.exercises,
-                                        exercises,
-                                        context,
-                                      );
+                                  final sortedExerciseList = _createSortedExerciseList(
+                                    section.exercises,
+                                    exercises,
+                                    context,
+                                  );
                                   final exerciseData = sortedExerciseList[idx];
                                   final re = exerciseData.routineExercise;
                                   final ex = exerciseData.exercise;
@@ -339,17 +308,11 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
-              error:
-                  (e, _) => Center(
-                    child: Text(context.tr('session.errorLoadingExercises')),
-                  ),
+              error: (e, _) => Center(child: Text(context.tr('session.errorLoadingExercises'))),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
-          error:
-              (e, _) => Center(
-                child: Text(context.tr('session.errorLoadingRoutine')),
-              ),
+          error: (e, _) => Center(child: Text(context.tr('session.errorLoadingRoutine'))),
         );
       },
     );
@@ -363,35 +326,25 @@ class _SessionPageState extends ConsumerState<SessionPage> {
           Expanded(
             child: OutlinedButton.icon(
               onPressed: () async {
-                final isPaused =
-                    _isManuallyPaused || session.status == SessionStatus.paused;
+                final isPaused = _isManuallyPaused || session.status == SessionStatus.paused;
                 if (!isPaused) {
                   // Pausar
                   _isManuallyPaused = true;
                   _stopTicker();
-                  await ref
-                      .read(sessionNotifierProvider.notifier)
-                      .pauseSession();
+                  await ref.read(sessionNotifierProvider.notifier).pauseSession();
                   ref.invalidate(sessionNotifierProvider);
                 } else {
                   // Reanudar inmediatamente
                   _isManuallyPaused = false;
-                  await ref
-                      .read(sessionNotifierProvider.notifier)
-                      .resumeSession();
+                  await ref.read(sessionNotifierProvider.notifier).resumeSession();
                   final notifier = ref.read(sessionNotifierProvider.notifier);
-                  _elapsedSecondsVN.value = notifier.calculateElapsedForUI(
-                    session,
-                    now: DateTime.now(),
-                  );
+                  _elapsedSecondsVN.value = notifier.calculateElapsedForUI(session, now: DateTime.now());
                   _startTicker();
                   ref.invalidate(sessionNotifierProvider);
                 }
               },
               icon: Icon(
-                (_isManuallyPaused || session.status == SessionStatus.paused)
-                    ? Icons.play_arrow
-                    : Icons.pause,
+                (_isManuallyPaused || session.status == SessionStatus.paused) ? Icons.play_arrow : Icons.pause,
               ),
               label: Text(
                 (_isManuallyPaused || session.status == SessionStatus.paused)
@@ -405,13 +358,10 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             child: FilledButton.icon(
               onPressed: () async {
                 _stopTicker();
-                final progressionConfig = await ref.read(
-                  progressionNotifierProvider.future,
-                );
+                final progressionConfig = await ref.read(progressionNotifierProvider.future);
                 bool applyNext = true;
                 if (progressionConfig != null) {
-                  final isWeekly =
-                      progressionConfig.unit == ProgressionUnit.week;
+                  final isWeekly = progressionConfig.unit == ProgressionUnit.week;
                   final isEndOfWeek = DateTime.now().weekday == DateTime.sunday;
                   final shouldAsk = !isWeekly || (isWeekly && isEndOfWeek);
                   if (shouldAsk) {
@@ -420,12 +370,8 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                           context: context,
                           builder: (ctx) {
                             return AlertDialog(
-                              title: Text(
-                                ctx.tr('progression.confirmApplyTitle'),
-                              ),
-                              content: Text(
-                                ctx.tr('progression.confirmApplyMessage'),
-                              ),
+                              title: Text(ctx.tr('progression.confirmApplyTitle')),
+                              content: Text(ctx.tr('progression.confirmApplyMessage')),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(ctx).pop(false),
@@ -433,9 +379,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                                 ),
                                 FilledButton(
                                   onPressed: () => Navigator.of(ctx).pop(true),
-                                  child: Text(
-                                    ctx.tr('progression.applyNextSession'),
-                                  ),
+                                  child: Text(ctx.tr('progression.applyNextSession')),
                                 ),
                               ],
                             );
@@ -447,20 +391,14 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
                 // Persist skip flag per routine if user decides to keep values
                 try {
-                  final activeSession =
-                      await ref
-                          .read(sessionNotifierProvider.notifier)
-                          .getCurrentOngoingSession();
+                  final activeSession = await ref.read(sessionNotifierProvider.notifier).getCurrentOngoingSession();
                   final routineId = activeSession?.routineId;
                   if (routineId != null) {
                     final routine = (await ref.read(
                       routineNotifierProvider.future,
                     )).firstWhere((r) => r.id == routineId);
                     final exerciseIds =
-                        routine.sections
-                            .expand((s) => s.exercises.map((e) => e.exerciseId))
-                            .toSet()
-                            .toList();
+                        routine.sections.expand((s) => s.exercises.map((e) => e.exerciseId)).toSet().toList();
                     await ref
                         .read(progressionNotifierProvider.notifier)
                         .setSkipNextProgressionForRoutine(
@@ -471,9 +409,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                   }
                 } catch (_) {}
 
-                await ref
-                    .read(sessionNotifierProvider.notifier)
-                    .completeSession();
+                await ref.read(sessionNotifierProvider.notifier).completeSession();
                 if (!mounted) return;
                 setState(() {
                   _isManuallyPaused = false;
@@ -482,11 +418,9 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                 _elapsedSecondsVN.value = 0;
                 // Forzar recarga de sesiones para ocultar controles
                 ref.invalidate(sessionNotifierProvider);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.tr('session.sessionFinished')),
-                  ),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(context.tr('session.sessionFinished'))));
                 if (mounted) {
                   context.push('/session-summary');
                 }
@@ -520,56 +454,37 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                   Container(
                     padding: const EdgeInsets.all(AppTheme.spacingXL),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(
-                        alpha: 0.3,
-                      ),
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
-                      Icons.play_circle_outline,
-                      size: 64,
-                      color: colorScheme.primary,
-                    ),
+                    child: Icon(Icons.play_circle_outline, size: 64, color: colorScheme.primary),
                   ),
                   const SizedBox(height: AppTheme.spacingL),
                   Text(
                     context.tr('session.noActiveSession'),
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppTheme.spacingS),
                   Text(
                     context.tr('session.startNewSession'),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppTheme.spacingXL),
                   FilledButton.icon(
                     onPressed: () async {
-                      final selectedRoutineId = ref.read(
-                        selectedRoutineIdProvider,
-                      );
+                      final selectedRoutineId = ref.read(selectedRoutineIdProvider);
                       if (selectedRoutineId == null) {
                         if (!mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              context.tr('session.selectRoutineFirst'),
-                            ),
-                          ),
-                        );
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(context.tr('session.selectRoutineFirst'))));
                         return;
                       }
                       await ref
                           .read(sessionNotifierProvider.notifier)
-                          .startSession(
-                            name: context.tr('session.title'),
-                            routineId: selectedRoutineId,
-                          );
+                          .startSession(name: context.tr('session.title'), routineId: selectedRoutineId);
                       if (mounted) setState(() {});
                     },
                     icon: const Icon(Icons.play_arrow),

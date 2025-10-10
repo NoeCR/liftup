@@ -34,8 +34,7 @@ class ExerciseCardWrapper extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ExerciseCardWrapper> createState() =>
-      _ExerciseCardWrapperState();
+  ConsumerState<ExerciseCardWrapper> createState() => _ExerciseCardWrapperState();
 }
 
 class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
@@ -50,9 +49,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
     super.initState();
     // Defer provider modification until after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref
-          .read(exerciseStateNotifierProvider.notifier)
-          .initializeExercise(widget.routineExercise);
+      ref.read(exerciseStateNotifierProvider.notifier).initializeExercise(widget.routineExercise);
     });
   }
 
@@ -95,14 +92,8 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
     final vibrationEnabled = ref.read(restVibrationEnabledProvider);
     final soundType = ref.read(restSoundTypeProvider);
     if (soundEnabled) {
-      final androidSound =
-          soundType == RestSoundType.alarm
-              ? AndroidSounds.alarm
-              : AndroidSounds.notification;
-      final iosSound =
-          soundType == RestSoundType.alarm
-              ? IosSounds.alarm
-              : IosSounds.triTone;
+      final androidSound = soundType == RestSoundType.alarm ? AndroidSounds.alarm : AndroidSounds.notification;
+      final iosSound = soundType == RestSoundType.alarm ? IosSounds.alarm : IosSounds.triTone;
       FlutterRingtonePlayer().play(
         android: androidSound,
         ios: iosSound,
@@ -121,40 +112,25 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
   Widget build(BuildContext context) {
     // Get current exercise state
     final currentExercise =
-        ref.watch(
-          exerciseStateNotifierProvider.select(
-            (state) => state[widget.routineExercise.id],
-          ),
-        ) ??
+        ref.watch(exerciseStateNotifierProvider.select((state) => state[widget.routineExercise.id])) ??
         widget.routineExercise;
 
     final isCompleted = ref.watch(
-      exerciseCompletionNotifierProvider.select(
-        (state) => state.contains(widget.routineExercise.id),
-      ),
+      exerciseCompletionNotifierProvider.select((state) => state.contains(widget.routineExercise.id)),
     );
 
     // progreso de series realizadas
     // read current performed sets if needed for future display/logic
     // final performedSets = ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
 
-    final performedSets =
-        ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ??
-        0;
+    final performedSets = ref.watch(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
 
     // Verificar si el ejercicio fue realizado esta semana
-    final wasPerformedThisWeek =
-        ref
-            .watch(exercisePerformedThisWeekProvider(widget.exercise.id))
-            .value ??
-        false;
+    final wasPerformedThisWeek = ref.watch(exercisePerformedThisWeekProvider(widget.exercise.id)).value ?? false;
 
     // Obtener valores de display (base o progresión)
     final displayValuesAsync = ref.watch(
-      exerciseDisplayValuesProvider(
-        exercise: widget.exercise,
-        routineId: widget.routineId ?? '',
-      ),
+      exerciseDisplayValuesProvider(exercise: widget.exercise, routineId: widget.routineId ?? ''),
     );
 
     return Stack(
@@ -168,14 +144,10 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
               wasPerformedThisWeek: wasPerformedThisWeek,
               isLocked: widget.exercise.isProgressionLocked,
               onToggleLock: () async {
-                final exerciseNotifier = ref.read(
-                  exerciseNotifierProvider.notifier,
-                );
+                final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
 
                 // Update the exercise's isProgressionLocked field
-                final updated = widget.exercise.copyWith(
-                  isProgressionLocked: !widget.exercise.isProgressionLocked,
-                );
+                final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
                 await exerciseNotifier.updateExercise(updated);
               },
               performedSets: performedSets,
@@ -188,15 +160,9 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
               onRepsChanged: (newValue) {
                 // Contador de series realizadas
                 final totalSets = displayValues.sets;
-                final previous =
-                    ref.read(performedSetsNotifierProvider)[widget
-                        .routineExercise
-                        .id] ??
-                    0;
+                final previous = ref.read(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
                 final int clamped = newValue.clamp(0, totalSets).toInt();
-                ref
-                    .read(performedSetsNotifierProvider.notifier)
-                    .setCount(widget.routineExercise.id, clamped);
+                ref.read(performedSetsNotifierProvider.notifier).setCount(widget.routineExercise.id, clamped);
 
                 // Launch rest timer if it increments and it's not the last set
                 if (clamped > previous && clamped < totalSets) {
@@ -207,20 +173,12 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 }
 
                 final nowCompleted = clamped >= totalSets;
-                final completion = ref.read(
-                  exerciseCompletionNotifierProvider.notifier,
-                );
-                final already = ref
-                    .read(exerciseCompletionNotifierProvider)
-                    .contains(widget.routineExercise.id);
+                final completion = ref.read(exerciseCompletionNotifierProvider.notifier);
+                final already = ref.read(exerciseCompletionNotifierProvider).contains(widget.routineExercise.id);
                 if (nowCompleted && !already) {
-                  completion.toggleExerciseCompletion(
-                    widget.routineExercise.id,
-                  );
+                  completion.toggleExerciseCompletion(widget.routineExercise.id);
                 } else if (!nowCompleted && already) {
-                  completion.toggleExerciseCompletion(
-                    widget.routineExercise.id,
-                  );
+                  completion.toggleExerciseCompletion(widget.routineExercise.id);
                 }
               },
               displayValues: displayValues,
@@ -234,14 +192,10 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 wasPerformedThisWeek: wasPerformedThisWeek,
                 isLocked: widget.exercise.isProgressionLocked,
                 onToggleLock: () async {
-                  final exerciseNotifier = ref.read(
-                    exerciseNotifierProvider.notifier,
-                  );
+                  final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
 
                   // Update the exercise's isProgressionLocked field
-                  final updated = widget.exercise.copyWith(
-                    isProgressionLocked: !widget.exercise.isProgressionLocked,
-                  );
+                  final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
                   await exerciseNotifier.updateExercise(updated);
                 },
                 performedSets: performedSets,
@@ -254,15 +208,9 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 onRepsChanged: (newValue) {
                   // Contador de series realizadas
                   final totalSets = widget.exercise.defaultSets ?? 4;
-                  final previous =
-                      ref.read(performedSetsNotifierProvider)[widget
-                          .routineExercise
-                          .id] ??
-                      0;
+                  final previous = ref.read(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
                   final int clamped = newValue.clamp(0, totalSets).toInt();
-                  ref
-                      .read(performedSetsNotifierProvider.notifier)
-                      .setCount(widget.routineExercise.id, clamped);
+                  ref.read(performedSetsNotifierProvider.notifier).setCount(widget.routineExercise.id, clamped);
 
                   // Launch rest timer if it increments and it's not the last set
                   if (clamped > previous && clamped < totalSets) {
@@ -273,20 +221,12 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                   }
 
                   final nowCompleted = clamped >= totalSets;
-                  final completion = ref.read(
-                    exerciseCompletionNotifierProvider.notifier,
-                  );
-                  final already = ref
-                      .read(exerciseCompletionNotifierProvider)
-                      .contains(widget.routineExercise.id);
+                  final completion = ref.read(exerciseCompletionNotifierProvider.notifier);
+                  final already = ref.read(exerciseCompletionNotifierProvider).contains(widget.routineExercise.id);
                   if (nowCompleted && !already) {
-                    completion.toggleExerciseCompletion(
-                      widget.routineExercise.id,
-                    );
+                    completion.toggleExerciseCompletion(widget.routineExercise.id);
                   } else if (!nowCompleted && already) {
-                    completion.toggleExerciseCompletion(
-                      widget.routineExercise.id,
-                    );
+                    completion.toggleExerciseCompletion(widget.routineExercise.id);
                   }
                 },
               ),
@@ -298,14 +238,10 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 wasPerformedThisWeek: wasPerformedThisWeek,
                 isLocked: widget.exercise.isProgressionLocked,
                 onToggleLock: () async {
-                  final exerciseNotifier = ref.read(
-                    exerciseNotifierProvider.notifier,
-                  );
+                  final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
 
                   // Update the exercise's isProgressionLocked field
-                  final updated = widget.exercise.copyWith(
-                    isProgressionLocked: !widget.exercise.isProgressionLocked,
-                  );
+                  final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
                   await exerciseNotifier.updateExercise(updated);
                 },
                 performedSets: performedSets,
@@ -318,15 +254,9 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 onRepsChanged: (newValue) {
                   // Contador de series realizadas
                   final totalSets = widget.exercise.defaultSets ?? 4;
-                  final previous =
-                      ref.read(performedSetsNotifierProvider)[widget
-                          .routineExercise
-                          .id] ??
-                      0;
+                  final previous = ref.read(performedSetsNotifierProvider)[widget.routineExercise.id] ?? 0;
                   final int clamped = newValue.clamp(0, totalSets).toInt();
-                  ref
-                      .read(performedSetsNotifierProvider.notifier)
-                      .setCount(widget.routineExercise.id, clamped);
+                  ref.read(performedSetsNotifierProvider.notifier).setCount(widget.routineExercise.id, clamped);
 
                   // Launch rest timer if it increments and it's not the last set
                   if (clamped > previous && clamped < totalSets) {
@@ -337,20 +267,12 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                   }
 
                   final nowCompleted = clamped >= totalSets;
-                  final completion = ref.read(
-                    exerciseCompletionNotifierProvider.notifier,
-                  );
-                  final already = ref
-                      .read(exerciseCompletionNotifierProvider)
-                      .contains(widget.routineExercise.id);
+                  final completion = ref.read(exerciseCompletionNotifierProvider.notifier);
+                  final already = ref.read(exerciseCompletionNotifierProvider).contains(widget.routineExercise.id);
                   if (nowCompleted && !already) {
-                    completion.toggleExerciseCompletion(
-                      widget.routineExercise.id,
-                    );
+                    completion.toggleExerciseCompletion(widget.routineExercise.id);
                   } else if (!nowCompleted && already) {
-                    completion.toggleExerciseCompletion(
-                      widget.routineExercise.id,
-                    );
+                    completion.toggleExerciseCompletion(widget.routineExercise.id);
                   }
                 },
               ),
@@ -370,9 +292,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black54,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(AppTheme.radiusL),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
                   ),
                   child: Center(
                     child: ValueListenableBuilder<int>(
@@ -383,10 +303,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                             '${seconds}s',
                             style: Theme.of(
                               context,
-                            ).textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            ).textTheme.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                           backgroundColor: Colors.black87,
                         );
@@ -414,9 +331,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.black54,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(AppTheme.radiusL),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
                   ),
                   child: Center(
                     child: FilledButton.icon(
@@ -426,10 +341,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                       },
                       icon: const Icon(Icons.stop),
                       label: const Text('Detener'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.black87,
-                        foregroundColor: Colors.white,
-                      ),
+                      style: FilledButton.styleFrom(backgroundColor: Colors.black87, foregroundColor: Colors.white),
                     ),
                   ),
                 ),
