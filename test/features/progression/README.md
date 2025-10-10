@@ -1,6 +1,6 @@
-# Pruebas de Progresión
+# Pruebas de Progresión - Sistema Avanzado
 
-Este directorio contiene todas las pruebas para la funcionalidad de progresión de la aplicación Liftly.
+Este directorio contiene todas las pruebas para el sistema avanzado de estrategias de progresión de la aplicación Liftly, incluyendo 11 estrategias implementadas con tests exhaustivos.
 
 ## Estructura de Pruebas
 
@@ -15,14 +15,35 @@ test/features/progression/
 │   ├── progression_template_service_test.dart
 │   ├── session_progression_service_test.dart
 │   ├── progression_calculations_test.dart
-│   └── session_progression_integration_test.dart
+│   ├── session_progression_integration_test.dart
+│   ├── deload_progression_test.dart
+│   ├── exercise_type_adjustments_test.dart
+│   ├── per_exercise_params_merge_test.dart
+│   └── session_progression_service_utils_test.dart
+├── strategies/                      # Tests de estrategias específicas
+│   ├── comprehensive_strategy_test.dart
+│   ├── deload_logic_test.dart
+│   ├── custom_parameters_test.dart
+│   ├── cycle_calculation_test.dart
+│   ├── linear_strategy_test.dart
+│   ├── double_strategy_test.dart
+│   ├── undulating_strategy_test.dart
+│   ├── stepped_strategy_test.dart
+│   ├── wave_strategy_test.dart
+│   ├── static_strategy_test.dart
+│   ├── reverse_strategy_test.dart
+│   ├── autoregulated_strategy_test.dart
+│   ├── double_factor_strategy_test.dart
+│   ├── overload_strategy_test.dart
+│   └── factory_mapping_test.dart
 ├── widgets/                         # Tests de widgets
 │   ├── progression_status_widget_test.dart
 │   ├── progression_selection_dialog_test.dart
 │   ├── progression_selection_page_test.dart
 │   └── progression_configuration_page_test.dart
 ├── notifiers/                       # Tests de notifiers
-│   └── progression_notifier_test.dart
+│   ├── progression_notifier_test.dart
+│   └── skip_flag_update_test.dart
 ├── mocks/                          # Mocks y factories
 │   └── progression_mock_factory.dart
 ├── test_config.dart                # Configuración de pruebas
@@ -54,42 +75,73 @@ test/features/progression/
 - **ProgressionStatePersistence**: Valida la persistencia de estados de progresión
 - **ProgressionWithDifferentExercises**: Valida la progresión con diferentes tipos de ejercicios
 
-## Tipos de Progresión Probados
+## Estrategias de Progresión Probadas
 
-### 1. Progresión Lineal
+### 1. **Progresión Lineal** ✅
 - Incremento constante de peso/repeticiones por sesión
 - Frecuencia de incremento configurable
 - Validación de incrementos positivos y negativos
+- Lógica de deload unificada
 
-### 2. Progresión Ondulante
+### 2. **Progresión Doble** ✅
+- Primero incrementa repeticiones, luego peso
+- Límites configurables de repeticiones (min/max)
+- Validación de transición entre fases
+- Parámetros personalizados por ejercicio
+
+### 3. **Progresión Ondulante** ✅
 - Alternancia entre días pesados y ligeros
-- Multiplicadores configurables para cada tipo de día
+- Multiplicadores configurables (85%/115% reps)
 - Validación de parámetros personalizados
+- Cálculos realistas de intensidad
 
-### 3. Progresión Escalonada
+### 4. **Progresión Escalonada** ✅
 - Acumulación de carga con semanas de deload
 - Configuración de semana de deload y porcentaje
 - Validación de ciclos de carga y descarga
+- Semanas de acumulación configurables
 
-### 4. Progresión Doble
-- Primero incrementa repeticiones, luego peso
-- Límites configurables de repeticiones
-- Validación de transición entre fases
-
-### 5. Progresión por Oleadas
+### 5. **Progresión por Oleadas** ✅
 - Ciclos de 3 semanas con diferentes intensidades
 - Multiplicadores configurables por semana
 - Validación de ciclos completos
+- Deload basado en config.deloadWeek
 
-### 6. Progresión Estática
+### 6. **Progresión Estática** ✅
 - Mantiene valores constantes
 - Sin incrementos automáticos
 - Validación de estabilidad
+- Estrategia de fallback
 
-### 7. Progresión Reversa
+### 7. **Progresión Reversa** ✅
 - Decremento de valores over time
 - Incrementos negativos
 - Validación de decrementos
+- Límites de repeticiones configurables
+
+### 8. **Progresión Autoregulada** ✅
+- Basada en RPE/RIR
+- Parámetros de RPE objetivo configurables
+- Umbrales de progresión personalizables
+- Manejo de diferentes tipos de ejercicio
+
+### 9. **Progresión Doble Factor** ✅
+- Balance fitness-fatiga
+- Ajustes basados en ratio de fitness/fatiga
+- Cálculos de carga adaptativos
+- Lógica de deload integrada
+
+### 10. **Progresión de Sobrecarga** ✅
+- Sobrecarga progresiva
+- Incrementos de volumen e intensidad
+- Configuración de objetivos de sobrecarga
+- Manejo de diferentes tipos de ejercicio
+
+### 11. **Progresión por Defecto** ✅
+- Sin cambios aplicados
+- Estrategia de fallback
+- Mantiene valores actuales
+- Para casos sin configuración
 
 ## Casos de Prueba Específicos
 
@@ -181,9 +233,12 @@ Las pruebas cubren:
 - ✅ **100%** de los modelos de progresión
 - ✅ **100%** de los servicios de progresión
 - ✅ **100%** de los cálculos de progresión
-- ✅ **90%** de los widgets de progresión
-- ✅ **85%** de la integración con sesiones
-- ✅ **95%** de casos de error y edge cases
+- ✅ **100%** de las 11 estrategias de progresión
+- ✅ **100%** de la lógica de deload unificada
+- ✅ **100%** de parámetros personalizados por ejercicio
+- ✅ **100%** de casos de error y edge cases
+- ✅ **344/344 tests passing** (100% success rate)
+- ✅ **99 tests específicos** para estrategias de progresión
 
 ## Mantenimiento
 

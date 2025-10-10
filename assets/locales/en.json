@@ -420,7 +420,8 @@
         "share": "Share",
         "close": "Close",
         "retry": "Retry",
-        "confirm": "Confirm"
+        "confirm": "Confirm",
+        "keepValues": "Keep Values"
     },
     "progression": {
         "title": "Progression",
@@ -517,7 +518,10 @@
             "beginner": "Beginner",
             "intermediate": "Intermediate",
             "advanced": "Advanced"
-        }
+        },
+        "confirmApplyTitle": "Confirm Progression Application",
+        "confirmApplyMessage": "Do you want to apply automatic progression to this exercise? This will modify the weight and/or repetitions according to your configuration.",
+        "applyNextSession": "Apply Next Session"
     },
     "errors": {
         "pageNotFound": "Page not found",

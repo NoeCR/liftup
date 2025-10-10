@@ -384,10 +384,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   }
 
   Future<void> _confirmDefaultsAndAdd() async {
-    // Prefill with previously used values when a single exercise is selected
-    if (_selectedExercises.length == 1) {
-      final exerciseId = _selectedExercises.first;
-      final params = _findLastUsedParamsForExercise(exerciseId);
+    // Prefill with previously used values for the first selected exercise
+    // This provides a good starting point for the user
+    if (_selectedExercises.isNotEmpty) {
+      final firstExerciseId = _selectedExercises.first;
+      final params = _findLastUsedParamsForExercise(firstExerciseId);
       if (params != null) {
         _defaultSets = params['sets'] as int;
         _defaultReps = params['reps'] as int;
@@ -409,6 +410,30 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Show info about previous values if available
+              if (_selectedExercises.isNotEmpty && _findLastUsedParamsForExercise(_selectedExercises.first) != null)
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Valores previos del ejercicio mostrados. Puedes modificarlos si es necesario.',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               Row(
                 children: [
                   Expanded(
@@ -491,15 +516,42 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       final selectedExercises = exercises.where((exercise) => _selectedExercises.contains(exercise.id)).toList();
 
       if (selectedExercises.isNotEmpty) {
-        // Add exercises to the routine exercise notifier
-        final sectionId = widget.sectionId ?? 'main_${DateTime.now().millisecondsSinceEpoch}';
-        ref.read(routineExerciseNotifierProvider.notifier).addExercisesToSection(sectionId, selectedExercises);
+        // Resolver la sección destino: si no viene por parámetro y tenemos rutina,
+        // utilizar la primera sección existente de la rutina
+        String? resolvedSectionId = widget.sectionId;
+        if (resolvedSectionId == null && widget.routineId != null) {
+          final routinesAsync = ref.read(routineNotifierProvider);
+          final routines = routinesAsync.valueOrNull;
+          if (routines != null) {
+            final routine = routines.firstWhere(
+              (r) => r.id == widget.routineId,
+              orElse: () => routines.isNotEmpty ? routines.first : throw Exception('No routines available'),
+            );
+            if (routine.sections.isNotEmpty) {
+              resolvedSectionId = routine.sections.first.id;
+            }
+          }
+        }
 
-        // If we have a routineId, we should also update the routine in the database
+        if (resolvedSectionId == null) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No se pudo determinar la sección de la rutina. Crea una sección primero.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Add exercises to the in-memory notifier for immediate UI feedback
+        ref.read(routineExerciseNotifierProvider.notifier).addExercisesToSection(resolvedSectionId, selectedExercises);
+
+        // Persistir cambios en la rutina si tenemos routineId
         if (widget.routineId != null) {
           _updateRoutineWithExercises(
             widget.routineId!,
-            sectionId,
+            resolvedSectionId,
             selectedExercises,
             sets: parsedSets,
             reps: parsedReps,
@@ -555,15 +607,21 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       final routine = routines.firstWhere((r) => r.id == routineId, orElse: () => throw Exception('Routine not found'));
 
       // Create RoutineExercise objects (weight/sets/reps now stored in Exercise)
+      // Calcular orden a partir de los existentes en la sección
+      final targetSection = routine.sections.firstWhere((s) => s.id == sectionId, orElse: () => routine.sections.first);
+      final baseOrder = targetSection.exercises.length;
+
       final routineExercises =
           exercises
+              .asMap()
+              .entries
               .map(
-                (exercise) => RoutineExercise(
-                  id: '${exercise.id}_${DateTime.now().millisecondsSinceEpoch}',
+                (entry) => RoutineExercise(
+                  id: '${entry.value.id}_${DateTime.now().millisecondsSinceEpoch}',
                   routineSectionId: sectionId,
-                  exerciseId: exercise.id,
+                  exerciseId: entry.value.id,
                   notes: '',
-                  order: 0,
+                  order: baseOrder + entry.key,
                 ),
               )
               .toList();
@@ -589,16 +647,28 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     final exercises = ref.read(exerciseNotifierProvider).valueOrNull;
     if (exercises == null) return null;
 
-    final exercise = exercises.firstWhere(
-      (e) => e.id == exerciseId,
-      orElse: () => throw Exception('Exercise not found'),
-    );
+    try {
+      final exercise = exercises.firstWhere((e) => e.id == exerciseId);
 
-    return <String, Object>{
-      'sets': exercise.defaultSets ?? 4,
-      'reps': exercise.defaultReps ?? 10,
-      'weight': exercise.defaultWeight ?? 0.0,
-      'rest': exercise.restTimeSeconds ?? _defaultRestSeconds,
-    };
+      // Only return values if the exercise has meaningful defaults set
+      // (not just the fallback values)
+      final hasValidDefaults =
+          exercise.defaultSets != null ||
+          exercise.defaultReps != null ||
+          exercise.defaultWeight != null ||
+          exercise.restTimeSeconds != null;
+
+      if (!hasValidDefaults) return null;
+
+      return <String, Object>{
+        'sets': exercise.defaultSets ?? 3,
+        'reps': exercise.defaultReps ?? 10,
+        'weight': exercise.defaultWeight ?? 0.0,
+        'rest': exercise.restTimeSeconds ?? 60,
+      };
+    } catch (e) {
+      // Exercise not found, return null to use default values
+      return null;
+    }
   }
 }

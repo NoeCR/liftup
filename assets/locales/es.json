@@ -419,7 +419,8 @@
         "share": "Compartir",
         "close": "Cerrar",
         "retry": "Reintentar",
-        "confirm": "Confirmar"
+        "confirm": "Confirmar",
+        "keepValues": "Mantener Valores"
     },
     "progression": {
         "title": "Progresión",
@@ -516,7 +517,10 @@
             "beginner": "Principiante",
             "intermediate": "Intermedio",
             "advanced": "Avanzado"
-        }
+        },
+        "confirmApplyTitle": "Confirmar Aplicación de Progresión",
+        "confirmApplyMessage": "¿Quieres aplicar la progresión automática a este ejercicio? Esto modificará el peso y/o repeticiones según tu configuración.",
+        "applyNextSession": "Aplicar en Próxima Sesión"
     },
     "errors": {
         "pageNotFound": "Página no encontrada",

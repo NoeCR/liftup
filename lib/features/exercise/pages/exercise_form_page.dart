@@ -15,6 +15,9 @@ import 'package:file_picker/file_picker.dart';
 import '../notifiers/exercise_notifier.dart';
 import '../models/exercise.dart';
 import '../../../common/enums/muscle_group_enum.dart';
+import '../../progression/notifiers/progression_notifier.dart';
+import '../../progression/services/progression_service.dart';
+import '../../../common/enums/progression_type_enum.dart';
 
 class ExerciseFormPage extends ConsumerStatefulWidget {
   final Exercise? exerciseToEdit;
@@ -41,6 +44,21 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   final _weightController = TextEditingController();
   final _restTimeController = TextEditingController();
 
+  // Progression settings controllers
+  final _multiIncMinController = TextEditingController();
+  final _multiIncMaxController = TextEditingController();
+  final _multiRepsMinController = TextEditingController();
+  final _multiRepsMaxController = TextEditingController();
+  final _isoIncMinController = TextEditingController();
+  final _isoIncMaxController = TextEditingController();
+  final _isoRepsMinController = TextEditingController();
+  final _isoRepsMaxController = TextEditingController();
+  final _setsMinController = TextEditingController();
+  final _setsMaxController = TextEditingController();
+  final _targetRpeController = TextEditingController();
+  final _incFreqController = TextEditingController();
+  ProgressionUnit? _perExerciseUnit;
+
   ExerciseCategory _selectedCategory = ExerciseCategory.chest;
   ExerciseDifficulty _selectedDifficulty = ExerciseDifficulty.beginner;
   List<MuscleGroup> _selectedMuscleGroups = [];
@@ -50,6 +68,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   int _formReps = 10;
   double _formWeight = 0.0;
   int? _formRestTimeSeconds;
+  ExerciseType _exerciseType = ExerciseType.multiJoint;
 
   @override
   void initState() {
@@ -63,6 +82,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     if (widget.exerciseToEdit != null) {
       _populateForm();
+      // Prefill progression settings from active config if available
+      _prefillProgressionFromConfig();
     }
   }
 
@@ -83,12 +104,42 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _formReps = exercise.defaultReps ?? 10;
     _formWeight = exercise.defaultWeight ?? 0.0;
     _formRestTimeSeconds = exercise.restTimeSeconds;
+    _exerciseType = exercise.exerciseType;
 
     // Update controllers with exercise default values
     _setsController.text = _formSets.toString();
     _repsController.text = _formReps.toString();
     _weightController.text = _formWeight.toStringAsFixed(1);
     _restTimeController.text = _formRestTimeSeconds?.toString() ?? '';
+  }
+
+  Future<void> _prefillProgressionFromConfig() async {
+    try {
+      final config = await ref.read(progressionNotifierProvider.future);
+      final exercise = widget.exerciseToEdit;
+      if (config == null || exercise == null) return;
+
+      final perExercise = (config.customParameters['per_exercise'] as Map?)?.cast<String, dynamic>();
+      final current = perExercise != null ? (perExercise[exercise.id] as Map?)?.cast<String, dynamic>() : null;
+      if (current == null) return;
+
+      // Prefill usando primero multi_* y si faltan valores, caer a iso_*
+      _multiIncMinController.text = (current['multi_increment_min'] ?? current['iso_increment_min'] ?? '').toString();
+      _multiIncMaxController.text = (current['multi_increment_max'] ?? current['iso_increment_max'] ?? '').toString();
+      _multiRepsMinController.text = (current['multi_reps_min'] ?? current['iso_reps_min'] ?? '').toString();
+      _multiRepsMaxController.text = (current['multi_reps_max'] ?? current['iso_reps_max'] ?? '').toString();
+      _isoIncMinController.text = '';
+      _isoIncMaxController.text = '';
+      _isoRepsMinController.text = '';
+      _isoRepsMaxController.text = '';
+      _setsMinController.text = (current['sets_min'] ?? '').toString();
+      _setsMaxController.text = (current['sets_max'] ?? '').toString();
+      _targetRpeController.text = (current['target_rpe'] ?? '').toString();
+      _incFreqController.text = (current['increment_frequency'] ?? '').toString();
+      final unitStr = (current['unit'] ?? '').toString();
+      _perExerciseUnit = ProgressionUnit.values.where((u) => u.name == unitStr).cast<ProgressionUnit?>().firstOrNull;
+      if (mounted) setState(() {});
+    } catch (_) {}
   }
 
   @override
@@ -167,12 +218,141 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               _buildVideoUrlSection(),
               const SizedBox(height: 32),
 
+              // Progression settings
+              _buildProgressionSettingsSection(),
+              const SizedBox(height: 32),
+
               // Save Button
               _buildSaveButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProgressionSettingsSection() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    InputDecoration deco(String label, {String? helper}) =>
+        InputDecoration(labelText: label, helperText: helper, border: const OutlineInputBorder());
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Progression settings', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        // Parámetros genéricos por ejercicio (se aplicarán a multi/iso)
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border.all(color: colorScheme.outline),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Parámetros por ejercicio', style: theme.textTheme.titleSmall),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _multiIncMinController,
+                      keyboardType: TextInputType.number,
+                      decoration: deco('Incremento mínimo (kg)'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _multiIncMaxController,
+                      keyboardType: TextInputType.number,
+                      decoration: deco('Incremento máximo (kg)'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _multiRepsMinController,
+                      keyboardType: TextInputType.number,
+                      decoration: deco('Repeticiones mínimas'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: _multiRepsMaxController,
+                      keyboardType: TextInputType.number,
+                      decoration: deco('Repeticiones máximas'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Unidad de progresión específica del ejercicio (opcional)
+              DropdownButtonFormField<ProgressionUnit>(
+                value: _perExerciseUnit,
+                decoration: deco('Unidad de progresión', helper: 'Aplica a este ejercicio (opcional)'),
+                items: [
+                  const DropdownMenuItem<ProgressionUnit>(value: null, child: Text('Por defecto (global)')),
+                  ...ProgressionUnit.values.map(
+                    (u) => DropdownMenuItem(value: u, child: Text(context.tr(u.displayNameKey))),
+                  ),
+                ],
+                onChanged: (v) => setState(() => _perExerciseUnit = v),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+        // Common
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _setsMinController,
+                keyboardType: TextInputType.number,
+                decoration: deco('Series mínimas'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _setsMaxController,
+                keyboardType: TextInputType.number,
+                decoration: deco('Series máximas'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _targetRpeController,
+                keyboardType: TextInputType.number,
+                decoration: deco('RPE objetivo'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _incFreqController,
+                keyboardType: TextInputType.number,
+                decoration: deco('Frecuencia de incremento'),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -386,6 +566,20 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        // Tipo de ejercicio (multi/isolation) con autodetección básica
+        DropdownButtonFormField<ExerciseType>(
+          value: _exerciseType,
+          decoration: InputDecoration(
+            labelText: 'Tipo de ejercicio',
+            border: OutlineInputBorder(),
+            helperText: 'Usado para ajustar incrementos y rangos de reps',
+          ),
+          items: ExerciseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayName))).toList(),
+          onChanged: (value) {
+            if (value != null) setState(() => _exerciseType = value);
+          },
         ),
       ],
     );
@@ -866,12 +1060,15 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         defaultSets: _formSets > 0 ? _formSets : null,
         defaultReps: _formReps > 0 ? _formReps : null,
         restTimeSeconds: _formRestTimeSeconds,
+        exerciseType: _exerciseType,
       );
 
       // Debug: saving exercise with default values
 
       if (widget.exerciseToEdit != null) {
         await ref.read(exerciseNotifierProvider.notifier).updateExercise(exercise);
+        // Save per-exercise progression params into active ProgressionConfig
+        await _savePerExerciseProgressionParams(exercise.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ejercicio actualizado correctamente'), backgroundColor: Colors.green),
@@ -913,6 +1110,61 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         });
       }
     }
+  }
+
+  Future<void> _savePerExerciseProgressionParams(String exerciseId) async {
+    try {
+      final config = await ref.read(progressionNotifierProvider.future);
+      if (config == null) return;
+
+      final Map<String, dynamic> updatedParams = Map<String, dynamic>.from(config.customParameters);
+      final Map<String, dynamic> perExercise = Map<String, dynamic>.from(
+        (updatedParams['per_exercise'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{},
+      );
+
+      final incMin = _parseNum(_multiIncMinController.text);
+      final incMax = _parseNum(_multiIncMaxController.text);
+      final repsMin = _parseInt(_multiRepsMinController.text);
+      final repsMax = _parseInt(_multiRepsMaxController.text);
+      final map = <String, dynamic>{
+        // Escribimos los mismos valores para multi_ e iso_ para simplificar la UI
+        'multi_increment_min': incMin,
+        'multi_increment_max': incMax,
+        'multi_reps_min': repsMin,
+        'multi_reps_max': repsMax,
+        'iso_increment_min': incMin,
+        'iso_increment_max': incMax,
+        'iso_reps_min': repsMin,
+        'iso_reps_max': repsMax,
+        'sets_min': _parseInt(_setsMinController.text),
+        'sets_max': _parseInt(_setsMaxController.text),
+        'target_rpe': _parseNum(_targetRpeController.text),
+        'increment_frequency': _parseInt(_incFreqController.text),
+      };
+      if (_perExerciseUnit != null) {
+        map['unit'] = _perExerciseUnit!.name;
+      }
+      map.removeWhere((key, value) => value == null);
+      perExercise[exerciseId] = map;
+
+      updatedParams['per_exercise'] = perExercise;
+
+      final updatedConfig = config.copyWith(customParameters: updatedParams, updatedAt: DateTime.now());
+
+      await ref.read(progressionServiceProvider.notifier).saveProgressionConfig(updatedConfig);
+    } catch (_) {}
+  }
+
+  num? _parseNum(String s) {
+    final t = s.trim();
+    if (t.isEmpty) return null;
+    return num.tryParse(t);
+  }
+
+  int? _parseInt(String s) {
+    final t = s.trim();
+    if (t.isEmpty) return null;
+    return int.tryParse(t);
   }
 
   Future<String> _resolveAndPersistImagePath() async {
@@ -959,4 +1211,38 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     } catch (_) {}
     return 'assets/images/default_exercise.png';
   }
+}
+
+// Visible for tests: construye el mapa per_exercise a partir de entradas del formulario
+@visibleForTesting
+Map<String, dynamic> buildPerExerciseOverrideMap({
+  num? incrementMin,
+  num? incrementMax,
+  int? repsMin,
+  int? repsMax,
+  int? setsMin,
+  int? setsMax,
+  num? targetRpe,
+  int? incrementFrequency,
+  ProgressionUnit? unit,
+}) {
+  final map = <String, dynamic>{
+    'multi_increment_min': incrementMin,
+    'multi_increment_max': incrementMax,
+    'multi_reps_min': repsMin,
+    'multi_reps_max': repsMax,
+    'iso_increment_min': incrementMin,
+    'iso_increment_max': incrementMax,
+    'iso_reps_min': repsMin,
+    'iso_reps_max': repsMax,
+    'sets_min': setsMin,
+    'sets_max': setsMax,
+    'target_rpe': targetRpe,
+    'increment_frequency': incrementFrequency,
+  };
+  if (unit != null) {
+    map['unit'] = unit.name;
+  }
+  map.removeWhere((k, v) => v == null);
+  return map;
 }

@@ -449,12 +449,143 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             ),
             const SizedBox(height: 16),
 
-            // Show type-specific parameters
+            // Defaults por tipo de ejercicio (multi/isolation)
+            ..._buildPerTypeDefaults(),
+            const SizedBox(height: 16),
+
+            // Parámetros específicos por tipo de progresión
             ..._buildTypeSpecificParameters(),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildPerTypeDefaults() {
+    final theme = Theme.of(context);
+    InputDecoration deco(String label, [String? helper]) =>
+        InputDecoration(labelText: label, helperText: helper, border: const OutlineInputBorder());
+
+    return [
+      Text('Valores por tipo de ejercicio', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+      const SizedBox(height: 8),
+      // MULTI-JOINT
+      Text('Multi-joint', style: theme.textTheme.bodyMedium),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['multi_increment_min'] ?? '2.5').toString(),
+              decoration: deco('multi_increment_min', 'kg mínimo por incremento'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['multi_increment_min'] = double.tryParse(v!.trim()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['multi_increment_max'] ?? '5.0').toString(),
+              decoration: deco('multi_increment_max', 'kg máximo por incremento'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['multi_increment_max'] = double.tryParse(v!.trim()),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['multi_reps_min'] ?? '15').toString(),
+              decoration: deco('multi_reps_min', 'reps mínimas'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['multi_reps_min'] = int.tryParse(v!.trim()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['multi_reps_max'] ?? '20').toString(),
+              decoration: deco('multi_reps_max', 'reps máximas'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['multi_reps_max'] = int.tryParse(v!.trim()),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+      // ISOLATION
+      Text('Isolation', style: theme.textTheme.bodyMedium),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['iso_increment_min'] ?? '1.25').toString(),
+              decoration: deco('iso_increment_min', 'kg mínimo por incremento'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['iso_increment_min'] = double.tryParse(v!.trim()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['iso_increment_max'] ?? '2.5').toString(),
+              decoration: deco('iso_increment_max', 'kg máximo por incremento'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['iso_increment_max'] = double.tryParse(v!.trim()),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['iso_reps_min'] ?? '8').toString(),
+              decoration: deco('iso_reps_min', 'reps mínimas'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['iso_reps_min'] = int.tryParse(v!.trim()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['iso_reps_max'] ?? '12').toString(),
+              decoration: deco('iso_reps_max', 'reps máximas'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['iso_reps_max'] = int.tryParse(v!.trim()),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+      // Commons
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['sets_min'] ?? '').toString(),
+              decoration: deco('sets_min', 'series mínimas por ejercicio'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['sets_min'] = int.tryParse((v ?? '').trim()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextFormField(
+              initialValue: (_customParameters['sets_max'] ?? '').toString(),
+              decoration: deco('sets_max', 'series máximas por ejercicio'),
+              keyboardType: TextInputType.number,
+              onSaved: (v) => _customParameters['sets_max'] = int.tryParse((v ?? '').trim()),
+            ),
+          ),
+        ],
+      ),
+    ];
   }
 
   List<Widget> _buildTypeSpecificParameters() {

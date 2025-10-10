@@ -115,6 +115,32 @@ flutter run
    - Soporte para español e inglés
    - Sistema de localización configurado
 
+### ✅ Sistema de Progresión Avanzado
+
+1. **Estrategias de Progresión Implementadas**
+   - **Linear**: Incremento constante de peso/repeticiones
+   - **Double**: Primero reps, luego peso
+   - **Undulating**: Alternancia entre días pesados y ligeros
+   - **Stepped**: Acumulación con deload periódico
+   - **Wave**: Ciclos de 3 semanas con diferentes intensidades
+   - **Static**: Mantiene valores constantes
+   - **Reverse**: Decremento progresivo
+   - **Autoregulated**: Basada en RPE/RIR
+   - **DoubleFactor**: Balance fitness-fatiga
+   - **Overload**: Sobrecarga progresiva
+   - **Default**: Sin cambios (fallback)
+
+2. **Parámetros Personalizados**
+   - Configuración individual por ejercicio
+   - Diferenciación multi-joint vs isolation
+   - Prioridad: per_exercise > global > defaults
+   - Unidades de progresión (sesión/semana/ciclo)
+
+3. **Lógica de Deload Unificada**
+   - baseWeight * deloadPercentage
+   - Aplicación consistente en todas las estrategias
+   - Preservación del progreso base
+
 ### 🚧 En Desarrollo
 
 1. **Funcionalidades de Entrenamiento**
@@ -216,6 +242,106 @@ class RoutineNotifier extends _$RoutineNotifier {
 class SessionNotifier extends _$SessionNotifier {
   // Gestión de sesiones
 }
+```
+
+## 🏗️ Arquitectura de Servicios de Progresión
+
+### Servicios Especializados
+
+El sistema de progresión ha sido refactorizado en servicios especializados para mejorar la mantenibilidad y testabilidad:
+
+#### 1. **ProgressionStateService**
+```dart
+class ProgressionStateService {
+  // Gestión de estados de progresión
+  Future<ProgressionState?> getProgressionStateByExercise(String configId, String exerciseId);
+  Future<void> saveProgressionState(ProgressionState state);
+  int detectStallWeeks(Map<String, dynamic> history);
+  Future<void> cleanupInactiveProgressionStates();
+}
+```
+
+#### 2. **ProgressionCalculationService**
+```dart
+class ProgressionCalculationService {
+  // Cálculos de progresión
+  ProgressionCalculationResult calculateProgression({
+    required ProgressionConfig config,
+    required ProgressionState state,
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+  });
+  (int session, int week) calculateNextSessionAndWeek(ProgressionConfig config, ProgressionState state);
+  double calculateNextBaseWeight(ProgressionConfig config, ProgressionState state, ProgressionCalculationResult result);
+}
+```
+
+#### 3. **ProgressionCoordinatorService**
+```dart
+class ProgressionCoordinatorService {
+  // Orquestación del proceso de progresión
+  Future<ProgressionCalculationResult> processProgression({
+    required ProgressionConfig config,
+    required String exerciseId,
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+  });
+}
+```
+
+#### 4. **ProgressionStrategyFactory**
+```dart
+class ProgressionStrategyFactory {
+  // Factory pattern para estrategias
+  static ProgressionStrategy fromType(ProgressionType type) {
+    switch (type) {
+      case ProgressionType.linear: return LinearProgressionStrategy();
+      case ProgressionType.double: return DoubleProgressionStrategy();
+      // ... otras estrategias
+      default: return DefaultProgressionStrategy();
+    }
+  }
+}
+```
+
+### Estrategias de Progresión
+
+Cada estrategia implementa la interfaz `ProgressionStrategy`:
+
+```dart
+abstract class ProgressionStrategy {
+  ProgressionCalculationResult calculate({
+    required ProgressionConfig config,
+    required ProgressionState state,
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+  });
+}
+```
+
+### Parámetros Personalizados
+
+El sistema soporta parámetros personalizados con la siguiente prioridad:
+
+1. **per_exercise**: Parámetros específicos por ejercicio
+2. **global**: Parámetros globales de configuración
+3. **defaults**: Valores por defecto del sistema
+
+```dart
+// Ejemplo de configuración personalizada
+final customParams = {
+  'per_exercise': {
+    'exercise_123': {
+      'multi_increment_min': 2.5,
+      'multi_increment_max': 5.0,
+      'multi_reps_min': 8,
+      'multi_reps_max': 12,
+    }
+  }
+};
 ```
 
 ## 📊 Sistema de Exportación

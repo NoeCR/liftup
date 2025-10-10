@@ -56,6 +56,15 @@ class Exercise extends Equatable {
   @HiveField(15)
   final int? restTimeSeconds;
 
+  @HiveField(16)
+  final DateTime? lastPerformedAt;
+
+  @HiveField(17)
+  final bool isProgressionLocked;
+
+  @HiveField(18)
+  final ExerciseType exerciseType;
+
   const Exercise({
     required this.id,
     required this.name,
@@ -73,6 +82,9 @@ class Exercise extends Equatable {
     this.defaultSets,
     this.defaultReps,
     this.restTimeSeconds,
+    this.lastPerformedAt,
+    this.isProgressionLocked = false,
+    this.exerciseType = ExerciseType.multiJoint,
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
@@ -95,6 +107,9 @@ class Exercise extends Equatable {
     int? defaultSets,
     int? defaultReps,
     int? restTimeSeconds,
+    DateTime? lastPerformedAt,
+    bool? isProgressionLocked,
+    ExerciseType? exerciseType,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -113,6 +128,9 @@ class Exercise extends Equatable {
       defaultSets: defaultSets ?? this.defaultSets,
       defaultReps: defaultReps ?? this.defaultReps,
       restTimeSeconds: restTimeSeconds ?? this.restTimeSeconds,
+      lastPerformedAt: lastPerformedAt ?? this.lastPerformedAt,
+      isProgressionLocked: isProgressionLocked ?? this.isProgressionLocked,
+      exerciseType: exerciseType ?? this.exerciseType,
     );
   }
 
@@ -134,6 +152,9 @@ class Exercise extends Equatable {
     defaultSets,
     defaultReps,
     restTimeSeconds,
+    lastPerformedAt,
+    isProgressionLocked,
+    exerciseType,
   ];
 }
 
@@ -208,4 +229,18 @@ enum ExerciseDifficulty {
   intermediate,
   @HiveField(2)
   advanced,
+}
+
+@HiveType(typeId: 25)
+enum ExerciseType {
+  @HiveField(0)
+  multiJoint('Multi-joint', 'Exercises involving multiple joints'),
+
+  @HiveField(1)
+  isolation('Isolation', 'Exercises focusing on a specific muscle group');
+
+  const ExerciseType(this.displayName, this.description);
+
+  final String displayName;
+  final String description;
 }

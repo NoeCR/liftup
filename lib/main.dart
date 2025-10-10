@@ -1,14 +1,16 @@
 import 'dart:ui';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:easy_localization/easy_localization.dart';
-import 'core/navigation/app_router.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 import 'common/themes/app_theme.dart';
 import 'core/database/database_service.dart';
 import 'core/database/hive_adapters.dart';
 import 'core/logging/logging.dart';
+import 'core/navigation/app_router.dart';
 import 'features/progression/services/progression_template_service.dart';
 
 void main() async {
@@ -26,17 +28,25 @@ void main() async {
 
 /// Runs after Sentry has been initialized successfully
 void _runApp() async {
+  print('Starting _runApp()');
+
   // Initialize logging service
+  print('Initializing LoggingService');
   LoggingService.instance.initialize();
+  print('LoggingService initialized');
 
   // Initialize user context service
+  print('Initializing UserContextService');
   await UserContextService.instance.initialize();
+  print('UserContextService initialized');
 
   // Configure Sentry alerts and metrics
+  print('Configuring Sentry');
   if (SentryDsnConfig.isAlertsEnabled) {
     SentryAlertsConfig.configureAlerts();
   }
   await SentryMetricsConfig.initialize();
+  print('Sentry configured');
 
   // Start metrics and health monitoring when enabled
   if (SentryDsnConfig.isMetricsMonitoringEnabled) {
@@ -48,13 +58,19 @@ void _runApp() async {
   _setupGlobalErrorHandling();
 
   // Initialize Hive and register adapters once
+  print('Initializing Hive');
   await Hive.initFlutter();
   HiveAdapters.registerAdapters();
+  print('Hive initialized');
 
   // Initialize database singleton before running the app
   try {
-    await DatabaseService.getInstance().initialize();
-    LoggingService.instance.info('Database initialized successfully');
+    print('About to initialize DatabaseService');
+    print('DatabaseService instance created');
+    final dbService = DatabaseService.getInstance();
+    print('Calling initialize method');
+    await dbService.initialize();
+    print('Database initialized successfully');
 
     // Initialize progression templates
     try {
@@ -69,11 +85,11 @@ void _runApp() async {
       });
     }
   } catch (e, stackTrace) {
-    LoggingService.instance.error('Error initializing database', e, stackTrace, {
-      'component': 'database_initialization',
-    });
+    print('Error initializing database: $e');
+    print('Stack trace: $stackTrace');
     // If initialization fails, show error but do not auto-reset
-    LoggingService.instance.warning('Database initialization failed. User can manually reset from settings if needed.');
+    print('Database initialization failed. User can manually reset from settings if needed.');
+    rethrow; // Re-throw to prevent app from running with broken database
   }
 
   runApp(

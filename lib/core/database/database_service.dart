@@ -1,11 +1,13 @@
 import 'dart:io';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import '../logging/logging.dart';
-import 'i_database_service.dart';
+
 import '../../features/progression/models/progression_config.dart';
 import '../../features/progression/models/progression_state.dart';
 import '../../features/progression/models/progression_template.dart';
+import '../logging/logging.dart';
+import 'i_database_service.dart';
 
 class DatabaseService implements IDatabaseService {
   static DatabaseService? _instance;
@@ -35,38 +37,27 @@ class DatabaseService implements IDatabaseService {
   // Initialize the database service
   @override
   Future<void> initialize() async {
+    print('DatabaseService.initialize() called - isInitialized: $_isInitialized');
+
     if (!_isInitialized) {
-      return await PerformanceMonitor.instance.monitorAsync('database_initialize', () async {
-        LoggingService.instance.info('Initializing DatabaseService');
+      try {
+        print('Starting DatabaseService initialization');
         await _initializeHive();
         _isInitialized = true;
-        LoggingService.instance.info('DatabaseService initialized successfully');
-
-        // Record successful initialization metric
-        SentryMetricsConfig.trackDatabaseOperation(
-          operation: 'initialize',
-          durationMs: 0, // Will be computed automatically by PerformanceMonitor
-          success: true,
-        );
-      }, context: {'component': 'database_service'});
+        print('DatabaseService initialized successfully - isInitialized: $_isInitialized');
+      } catch (e, stackTrace) {
+        print('Error initializing DatabaseService: $e');
+        print('Stack trace: $stackTrace');
+        rethrow;
+      }
+    } else {
+      print('DatabaseService already initialized');
     }
   }
 
   Future<void> _initializeHive() async {
     try {
-      LoggingService.instance.debug('Opening Hive boxes', {
-        'boxes': [
-          _exercisesBox,
-          _routinesBox,
-          _sessionsBox,
-          _progressBox,
-          _settingsBox,
-          _routineSectionTemplatesBox,
-          _progressionConfigsBox,
-          _progressionStatesBox,
-          _progressionTemplatesBox,
-        ],
-      });
+      print('Opening Hive boxes...');
 
       // List of all box names
       final boxNames = [
@@ -80,6 +71,8 @@ class DatabaseService implements IDatabaseService {
         _progressionStatesBox,
         _progressionTemplatesBox,
       ];
+
+      print('Box names: $boxNames');
 
       // Open boxes that are not already open with correct types
       final openPromises = <Future>[];
@@ -113,9 +106,10 @@ class DatabaseService implements IDatabaseService {
       }
 
       // Verify all boxes are open and accessible
-      LoggingService.instance.info('All Hive boxes initialized successfully');
+      print('All Hive boxes initialized successfully - boxes opened: ${boxNames.length}');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error opening Hive boxes', e, stackTrace, {'component': 'hive_initialization'});
+      print('Error opening Hive boxes: $e');
+      print('Stack trace: $stackTrace');
 
       // If there's an error, clear all data and try again
       LoggingService.instance.warning('Attempting to clear and reinitialize boxes');
