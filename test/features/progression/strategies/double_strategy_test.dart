@@ -8,11 +8,7 @@ void main() {
   group('DoubleProgressionStrategy', () {
     final strategy = DoubleProgressionStrategy();
 
-    ProgressionConfig config({
-      double increment = 2.5,
-      int cycle = 4,
-      int deloadWeek = 0,
-    }) {
+    ProgressionConfig config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -35,11 +31,7 @@ void main() {
       );
     }
 
-    ProgressionState state({
-      int session = 1,
-      int reps = 10,
-      double weight = 100,
-    }) {
+    ProgressionState state({int session = 1, int reps = 10, double weight = 100}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',

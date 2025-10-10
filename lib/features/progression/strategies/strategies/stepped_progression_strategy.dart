@@ -61,6 +61,18 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     ExerciseType? exerciseType,
     bool isExerciseLocked = false,
   }) {
+    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: currentReps,
+        newSets: currentSets,
+        incrementApplied: false,
+        isDeload: false,
+        reason: 'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+      );
+    }
+
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
@@ -79,7 +91,7 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     return ProgressionCalculationResult(
       newWeight: state.baseWeight + totalIncrement,
       newReps: currentReps,
-      newSets: currentSets,
+      newSets: state.baseSets, // Ensure sets recover to base after deload
       incrementApplied: true,
       reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );

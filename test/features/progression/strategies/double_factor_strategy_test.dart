@@ -478,5 +478,22 @@ void main() {
       expect(increasingWeightReasons, greaterThanOrEqualTo(3)); // Debe haber al menos 3 semanas incrementando peso
       expect(deloadReasons, equals(3)); // Exactamente 3 deloads
     });
+
+    test('blocks progression when exercise is locked', () {
+      final res = strategy.calculate(
+        config: config,
+        state: state,
+        routineId: 'test-routine',
+        currentWeight: 70.0,
+        currentReps: 6,
+        currentSets: 3,
+        isExerciseLocked: true,
+      );
+      expect(res.incrementApplied, false);
+      expect(res.newWeight, 70.0);
+      expect(res.newReps, 6);
+      expect(res.newSets, 3);
+      expect(res.reason, contains('blocked'));
+    });
   });
 }

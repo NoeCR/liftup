@@ -84,5 +84,24 @@ void main() {
       expect(res.newWeight, closeTo(108.0, 0.0001)); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
       expect(res.newSets, 3);
     });
+
+    test('blocks progression when exercise is locked', () {
+      final cfg = config();
+      final st = state();
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+        isExerciseLocked: true,
+      );
+      expect(res.incrementApplied, false);
+      expect(res.newWeight, 100);
+      expect(res.newReps, 10);
+      expect(res.newSets, 4);
+      expect(res.reason, contains('blocked'));
+    });
   });
 }

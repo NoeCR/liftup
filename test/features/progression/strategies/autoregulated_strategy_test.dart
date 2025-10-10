@@ -99,5 +99,24 @@ void main() {
       expect(res.newWeight, 98.75);
       expect(res.newReps, 8);
     });
+
+    test('blocks progression when exercise is locked', () {
+      final cfg = config();
+      final st = state();
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+        isExerciseLocked: true,
+      );
+      expect(res.incrementApplied, false);
+      expect(res.newWeight, 100);
+      expect(res.newReps, 10);
+      expect(res.newSets, 4);
+      expect(res.reason, contains('blocked'));
+    });
   });
 }
