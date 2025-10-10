@@ -56,8 +56,7 @@ import '../progression_strategy.dart';
 /// - Más compleja de implementar
 /// - Dependiente de la autoevaluación del atleta
 /// - Puede ser inconsistente entre sesiones
-class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -70,20 +69,14 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: false,
         isDeload: false,
-        reason:
-            'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -92,14 +85,7 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(
-        config,
-        state,
-        currentWeight,
-        currentReps,
-        currentSets,
-        currentInCycle,
-      );
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
     }
 
     // 1. Aplicar lógica específica de progresión autoregulada
@@ -108,15 +94,10 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     final targetReps = _getTargetReps(config);
     final maxReps = getMaxReps(config, exerciseType: exerciseType);
     final minReps = getMinReps(config, exerciseType: exerciseType);
-    final incrementValue = getIncrementValue(
-      config,
-      exerciseType: exerciseType,
-    );
+    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
 
-    final lastSessionData =
-        state.sessionHistory['session_${state.currentSession}'];
-    final performedReps =
-        (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
+    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
+    final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
 
     double estimatedRPE;
     if (performedReps >= targetReps) {
@@ -138,10 +119,7 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     } else if (estimatedRPE > targetRPE + rpeThreshold) {
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
       return ProgressionCalculationResult(
-        newWeight: (currentWeight - incrementValue * 0.5).clamp(
-          0,
-          currentWeight,
-        ),
+        newWeight: (currentWeight - incrementValue * 0.5).clamp(0, currentWeight),
         newReps: adjustedReps,
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
@@ -175,22 +153,16 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     int currentSets,
     int currentInCycle,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-      0,
-      double.infinity,
-    );
-    final double deloadWeight =
-        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets:
-          (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
-      reason:
-          'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
 

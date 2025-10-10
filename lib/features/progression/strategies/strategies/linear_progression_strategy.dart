@@ -42,7 +42,8 @@ import '../progression_strategy.dart';
 /// - Puede volverse insostenible a largo plazo
 /// - No considera fatiga acumulada
 /// - Puede llevar a estancamiento
-class LinearProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class LinearProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -55,14 +56,21 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: currentSets,
+        newSets:
+            state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: false,
         isDeload: false,
-        reason: 'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -71,20 +79,31 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      return _applyDeload(
+        config,
+        state,
+        currentWeight,
+        currentReps,
+        currentSets,
+        currentInCycle,
+      );
     }
 
     // 1. Aplicar lógica específica de progresión lineal
     if (currentInCycle % config.incrementFrequency == 0) {
       // Obtener incremento apropiado según parámetros personalizados y tipo de ejercicio
-      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+      final incrementValue = getIncrementValue(
+        config,
+        exerciseType: exerciseType,
+      );
 
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: currentReps,
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
-        reason: 'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       return ProgressionCalculationResult(
@@ -92,7 +111,8 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
         newReps: currentReps,
         newSets: state.baseSets, // Use baseSets to recover from deload
         incrementApplied: false,
-        reason: 'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
       );
     }
   }
@@ -107,16 +127,22 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     int currentInCycle,
   ) {
     // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newSets:
+          (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
-      reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      reason:
+          'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
 }

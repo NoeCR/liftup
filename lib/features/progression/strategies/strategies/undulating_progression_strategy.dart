@@ -73,7 +73,8 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: currentSets,
+        newSets:
+            state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: false,
         isDeload: false,
         reason:
@@ -112,7 +113,8 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
           math.min(minReps, currentReps),
           currentReps,
         ),
-        newSets: currentSets,
+        newSets:
+            state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: true,
         reason:
             'Undulating progression: heavy day +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
@@ -123,7 +125,8 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
       return ProgressionCalculationResult(
         newWeight: (currentWeight - incrementValue).clamp(0, currentWeight),
         newReps: ((currentReps * 1.15).round()).clamp(minReps, 1000),
-        newSets: currentSets,
+        newSets:
+            state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: true,
         reason:
             'Undulating progression: light day -${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',

@@ -75,7 +75,8 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: currentSets,
+        newSets:
+            state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: false,
         isDeload: false,
         reason:
