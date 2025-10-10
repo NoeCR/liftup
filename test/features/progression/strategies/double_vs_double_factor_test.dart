@@ -24,10 +24,7 @@ void main() {
         cycleLength: 4,
         deloadWeek: 0,
         deloadPercentage: 0.8,
-        customParameters: const {
-          'min_reps': 6,
-          'max_reps': 10,
-        },
+        customParameters: const {'min_reps': 6, 'max_reps': 10},
         startDate: now,
         endDate: null,
         isActive: true,
@@ -246,10 +243,10 @@ void main() {
 
       print('\n=== COMPARACIÓN 6 SEMANAS ===');
       print('Double Progression (secuencial):');
-      
+
       var weight = 80.0;
       var reps = 6;
-      
+
       for (int week = 1; week <= 6; week++) {
         final result = doubleStrategy.calculate(
           config: sixWeekConfig,
@@ -259,18 +256,18 @@ void main() {
           currentReps: reps,
           currentSets: 3,
         );
-        
+
         weight = result.newWeight;
         reps = result.newReps;
-        
+
         print('Semana $week: ${weight}kg x $reps reps - ${result.reason}');
       }
 
       print('\nDouble Factor (alternado):');
-      
+
       weight = 80.0;
       reps = 6;
-      
+
       for (int week = 1; week <= 6; week++) {
         final result = doubleFactorStrategy.calculate(
           config: sixWeekConfig,
@@ -280,10 +277,10 @@ void main() {
           currentReps: reps,
           currentSets: 3,
         );
-        
+
         weight = result.newWeight;
         reps = result.newReps;
-        
+
         print('Semana $week: ${weight}kg x $reps reps - ${result.reason}');
       }
     });

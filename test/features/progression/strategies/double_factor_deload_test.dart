@@ -53,13 +53,13 @@ void main() {
       );
     });
 
-    test('deload se aplica solo en semanas pares', () {
+    test('deload se aplica cuando se alcanza la semana configurada', () {
       final strategy = DoubleFactorProgressionStrategy();
 
-      // Semana 3 (impar) - NO debe aplicar deload aunque sea deloadWeek
-      final configOddDeload = config.copyWith(deloadWeek: 3);
+      // Semana 3 - debe aplicar deload si está configurado para semana 3
+      final configWeek3Deload = config.copyWith(deloadWeek: 3);
       var result = strategy.calculate(
-        config: configOddDeload,
+        config: configWeek3Deload,
         state: state.copyWith(currentWeek: 3),
         routineId: 'test-routine',
         currentWeight: 85.0,
@@ -67,11 +67,11 @@ void main() {
         currentSets: 3,
       );
 
-      // No debe ser deload, debe continuar con progresión normal
-      expect(result.isDeload, false);
-      expect(result.reason, contains('increasing weight')); // Semana impar
+      // Debe ser deload porque alcanzó la semana 3
+      expect(result.isDeload, true);
+      expect(result.reason, contains('deload'));
 
-      // Semana 4 (par) - SÍ debe aplicar deload
+      // Semana 4 - debe aplicar deload si está configurado para semana 4
       result = strategy.calculate(
         config: config,
         state: state.copyWith(currentWeek: 4),
@@ -179,9 +179,7 @@ void main() {
         final isDeload = result.isDeload;
         final deloadMark = isDeload ? ' [DELOAD]' : '';
 
-        print(
-          'Semana $week: ${weight}kg x $reps reps x $sets sets$deloadMark - ${result.reason}',
-        );
+        print('Semana $week: ${weight}kg x $reps reps x $sets sets$deloadMark - ${result.reason}');
       }
 
       // Verificar que el deload se aplicó correctamente
@@ -189,11 +187,11 @@ void main() {
       // Los sets se restauran después del deload, no se mantienen reducidos
     });
 
-    test('deload no se aplica si la semana deload es impar', () {
+    test('deload se aplica independientemente de si la semana es par o impar', () {
       final strategy = DoubleFactorProgressionStrategy();
       final configOddDeload = config.copyWith(deloadWeek: 3); // Semana impar
 
-      // Semana 3 (impar) - NO debe aplicar deload
+      // Semana 3 (impar) - SÍ debe aplicar deload porque alcanzó la semana configurada
       final result = strategy.calculate(
         config: configOddDeload,
         state: state.copyWith(currentWeek: 3),
@@ -203,19 +201,13 @@ void main() {
         currentSets: 3,
       );
 
-      expect(result.isDeload, false);
-      expect(
-        result.reason,
-        contains('increasing weight'),
-      ); // Continúa progresión normal
+      expect(result.isDeload, true);
+      expect(result.reason, contains('deload')); // Aplica deload
     });
 
     test('deload se aplica correctamente en semana 6 (par)', () {
       final strategy = DoubleFactorProgressionStrategy();
-      final config6Weeks = config.copyWith(
-        cycleLength: 6,
-        deloadWeek: 6,
-      ); // Semana par
+      final config6Weeks = config.copyWith(cycleLength: 6, deloadWeek: 6); // Semana par
 
       // Semana 6 (par) - SÍ debe aplicar deload
       final result = strategy.calculate(

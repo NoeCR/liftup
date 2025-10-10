@@ -405,7 +405,7 @@ void main() {
             // En Double Factor: semanas impares incrementan peso, pares incrementan reps
             final weekNumber = i + 1;
             final isOddWeek = weekNumber % 2 == 1;
-            
+
             if (isOddWeek) {
               // Semana impar: debe incrementar peso, reps se mantienen o se ajustan al rango
               expect(currentWeight, greaterThanOrEqualTo(prevWeight));

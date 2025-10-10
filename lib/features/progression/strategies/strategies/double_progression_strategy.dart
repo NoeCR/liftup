@@ -113,5 +113,4 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
       );
     }
   }
-
 }

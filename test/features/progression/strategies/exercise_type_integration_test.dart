@@ -125,10 +125,10 @@ void main() {
     });
 
     group('DoubleFactorProgressionStrategy', () {
-      test('usa max_reps multi para ejercicios multi-joint', () {
+      test('incrementa peso en semana impar para ejercicios multi-joint', () {
         final strategy = DoubleFactorProgressionStrategy();
 
-        // Configurar reps en el máximo para multi-joint
+        // Semana 1 (impar) - debería incrementar peso
         final result = strategy.calculate(
           config: config,
           state: state,
@@ -140,15 +140,15 @@ void main() {
         );
 
         expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
-        expect(result.newReps, 3); // multi_reps_min
+        expect(result.newReps, 8); // Reps se mantienen (semana impar)
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+5.0kg'));
+        expect(result.reason, contains('increasing weight'));
       });
 
-      test('usa max_reps iso para ejercicios isolation', () {
+      test('incrementa peso en semana impar para ejercicios isolation', () {
         final strategy = DoubleFactorProgressionStrategy();
 
-        // Configurar reps en el máximo para isolation
+        // Semana 1 (impar) - debería incrementar peso
         final result = strategy.calculate(
           config: config,
           state: state,
@@ -160,17 +160,20 @@ void main() {
         );
 
         expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
-        expect(result.newReps, 8); // iso_reps_min
+        expect(result.newReps, 15); // Reps se mantienen (semana impar)
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+1.25kg'));
+        expect(result.reason, contains('increasing weight'));
       });
 
       test('incrementa reps dentro del rango multi-joint', () {
         final strategy = DoubleFactorProgressionStrategy();
 
+        // Usar semana 2 (par) para que incremente reps
+        final stateWeek2 = state.copyWith(currentWeek: 2);
+
         final result = strategy.calculate(
           config: config,
-          state: state,
+          state: stateWeek2,
           routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 5, // Dentro del rango multi-joint (3-8)
@@ -187,9 +190,12 @@ void main() {
       test('incrementa reps dentro del rango isolation', () {
         final strategy = DoubleFactorProgressionStrategy();
 
+        // Usar semana 2 (par) para que incremente reps
+        final stateWeek2 = state.copyWith(currentWeek: 2);
+
         final result = strategy.calculate(
           config: config,
-          state: state,
+          state: stateWeek2,
           routineId: 'test-routine',
           currentWeight: 100.0,
           currentReps: 10, // Dentro del rango isolation (8-15)

@@ -148,10 +148,10 @@ void main() {
     });
 
     group('Consistencia en detección de deload', () {
-      test('todas las estrategias detectan deload de la misma manera', () {
+      test('todas las estrategias detectan deload de la misma manera (excepto Double Factor)', () {
+        // Double Factor tiene su propia lógica de deload, se excluye de este test
         final strategies = <BaseProgressionStrategy>[
           LinearProgressionStrategy(),
-          DoubleFactorProgressionStrategy(),
           UndulatingProgressionStrategy(),
           SteppedProgressionStrategy(),
           WaveProgressionStrategy(),
@@ -178,6 +178,16 @@ void main() {
             );
           }
         }
+      });
+
+      test('Double Factor tiene su propia lógica de deload', () {
+        final strategy = DoubleFactorProgressionStrategy();
+        
+        // Double Factor aplica deload cuando se alcanza la semana configurada
+        expect(strategy.isDeloadPeriod(config, 1), false);
+        expect(strategy.isDeloadPeriod(config, 2), false);
+        expect(strategy.isDeloadPeriod(config, 3), true); // Alcanzó deloadWeek
+        expect(strategy.isDeloadPeriod(config, 4), true); // >= deloadWeek
       });
     });
 
