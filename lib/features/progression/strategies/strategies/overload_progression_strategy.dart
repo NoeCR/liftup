@@ -126,7 +126,7 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy implements Pro
       newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
-      shouldResetCycle: true, // Reiniciar ciclo después del deload
+      shouldResetCycle: false, // Overload progression no reinicia ciclo - es sobrecarga progresiva
       reason: 'Overload progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }

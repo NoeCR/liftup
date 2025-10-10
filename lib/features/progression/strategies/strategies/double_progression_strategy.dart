@@ -85,7 +85,7 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
         newSets: deloadSets,
         incrementApplied: true,
         isDeload: true,
-        shouldResetCycle: true, // Reiniciar ciclo después del deload
+        shouldResetCycle: false, // Double progression no reinicia ciclo - es progresión secuencial
         reason: 'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
       );
     }

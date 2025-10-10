@@ -9,7 +9,8 @@
 6. [Finalización de Sesión](#6-finalización-de-sesión)
 7. [Opciones de Bloqueo de Progresión](#7-opciones-de-bloqueo-de-progresión)
 8. [Estrategias de Progresión Detalladas](#8-estrategias-de-progresión-detalladas)
-9. [Visualización de Valores en Ejercicios (UI)](#9-visualización-de-valores-en-ejercicios-ui)
+9. [Sistema de Reinicio de Ciclo (shouldResetCycle)](#9-sistema-de-reinicio-de-ciclo-shouldresetcycle)
+10. [Visualización de Valores en Ejercicios (UI)](#10-visualización-de-valores-en-ejercicios-ui)
 
 ---
 
@@ -777,6 +778,8 @@ ProgressionCalculationResult _applyDeload(
 - [ ] Stepped: Acumulación y deload funcionan
 - [ ] Deloads: Se aplican en la semana correcta
 - [ ] Bloqueos: Previenen progresión correctamente
+- [ ] **shouldResetCycle**: Estrategias con fases reinician ciclo correctamente
+- [ ] **shouldResetCycle**: Estrategias constantes NO reinician ciclo
 
 #### **8. Persistencia**
 - [ ] ProgressionState se guarda por ejercicio-rutina
@@ -793,6 +796,9 @@ ProgressionCalculationResult _applyDeload(
 5. **Cambio de estrategia**: Verificar transición correcta
 6. **Sesión interrumpida**: Verificar que no se aplica progresión
 7. **Ejercicio sin progresión**: Verificar que usa valores por defecto
+8. **shouldResetCycle**: Verificar que Double Factor reinicia ciclo después del deload
+9. **shouldResetCycle**: Verificar que Linear NO reinicia ciclo después del deload
+10. **shouldResetCycle**: Verificar que el historial registra correctamente el reinicio de ciclo
 
 ---
 
@@ -823,12 +829,131 @@ Este flujo garantiza que:
 - ✅ Los bloqueos funcionan en ambos niveles
 - ✅ Los deloads preservan el progreso base
 - ✅ La persistencia mantiene el estado correctamente
+- ✅ **shouldResetCycle** permite control preciso del reinicio de ciclo por estrategia
+- ✅ **shouldResetCycle** diferencia entre estrategias con fases y estrategias constantes
 
 El sistema está completamente funcional y listo para pruebas manuales exhaustivas.
 
 ---
 
-## 9. Visualización de Valores en Ejercicios (UI)
+## 9. Sistema de Reinicio de Ciclo (shouldResetCycle)
+
+### 🎯 **Funcionalidad de Reinicio de Ciclo**
+
+#### **9.1 Concepto**
+El sistema `shouldResetCycle` permite que las estrategias de progresión indiquen cuándo debe reiniciarse el ciclo de progresión después de un deload. Esto es crucial para estrategias que tienen fases específicas o patrones cíclicos.
+
+#### **9.2 Estrategias que SÍ reinician ciclo (`shouldResetCycle: true`)**
+- **Double Factor Progression**: Alterna peso/reps por semana, necesita reiniciar para empezar como "semana 1" (impar)
+- **Stepped Progression**: Tiene fases de acumulación específicas, necesita reiniciar la fase
+- **Wave Progression**: Tiene fases específicas (alta intensidad, alto volumen, deload), necesita volver a la fase inicial
+
+#### **9.3 Estrategias que NO reinician ciclo (`shouldResetCycle: false`)**
+- **Linear Progression**: Progresión constante, el deload es solo una reducción temporal
+- **Double Progression**: Progresión secuencial (reps → peso), debe continuar la secuencia
+- **Undulating Progression**: Alterna días pesados/ligeros, debe continuar el patrón
+- **Autoregulated Progression**: Basada en RPE, debe continuar la lógica de autoregulación
+- **Overload Progression**: Basada en sobrecarga progresiva, debe continuar la progresión
+- **Reverse Progression**: Progresión inversa constante, debe continuar la progresión
+
+#### **9.4 Implementación en ProgressionCalculationResult**
+```dart
+class ProgressionCalculationResult extends Equatable {
+  final double newWeight;
+  final int newReps;
+  final int newSets;
+  final bool incrementApplied;
+  final bool isDeload;
+  final bool shouldResetCycle; // ✅ Nuevo campo
+  final String reason;
+
+  const ProgressionCalculationResult({
+    required this.newWeight,
+    required this.newReps,
+    required this.newSets,
+    required this.incrementApplied,
+    this.isDeload = false,
+    this.shouldResetCycle = false, // ✅ Valor por defecto
+    required this.reason,
+  });
+}
+```
+
+#### **9.5 Procesamiento en ProgressionService**
+```dart
+// En calculateProgression()
+final result = strategy.calculate(/* ... */);
+
+// Handle cycle reset if strategy indicates it
+final nextCycle = result.shouldResetCycle ? state.currentCycle + 1 : state.currentCycle;
+final nextWeek = result.shouldResetCycle ? 1 : newWeek;
+final nextSession = result.shouldResetCycle ? 1 : newSession;
+
+// Update progression state
+final updatedState = state.copyWith(
+  currentWeight: result.newWeight,
+  currentReps: result.newReps,
+  currentSets: nextCurrentSets,
+  currentSession: nextSession,
+  currentWeek: nextWeek,
+  currentCycle: nextCycle, // ✅ Usar nextCycle
+  lastUpdated: DateTime.now(),
+  baseWeight: nextBaseWeight,
+  baseReps: result.newReps,
+  baseSets: nextBaseSets,
+  isDeloadWeek: result.isDeload,
+  sessionHistory: {
+    ...state.sessionHistory,
+    'session_$nextSession': {
+      'weight': result.newWeight,
+      'reps': result.newReps,
+      'sets': result.newSets,
+      'date': DateTime.now().toIso8601String(),
+      'increment_applied': result.incrementApplied,
+      'cycle_reset': result.shouldResetCycle, // ✅ Añadir al historial
+    },
+  },
+  customData: {},
+);
+```
+
+#### **9.6 Ejemplo: Double Factor Progression**
+```dart
+// En _applyDeload()
+return ProgressionCalculationResult(
+  newWeight: deloadWeight,
+  newReps: deloadReps,
+  newSets: (state.baseSets * 0.7).round(),
+  incrementApplied: true,
+  isDeload: true,
+  shouldResetCycle: true, // ✅ Reiniciar ciclo después del deload
+  reason: 'Double factor progression: deload week $currentInCycle of ${config.cycleLength} (weight: ${deloadWeight.toStringAsFixed(1)}kg, reps: $deloadReps). Next cycle starts as week 1 (odd) for weight increment.',
+);
+```
+
+#### **9.7 Ejemplo: Linear Progression**
+```dart
+// En _applyDeload()
+return ProgressionCalculationResult(
+  newWeight: deloadWeight,
+  newReps: currentReps,
+  newSets: (state.baseSets * 0.7).round(),
+  incrementApplied: true,
+  isDeload: true,
+  shouldResetCycle: false, // ✅ NO reiniciar ciclo - es progresión constante
+  reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+);
+```
+
+### ✅ **Beneficios del Sistema**
+- **Precisión**: Cada estrategia controla su propio comportamiento de ciclo
+- **Flexibilidad**: Permite diferentes patrones de progresión
+- **Consistencia**: Unifica el manejo de reinicio de ciclo
+- **Mantenibilidad**: Fácil de entender y modificar
+
+---
+
+## 10. Visualización de Valores en Ejercicios (UI)
 
 ### 🎯 Objetivo
 Mostrar en las tarjetas de ejercicio los valores correctos según el contexto:

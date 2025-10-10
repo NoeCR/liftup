@@ -128,7 +128,7 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
       newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
-      shouldResetCycle: true, // Reiniciar ciclo después del deload
+      shouldResetCycle: false, // Reverse progression no reinicia ciclo - es progresión inversa constante
       reason: 'Reverse progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
     );
   }
