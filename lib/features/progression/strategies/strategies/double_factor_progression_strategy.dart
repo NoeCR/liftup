@@ -81,7 +81,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
       // Incrementar repeticiones si no hemos llegado al máximo
       return ProgressionCalculationResult(
         newWeight: currentWeight,
-        newReps: currentReps + 1,
+        newReps: currentReps < minReps ? minReps : currentReps + 1,
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
         reason: 'Double factor progression: increasing reps (week $currentInCycle of ${config.cycleLength})',

@@ -8,7 +8,11 @@ void main() {
   group('DoubleProgressionStrategy', () {
     final strategy = DoubleProgressionStrategy();
 
-    ProgressionConfig config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
+    ProgressionConfig config({
+      double increment = 2.5,
+      int cycle = 4,
+      int deloadWeek = 0,
+    }) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -31,7 +35,11 @@ void main() {
       );
     }
 
-    ProgressionState state({int session = 1, int reps = 10, double weight = 100}) {
+    ProgressionState state({
+      int session = 1,
+      int reps = 10,
+      double weight = 100,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -85,6 +93,25 @@ void main() {
       expect(res.incrementApplied, true);
       expect(res.newWeight, 102.5);
       expect(res.newReps, 8);
+    });
+
+    test('blocks progression when exercise is locked', () {
+      final cfg = config();
+      final st = state();
+      final res = strategy.calculate(
+        config: cfg,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 100,
+        currentReps: 10,
+        currentSets: 4,
+        isExerciseLocked: true,
+      );
+      expect(res.incrementApplied, false);
+      expect(res.newWeight, 100);
+      expect(res.newReps, 10);
+      expect(res.newSets, 4);
+      expect(res.reason, contains('blocked'));
     });
   });
 }
