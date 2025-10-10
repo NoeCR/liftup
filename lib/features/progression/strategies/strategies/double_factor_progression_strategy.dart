@@ -5,54 +5,50 @@ import '../../models/progression_state.dart';
 import '../base_progression_strategy.dart';
 import '../progression_strategy.dart';
 
-/// Estrategia de Progresión Doble Factor (Doble Progresión)
+/// Estrategia de Progresión Doble Factor (Double Factor)
 ///
-/// Esta estrategia implementa la doble progresión (double progression), una estrategia
-/// muy usada en fuerza e hipertrofia que controla dos variables clave: repeticiones y peso.
-/// Primero se incrementan las repeticiones dentro de un rango objetivo, y cuando se alcanza
-/// el máximo de repeticiones en todas las series, se incrementa el peso y se resetea al mínimo.
+/// Esta estrategia implementa la progresión "Double Factor", donde se manipulan
+/// dos variables simultáneamente o de forma alternada: peso y repeticiones.
+/// A diferencia de la doble progresión clásica (secuencial), aquí ambas variables
+/// pueden progresar en la misma sesión o alternarse entre sesiones.
 ///
 /// **Fundamentos teóricos:**
-/// - Basada en el concepto de "double progression" de la literatura de entrenamiento
-/// - Controla volumen (reps) e intensidad (peso) de manera sistemática
-/// - Reduce el riesgo de estancamiento al no depender solo del peso
-/// - Permite adaptación técnica antes de incrementar peso
-/// - Ideal para ejercicios de fuerza-hipertrofia
+/// - Basada en el concepto de "double factor progression" de la literatura avanzada
+/// - Manipula dos variables simultáneamente para mayor estímulo de adaptación
+/// - Permite progresión más rápida pero requiere mayor control de fatiga
+/// - Ideal para atletas intermedios/avanzados con experiencia en autoregulación
+/// - Requiere monitoreo de RPE/RIR y deloads apropiados
 ///
 /// **Algoritmo:**
 /// 1. Calcula la posición actual en el ciclo
 /// 2. Verifica si es período de deload
-/// 3. Obtiene parámetros de doble progresión:
-///    - minReps: Repeticiones mínimas del rango (valor de reset)
-///    - maxReps: Repeticiones máximas antes de incrementar peso
-///    - incrementValue: Cantidad de peso a incrementar
-/// 4. Lógica de progresión:
-///    - Si currentReps < maxReps: Incrementa repeticiones en 1
-///    - Si currentReps >= maxReps: Incrementa peso y resetea reps a minReps
-/// 5. Durante deload:
+/// 3. Determina el patrón de progresión basado en la semana del ciclo:
+///    - Semanas impares: Incrementa peso, mantiene reps
+///    - Semanas pares: Incrementa reps, mantiene peso
+/// 4. Durante deload:
 ///    - Reduce peso manteniendo incremento sobre base
 ///    - Reduce series al 70%
 ///
 /// **Parámetros clave:**
-/// - minReps: Repeticiones mínimas (valor de reset)
-/// - maxReps: Repeticiones máximas antes de incrementar peso
+/// - minReps: Repeticiones mínimas del rango
+/// - maxReps: Repeticiones máximas del rango
 /// - incrementValue: Cantidad de peso a incrementar
 /// - deloadWeek: Semana de deload
 /// - deloadPercentage: Porcentaje de reducción durante deload
 ///
 /// **Ventajas:**
-/// - Progresión más gradual y sostenible
-/// - Mejora técnica antes de incrementar peso
-/// - Reduce riesgo de lesiones
-/// - Efectiva para hipertrofia y fuerza
-/// - Fácil de seguir y monitorear
+/// - Progresión más rápida que la doble progresión clásica
+/// - Mayor estímulo de adaptación al manipular dos variables
+/// - Efectiva para atletas experimentados
+/// - Permite mayor control sobre el volumen e intensidad
 ///
 /// **Limitaciones:**
-/// - Progresión más lenta en peso absoluto
-/// - Requiere rangos de repeticiones apropiados
-/// - Necesita registro detallado de series
-/// - Puede ser menos efectiva para fuerza máxima pura
-class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+/// - Mayor riesgo de fatiga acumulada
+/// - Requiere experiencia en autoregulación (RPE/RIR)
+/// - Necesita deloads más frecuentes
+/// - Puede ser abrumadora para principiantes
+class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -65,54 +61,83 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
+        newSets:
+            state.baseSets, // Always use baseSets to avoid deload persistence
         incrementApplied: false,
         isDeload: false,
-        reason: 'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    // Si es deload, aplicar deload directamente sobre el peso actual
-    if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+    // En Double Factor, aplicar deload solo en semanas pares para mantener simetría
+    // Esto asegura que ambos factores (peso y reps) hayan progresado antes del deload
+    final isEvenWeek = currentInCycle % 2 == 0;
+    final shouldApplyDeload = isDeload && isEvenWeek;
+
+    if (shouldApplyDeload) {
+      return _applyDeload(
+        config,
+        state,
+        currentWeight,
+        currentReps,
+        currentSets,
+        currentInCycle,
+      );
     }
 
-    // Obtener parámetros de doble progresión
+    // Obtener parámetros de doble factor
     final maxReps = getMaxReps(config, exerciseType: exerciseType);
     final minReps = getMinReps(config, exerciseType: exerciseType);
 
-    // 1. Aplicar lógica de doble progresión
-    if (currentReps < maxReps) {
-      // Incrementar repeticiones si no hemos llegado al máximo
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps < minReps ? minReps : currentReps + 1,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
-        incrementApplied: true,
-        reason: 'Double factor progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+    // Determinar patrón de progresión basado en la semana del ciclo
+    final isOddWeek = currentInCycle % 2 == 1;
+
+    if (isOddWeek) {
+      // Semana impar: Incrementar peso, mantener reps
+      final incrementValue = getIncrementValue(
+        config,
+        exerciseType: exerciseType,
       );
-    } else {
-      // Incrementar peso y resetear reps al mínimo
-      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
-        newReps: minReps,
+        newReps: currentReps.clamp(
+          minReps,
+          maxReps,
+        ), // Asegurar que esté en rango
         newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
         reason:
-            'Double factor progression: increasing weight +${incrementValue}kg and resetting reps to $minReps (week $currentInCycle of ${config.cycleLength})',
+            'Double factor progression: increasing weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+      );
+    } else {
+      // Semana par: Incrementar reps, mantener peso
+      final newReps = (currentReps + 1).clamp(minReps, maxReps);
+      return ProgressionCalculationResult(
+        newWeight: currentWeight,
+        newReps: newReps,
+        newSets: state.baseSets, // Ensure sets recover to base after deload
+        incrementApplied: true,
+        reason:
+            'Double factor progression: increasing reps to $newReps (week $currentInCycle of ${config.cycleLength})',
       );
     }
   }
 
   /// Aplica deload específico para progresión doble factor
+  /// Reduce tanto peso como reps proporcionalmente al progreso sobre los valores base
   ProgressionCalculationResult _applyDeload(
     ProgressionConfig config,
     ProgressionState state,
@@ -121,16 +146,27 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
     int currentSets,
     int currentInCycle,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    // Calcular incremento sobre peso base
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    // Calcular incremento sobre reps base
+    final int increaseOverReps = (currentReps - state.baseReps).clamp(0, 100);
+    final int deloadReps =
+        state.baseReps + (increaseOverReps * config.deloadPercentage).round();
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
-      newReps: currentReps, // Mantener las reps actuales
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newReps: deloadReps, // Reducir reps proporcionalmente al progreso
+      newSets: (state.baseSets * 0.7).round(), // Reducir volumen
       incrementApplied: true,
       isDeload: true,
-      reason: 'Double factor progression: deload week $currentInCycle of ${config.cycleLength}',
+      reason:
+          'Double factor progression: deload week $currentInCycle of ${config.cycleLength} (weight: ${deloadWeight.toStringAsFixed(1)}kg, reps: $deloadReps)',
     );
   }
 }

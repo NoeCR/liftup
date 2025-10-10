@@ -55,8 +55,8 @@ void main() {
       );
     });
 
-    test('incrementa repeticiones cuando currentReps < maxReps', () {
-      // Configuración: min_reps=6, max_reps=10, currentReps=6
+    test('incrementa peso en semana impar (semana 1)', () {
+      // Configuración: min_reps=6, max_reps=10, currentReps=6, semana 1 (impar)
       final result = strategy.calculate(
         config: config,
         state: state,
@@ -67,29 +67,28 @@ void main() {
       );
 
       expect(result.incrementApplied, true);
-      expect(result.newWeight, 70.0); // Peso se mantiene
-      expect(result.newReps, 7); // Reps incrementan en 1
+      expect(result.newWeight, 72.5); // Peso incrementa en 2.5kg (semana impar)
+      expect(result.newReps, 6); // Reps se mantienen
       expect(result.newSets, 3); // Sets se mantienen
-      expect(result.reason, contains('increasing reps'));
+      expect(result.reason, contains('increasing weight'));
     });
 
-    test('incrementa peso y resetea reps cuando currentReps >= maxReps', () {
-      // Configuración: min_reps=6, max_reps=10, currentReps=10
+    test('incrementa reps en semana par (semana 2)', () {
+      // Configuración: min_reps=6, max_reps=10, currentReps=6, semana 2 (par)
       final result = strategy.calculate(
         config: config,
-        state: state,
+        state: state.copyWith(currentWeek: 2),
         routineId: 'test-routine',
         currentWeight: 70.0,
-        currentReps: 10,
+        currentReps: 6,
         currentSets: 3,
       );
 
       expect(result.incrementApplied, true);
-      expect(result.newWeight, 72.5); // Peso incrementa en 2.5kg
-      expect(result.newReps, 6); // Reps se resetean a min_reps
+      expect(result.newWeight, 70.0); // Peso se mantiene (semana par)
+      expect(result.newReps, 7); // Reps incrementan en 1
       expect(result.newSets, 3); // Sets se mantienen
-      expect(result.reason, contains('increasing weight'));
-      expect(result.reason, contains('resetting reps to 6'));
+      expect(result.reason, contains('increasing reps'));
     });
 
     test('usa parámetros por ejercicio cuando están disponibles', () {
@@ -124,18 +123,18 @@ void main() {
         updatedAt: now,
       );
 
-      // Test con reps en el máximo específico del ejercicio
+      // Test con semana impar (incrementa peso)
       final result = strategy.calculate(
         config: configWithPerExercise,
         state: state,
         routineId: 'test-routine',
         currentWeight: 70.0,
-        currentReps: 15, // max_reps específico del ejercicio
+        currentReps: 8, // min_reps específico del ejercicio
         currentSets: 3,
       );
 
       expect(result.newWeight, 71.25); // increment_value específico (1.25kg)
-      expect(result.newReps, 8); // min_reps específico del ejercicio
+      expect(result.newReps, 8); // reps se mantienen (semana impar)
     });
 
     test('aplica deload correctamente', () {
@@ -249,18 +248,18 @@ void main() {
         updatedAt: now,
       );
 
-      // Test con reps en el máximo por defecto (12)
+      // Test con semana impar (incrementa peso)
       final result = strategy.calculate(
         config: configMinimal,
         state: state,
         routineId: 'test-routine',
         currentWeight: 70.0,
-        currentReps: 12, // max_reps por defecto
+        currentReps: 5, // min_reps por defecto
         currentSets: 3,
       );
 
       expect(result.newWeight, 72.5); // incrementValue del config (2.5kg)
-      expect(result.newReps, 5); // min_reps por defecto
+      expect(result.newReps, 5); // reps se mantienen (semana impar)
     });
 
     test('simula 3 ciclos completos con deload cada 6 semanas para validar progresión a largo plazo', () {
@@ -403,12 +402,17 @@ void main() {
             final prevWeight = cycleWeeks[i - 1]['newWeight'] as double;
             final currentWeight = cycleWeeks[i]['newWeight'] as double;
 
-            // Si el peso incrementó, las reps pueden resetearse (decrementar)
-            if (currentWeight > prevWeight) {
-              // Peso incrementó, reps pueden resetearse
-              expect(currentReps, equals(6)); // Debe resetearse a min_reps
+            // En Double Factor: semanas impares incrementan peso, pares incrementan reps
+            final weekNumber = i + 1;
+            final isOddWeek = weekNumber % 2 == 1;
+            
+            if (isOddWeek) {
+              // Semana impar: debe incrementar peso, reps se mantienen o se ajustan al rango
+              expect(currentWeight, greaterThanOrEqualTo(prevWeight));
+              expect(currentReps, inInclusiveRange(6, 10)); // Debe estar en rango
             } else {
-              // Peso no incrementó, reps deben incrementar o mantenerse
+              // Semana par: debe incrementar reps, peso se mantiene
+              expect(currentWeight, equals(prevWeight));
               expect(currentReps, greaterThanOrEqualTo(prevReps));
             }
           }
@@ -453,14 +457,14 @@ void main() {
         }
       }
 
-      // 8. Verificar progresión específica del primer ciclo como ejemplo
+      // 8. Verificar progresión específica del primer ciclo como ejemplo (Double Factor)
       final firstCycle = progressionHistory.take(6).toList();
-      expect(firstCycle[0]['newReps'], 7); // Semana 1: 6 -> 7 reps
-      expect(firstCycle[1]['newReps'], 8); // Semana 2: 7 -> 8 reps
-      expect(firstCycle[2]['newReps'], 9); // Semana 3: 8 -> 9 reps
-      expect(firstCycle[3]['newReps'], 10); // Semana 4: 9 -> 10 reps
-      expect(firstCycle[4]['newReps'], 6); // Semana 5: 10 -> 6 reps (incrementa peso y resetea)
-      expect(firstCycle[5]['newReps'], 6); // Semana 6: deload, reps se mantienen (no se incrementan primero)
+      expect(firstCycle[0]['newReps'], 6); // Semana 1 (impar): 6 -> 6 reps (mantiene, incrementa peso)
+      expect(firstCycle[1]['newReps'], 7); // Semana 2 (par): 6 -> 7 reps (incrementa reps)
+      expect(firstCycle[2]['newReps'], 7); // Semana 3 (impar): 7 -> 7 reps (mantiene, incrementa peso)
+      expect(firstCycle[3]['newReps'], 8); // Semana 4 (par): 7 -> 8 reps (incrementa reps)
+      expect(firstCycle[4]['newReps'], 8); // Semana 5 (impar): 8 -> 8 reps (mantiene, incrementa peso)
+      expect(firstCycle[5]['newReps'], 8); // Semana 6: deload, reps se mantienen
 
       // 9. Verificar que el peso progresa después del primer ciclo completo
       final startOfSecondCycle =
@@ -474,8 +478,8 @@ void main() {
       final increasingWeightReasons = progressionReasons.where((r) => r.contains('increasing weight')).length;
       final deloadReasons = progressionReasons.where((r) => r.contains('deload')).length;
 
-      expect(increasingRepsReasons, greaterThan(8)); // Debe haber muchas semanas incrementando reps
-      expect(increasingWeightReasons, greaterThanOrEqualTo(3)); // Debe haber al menos 3 semanas incrementando peso
+      expect(increasingRepsReasons, equals(6)); // 2 semanas por ciclo x 3 ciclos = 6 semanas incrementando reps
+      expect(increasingWeightReasons, equals(9)); // 3 semanas por ciclo x 3 ciclos = 9 semanas incrementando peso
       expect(deloadReasons, equals(3)); // Exactamente 3 deloads
     });
 

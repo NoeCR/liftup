@@ -89,8 +89,8 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
     }
 
     // Leer parámetros de progresión con fallbacks apropiados
-    final maxReps = _getMaxReps(config);
-    final minReps = _getMinReps(config);
+    final maxReps = getMaxReps(config, exerciseType: exerciseType);
+    final minReps = getMinReps(config, exerciseType: exerciseType);
 
     if (currentReps < maxReps) {
       return ProgressionCalculationResult(
@@ -102,7 +102,7 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
-      final incrementValue = _getIncrementValue(config);
+      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: minReps,
@@ -114,68 +114,4 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
     }
   }
 
-  /// Obtiene el máximo de repeticiones desde los parámetros personalizados
-  int _getMaxReps(ProgressionConfig config) {
-    // Prioridad: per_exercise > global > defaults por tipo
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final maxReps =
-            exerciseParams['max_reps'] ?? exerciseParams['multi_reps_max'] ?? exerciseParams['iso_reps_max'];
-        if (maxReps != null) return maxReps as int;
-      }
-    }
-
-    // Fallback a global
-    return customParams['max_reps'] ?? customParams['multi_reps_max'] ?? customParams['iso_reps_max'] ?? 12; // default
-  }
-
-  /// Obtiene el mínimo de repeticiones desde los parámetros personalizados
-  int _getMinReps(ProgressionConfig config) {
-    // Prioridad: per_exercise > global > defaults por tipo
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final minReps =
-            exerciseParams['min_reps'] ?? exerciseParams['multi_reps_min'] ?? exerciseParams['iso_reps_min'];
-        if (minReps != null) return minReps as int;
-      }
-    }
-
-    // Fallback a global
-    return customParams['min_reps'] ?? customParams['multi_reps_min'] ?? customParams['iso_reps_min'] ?? 5; // default
-  }
-
-  /// Obtiene el valor de incremento desde parámetros personalizados
-  /// Prioridad: per_exercise > global > defaults por tipo
-  double _getIncrementValue(ProgressionConfig config) {
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final increment =
-            exerciseParams['increment_value'] ??
-            exerciseParams['multi_increment_min'] ??
-            exerciseParams['iso_increment_min'];
-        if (increment != null) return (increment as num).toDouble();
-      }
-    }
-
-    // Fallback a global
-    return customParams['increment_value'] ??
-        customParams['multi_increment_min'] ??
-        customParams['iso_increment_min'] ??
-        config.incrementValue; // fallback al valor base
-  }
 }
