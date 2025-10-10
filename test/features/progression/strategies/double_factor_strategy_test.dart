@@ -196,6 +196,38 @@ void main() {
       expect(result.reason, contains('deload'));
     });
 
+    test('restaura sets a base tras deload cuando incrementa reps', () {
+      // No deload, simulamos venir de deload con sets reducidos
+      final configNoDeload = config.copyWith(deloadWeek: 0);
+      final st = state.copyWith(currentReps: 6, currentSets: 2, baseSets: 3);
+      final result = strategy.calculate(
+        config: configNoDeload,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 70.0,
+        currentReps: 6, // < max -> incrementa reps
+        currentSets: 2, // heredado de deload
+      );
+      expect(result.incrementApplied, true);
+      expect(result.newSets, 3); // debe restaurar a baseSets
+    });
+
+    test('restaura sets a base tras deload cuando incrementa peso y resetea reps', () {
+      // No deload, simulamos venir de deload con sets reducidos
+      final configNoDeload = config.copyWith(deloadWeek: 0);
+      final st = state.copyWith(currentReps: 10, currentSets: 2, baseSets: 3);
+      final result = strategy.calculate(
+        config: configNoDeload,
+        state: st,
+        routineId: 'test-routine',
+        currentWeight: 70.0,
+        currentReps: 10, // == max -> incrementa peso y resetea reps
+        currentSets: 2, // heredado de deload
+      );
+      expect(result.incrementApplied, true);
+      expect(result.newSets, 3); // debe restaurar a baseSets
+    });
+
     test('usa valores por defecto cuando no hay parámetros personalizados', () {
       final configMinimal = ProgressionConfig(
         id: 'cfg',

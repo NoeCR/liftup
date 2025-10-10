@@ -82,7 +82,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps + 1,
-        newSets: currentSets,
+        newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
         reason: 'Double factor progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
@@ -92,7 +92,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: minReps,
-        newSets: currentSets,
+        newSets: state.baseSets, // Ensure sets recover to base after deload
         incrementApplied: true,
         reason:
             'Double factor progression: increasing weight +${incrementValue}kg and resetting reps to $minReps (week $currentInCycle of ${config.cycleLength})',
