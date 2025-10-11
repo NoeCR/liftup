@@ -5,7 +5,7 @@ import '../../../common/enums/section_muscle_group_enum.dart';
 
 part 'routine_section_template.g.dart';
 
-@HiveType(typeId: 14)
+@HiveType(typeId: 13)
 @JsonSerializable()
 class RoutineSectionTemplate extends Equatable {
   @HiveField(0)

@@ -70,7 +70,13 @@ abstract class BaseProgressionStrategy {
   /// Obtiene el valor de incremento desde parámetros personalizados
   /// Prioridad: per_exercise > global > defaults por tipo > fallback
   /// Considera el tipo de ejercicio para elegir el incremento apropiado
-  double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType}) {
+  double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
+    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
+    if (exercise != null) {
+      return config.getAdaptiveIncrement(exercise);
+    }
+
+    // Fallback al método original para compatibilidad
     final customParams = config.customParameters;
 
     // Buscar en per_exercise primero
@@ -114,7 +120,13 @@ abstract class BaseProgressionStrategy {
 
   /// Obtiene el máximo de repeticiones desde parámetros personalizados
   /// Prioridad: per_exercise > global > defaults por tipo
-  int getMaxReps(ProgressionConfig config, {ExerciseType? exerciseType}) {
+  int getMaxReps(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
+    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
+    if (exercise != null) {
+      return config.getAdaptiveMaxReps(exercise);
+    }
+
+    // Fallback al método original para compatibilidad
     final customParams = config.customParameters;
 
     // Buscar en per_exercise primero
@@ -149,12 +161,18 @@ abstract class BaseProgressionStrategy {
       return typeDefaultMaxReps;
     }
 
-    return 12; // fallback absoluto
+    return config.maxReps; // Usar el campo maxReps de la configuración
   }
 
   /// Obtiene el mínimo de repeticiones desde parámetros personalizados
   /// Prioridad: per_exercise > global > defaults por tipo
-  int getMinReps(ProgressionConfig config, {ExerciseType? exerciseType}) {
+  int getMinReps(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
+    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
+    if (exercise != null) {
+      return config.getAdaptiveMinReps(exercise);
+    }
+
+    // Fallback al método original para compatibilidad
     final customParams = config.customParameters;
 
     // Buscar en per_exercise primero
@@ -189,7 +207,47 @@ abstract class BaseProgressionStrategy {
       return typeDefaultMinReps;
     }
 
-    return 5; // fallback absoluto
+    return config.minReps; // Usar el campo minReps de la configuración
+  }
+
+  /// Obtiene las series base desde parámetros personalizados
+  /// Prioridad: per_exercise > global > defaults por tipo
+  int getBaseSets(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
+    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
+    if (exercise != null) {
+      return config.getAdaptiveBaseSets(exercise);
+    }
+
+    // Fallback al método original para compatibilidad
+    final customParams = config.customParameters;
+
+    // Buscar en per_exercise primero
+    try {
+      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
+      if (perExercise != null) {
+        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
+        if (exerciseParams != null) {
+          final baseSets = exerciseParams['base_sets'];
+          if (baseSets != null && baseSets is num) {
+            return baseSets.toInt();
+          }
+        }
+      }
+    } catch (e) {
+      // Si hay error en per_exercise, continuar con fallbacks
+    }
+
+    // Fallback a global
+    try {
+      final globalBaseSets = customParams['base_sets'];
+      if (globalBaseSets != null && globalBaseSets is num) {
+        return globalBaseSets.toInt();
+      }
+    } catch (e) {
+      // Si hay error en global, usar defaults por tipo
+    }
+
+    return config.baseSets; // Usar el campo baseSets de la configuración
   }
 
   /// Métodos privados helper

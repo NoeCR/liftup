@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../common/enums/progression_type_enum.dart';
 import '../../../core/logging/logging.dart';
@@ -49,6 +50,49 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   }
 
   /// Configura una nueva progresión global
+  /// Establece una configuración de progresión completa (preset o manual)
+  Future<void> setProgressionConfig(ProgressionConfig config) async {
+    try {
+      // Desactivar progresión actual si existe
+      final currentConfig = await future;
+      if (currentConfig != null) {
+        final progressionService = ref.read(progressionServiceProvider.notifier);
+        final deactivatedConfig = currentConfig.copyWith(
+          isActive: false,
+          endDate: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        await progressionService.saveProgressionConfig(deactivatedConfig);
+      }
+
+      // Crear nueva configuración con el preset/configuración proporcionada
+      final progressionService = ref.read(progressionServiceProvider.notifier);
+      final newConfig = config.copyWith(
+        id: const Uuid().v4(),
+        isActive: true,
+        startDate: DateTime.now(),
+        endDate: null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      await progressionService.saveProgressionConfig(newConfig);
+
+      // Actualizar el estado
+      state = AsyncValue.data(newConfig);
+
+      LoggingService.instance.info('Progression configuration set successfully', {
+        'type': config.type.name,
+        'isPreset': config.customParameters.isNotEmpty,
+      });
+    } catch (e, stackTrace) {
+      LoggingService.instance.error('Error setting progression configuration', e, stackTrace, {
+        'type': config.type.name,
+      });
+      rethrow;
+    }
+  }
+
   Future<void> setProgression({
     required ProgressionType type,
     required ProgressionUnit unit,
@@ -195,6 +239,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    Exercise? exercise,
   }) async {
     try {
       final config = await future;
@@ -209,6 +254,7 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         currentReps,
         currentSets,
         exerciseType: exerciseType,
+        exercise: exercise,
       );
     } catch (e, stackTrace) {
       LoggingService.instance.error('Error calculating exercise progression', e, stackTrace, {

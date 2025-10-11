@@ -71,6 +71,20 @@
         "addExerciseAndReturn": "Add an exercise and return to this selection",
         "quickAdd": "Quick Add",
         "quickAddExercise": "Quick Add Exercise",
+        "exerciseType": {
+            "multiJoint": "Multi-joint",
+            "isolation": "Isolation"
+        },
+        "loadType": {
+            "barbell": "Barbell",
+            "dumbbell": "Dumbbell",
+            "machine": "Machine",
+            "bodyweight": "Bodyweight",
+            "cable": "Cable",
+            "kettlebell": "Kettlebell",
+            "resistanceBand": "Resistance Band",
+            "plate": "Plate"
+        },
         "category": "Category",
         "maintainFormTip": "Maintain proper form throughout the exercise",
         "basicInformation": "Basic Information",
@@ -530,5 +544,85 @@
         "errorLoadingData": "Error loading data",
         "errorLoadingExercise": "Error loading exercise",
         "exerciseNotFound": "Exercise not found"
+    },
+    "presets": {
+        "hypertrophy": {
+            "title": "Hypertrophy",
+            "description": "Focused on increasing muscle mass through volume and moderate repetitions",
+            "keyPoints": {
+                "repRange": "Rep range: {minReps}-{maxReps}",
+                "baseSets": "Base sets: {baseSets}",
+                "targetRpe": "Target RPE: {targetRpe}",
+                "restTime": "Rest: {restTime} seconds"
+            }
+        },
+        "strength": {
+            "title": "Strength",
+            "description": "Focused on increasing maximum lifting capacity",
+            "keyPoints": {
+                "repRange": "Rep range: {minReps}-{maxReps}",
+                "baseSets": "Base sets: {baseSets}",
+                "targetRpe": "Target RPE: {targetRpe}",
+                "restTime": "Rest: {restTime} seconds"
+            }
+        },
+        "endurance": {
+            "title": "Endurance",
+            "description": "Focused on improving the ability to repeat contractions without fatigue",
+            "keyPoints": {
+                "repRange": "Rep range: {minReps}-{maxReps}",
+                "baseSets": "Base sets: {baseSets}",
+                "targetRpe": "Target RPE: {targetRpe}",
+                "restTime": "Rest: {restTime} seconds"
+            }
+        },
+        "power": {
+            "title": "Power",
+            "description": "Focused on developing speed and explosiveness",
+            "keyPoints": {
+                "repRange": "Rep range: {minReps}-{maxReps}",
+                "baseSets": "Base sets: {baseSets}",
+                "targetRpe": "Target RPE: {targetRpe}",
+                "restTime": "Rest: {restTime} seconds"
+            }
+        },
+        "general": {
+            "title": "General",
+            "description": "General progression configuration",
+            "keyPoints": {
+                "repRange": "Rep range: {minReps}-{maxReps}",
+                "baseSets": "Base sets: {baseSets}"
+            }
+        }
+    },
+    "advancedConfig": {
+        "title": "Advanced Configuration",
+        "modeSelector": {
+            "title": "Configuration Mode",
+            "preset": "Predefined Configuration",
+            "manual": "Manual Configuration",
+            "hint": "Select configuration mode"
+        },
+        "presetSelector": {
+            "title": "Select Preset"
+        },
+        "presetDescription": {
+            "title": "Preset Configuration"
+        },
+        "noPresets": {
+            "title": "No presets available",
+            "message": "No predefined configurations found for {progressionType}. Use manual configuration."
+        },
+        "manualConfig": {
+            "title": "Manual Configuration",
+            "incrementValue": "Increment Value (kg)",
+            "incrementFrequency": "Increment Frequency",
+            "cycleLength": "Cycle Length (weeks)",
+            "deloadWeek": "Deload Week",
+            "deloadPercentage": "Deload Percentage",
+            "minReps": "Minimum Reps",
+            "maxReps": "Maximum Reps",
+            "baseSets": "Base Sets"
+        }
     }
 }

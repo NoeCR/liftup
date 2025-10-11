@@ -69,6 +69,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   double _formWeight = 0.0;
   int? _formRestTimeSeconds;
   ExerciseType _exerciseType = ExerciseType.multiJoint;
+  LoadType _loadType = LoadType.barbell;
 
   @override
   void initState() {
@@ -105,6 +106,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _formWeight = exercise.defaultWeight ?? 0.0;
     _formRestTimeSeconds = exercise.restTimeSeconds;
     _exerciseType = exercise.exerciseType;
+    _loadType = exercise.loadType;
 
     // Update controllers with exercise default values
     _setsController.text = _formSets.toString();
@@ -235,122 +237,66 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    InputDecoration deco(String label, {String? helper}) =>
-        InputDecoration(labelText: label, helperText: helper, border: const OutlineInputBorder());
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Progression settings', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        Text('Configuración de Progresión', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-        // Parámetros genéricos por ejercicio (se aplicarán a multi/iso)
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
+            color: colorScheme.surfaceVariant.withOpacity(0.3),
             border: Border.all(color: colorScheme.outline),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Parámetros por ejercicio', style: theme.textTheme.titleSmall),
-              const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _multiIncMinController,
-                      keyboardType: TextInputType.number,
-                      decoration: deco('Incremento mínimo (kg)'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _multiIncMaxController,
-                      keyboardType: TextInputType.number,
-                      decoration: deco('Incremento máximo (kg)'),
-                    ),
+                  Icon(Icons.info_outline, color: colorScheme.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Incrementos Automáticos',
+                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
+              Text(
+                'Los incrementos de peso se calcularán automáticamente basándose en:',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _multiRepsMinController,
-                      keyboardType: TextInputType.number,
-                      decoration: deco('Repeticiones mínimas'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      controller: _multiRepsMaxController,
-                      keyboardType: TextInputType.number,
-                      decoration: deco('Repeticiones máximas'),
-                    ),
-                  ),
+                  Icon(Icons.fitness_center, color: colorScheme.secondary, size: 16),
+                  const SizedBox(width: 8),
+                  Text('Tipo de ejercicio: ${_exerciseType.displayNameKey.tr()}', style: theme.textTheme.bodySmall),
                 ],
               ),
-              const SizedBox(height: 12),
-              // Unidad de progresión específica del ejercicio (opcional)
-              DropdownButtonFormField<ProgressionUnit>(
-                value: _perExerciseUnit,
-                decoration: deco('Unidad de progresión', helper: 'Aplica a este ejercicio (opcional)'),
-                items: [
-                  const DropdownMenuItem<ProgressionUnit>(value: null, child: Text('Por defecto (global)')),
-                  ...ProgressionUnit.values.map(
-                    (u) => DropdownMenuItem(value: u, child: Text(context.tr(u.displayNameKey))),
-                  ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.sports_gymnastics, color: colorScheme.secondary, size: 16),
+                  const SizedBox(width: 8),
+                  Text('Tipo de carga: ${_loadType.displayNameKey.tr()}', style: theme.textTheme.bodySmall),
                 ],
-                onChanged: (v) => setState(() => _perExerciseUnit = v),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '💡 Los incrementos se ajustarán automáticamente según las mejores prácticas para cada combinación de tipo de ejercicio y carga.',
+                  style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                ),
               ),
             ],
           ),
-        ),
-
-        const SizedBox(height: 12),
-        // Common
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _setsMinController,
-                keyboardType: TextInputType.number,
-                decoration: deco('Series mínimas'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _setsMaxController,
-                keyboardType: TextInputType.number,
-                decoration: deco('Series máximas'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _targetRpeController,
-                keyboardType: TextInputType.number,
-                decoration: deco('RPE objetivo'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _incFreqController,
-                keyboardType: TextInputType.number,
-                decoration: deco('Frecuencia de incremento'),
-              ),
-            ),
-          ],
         ),
       ],
     );
@@ -576,9 +522,24 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
             border: OutlineInputBorder(),
             helperText: 'Usado para ajustar incrementos y rangos de reps',
           ),
-          items: ExerciseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayName))).toList(),
+          items:
+              ExerciseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayNameKey.tr()))).toList(),
           onChanged: (value) {
             if (value != null) setState(() => _exerciseType = value);
+          },
+        ),
+        const SizedBox(height: 12),
+        // Tipo de carga (barbell, dumbbell, etc.)
+        DropdownButtonFormField<LoadType>(
+          value: _loadType,
+          decoration: InputDecoration(
+            labelText: 'Tipo de carga',
+            border: OutlineInputBorder(),
+            helperText: 'Usado para calcular incrementos adaptativos',
+          ),
+          items: LoadType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayNameKey.tr()))).toList(),
+          onChanged: (value) {
+            if (value != null) setState(() => _loadType = value);
           },
         ),
       ],
@@ -1061,14 +1022,13 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         defaultReps: _formReps > 0 ? _formReps : null,
         restTimeSeconds: _formRestTimeSeconds,
         exerciseType: _exerciseType,
+        loadType: _loadType,
       );
 
       // Debug: saving exercise with default values
 
       if (widget.exerciseToEdit != null) {
         await ref.read(exerciseNotifierProvider.notifier).updateExercise(exercise);
-        // Save per-exercise progression params into active ProgressionConfig
-        await _savePerExerciseProgressionParams(exercise.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ejercicio actualizado correctamente'), backgroundColor: Colors.green),

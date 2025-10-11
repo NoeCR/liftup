@@ -59,6 +59,7 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
@@ -78,12 +79,15 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle, exercise: exercise);
     }
 
     // 1. Aplicar lógica específica de progresión escalonada
     final accumulationWeeks = _getAccumulationWeeks(config);
-    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+    final incrementValue = getIncrementValue(config, exerciseType: exerciseType, exercise: exercise);
+
+    // Usar rangos de repeticiones del preset si está disponible el ejercicio
+    final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
 
     final totalIncrement =
         currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
@@ -91,7 +95,7 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     return ProgressionCalculationResult(
       newWeight: state.baseWeight + totalIncrement,
       newReps: currentReps,
-      newSets: state.baseSets, // Ensure sets recover to base after deload
+      newSets: adaptiveBaseSets, // Usar sets del preset
       incrementApplied: true,
       reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );
@@ -104,15 +108,20 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     double currentWeight,
     int currentReps,
     int currentSets,
-    int currentInCycle,
-  ) {
+    int currentInCycle, {
+    Exercise? exercise,
+  }) {
     final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
     final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    // Usar sets del preset para el deload
+    final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+    final deloadSets = (adaptiveBaseSets * 0.7).round();
 
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newSets: deloadSets, // Usar sets del preset para deload
       incrementApplied: true,
       isDeload: true,
       shouldResetCycle: true, // Reiniciar ciclo después del deload

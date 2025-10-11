@@ -52,6 +52,7 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
@@ -71,26 +72,34 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
 
     // Si es deload, aplicar deload directamente sobre el peso actual
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle, exercise: exercise);
     }
 
     // 1. Aplicar lógica específica de progresión lineal
     if (currentInCycle % config.incrementFrequency == 0) {
-      // Obtener incremento apropiado según parámetros personalizados y tipo de ejercicio
-      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+      // Obtener incremento apropiado usando AdaptiveIncrementConfig si está disponible el ejercicio
+      final incrementValue = getIncrementValue(config, exerciseType: exerciseType, exercise: exercise);
+
+      // Usar rangos de repeticiones del preset si está disponible el ejercicio
+      final adaptiveMinReps = exercise != null ? config.getAdaptiveMinReps(exercise) : config.minReps;
+      final adaptiveMaxReps = exercise != null ? config.getAdaptiveMaxReps(exercise) : config.maxReps;
+      final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
 
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
-        newReps: currentReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newReps: currentReps, // Mantener repeticiones actuales en progresión lineal
+        newSets: adaptiveBaseSets, // Usar sets del preset
         incrementApplied: true,
         reason: 'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
+      // Usar rangos de repeticiones del preset si está disponible el ejercicio
+      final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+
       return ProgressionCalculationResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: state.baseSets, // Use baseSets to recover from deload
+        newSets: adaptiveBaseSets, // Usar sets del preset
         incrementApplied: false,
         reason: 'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
       );
@@ -104,16 +113,21 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     double currentWeight,
     int currentReps,
     int currentSets,
-    int currentInCycle,
-  ) {
+    int currentInCycle, {
+    Exercise? exercise,
+  }) {
     // Deload: reduce peso manteniendo el incremento sobre base, reduce series
     final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
     final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
+    // Usar sets del preset para el deload
+    final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+    final deloadSets = (adaptiveBaseSets * 0.7).round();
+
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newSets: deloadSets, // Usar sets del preset para deload
       incrementApplied: true,
       isDeload: true,
       shouldResetCycle: false, // Linear progression no reinicia ciclo - es progresión constante

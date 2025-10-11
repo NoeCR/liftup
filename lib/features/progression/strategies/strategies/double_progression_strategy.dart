@@ -57,6 +57,7 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)

@@ -48,6 +48,7 @@ class StaticProgressionStrategy extends BaseProgressionStrategy implements Progr
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
     // La progresión estática no aplica deloads ni cambios

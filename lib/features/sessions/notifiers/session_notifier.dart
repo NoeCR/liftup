@@ -436,6 +436,7 @@ class SessionNotifier extends _$SessionNotifier {
         progressionState.currentReps,
         progressionState.currentSets,
         exerciseType: exercise.exerciseType,
+        exercise: exercise,
         isExerciseLocked: exercise.isProgressionLocked,
       );
 

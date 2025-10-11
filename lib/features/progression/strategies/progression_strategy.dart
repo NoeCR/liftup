@@ -24,6 +24,7 @@ abstract class ProgressionStrategy {
     required int currentReps,
     required int currentSets,
     ExerciseType? exerciseType,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   });
 

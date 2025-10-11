@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'progression_state.g.dart';
 
-@HiveType(typeId: 24)
+@HiveType(typeId: 19)
 @JsonSerializable()
 class ProgressionState extends Equatable {
   @HiveField(0)

@@ -1,8 +1,9 @@
 import 'package:hive/hive.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 part 'progression_type_enum.g.dart';
 
-@HiveType(typeId: 20)
+@HiveType(typeId: 15)
 enum ProgressionType {
   @HiveField(0)
   none('progression.types.none', 'progression.types.noneDescription'),
@@ -42,12 +43,47 @@ enum ProgressionType {
   final String displayNameKey;
   final String descriptionKey;
 
+  /// Obtiene el nombre para mostrar del tipo de progresión usando localización
+  String get displayName {
+    // Importar easy_localization dinámicamente para evitar dependencias circulares
+    try {
+      // Usar el displayNameKey para obtener la traducción
+      return displayNameKey.tr();
+    } catch (e) {
+      // Fallback a nombres hardcodeados si hay error de localización
+      switch (this) {
+        case ProgressionType.none:
+          return 'Sin progresión';
+        case ProgressionType.linear:
+          return 'Progresión Lineal';
+        case ProgressionType.stepped:
+          return 'Progresión Escalonada';
+        case ProgressionType.double:
+          return 'Progresión Doble';
+        case ProgressionType.doubleFactor:
+          return 'Progresión Doble Factor';
+        case ProgressionType.undulating:
+          return 'Progresión Ondulante';
+        case ProgressionType.wave:
+          return 'Progresión por Oleadas';
+        case ProgressionType.overload:
+          return 'Progresión por Sobrecarga';
+        case ProgressionType.static:
+          return 'Progresión Estática';
+        case ProgressionType.reverse:
+          return 'Progresión Inversa';
+        case ProgressionType.autoregulated:
+          return 'Progresión Autoregulada';
+      }
+    }
+  }
+
   static ProgressionType fromString(String value) {
     return ProgressionType.values.firstWhere((type) => type.name == value, orElse: () => ProgressionType.none);
   }
 }
 
-@HiveType(typeId: 21)
+@HiveType(typeId: 16)
 enum ProgressionUnit {
   @HiveField(0)
   session('progression.units.session'),
@@ -63,7 +99,7 @@ enum ProgressionUnit {
   final String displayNameKey;
 }
 
-@HiveType(typeId: 22)
+@HiveType(typeId: 17)
 enum ProgressionTarget {
   @HiveField(0)
   weight('progression.targets.weight'),

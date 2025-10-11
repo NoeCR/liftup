@@ -6,7 +6,7 @@ import '../../../common/enums/progression_type_enum.dart';
 
 part 'progression_template.g.dart';
 
-@HiveType(typeId: 36)
+@HiveType(typeId: 22)
 @JsonSerializable()
 class ProgressionTemplate extends Equatable {
   @HiveField(0)

@@ -5,6 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:liftly/features/progression/notifiers/progression_notifier.dart';
 import '../../../common/enums/progression_type_enum.dart';
 import '../../../core/logging/logging.dart';
+import '../widgets/advanced_progression_config.dart';
+import '../models/progression_config.dart';
 
 class ProgressionConfigurationPage extends ConsumerStatefulWidget {
   final ProgressionType progressionType;
@@ -27,9 +29,15 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
   int _cycleLength = 4;
   int _deloadWeek = 4;
   double _deloadPercentage = 0.9;
+  int _minReps = 6;
+  int _maxReps = 12;
+  int _baseSets = 3;
 
   // Custom parameters
   final Map<String, dynamic> _customParameters = {};
+
+  // Configuración seleccionada (preset o manual)
+  ProgressionConfig? _selectedConfig;
 
   bool _isLoading = false;
 
@@ -286,146 +294,27 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
   }
 
   Widget _buildAdvancedConfiguration() {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'progression.advancedConfiguration'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            // Valor de incremento
-            TextFormField(
-              initialValue: _incrementValue.toString(),
-              decoration: InputDecoration(
-                labelText: 'progression.incrementValue'.tr(),
-                helperText: 'progression.incrementValueHelper'.tr(),
-                suffixText: 'kg',
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa un valor de incremento';
-                }
-                final parsed = double.tryParse(value);
-                if (parsed == null) {
-                  return 'Por favor ingresa un número válido';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                _incrementValue = double.parse(value!);
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Frecuencia de incremento
-            TextFormField(
-              initialValue: _incrementFrequency.toString(),
-              decoration: InputDecoration(
-                labelText: 'progression.incrementFrequency'.tr(),
-                helperText: 'progression.incrementFrequencyHelper'.tr(),
-                suffixText: _unit == ProgressionUnit.session ? 'progression.sessions'.tr() : 'progression.weeks'.tr(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa una frecuencia';
-                }
-                final parsed = int.tryParse(value);
-                if (parsed == null || parsed <= 0) {
-                  return 'Por favor ingresa un número válido mayor a 0';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                _incrementFrequency = int.parse(value!);
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Longitud del ciclo
-            TextFormField(
-              initialValue: _cycleLength.toString(),
-              decoration: InputDecoration(
-                labelText: 'progression.cycleLength'.tr(),
-                helperText: 'progression.cycleLengthHelper'.tr(),
-                suffixText: 'progression.weeks'.tr(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa una longitud de ciclo';
-                }
-                final parsed = int.tryParse(value);
-                if (parsed == null || parsed <= 0) {
-                  return 'Por favor ingresa un número válido mayor a 0';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                _cycleLength = int.parse(value!);
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Semana de deload
-            TextFormField(
-              initialValue: _deloadWeek.toString(),
-              decoration: InputDecoration(
-                labelText: 'progression.deloadWeek'.tr(),
-                helperText: 'progression.deloadWeekHelper'.tr(),
-                suffixText: 'progression.week'.tr(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa una semana de deload';
-                }
-                final parsed = int.tryParse(value);
-                if (parsed == null || parsed < 0) {
-                  return 'Por favor ingresa un número válido mayor o igual a 0';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                _deloadWeek = int.parse(value!);
-              },
-            ),
-            const SizedBox(height: 16),
-
-            // Porcentaje de deload
-            TextFormField(
-              initialValue: (_deloadPercentage * 100).toString(),
-              decoration: InputDecoration(
-                labelText: 'progression.deloadPercentage'.tr(),
-                helperText: 'progression.deloadPercentageHelper'.tr(),
-                suffixText: '%',
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa un porcentaje de deload';
-                }
-                final parsed = double.tryParse(value);
-                if (parsed == null || parsed <= 0 || parsed > 100) {
-                  return 'Por favor ingresa un porcentaje válido entre 0 y 100';
-                }
-                return null;
-              },
-              onSaved: (value) {
-                _deloadPercentage = double.parse(value!) / 100;
-              },
-            ),
-          ],
-        ),
-      ),
+    return AdvancedProgressionConfig(
+      progressionType: widget.progressionType,
+      initialConfig: _selectedConfig,
+      onConfigChanged: (config) {
+        setState(() {
+          _selectedConfig = config;
+          // Actualizar los valores locales con la configuración seleccionada
+          _incrementValue = config.incrementValue;
+          _incrementFrequency = config.incrementFrequency;
+          _cycleLength = config.cycleLength;
+          _deloadWeek = config.deloadWeek;
+          _deloadPercentage = config.deloadPercentage;
+          _unit = config.unit;
+          _minReps = config.minReps;
+          _maxReps = config.maxReps;
+          _baseSets = config.baseSets;
+          _customParameters.clear();
+          _customParameters.addAll(config.customParameters);
+        });
+      },
+      showManualOptions: true,
     );
   }
 
@@ -694,18 +583,32 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
     try {
       final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
 
-      await progressionNotifier.setProgression(
-        type: widget.progressionType,
-        unit: _unit,
-        primaryTarget: _primaryTarget,
-        secondaryTarget: _secondaryTarget,
-        incrementValue: _incrementValue,
-        incrementFrequency: _incrementFrequency,
-        cycleLength: _cycleLength,
-        deloadWeek: _deloadWeek,
-        deloadPercentage: _deloadPercentage,
-        customParameters: _customParameters,
-      );
+      // Si hay un preset seleccionado, usar sus valores; si no, usar los valores manuales
+      final configToSave =
+          _selectedConfig ??
+          ProgressionConfig(
+            id: '',
+            isGlobal: true,
+            type: widget.progressionType,
+            unit: _unit,
+            primaryTarget: _primaryTarget,
+            secondaryTarget: _secondaryTarget,
+            incrementValue: _incrementValue,
+            incrementFrequency: _incrementFrequency,
+            cycleLength: _cycleLength,
+            deloadWeek: _deloadWeek,
+            deloadPercentage: _deloadPercentage,
+            minReps: _minReps,
+            maxReps: _maxReps,
+            baseSets: _baseSets,
+            customParameters: _customParameters,
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
+
+      await progressionNotifier.setProgressionConfig(configToSave);
 
       LoggingService.instance.info('Global progression configuration saved successfully', {
         'type': widget.progressionType.name,

@@ -249,6 +249,7 @@ class ProgressionService extends _$ProgressionService {
     int currentReps,
     int currentSets, {
     ExerciseType? exerciseType,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   }) async {
     try {
@@ -272,6 +273,7 @@ class ProgressionService extends _$ProgressionService {
         currentReps: currentReps,
         currentSets: currentSets,
         exerciseType: exerciseType,
+        exercise: exercise,
         isExerciseLocked: isExerciseLocked,
       );
 
@@ -380,6 +382,9 @@ class ProgressionService extends _$ProgressionService {
         isActive: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        minReps: 6, // Valor por defecto
+        maxReps: 12, // Valor por defecto
+        baseSets: 3, // Valor por defecto
       );
 
       await saveProgressionConfig(config);

@@ -27,6 +27,7 @@ class HiveAdapters {
       _registerAdapterSafely<ExerciseCategory>(ExerciseCategoryAdapter());
       _registerAdapterSafely<ExerciseDifficulty>(ExerciseDifficultyAdapter());
       _registerAdapterSafely<ExerciseType>(ExerciseTypeAdapter());
+      _registerAdapterSafely<LoadType>(LoadTypeAdapter());
 
       // Exercise Set adapters
       _registerAdapterSafely<ExerciseSet>(ExerciseSetAdapter());
