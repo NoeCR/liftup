@@ -48,8 +48,7 @@ class RoutineSectionTemplate extends Equatable {
     this.muscleGroup,
   });
 
-  factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) =>
-      _$RoutineSectionTemplateFromJson(json);
+  factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) => _$RoutineSectionTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineSectionTemplateToJson(this);
 
   RoutineSectionTemplate copyWith({
@@ -77,17 +76,7 @@ class RoutineSectionTemplate extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    description,
-    iconName,
-    order,
-    isDefault,
-    createdAt,
-    updatedAt,
-    muscleGroup,
-  ];
+  List<Object?> get props => [id, name, description, iconName, order, isDefault, createdAt, updatedAt, muscleGroup];
 }
 
 // Secciones predefinidas por defecto

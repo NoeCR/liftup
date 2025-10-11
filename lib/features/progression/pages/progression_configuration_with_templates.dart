@@ -13,18 +13,13 @@ import 'progression_template_selector.dart';
 class ProgressionConfigurationWithTemplates extends ConsumerStatefulWidget {
   final ProgressionType progressionType;
 
-  const ProgressionConfigurationWithTemplates({
-    super.key,
-    required this.progressionType,
-  });
+  const ProgressionConfigurationWithTemplates({super.key, required this.progressionType});
 
   @override
-  ConsumerState<ProgressionConfigurationWithTemplates> createState() =>
-      _ProgressionConfigurationWithTemplatesState();
+  ConsumerState<ProgressionConfigurationWithTemplates> createState() => _ProgressionConfigurationWithTemplatesState();
 }
 
-class _ProgressionConfigurationWithTemplatesState
-    extends ConsumerState<ProgressionConfigurationWithTemplates> {
+class _ProgressionConfigurationWithTemplatesState extends ConsumerState<ProgressionConfigurationWithTemplates> {
   final _formKey = GlobalKey<FormState>();
 
   // Valores de configuración (se llenan automáticamente desde la plantilla)
@@ -51,9 +46,7 @@ class _ProgressionConfigurationWithTemplatesState
 
   void _initializeDefaultTemplate() {
     ProgressionTemplateService.initializeTemplates();
-    final templates = ProgressionTemplateService.getTemplatesForType(
-      widget.progressionType,
-    );
+    final templates = ProgressionTemplateService.getTemplatesForType(widget.progressionType);
     if (templates.isNotEmpty) {
       _selectedTemplate = templates.first;
       _applyTemplate(_selectedTemplate!);
@@ -83,20 +76,14 @@ class _ProgressionConfigurationWithTemplatesState
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${'progression.configureProgression'.tr()} ${context.tr(widget.progressionType.displayNameKey)}',
-        ),
+        title: Text('${'progression.configureProgression'.tr()} ${context.tr(widget.progressionType.displayNameKey)}'),
         backgroundColor: colorScheme.surface,
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _saveProgression,
             child:
                 _isLoading
-                    ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : Text('common.save'.tr()),
           ),
         ],
@@ -113,10 +100,7 @@ class _ProgressionConfigurationWithTemplatesState
               const SizedBox(height: 24),
 
               // Selector de plantillas (reemplaza la configuración avanzada)
-              ProgressionTemplateSelector(
-                progressionType: widget.progressionType,
-                onTemplateSelected: _applyTemplate,
-              ),
+              ProgressionTemplateSelector(progressionType: widget.progressionType, onTemplateSelected: _applyTemplate),
               const SizedBox(height: 24),
 
               // Configuración básica (solo lo esencial)
@@ -130,17 +114,9 @@ class _ProgressionConfigurationWithTemplatesState
                   onPressed: _isLoading ? null : _saveProgression,
                   icon:
                       _isLoading
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                           : const Icon(Icons.save),
-                  label: Text(
-                    _isLoading
-                        ? 'progression.saving'.tr()
-                        : 'progression.saveProgression'.tr(),
-                  ),
+                  label: Text(_isLoading ? 'progression.saving'.tr() : 'progression.saveProgression'.tr()),
                 ),
               ),
             ],
@@ -166,17 +142,12 @@ class _ProgressionConfigurationWithTemplatesState
                 const SizedBox(width: 8),
                 Text(
                   'progression.progressionConfiguration'.tr(),
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              'progression.globalProgressionDescription'.tr(),
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text('progression.globalProgressionDescription'.tr(), style: theme.textTheme.bodyMedium),
             const SizedBox(height: 4),
             Text(
               '${'progression.types.${widget.progressionType.name}'.tr()}: ${context.tr(widget.progressionType.displayNameKey)}',
@@ -184,11 +155,8 @@ class _ProgressionConfigurationWithTemplatesState
             ),
             const SizedBox(height: 4),
             Text(
-              'progression.types.${widget.progressionType.name}Description'
-                  .tr(),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              'progression.types.${widget.progressionType.name}Description'.tr(),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -205,52 +173,27 @@ class _ProgressionConfigurationWithTemplatesState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Configuración Básica',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Configuración Básica', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               'Estos valores se configuran automáticamente según la plantilla seleccionada',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
 
             // Mostrar valores actuales (solo lectura)
-            _buildReadOnlyField(
-              'Unidad de Progresión',
-              _unit.displayNameKey.tr(),
-            ),
-            _buildReadOnlyField(
-              'Objetivo Principal',
-              _primaryTarget.displayNameKey.tr(),
-            ),
+            _buildReadOnlyField('Unidad de Progresión', _unit.displayNameKey.tr()),
+            _buildReadOnlyField('Objetivo Principal', _primaryTarget.displayNameKey.tr()),
             if (_secondaryTarget != null)
-              _buildReadOnlyField(
-                'Objetivo Secundario',
-                _secondaryTarget!.displayNameKey.tr(),
-              ),
-            _buildReadOnlyField(
-              'Valor de Incremento',
-              '${_incrementValue.toStringAsFixed(1)} kg',
-            ),
+              _buildReadOnlyField('Objetivo Secundario', _secondaryTarget!.displayNameKey.tr()),
+            _buildReadOnlyField('Valor de Incremento', '${_incrementValue.toStringAsFixed(1)} kg'),
             _buildReadOnlyField(
               'Frecuencia de Incremento',
               '$_incrementFrequency ${_unit == ProgressionUnit.session ? 'sesiones' : 'semanas'}',
             ),
             _buildReadOnlyField('Longitud del Ciclo', '$_cycleLength semanas'),
-            _buildReadOnlyField(
-              'Semana de Deload',
-              _deloadWeek == 0 ? 'Sin deload' : 'Semana $_deloadWeek',
-            ),
-            _buildReadOnlyField(
-              'Porcentaje de Deload',
-              '${(_deloadPercentage * 100).toStringAsFixed(0)}%',
-            ),
+            _buildReadOnlyField('Semana de Deload', _deloadWeek == 0 ? 'Sin deload' : 'Semana $_deloadWeek'),
+            _buildReadOnlyField('Porcentaje de Deload', '${(_deloadPercentage * 100).toStringAsFixed(0)}%'),
           ],
         ),
       ),
@@ -267,12 +210,7 @@ class _ProgressionConfigurationWithTemplatesState
         children: [
           SizedBox(
             width: 120,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            child: Text(label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
           ),
           const SizedBox(width: 16),
           Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
@@ -283,12 +221,9 @@ class _ProgressionConfigurationWithTemplatesState
 
   Future<void> _saveProgression() async {
     if (_selectedTemplate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor selecciona una plantilla'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Por favor selecciona una plantilla'), backgroundColor: Colors.red));
       return;
     }
 
@@ -297,9 +232,7 @@ class _ProgressionConfigurationWithTemplatesState
     });
 
     try {
-      final progressionNotifier = ref.read(
-        progressionNotifierProvider.notifier,
-      );
+      final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
 
       await progressionNotifier.setProgression(
         type: widget.progressionType,
@@ -314,20 +247,15 @@ class _ProgressionConfigurationWithTemplatesState
         customParameters: _customParameters,
       );
 
-      LoggingService.instance.info(
-        'Global progression configuration saved successfully',
-        {
-          'type': widget.progressionType.name,
-          'template': _selectedTemplate!.id,
-        },
-      );
+      LoggingService.instance.info('Global progression configuration saved successfully', {
+        'type': widget.progressionType.name,
+        'template': _selectedTemplate!.id,
+      });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Progresión configurada exitosamente con plantilla: ${_selectedTemplate!.name}',
-            ),
+            content: Text('Progresión configurada exitosamente con plantilla: ${_selectedTemplate!.name}'),
             backgroundColor: Colors.green,
           ),
         );
@@ -335,20 +263,14 @@ class _ProgressionConfigurationWithTemplatesState
         context.pop();
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error saving progression configuration',
-        e,
-        stackTrace,
-        {'type': widget.progressionType.name},
-      );
+      LoggingService.instance.error('Error saving progression configuration', e, stackTrace, {
+        'type': widget.progressionType.name,
+      });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al guardar la progresión: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al guardar la progresión: $e'), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {

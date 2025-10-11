@@ -6,20 +6,13 @@ class PhaseProgressAnalyticsWidget extends StatefulWidget {
   final String? routineId;
   final bool showDetailedStats;
 
-  const PhaseProgressAnalyticsWidget({
-    super.key,
-    this.exerciseId,
-    this.routineId,
-    this.showDetailedStats = true,
-  });
+  const PhaseProgressAnalyticsWidget({super.key, this.exerciseId, this.routineId, this.showDetailedStats = true});
 
   @override
-  State<PhaseProgressAnalyticsWidget> createState() =>
-      _PhaseProgressAnalyticsWidgetState();
+  State<PhaseProgressAnalyticsWidget> createState() => _PhaseProgressAnalyticsWidgetState();
 }
 
-class _PhaseProgressAnalyticsWidgetState
-    extends State<PhaseProgressAnalyticsWidget> {
+class _PhaseProgressAnalyticsWidgetState extends State<PhaseProgressAnalyticsWidget> {
   late PhaseNotificationService _notificationService;
 
   @override
@@ -83,24 +76,16 @@ class _PhaseProgressAnalyticsWidgetState
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(
-              Icons.analytics_outlined,
-              size: 48,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            Icon(Icons.analytics_outlined, size: 48, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
               'Sin datos de progresión',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 4),
             Text(
               'Los datos de progresión por fase aparecerán aquí una vez que comiences a usar plantillas con fases automáticas.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ],
@@ -116,10 +101,7 @@ class _PhaseProgressAnalyticsWidgetState
         const SizedBox(width: 8),
         Text(
           'Análisis de Progresión por Fases',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary),
         ),
         const Spacer(),
         IconButton(
@@ -131,20 +113,11 @@ class _PhaseProgressAnalyticsWidgetState
     );
   }
 
-  Widget _buildOverviewStats(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    Map<String, dynamic> stats,
-  ) {
+  Widget _buildOverviewStats(ThemeData theme, ColorScheme colorScheme, Map<String, dynamic> stats) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Resumen General',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Resumen General', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -175,59 +148,33 @@ class _PhaseProgressAnalyticsWidgetState
     );
   }
 
-  Widget _buildPhaseDistribution(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    Map<String, dynamic> stats,
-  ) {
+  Widget _buildPhaseDistribution(ThemeData theme, ColorScheme colorScheme, Map<String, dynamic> stats) {
     final changesByPhase = stats['changesByPhase'] as Map<String, int>;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Distribución por Fases',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Distribución por Fases', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         ...changesByPhase.entries.map((entry) {
           final phase = entry.key;
           final count = entry.value;
-          final percentage = (count / stats['totalChanges'] * 100)
-              .toStringAsFixed(1);
+          final percentage = (count / stats['totalChanges'] * 100).toStringAsFixed(1);
           final color = _getPhaseColor(phase);
 
-          return _buildPhaseDistributionItem(
-            theme,
-            colorScheme,
-            phase,
-            count,
-            percentage,
-            color,
-          );
+          return _buildPhaseDistributionItem(theme, colorScheme, phase, count, percentage, color);
         }),
       ],
     );
   }
 
-  Widget _buildExerciseStats(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    Map<String, dynamic> stats,
-  ) {
+  Widget _buildExerciseStats(ThemeData theme, ColorScheme colorScheme, Map<String, dynamic> stats) {
     final changesByExercise = stats['changesByExercise'] as Map<String, int>;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Cambios por Ejercicio',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Cambios por Ejercicio', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         ...changesByExercise.entries.take(5).map((entry) {
           final exerciseId = entry.key;
@@ -249,11 +196,7 @@ class _PhaseProgressAnalyticsWidgetState
     );
   }
 
-  Widget _buildCompactStats(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    Map<String, dynamic> stats,
-  ) {
+  Widget _buildCompactStats(ThemeData theme, ColorScheme colorScheme, Map<String, dynamic> stats) {
     return Row(
       children: [
         Expanded(
@@ -300,18 +243,10 @@ class _PhaseProgressAnalyticsWidgetState
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
+          Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: color)),
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -337,66 +272,31 @@ class _PhaseProgressAnalyticsWidgetState
       ),
       child: Row(
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
+          Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              phase,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          Expanded(child: Text(phase, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500))),
           Text(
             '$count ($percentage%)',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: color, fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildExerciseStatItem(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    String exerciseId,
-    int count,
-  ) {
+  Widget _buildExerciseStatItem(ThemeData theme, ColorScheme colorScheme, String exerciseId, int count) {
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(6),
-      ),
+      decoration: BoxDecoration(color: colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(6)),
       child: Row(
         children: [
-          Icon(
-            Icons.fitness_center,
-            size: 16,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(Icons.fitness_center, size: 16, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              exerciseId,
-              style: theme.textTheme.bodyMedium,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          Expanded(child: Text(exerciseId, style: theme.textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
           Text(
             '$count cambios',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w500),
           ),
         ],
       ),

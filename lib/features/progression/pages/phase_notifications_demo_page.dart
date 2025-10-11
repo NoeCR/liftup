@@ -11,14 +11,11 @@ class PhaseNotificationsDemoPage extends ConsumerStatefulWidget {
   const PhaseNotificationsDemoPage({super.key});
 
   @override
-  ConsumerState<PhaseNotificationsDemoPage> createState() =>
-      _PhaseNotificationsDemoPageState();
+  ConsumerState<PhaseNotificationsDemoPage> createState() => _PhaseNotificationsDemoPageState();
 }
 
-class _PhaseNotificationsDemoPageState
-    extends ConsumerState<PhaseNotificationsDemoPage> {
-  final PhaseNotificationService _notificationService =
-      PhaseNotificationService();
+class _PhaseNotificationsDemoPageState extends ConsumerState<PhaseNotificationsDemoPage> {
+  final PhaseNotificationService _notificationService = PhaseNotificationService();
 
   // Datos de simulación
   final List<ProgressionConfig> _simulatedConfigs = [];
@@ -52,9 +49,7 @@ class _PhaseNotificationsDemoPageState
           'intensification_rate': 0.05,
           'peaking_rate': 0.02,
         },
-        startDate: DateTime.now().subtract(
-          const Duration(days: 84),
-        ), // 12 semanas atrás
+        startDate: DateTime.now().subtract(const Duration(days: 84)), // 12 semanas atrás
         isActive: true,
         createdAt: DateTime.now().subtract(const Duration(days: 84)),
         updatedAt: DateTime.now(),
@@ -133,34 +128,22 @@ class _PhaseNotificationsDemoPageState
         title: const Text('Demo - Notificaciones de Fase'),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: _showInfoDialog,
-          ),
+          IconButton(icon: const Icon(Icons.info_outline), onPressed: _showInfoDialog),
           PopupMenuButton<String>(
             onSelected: _handleMenuAction,
             itemBuilder:
                 (context) => [
                   const PopupMenuItem(
                     value: 'simulate',
-                    child: ListTile(
-                      leading: Icon(Icons.play_arrow),
-                      title: Text('Simular Progresión'),
-                    ),
+                    child: ListTile(leading: Icon(Icons.play_arrow), title: Text('Simular Progresión')),
                   ),
                   const PopupMenuItem(
                     value: 'clear',
-                    child: ListTile(
-                      leading: Icon(Icons.clear_all),
-                      title: Text('Limpiar Historial'),
-                    ),
+                    child: ListTile(leading: Icon(Icons.clear_all), title: Text('Limpiar Historial')),
                   ),
                   const PopupMenuItem(
                     value: 'reset',
-                    child: ListTile(
-                      leading: Icon(Icons.refresh),
-                      title: Text('Reiniciar Demo'),
-                    ),
+                    child: ListTile(leading: Icon(Icons.refresh), title: Text('Reiniciar Demo')),
                   ),
                 ],
           ),
@@ -208,9 +191,7 @@ class _PhaseNotificationsDemoPageState
                 const SizedBox(width: 8),
                 Text(
                   'Sistema de Notificaciones de Fase',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -220,12 +201,7 @@ class _PhaseNotificationsDemoPageState
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
-            Text(
-              'Características:',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Características:', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             ...const [
               '• Detección automática de cambios de fase',
@@ -253,18 +229,11 @@ class _PhaseNotificationsDemoPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Simulador de Progresión',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Simulador de Progresión', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               'Simula el progreso semanal para ver cómo se detectan los cambios de fase',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             Row(
@@ -275,9 +244,7 @@ class _PhaseNotificationsDemoPageState
                     children: [
                       Text(
                         'Semana Actual: $_currentSimulationWeek',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 8),
                       Slider(
@@ -320,10 +287,7 @@ class _PhaseNotificationsDemoPageState
     );
   }
 
-  Widget _buildExerciseSpecificNotifications(
-    ThemeData theme,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildExerciseSpecificNotifications(ThemeData theme, ColorScheme colorScheme) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -332,16 +296,12 @@ class _PhaseNotificationsDemoPageState
           children: [
             Text(
               'Notificaciones por Ejercicio',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Widgets compactos que muestran la fase actual para cada ejercicio',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -445,12 +405,7 @@ class _PhaseNotificationsDemoPageState
                 ),
               ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
+            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar'))],
           ),
     );
   }
@@ -485,10 +440,7 @@ class _PhaseNotificationsDemoPageState
                   Text('🟠 Intensificación: Enfoque en intensidad'),
                   Text('🔴 Peaking: Máxima intensidad, volumen reducido'),
                   SizedBox(height: 12),
-                  Text(
-                    'Beneficios:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text('Beneficios:', style: TextStyle(fontWeight: FontWeight.bold)),
                   Text('• Seguimiento automático del progreso'),
                   Text('• Notificaciones en tiempo real'),
                   Text('• Análisis de rendimiento por fase'),
@@ -496,12 +448,7 @@ class _PhaseNotificationsDemoPageState
                 ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
+            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar'))],
           ),
     );
   }

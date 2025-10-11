@@ -42,8 +42,7 @@ class ProgressData extends Equatable {
     this.duration,
   });
 
-  factory ProgressData.fromJson(Map<String, dynamic> json) =>
-      _$ProgressDataFromJson(json);
+  factory ProgressData.fromJson(Map<String, dynamic> json) => _$ProgressDataFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressDataToJson(this);
 
   ProgressData copyWith({
@@ -69,16 +68,7 @@ class ProgressData extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-    id,
-    exerciseId,
-    date,
-    maxWeight,
-    totalReps,
-    totalSets,
-    totalVolume,
-    duration,
-  ];
+  List<Object?> get props => [id, exerciseId, date, maxWeight, totalReps, totalSets, totalVolume, duration];
 }
 
 @HiveType(typeId: 11)
@@ -123,8 +113,7 @@ class WorkoutStatistics extends Equatable {
     required this.exercisesPerformed,
   });
 
-  factory WorkoutStatistics.fromJson(Map<String, dynamic> json) =>
-      _$WorkoutStatisticsFromJson(json);
+  factory WorkoutStatistics.fromJson(Map<String, dynamic> json) => _$WorkoutStatisticsFromJson(json);
   Map<String, dynamic> toJson() => _$WorkoutStatisticsToJson(this);
 
   WorkoutStatistics copyWith({

@@ -11,19 +11,13 @@ class ProgressionTemplateSelector extends ConsumerStatefulWidget {
   final ProgressionType progressionType;
   final Function(ProgressionTemplate) onTemplateSelected;
 
-  const ProgressionTemplateSelector({
-    super.key,
-    required this.progressionType,
-    required this.onTemplateSelected,
-  });
+  const ProgressionTemplateSelector({super.key, required this.progressionType, required this.onTemplateSelected});
 
   @override
-  ConsumerState<ProgressionTemplateSelector> createState() =>
-      _ProgressionTemplateSelectorState();
+  ConsumerState<ProgressionTemplateSelector> createState() => _ProgressionTemplateSelectorState();
 }
 
-class _ProgressionTemplateSelectorState
-    extends ConsumerState<ProgressionTemplateSelector> {
+class _ProgressionTemplateSelectorState extends ConsumerState<ProgressionTemplateSelector> {
   ProgressionTemplate? _selectedTemplate;
   List<ProgressionTemplate> _availableTemplates = [];
   List<ProgressionTemplate> _filteredTemplates = [];
@@ -37,9 +31,7 @@ class _ProgressionTemplateSelectorState
 
   void _loadTemplates() {
     ProgressionTemplateService.initializeTemplates();
-    _availableTemplates = ProgressionTemplateService.getTemplatesForType(
-      widget.progressionType,
-    );
+    _availableTemplates = ProgressionTemplateService.getTemplatesForType(widget.progressionType);
     _filteredTemplates = List.from(_availableTemplates);
     if (_filteredTemplates.isNotEmpty) {
       _selectedTemplate = _filteredTemplates.first;
@@ -52,8 +44,7 @@ class _ProgressionTemplateSelectorState
       _filteredTemplates = filteredTemplates;
       // Si la plantilla seleccionada no está en las filtradas, seleccionar la primera
       if (!_filteredTemplates.contains(_selectedTemplate)) {
-        _selectedTemplate =
-            _filteredTemplates.isNotEmpty ? _filteredTemplates.first : null;
+        _selectedTemplate = _filteredTemplates.isNotEmpty ? _filteredTemplates.first : null;
         if (_selectedTemplate != null) {
           widget.onTemplateSelected(_selectedTemplate!);
         }
@@ -71,18 +62,11 @@ class _ProgressionTemplateSelectorState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Plantilla de Progresión',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Plantilla de Progresión', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               'Selecciona una plantilla predefinida para tu estrategia de progresión',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
 
@@ -96,20 +80,14 @@ class _ProgressionTemplateSelectorState
                         _showFilters = !_showFilters;
                       });
                     },
-                    icon: Icon(
-                      _showFilters ? Icons.filter_list_off : Icons.filter_list,
-                    ),
-                    label: Text(
-                      _showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros',
-                    ),
+                    icon: Icon(_showFilters ? Icons.filter_list_off : Icons.filter_list),
+                    label: Text(_showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   '${_filteredTemplates.length} de ${_availableTemplates.length} plantillas',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ],
             ),
@@ -132,30 +110,20 @@ class _ProgressionTemplateSelectorState
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withOpacity(0.2),
-                  ),
+                  border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
                 ),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 48,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    Icon(Icons.search_off, size: 48, color: theme.colorScheme.onSurfaceVariant),
                     const SizedBox(height: 8),
                     Text(
                       'No se encontraron plantillas',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Intenta ajustar los filtros de búsqueda',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -165,8 +133,7 @@ class _ProgressionTemplateSelectorState
                 value: _selectedTemplate,
                 decoration: const InputDecoration(
                   labelText: 'Plantilla',
-                  helperText:
-                      'Elige la plantilla que mejor se adapte a tus objetivos',
+                  helperText: 'Elige la plantilla que mejor se adapte a tus objetivos',
                   border: OutlineInputBorder(),
                 ),
                 items:
@@ -177,18 +144,10 @@ class _ProgressionTemplateSelectorState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              template.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Text(template.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                             Text(
                               template.description,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
+                              style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
                             ),
                           ],
                         ),
@@ -211,13 +170,11 @@ class _ProgressionTemplateSelectorState
               _buildTemplateDetails(_selectedTemplate!),
 
               // Visualización de fases (solo para plantillas con fases automáticas)
-              if (_selectedTemplate!.customParameters['overload_type'] ==
-                  'phases') ...[
+              if (_selectedTemplate!.customParameters['overload_type'] == 'phases') ...[
                 const SizedBox(height: 16),
                 PhaseVisualizationWidget(
                   template: _selectedTemplate!,
-                  currentWeek:
-                      null, // Se puede pasar la semana actual si está disponible
+                  currentWeek: null, // Se puede pasar la semana actual si está disponible
                 ),
               ],
             ],
@@ -244,70 +201,35 @@ class _ProgressionTemplateSelectorState
           // Header con categoría y dificultad
           Row(
             children: [
-              _buildInfoChip(
-                'Categoría',
-                template.category,
-                colorScheme.primary,
-              ),
+              _buildInfoChip('Categoría', template.category, colorScheme.primary),
               const SizedBox(width: 8),
-              _buildInfoChip(
-                'Dificultad',
-                template.difficulty,
-                colorScheme.secondary,
-              ),
+              _buildInfoChip('Dificultad', template.difficulty, colorScheme.secondary),
               const SizedBox(width: 8),
-              _buildInfoChip(
-                'Duración',
-                '${template.estimatedDuration} sem',
-                colorScheme.tertiary,
-              ),
+              _buildInfoChip('Duración', '${template.estimatedDuration} sem', colorScheme.tertiary),
             ],
           ),
           const SizedBox(height: 16),
 
           // Descripción detallada
-          Text(
-            'Descripción',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Descripción', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(template.detailedDescription, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
 
           // Cuándo usar
-          Text(
-            'Cuándo usar',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Cuándo usar', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(template.whenToUse, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
 
           // Explicación de progresión
-          Text(
-            'Cómo funciona',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Cómo funciona', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(
-            template.progressionExplanation,
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(template.progressionExplanation, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
 
           // Explicación de deload
-          Text(
-            'Deload',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          Text('Deload', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           Text(template.deloadExplanation, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 16),
@@ -322,10 +244,7 @@ class _ProgressionTemplateSelectorState
                   children: [
                     Text(
                       'Beneficios',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.green),
                     ),
                     const SizedBox(height: 4),
                     ...template.benefits.map(
@@ -335,12 +254,7 @@ class _ProgressionTemplateSelectorState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('• ', style: TextStyle(color: Colors.green)),
-                            Expanded(
-                              child: Text(
-                                benefit,
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ),
+                            Expanded(child: Text(benefit, style: theme.textTheme.bodySmall)),
                           ],
                         ),
                       ),
@@ -355,10 +269,7 @@ class _ProgressionTemplateSelectorState
                   children: [
                     Text(
                       'Consideraciones',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                      ),
+                      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.orange),
                     ),
                     const SizedBox(height: 4),
                     ...template.considerations.map(
@@ -368,12 +279,7 @@ class _ProgressionTemplateSelectorState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('• ', style: TextStyle(color: Colors.orange)),
-                            Expanded(
-                              child: Text(
-                                consideration,
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ),
+                            Expanded(child: Text(consideration, style: theme.textTheme.bodySmall)),
                           ],
                         ),
                       ),
@@ -400,10 +306,7 @@ class _ProgressionTemplateSelectorState
       ),
       child: Text(
         '$label: $value',
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
+        style: theme.textTheme.bodySmall?.copyWith(color: color, fontWeight: FontWeight.w500),
       ),
     );
   }

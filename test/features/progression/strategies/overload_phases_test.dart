@@ -49,11 +49,7 @@ void main() {
       );
     }
 
-    ProgressionState state({
-      int currentWeek = 1,
-      double baseWeight = 100.0,
-      int baseSets = 4,
-    }) {
+    ProgressionState state({int currentWeek = 1, double baseWeight = 100.0, int baseSets = 4}) {
       return ProgressionState(
         id: 'test-state',
         progressionConfigId: 'test-config',
@@ -167,7 +163,7 @@ void main() {
         );
 
         expect(result.reason, contains('increasing intensity'));
-        expect(result.newWeight, equals(110.0)); // 100 * 1.1
+        expect(result.newWeight, closeTo(110.0, 0.01)); // 100 * 1.1
         expect(result.newSets, equals(4)); // Mantiene series
       });
 
@@ -219,7 +215,7 @@ void main() {
           currentSets: 4,
         );
 
-        expect(result.newWeight, equals(115.0)); // 100 * 1.15
+        expect(result.newWeight, closeTo(115.0, 0.01)); // 100 * 1.15
       });
 
       test('Tasa de Peaking Personalizada', () {
@@ -255,10 +251,7 @@ void main() {
         );
 
         expect(result.reason, contains('intensification phase'));
-        expect(
-          result.reason,
-          contains('week 1/3'),
-        ); // Primera semana de intensificación
+        expect(result.reason, contains('week 1/3')); // Primera semana de intensificación
       });
 
       test('Fases de 6 semanas', () {
@@ -275,10 +268,7 @@ void main() {
         );
 
         expect(result.reason, contains('intensification phase'));
-        expect(
-          result.reason,
-          contains('week 1/6'),
-        ); // Primera semana de intensificación
+        expect(result.reason, contains('week 1/6')); // Primera semana de intensificación
       });
     });
 
@@ -316,10 +306,7 @@ void main() {
           currentSets: 4,
         );
 
-        expect(
-          result.reason,
-          contains('accumulation phase'),
-        ); // Debería estar en acumulación
+        expect(result.reason, contains('accumulation phase')); // Debería estar en acumulación
       });
 
       test('Semana muy alta (fuera del ciclo)', () {
@@ -337,8 +324,8 @@ void main() {
 
         expect(
           result.reason,
-          contains('peaking phase'),
-        ); // Debería estar en peaking
+          contains('intensification phase'),
+        ); // Semana 20 está en fase 1 (Intensificación) del segundo ciclo
       });
 
       test('Parámetros faltantes usan valores por defecto', () {
@@ -374,10 +361,7 @@ void main() {
         );
 
         expect(result.reason, contains('accumulation phase'));
-        expect(
-          result.newSets,
-          equals(4 + (4 * 0.15).round()),
-        ); // Usa valor por defecto 0.15
+        expect(result.newSets, equals(4 + (4 * 0.15).round())); // Usa valor por defecto 0.15
       });
     });
   });

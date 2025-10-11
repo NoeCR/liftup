@@ -14,10 +14,7 @@ class ProgressionDemoPage extends ConsumerWidget {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Demo - Sistema de Plantillas'),
-        backgroundColor: colorScheme.surface,
-      ),
+      appBar: AppBar(title: const Text('Demo - Sistema de Plantillas'), backgroundColor: colorScheme.surface),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -36,9 +33,7 @@ class ProgressionDemoPage extends ConsumerWidget {
                         const SizedBox(width: 8),
                         Text(
                           'Sistema de Plantillas de Progresión',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -48,12 +43,7 @@ class ProgressionDemoPage extends ConsumerWidget {
                       style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      'Características:',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    Text('Características:', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     ...const [
                       '• 25+ plantillas predefinidas para todas las estrategias',
@@ -77,9 +67,7 @@ class ProgressionDemoPage extends ConsumerWidget {
             // Selector de tipo de progresión
             Text(
               'Selecciona un tipo de progresión para ver el demo:',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
@@ -107,9 +95,7 @@ class ProgressionDemoPage extends ConsumerWidget {
                   children: [
                     Text(
                       'Próximas Funcionalidades',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     ...const [
@@ -148,25 +134,17 @@ class ProgressionDemoPage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                _getProgressionIcon(type),
-                size: 32,
-                color: colorScheme.primary,
-              ),
+              Icon(_getProgressionIcon(type), size: 32, color: colorScheme.primary),
               const SizedBox(height: 8),
               Text(
                 context.tr(type.displayNameKey),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 4),
               Text(
                 _getProgressionDescription(type),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -234,12 +212,7 @@ class ProgressionDemoPage extends ConsumerWidget {
 
   void _navigateToConfiguration(BuildContext context, ProgressionType type) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder:
-            (context) => ProgressionConfigurationWithTemplatesIntegrated(
-              progressionType: type,
-            ),
-      ),
+      MaterialPageRoute(builder: (context) => ProgressionConfigurationWithTemplatesIntegrated(progressionType: type)),
     );
   }
 }

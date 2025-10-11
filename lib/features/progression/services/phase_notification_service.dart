@@ -35,14 +35,12 @@ class PhaseChangeInfo {
 }
 
 class PhaseNotificationService extends ChangeNotifier {
-  static final PhaseNotificationService _instance =
-      PhaseNotificationService._internal();
+  static final PhaseNotificationService _instance = PhaseNotificationService._internal();
   factory PhaseNotificationService() => _instance;
   PhaseNotificationService._internal();
 
   final List<PhaseChangeInfo> _phaseChanges = [];
-  final Map<String, String> _lastKnownPhases =
-      {}; // exerciseId+routineId -> phase
+  final Map<String, String> _lastKnownPhases = {}; // exerciseId+routineId -> phase
   bool _notificationsEnabled = true;
 
   List<PhaseChangeInfo> get phaseChanges => List.unmodifiable(_phaseChanges);
@@ -72,8 +70,7 @@ class PhaseNotificationService extends ChangeNotifier {
     if (!_notificationsEnabled) return;
 
     // Solo procesar estrategias que soportan fases automáticas
-    if (config.type.name != 'overload' ||
-        config.customParameters['overload_type'] != 'phases') {
+    if (config.type.name != 'overload' || config.customParameters['overload_type'] != 'phases') {
       return;
     }
 
@@ -98,10 +95,7 @@ class PhaseNotificationService extends ChangeNotifier {
         changeDate: DateTime.now(),
       );
 
-      _phaseChanges.insert(
-        0,
-        phaseChange,
-      ); // Insertar al inicio para mostrar los más recientes
+      _phaseChanges.insert(0, phaseChange); // Insertar al inicio para mostrar los más recientes
       _lastKnownPhases[phaseKey] = currentPhaseName;
 
       // Limitar a 50 cambios recientes
@@ -125,52 +119,34 @@ class PhaseNotificationService extends ChangeNotifier {
   }
 
   /// Obtiene los cambios de fase para un ejercicio específico
-  List<PhaseChangeInfo> getPhaseChangesForExercise(
-    String exerciseId,
-    String routineId,
-  ) {
-    return _phaseChanges
-        .where(
-          (change) =>
-              change.exerciseId == exerciseId && change.routineId == routineId,
-        )
-        .toList();
+  List<PhaseChangeInfo> getPhaseChangesForExercise(String exerciseId, String routineId) {
+    return _phaseChanges.where((change) => change.exerciseId == exerciseId && change.routineId == routineId).toList();
   }
 
   /// Obtiene los cambios de fase recientes (últimos 7 días)
   List<PhaseChangeInfo> getRecentPhaseChanges({int days = 7}) {
     final cutoffDate = DateTime.now().subtract(Duration(days: days));
-    return _phaseChanges
-        .where((change) => change.changeDate.isAfter(cutoffDate))
-        .toList();
+    return _phaseChanges.where((change) => change.changeDate.isAfter(cutoffDate)).toList();
   }
 
   /// Obtiene estadísticas de cambios de fase
   Map<String, dynamic> getPhaseChangeStatistics() {
     if (_phaseChanges.isEmpty) {
-      return {
-        'totalChanges': 0,
-        'changesByPhase': {},
-        'changesByExercise': {},
-        'averageChangesPerWeek': 0.0,
-      };
+      return {'totalChanges': 0, 'changesByPhase': {}, 'changesByExercise': {}, 'averageChangesPerWeek': 0.0};
     }
 
     final changesByPhase = <String, int>{};
     final changesByExercise = <String, int>{};
 
     for (final change in _phaseChanges) {
-      changesByPhase[change.currentPhase] =
-          (changesByPhase[change.currentPhase] ?? 0) + 1;
-      changesByExercise[change.exerciseId] =
-          (changesByExercise[change.exerciseId] ?? 0) + 1;
+      changesByPhase[change.currentPhase] = (changesByPhase[change.currentPhase] ?? 0) + 1;
+      changesByExercise[change.exerciseId] = (changesByExercise[change.exerciseId] ?? 0) + 1;
     }
 
     final firstChange = _phaseChanges.last.changeDate;
     final lastChange = _phaseChanges.first.changeDate;
     final weeksElapsed = lastChange.difference(firstChange).inDays / 7;
-    final averageChangesPerWeek =
-        weeksElapsed > 0 ? _phaseChanges.length / weeksElapsed : 0.0;
+    final averageChangesPerWeek = weeksElapsed > 0 ? _phaseChanges.length / weeksElapsed : 0.0;
 
     return {
       'totalChanges': _phaseChanges.length,
@@ -196,26 +172,17 @@ class PhaseNotificationService extends ChangeNotifier {
   }
 
   String _getProgressionDetails(ProgressionConfig config, PhaseInfo phaseInfo) {
-    final phaseDurationWeeks =
-        (config.customParameters['phase_duration_weeks'] as num?)?.toInt() ?? 4;
+    final phaseDurationWeeks = (config.customParameters['phase_duration_weeks'] as num?)?.toInt() ?? 4;
 
     switch (phaseInfo.phase) {
       case 0: // Acumulación
-        final accumulationRate =
-            (config.customParameters['accumulation_rate'] as num?)
-                ?.toDouble() ??
-            0.15;
+        final accumulationRate = (config.customParameters['accumulation_rate'] as num?)?.toDouble() ?? 0.15;
         return 'Incremento de volumen: +${(accumulationRate * 100).toInt()}% semanal por $phaseDurationWeeks semanas';
       case 1: // Intensificación
-        final intensificationRate =
-            (config.customParameters['intensification_rate'] as num?)
-                ?.toDouble() ??
-            0.1;
+        final intensificationRate = (config.customParameters['intensification_rate'] as num?)?.toDouble() ?? 0.1;
         return 'Incremento de intensidad: +${(intensificationRate * 100).toInt()}% semanal por $phaseDurationWeeks semanas';
       case 2: // Peaking
-        final peakingRate =
-            (config.customParameters['peaking_rate'] as num?)?.toDouble() ??
-            0.05;
+        final peakingRate = (config.customParameters['peaking_rate'] as num?)?.toDouble() ?? 0.05;
         return 'Incremento mínimo: +${(peakingRate * 100).toInt()}% semanal, volumen reducido por $phaseDurationWeeks semanas';
       default:
         return 'Transición hacia nuevo ciclo de entrenamiento';

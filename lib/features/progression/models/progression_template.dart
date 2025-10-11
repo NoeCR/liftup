@@ -11,10 +11,8 @@ class ProgressionTemplate extends Equatable {
   final String name;
   final String description;
   final ProgressionType progressionType;
-  final String
-  category; // 'beginner', 'intermediate', 'advanced', 'specialized'
-  final String
-  goal; // 'strength', 'hypertrophy', 'endurance', 'power', 'general'
+  final String category; // 'beginner', 'intermediate', 'advanced', 'specialized'
+  final String goal; // 'strength', 'hypertrophy', 'endurance', 'power', 'general'
 
   // Configuración básica
   final ProgressionUnit unit;
@@ -71,8 +69,7 @@ class ProgressionTemplate extends Equatable {
     required this.targetAudience,
   });
 
-  factory ProgressionTemplate.fromJson(Map<String, dynamic> json) =>
-      _$ProgressionTemplateFromJson(json);
+  factory ProgressionTemplate.fromJson(Map<String, dynamic> json) => _$ProgressionTemplateFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProgressionTemplateToJson(this);
 

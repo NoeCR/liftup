@@ -12,12 +12,10 @@ class ProgressionSelectionDialog extends ConsumerStatefulWidget {
   const ProgressionSelectionDialog({super.key});
 
   @override
-  ConsumerState<ProgressionSelectionDialog> createState() =>
-      _ProgressionSelectionDialogState();
+  ConsumerState<ProgressionSelectionDialog> createState() => _ProgressionSelectionDialogState();
 }
 
-class _ProgressionSelectionDialogState
-    extends ConsumerState<ProgressionSelectionDialog> {
+class _ProgressionSelectionDialogState extends ConsumerState<ProgressionSelectionDialog> {
   ProgressionType? _selectedType;
   bool _isLoading = false;
 
@@ -40,10 +38,7 @@ class _ProgressionSelectionDialogState
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'progression.configureProgressionQuestion'.tr(),
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text('progression.configureProgressionQuestion'.tr(), style: theme.textTheme.bodyMedium),
             const SizedBox(height: 16),
 
             // Free training option
@@ -66,40 +61,29 @@ class _ProgressionSelectionDialogState
               title: 'progression.automaticProgression'.tr(),
               description: 'progression.automaticProgressionDescription'.tr(),
               icon: Icons.auto_graph,
-              isSelected:
-                  _selectedType != null &&
-                  _selectedType != ProgressionType.none,
+              isSelected: _selectedType != null && _selectedType != ProgressionType.none,
               onTap: () {
                 _showProgressionTypes();
               },
             ),
 
-            if (_selectedType != null &&
-                _selectedType != ProgressionType.none) ...[
+            if (_selectedType != null && _selectedType != ProgressionType.none) ...[
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.3),
-                  ),
+                  border: Border.all(color: colorScheme.primary.withValues(alpha: 0.3)),
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: colorScheme.primary,
-                      size: 20,
-                    ),
+                    Icon(Icons.info_outline, color: colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'progression.selectedProgression'.tr(
-                          namedArgs: {
-                            'type': context.tr(_selectedType!.displayNameKey),
-                          },
+                          namedArgs: {'type': context.tr(_selectedType!.displayNameKey)},
                         ),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.primary,
@@ -128,11 +112,7 @@ class _ProgressionSelectionDialogState
           onPressed: _isLoading ? null : _handleSelection,
           child:
               _isLoading
-                  ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : Text('progression.continue'.tr()),
         ),
       ],
@@ -159,14 +139,7 @@ class _ProgressionSelectionDialogState
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color:
-                    isSelected
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.primary,
-                size: 24,
-              ),
+              Icon(icon, color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.primary, size: 24),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -176,23 +149,20 @@ class _ProgressionSelectionDialogState
                       title,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color:
-                            isSelected ? colorScheme.onPrimaryContainer : null,
+                        color: isSelected ? colorScheme.onPrimaryContainer : null,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       description,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color:
-                            isSelected ? colorScheme.onPrimaryContainer : null,
+                        color: isSelected ? colorScheme.onPrimaryContainer : null,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (isSelected)
-                Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
+              if (isSelected) Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
             ],
           ),
         ),
@@ -224,17 +194,12 @@ class _ProgressionSelectionDialogState
     try {
       if (_selectedType == ProgressionType.none) {
         // Disable current progression if it exists
-        await ref
-            .read(progressionNotifierProvider.notifier)
-            .disableProgression();
+        await ref.read(progressionNotifierProvider.notifier).disableProgression();
       } else {
         // Navigate to progression configuration
         if (mounted) {
           Navigator.of(context).pop();
-          context.push(
-            '/progression-configuration',
-            extra: {'progressionType': _selectedType!},
-          );
+          context.push('/progression-configuration', extra: {'progressionType': _selectedType!});
           return;
         }
       }
@@ -244,9 +209,7 @@ class _ProgressionSelectionDialogState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
       }
     } finally {
       if (mounted) {
@@ -264,12 +227,10 @@ class _ProgressionTypeSelectionDialog extends ConsumerStatefulWidget {
   const _ProgressionTypeSelectionDialog({required this.onTypeSelected});
 
   @override
-  ConsumerState<_ProgressionTypeSelectionDialog> createState() =>
-      _ProgressionTypeSelectionDialogState();
+  ConsumerState<_ProgressionTypeSelectionDialog> createState() => _ProgressionTypeSelectionDialogState();
 }
 
-class _ProgressionTypeSelectionDialogState
-    extends ConsumerState<_ProgressionTypeSelectionDialog> {
+class _ProgressionTypeSelectionDialogState extends ConsumerState<_ProgressionTypeSelectionDialog> {
   ProgressionType? _selectedType;
 
   @override
@@ -298,22 +259,14 @@ class _ProgressionTypeSelectionDialogState
 
             // Filter only progression types (exclude 'none')
             final progressionTemplates =
-                templates
-                    .where(
-                      (template) =>
-                          template.progressionType != ProgressionType.none,
-                    )
-                    .toList();
+                templates.where((template) => template.progressionType != ProgressionType.none).toList();
 
             if (progressionTemplates.isEmpty) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 8),
-                  Text(
-                    'progression.noTemplatesFound'.tr(),
-                    textAlign: TextAlign.center,
-                  ),
+                  Text('progression.noTemplatesFound'.tr(), textAlign: TextAlign.center),
                   const SizedBox(height: 12),
                   FilledButton(
                     onPressed: () async {
@@ -388,38 +341,24 @@ class _ProgressionTypeSelectionDialogState
                       template.name,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color:
-                            isSelected ? colorScheme.onPrimaryContainer : null,
+                        color: isSelected ? colorScheme.onPrimaryContainer : null,
                       ),
                     ),
                   ),
-                  if (isSelected)
-                    Icon(
-                      Icons.check_circle,
-                      color: colorScheme.primary,
-                      size: 20,
-                    ),
+                  if (isSelected) Icon(Icons.check_circle, color: colorScheme.primary, size: 20),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
                 template.description,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: isSelected ? colorScheme.onPrimaryContainer : null,
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(color: isSelected ? colorScheme.onPrimaryContainer : null),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  _buildInfoChip(
-                    template.difficulty,
-                    _getDifficultyColor(template.difficulty),
-                  ),
+                  _buildInfoChip(template.difficulty, _getDifficultyColor(template.difficulty)),
                   const SizedBox(width: 8),
-                  _buildInfoChip(
-                    context.tr(template.progressionType.displayNameKey),
-                    colorScheme.secondary,
-                  ),
+                  _buildInfoChip(context.tr(template.progressionType.displayNameKey), colorScheme.secondary),
                 ],
               ),
             ],
@@ -437,14 +376,7 @@ class _ProgressionTypeSelectionDialogState
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 10,
-          color: color,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
+      child: Text(label, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.w500)),
     );
   }
 

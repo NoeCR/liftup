@@ -18,8 +18,7 @@ class PhaseNotificationWidget extends StatefulWidget {
   });
 
   @override
-  State<PhaseNotificationWidget> createState() =>
-      _PhaseNotificationWidgetState();
+  State<PhaseNotificationWidget> createState() => _PhaseNotificationWidgetState();
 }
 
 class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
@@ -64,11 +63,7 @@ class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
           children: [
             _buildHeader(theme, colorScheme),
             const SizedBox(height: 12),
-            ...changes
-                .take(widget.maxDisplayItems)
-                .map(
-                  (change) => _buildPhaseChangeItem(theme, colorScheme, change),
-                ),
+            ...changes.take(widget.maxDisplayItems).map((change) => _buildPhaseChangeItem(theme, colorScheme, change)),
             if (changes.length > widget.maxDisplayItems) ...[
               const SizedBox(height: 8),
               _buildShowMoreButton(theme, colorScheme, changes.length),
@@ -86,10 +81,7 @@ class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
         const SizedBox(width: 8),
         Text(
           'Cambios de Fase Recientes',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary),
         ),
         const Spacer(),
         if (widget.onDismiss != null)
@@ -102,11 +94,7 @@ class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
     );
   }
 
-  Widget _buildPhaseChangeItem(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    PhaseChangeInfo change,
-  ) {
+  Widget _buildPhaseChangeItem(ThemeData theme, ColorScheme colorScheme, PhaseChangeInfo change) {
     final phaseColor = _getPhaseColor(change.currentPhase);
     final timeAgo = _getTimeAgo(change.changeDate);
 
@@ -123,57 +111,30 @@ class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
         children: [
           Row(
             children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: phaseColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
+              Container(width: 8, height: 8, decoration: BoxDecoration(color: phaseColor, shape: BoxShape.circle)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   '${change.currentPhase} - Semana ${change.weekInPhase}/${change.totalWeeksInPhase}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: phaseColor,
-                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: phaseColor),
                 ),
               ),
-              Text(
-                timeAgo,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
+              Text(timeAgo, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            change.phaseDescription,
-            style: theme.textTheme.bodySmall,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+          Text(change.phaseDescription, style: theme.textTheme.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 4),
           Text(
             change.progressionDetails,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.primary,
-              fontWeight: FontWeight.w500,
-            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w500),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildShowMoreButton(
-    ThemeData theme,
-    ColorScheme colorScheme,
-    int totalChanges,
-  ) {
+  Widget _buildShowMoreButton(ThemeData theme, ColorScheme colorScheme, int totalChanges) {
     return Center(
       child: TextButton.icon(
         onPressed: () => _showAllChangesDialog(theme, colorScheme),
@@ -210,10 +171,7 @@ class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
               ),
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar')),
               TextButton(
                 onPressed: () {
                   _notificationService.clearPhaseChanges();
@@ -230,10 +188,7 @@ class _PhaseNotificationWidgetState extends State<PhaseNotificationWidget> {
     if (widget.showAllChanges) {
       return _notificationService.phaseChanges;
     } else if (widget.exerciseId != null && widget.routineId != null) {
-      return _notificationService.getPhaseChangesForExercise(
-        widget.exerciseId!,
-        widget.routineId!,
-      );
+      return _notificationService.getPhaseChangesForExercise(widget.exerciseId!, widget.routineId!);
     } else {
       return _notificationService.getRecentPhaseChanges(days: 7);
     }
@@ -274,12 +229,7 @@ class CompactPhaseNotificationWidget extends StatelessWidget {
   final String routineId;
   final VoidCallback? onTap;
 
-  const CompactPhaseNotificationWidget({
-    super.key,
-    required this.exerciseId,
-    required this.routineId,
-    this.onTap,
-  });
+  const CompactPhaseNotificationWidget({super.key, required this.exerciseId, required this.routineId, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -290,10 +240,7 @@ class CompactPhaseNotificationWidget extends StatelessWidget {
     return StreamBuilder(
       stream: Stream.periodic(const Duration(seconds: 1)),
       builder: (context, snapshot) {
-        final changes = notificationService.getPhaseChangesForExercise(
-          exerciseId,
-          routineId,
-        );
+        final changes = notificationService.getPhaseChangesForExercise(exerciseId, routineId);
 
         if (changes.isEmpty) {
           return const SizedBox.shrink();
@@ -314,28 +261,16 @@ class CompactPhaseNotificationWidget extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: phaseColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                Container(width: 6, height: 6, decoration: BoxDecoration(color: phaseColor, shape: BoxShape.circle)),
                 const SizedBox(width: 6),
                 Text(
                   latestChange.currentPhase,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: phaseColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: phaseColor, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   'S${latestChange.weekInPhase}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
               ],
             ),

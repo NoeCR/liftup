@@ -9,12 +9,10 @@ class OverloadPhasesDemoPage extends ConsumerStatefulWidget {
   const OverloadPhasesDemoPage({super.key});
 
   @override
-  ConsumerState<OverloadPhasesDemoPage> createState() =>
-      _OverloadPhasesDemoPageState();
+  ConsumerState<OverloadPhasesDemoPage> createState() => _OverloadPhasesDemoPageState();
 }
 
-class _OverloadPhasesDemoPageState
-    extends ConsumerState<OverloadPhasesDemoPage> {
+class _OverloadPhasesDemoPageState extends ConsumerState<OverloadPhasesDemoPage> {
   ProgressionTemplate? _selectedTemplate;
   int _currentWeek = 1;
 
@@ -26,13 +24,8 @@ class _OverloadPhasesDemoPageState
 
   void _loadTemplates() {
     ProgressionTemplateService.initializeTemplates();
-    final templates = ProgressionTemplateService.getTemplatesForType(
-      ProgressionType.overload,
-    );
-    final phasesTemplates =
-        templates
-            .where((t) => t.customParameters['overload_type'] == 'phases')
-            .toList();
+    final templates = ProgressionTemplateService.getTemplatesForType(ProgressionType.overload);
+    final phasesTemplates = templates.where((t) => t.customParameters['overload_type'] == 'phases').toList();
 
     if (phasesTemplates.isNotEmpty) {
       setState(() {
@@ -50,12 +43,7 @@ class _OverloadPhasesDemoPageState
       appBar: AppBar(
         title: const Text('Demo - Fases Automáticas'),
         backgroundColor: colorScheme.surface,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: _showInfoDialog,
-          ),
-        ],
+        actions: [IconButton(icon: const Icon(Icons.info_outline), onPressed: _showInfoDialog)],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -76,17 +64,12 @@ class _OverloadPhasesDemoPageState
 
             // Visualización de fases
             if (_selectedTemplate != null) ...[
-              PhaseVisualizationWidget(
-                template: _selectedTemplate!,
-                currentWeek: _currentWeek,
-              ),
+              PhaseVisualizationWidget(template: _selectedTemplate!, currentWeek: _currentWeek),
               const SizedBox(height: 24),
             ],
 
             // Información detallada de la plantilla
-            if (_selectedTemplate != null) ...[
-              _buildTemplateDetails(theme, colorScheme),
-            ],
+            if (_selectedTemplate != null) ...[_buildTemplateDetails(theme, colorScheme)],
           ],
         ),
       ),
@@ -106,9 +89,7 @@ class _OverloadPhasesDemoPageState
                 const SizedBox(width: 8),
                 Text(
                   'Fases Automáticas en OverloadProgressionStrategy',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -118,12 +99,7 @@ class _OverloadPhasesDemoPageState
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
-            Text(
-              'Características:',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Características:', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             ...const [
               '• 5 plantillas especializadas con fases automáticas',
@@ -144,13 +120,8 @@ class _OverloadPhasesDemoPageState
   }
 
   Widget _buildTemplateSelector(ThemeData theme, ColorScheme colorScheme) {
-    final templates = ProgressionTemplateService.getTemplatesForType(
-      ProgressionType.overload,
-    );
-    final phasesTemplates =
-        templates
-            .where((t) => t.customParameters['overload_type'] == 'phases')
-            .toList();
+    final templates = ProgressionTemplateService.getTemplatesForType(ProgressionType.overload);
+    final phasesTemplates = templates.where((t) => t.customParameters['overload_type'] == 'phases').toList();
 
     return Card(
       child: Padding(
@@ -158,19 +129,13 @@ class _OverloadPhasesDemoPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Seleccionar Plantilla',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Seleccionar Plantilla', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             DropdownButtonFormField<ProgressionTemplate>(
               value: _selectedTemplate,
               decoration: const InputDecoration(
                 labelText: 'Plantilla con Fases Automáticas',
-                helperText:
-                    'Elige una plantilla para ver su visualización de fases',
+                helperText: 'Elige una plantilla para ver su visualización de fases',
                 border: OutlineInputBorder(),
               ),
               items:
@@ -181,16 +146,10 @@ class _OverloadPhasesDemoPageState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            template.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                          Text(template.name, style: const TextStyle(fontWeight: FontWeight.bold)),
                           Text(
                             template.description,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colorScheme.onSurfaceVariant,
-                            ),
+                            style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -218,18 +177,11 @@ class _OverloadPhasesDemoPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Simular Semana Actual',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Simular Semana Actual', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text(
               'Cambia la semana para ver cómo se actualiza la visualización de fases',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
             Row(
@@ -249,12 +201,7 @@ class _OverloadPhasesDemoPageState
                   ),
                 ),
                 const SizedBox(width: 16),
-                Text(
-                  'Semana $_currentWeek',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Text('Semana $_currentWeek', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -270,21 +217,13 @@ class _OverloadPhasesDemoPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Detalles de la Plantilla',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('Detalles de la Plantilla', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             _buildDetailRow('Nombre', _selectedTemplate!.name),
             _buildDetailRow('Descripción', _selectedTemplate!.description),
             _buildDetailRow('Categoría', _selectedTemplate!.category),
             _buildDetailRow('Objetivo', _selectedTemplate!.goal),
-            _buildDetailRow(
-              'Duración del Ciclo',
-              '${_selectedTemplate!.cycleLength} semanas',
-            ),
+            _buildDetailRow('Duración del Ciclo', '${_selectedTemplate!.cycleLength} semanas'),
             _buildDetailRow(
               'Duración de Fases',
               '${_selectedTemplate!.customParameters['phase_duration_weeks']} semanas',
@@ -302,10 +241,7 @@ class _OverloadPhasesDemoPageState
               '${(_selectedTemplate!.customParameters['peaking_rate'] as num? ?? 0.05) * 100}%',
             ),
             _buildDetailRow('Dificultad', _selectedTemplate!.difficulty),
-            _buildDetailRow(
-              'Duración Estimada',
-              '${_selectedTemplate!.estimatedDuration} semanas',
-            ),
+            _buildDetailRow('Duración Estimada', '${_selectedTemplate!.estimatedDuration} semanas'),
           ],
         ),
       ),
@@ -322,12 +258,7 @@ class _OverloadPhasesDemoPageState
         children: [
           SizedBox(
             width: 140,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            child: Text(label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
           ),
           const SizedBox(width: 16),
           Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
@@ -356,10 +287,7 @@ class _OverloadPhasesDemoPageState
                   Text('🟠 Intensificación: Enfoque en intensidad'),
                   Text('🔴 Peaking: Máxima intensidad, volumen reducido'),
                   SizedBox(height: 12),
-                  Text(
-                    'Beneficios:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  Text('Beneficios:', style: TextStyle(fontWeight: FontWeight.bold)),
                   Text('• Progresión automática sin configuración manual'),
                   Text('• Optimización científica del rendimiento'),
                   Text('• Preparación para competencia'),
@@ -367,12 +295,7 @@ class _OverloadPhasesDemoPageState
                 ],
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cerrar'),
-              ),
-            ],
+            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar'))],
           ),
     );
   }

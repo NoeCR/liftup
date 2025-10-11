@@ -25,23 +25,11 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
   int? _selectedDuration;
   bool _showOnlyPhases = false;
 
-  final List<String> _goals = [
-    'hypertrophy',
-    'strength',
-    'powerlifting',
-    'powerbuilding',
-    'competition',
-    'general',
-  ];
+  final List<String> _goals = ['hypertrophy', 'strength', 'powerlifting', 'powerbuilding', 'competition', 'general'];
 
   final List<String> _difficulties = ['easy', 'medium', 'hard'];
 
-  final List<String> _categories = [
-    'beginner',
-    'intermediate',
-    'advanced',
-    'specialized',
-  ];
+  final List<String> _categories = ['beginner', 'intermediate', 'advanced', 'specialized'];
 
   final List<int> _durations = [4, 6, 8, 9, 12, 16, 18, 20];
 
@@ -58,15 +46,9 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
     if (_searchQuery.isNotEmpty) {
       filteredTemplates =
           filteredTemplates.where((template) {
-            return template.name.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                template.description.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                template.detailedDescription.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                );
+            return template.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                template.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                template.detailedDescription.toLowerCase().contains(_searchQuery.toLowerCase());
           }).toList();
     }
 
@@ -143,9 +125,7 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
                 const SizedBox(width: 8),
                 Text(
                   'Filtros de Plantillas',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 TextButton.icon(
@@ -188,12 +168,7 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
 
             // Filtros avanzados
             if (widget.showAdvancedFilters) ...[
-              Text(
-                'Filtros Avanzados',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text('Filtros Avanzados', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
 
               // Filtros en filas
@@ -206,12 +181,7 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
                     'Objetivo',
                     _selectedGoal,
                     _goals
-                        .map(
-                          (goal) => DropdownMenuItem(
-                            value: goal,
-                            child: Text(_getGoalDisplayName(goal)),
-                          ),
-                        )
+                        .map((goal) => DropdownMenuItem(value: goal, child: Text(_getGoalDisplayName(goal))))
                         .toList(),
                     (value) {
                       setState(() {
@@ -227,10 +197,8 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
                     _selectedDifficulty,
                     _difficulties
                         .map(
-                          (difficulty) => DropdownMenuItem(
-                            value: difficulty,
-                            child: Text(_getDifficultyDisplayName(difficulty)),
-                          ),
+                          (difficulty) =>
+                              DropdownMenuItem(value: difficulty, child: Text(_getDifficultyDisplayName(difficulty))),
                         )
                         .toList(),
                     (value) {
@@ -247,10 +215,8 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
                     _selectedCategory,
                     _categories
                         .map(
-                          (category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(_getCategoryDisplayName(category)),
-                          ),
+                          (category) =>
+                              DropdownMenuItem(value: category, child: Text(_getCategoryDisplayName(category))),
                         )
                         .toList(),
                     (value) {
@@ -267,16 +233,12 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
                     _selectedDuration?.toString(),
                     _durations
                         .map(
-                          (duration) => DropdownMenuItem(
-                            value: duration.toString(),
-                            child: Text('$duration semanas'),
-                          ),
+                          (duration) => DropdownMenuItem(value: duration.toString(), child: Text('$duration semanas')),
                         )
                         .toList(),
                     (value) {
                       setState(() {
-                        _selectedDuration =
-                            value != null ? int.parse(value) : null;
+                        _selectedDuration = value != null ? int.parse(value) : null;
                       });
                       _applyFilters();
                     },
@@ -298,21 +260,13 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
                     },
                   ),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Solo plantillas con fases automáticas',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ),
+                  Expanded(child: Text('Solo plantillas con fases automáticas', style: theme.textTheme.bodyMedium)),
                 ],
               ),
             ],
 
             // Resumen de filtros activos
-            if (_hasActiveFilters()) ...[
-              const SizedBox(height: 16),
-              _buildActiveFiltersSummary(theme, colorScheme),
-            ],
+            if (_hasActiveFilters()) ...[const SizedBox(height: 16), _buildActiveFiltersSummary(theme, colorScheme)],
           ],
         ),
       ),
@@ -332,30 +286,19 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(label, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
           const SizedBox(height: 4),
           DropdownButtonFormField<String>(
             value: value,
             decoration: InputDecoration(
               hintText: 'Todos',
               border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             items: [
               DropdownMenuItem<String>(
                 value: null,
-                child: Text(
-                  'Todos',
-                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-                ),
+                child: Text('Todos', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
               ),
               ...items,
             ],
@@ -376,14 +319,10 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
       activeFilters.add('Objetivo: ${_getGoalDisplayName(_selectedGoal!)}');
     }
     if (_selectedDifficulty != null) {
-      activeFilters.add(
-        'Dificultad: ${_getDifficultyDisplayName(_selectedDifficulty!)}',
-      );
+      activeFilters.add('Dificultad: ${_getDifficultyDisplayName(_selectedDifficulty!)}');
     }
     if (_selectedCategory != null) {
-      activeFilters.add(
-        'Categoría: ${_getCategoryDisplayName(_selectedCategory!)}',
-      );
+      activeFilters.add('Categoría: ${_getCategoryDisplayName(_selectedCategory!)}');
     }
     if (_selectedDuration != null) {
       activeFilters.add('Duración: $_selectedDuration semanas');
@@ -408,10 +347,7 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
               const SizedBox(width: 8),
               Text(
                 'Filtros activos:',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.primary),
               ),
             ],
           ),
@@ -422,16 +358,11 @@ class _TemplateFiltersWidgetState extends State<TemplateFiltersWidget> {
             children:
                 activeFilters.map((filter) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: colorScheme.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: colorScheme.primary.withOpacity(0.3),
-                      ),
+                      border: Border.all(color: colorScheme.primary.withOpacity(0.3)),
                     ),
                     child: Text(
                       filter,

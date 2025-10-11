@@ -5,11 +5,7 @@ class PhaseVisualizationWidget extends StatelessWidget {
   final ProgressionTemplate template;
   final int? currentWeek;
 
-  const PhaseVisualizationWidget({
-    super.key,
-    required this.template,
-    this.currentWeek,
-  });
+  const PhaseVisualizationWidget({super.key, required this.template, this.currentWeek});
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +13,11 @@ class PhaseVisualizationWidget extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     // Solo mostrar para plantillas de overload con fases
-    if (template.progressionType.name != 'overload' ||
-        template.customParameters['overload_type'] != 'phases') {
+    if (template.progressionType.name != 'overload' || template.customParameters['overload_type'] != 'phases') {
       return const SizedBox.shrink();
     }
 
-    final phaseDurationWeeks =
-        template.customParameters['phase_duration_weeks'] as int? ?? 4;
+    final phaseDurationWeeks = template.customParameters['phase_duration_weeks'] as int? ?? 4;
     final cycleLength = template.cycleLength;
     final phases = _generatePhases(phaseDurationWeeks, cycleLength);
 
@@ -39,9 +33,7 @@ class PhaseVisualizationWidget extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Visualización de Fases',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -55,17 +47,9 @@ class PhaseVisualizationWidget extends StatelessWidget {
               final index = entry.key;
               final phase = entry.value;
               final isCurrentPhase =
-                  currentWeek != null &&
-                  currentWeek! >= phase.startWeek &&
-                  currentWeek! <= phase.endWeek;
+                  currentWeek != null && currentWeek! >= phase.startWeek && currentWeek! <= phase.endWeek;
 
-              return _buildPhaseCard(
-                context,
-                phase,
-                index,
-                isCurrentPhase,
-                colorScheme,
-              );
+              return _buildPhaseCard(context, phase, index, isCurrentPhase, colorScheme);
             }),
             const SizedBox(height: 16),
             _buildPhaseLegend(context, colorScheme),
@@ -90,10 +74,7 @@ class PhaseVisualizationWidget extends StatelessWidget {
     ];
 
     final phaseColor = phaseColors[index % phaseColors.length];
-    final cardColor =
-        isCurrentPhase
-            ? phaseColor.withOpacity(0.1)
-            : colorScheme.surfaceContainerHighest;
+    final cardColor = isCurrentPhase ? phaseColor.withOpacity(0.1) : colorScheme.surfaceContainerHighest;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -102,24 +83,14 @@ class PhaseVisualizationWidget extends StatelessWidget {
         color: cardColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color:
-              isCurrentPhase
-                  ? phaseColor
-                  : colorScheme.outline.withOpacity(0.2),
+          color: isCurrentPhase ? phaseColor : colorScheme.outline.withOpacity(0.2),
           width: isCurrentPhase ? 2 : 1,
         ),
       ),
       child: Row(
         children: [
           // Indicador de fase
-          Container(
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: phaseColor,
-              shape: BoxShape.circle,
-            ),
-          ),
+          Container(width: 12, height: 12, decoration: BoxDecoration(color: phaseColor, shape: BoxShape.circle)),
           const SizedBox(width: 12),
           // Información de la fase
           Expanded(
@@ -138,20 +109,11 @@ class PhaseVisualizationWidget extends StatelessWidget {
                     if (isCurrentPhase) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: phaseColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: phaseColor, borderRadius: BorderRadius.circular(4)),
                         child: Text(
                           'ACTUAL',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: theme.textTheme.labelSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -160,19 +122,14 @@ class PhaseVisualizationWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Semanas ${phase.startWeek}-${phase.endWeek} (${phase.duration} semanas)',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 4),
                 Text(phase.description, style: theme.textTheme.bodySmall),
                 const SizedBox(height: 4),
                 Text(
                   phase.progression,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: phaseColor,
-                  ),
+                  style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500, color: phaseColor),
                 ),
               ],
             ),
@@ -193,40 +150,18 @@ class PhaseVisualizationWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Leyenda:',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('Leyenda:', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         ...legendItems.map((item) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Row(
               children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: item.$2,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                Container(width: 12, height: 12, decoration: BoxDecoration(color: item.$2, shape: BoxShape.circle)),
                 const SizedBox(width: 8),
-                Text(
-                  item.$1,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                Text(item.$1, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
                 const SizedBox(width: 8),
-                Text(
-                  '- ${item.$3}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
+                Text('- ${item.$3}', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
               ],
             ),
           );
