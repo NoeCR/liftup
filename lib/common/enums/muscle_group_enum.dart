@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'muscle_group_enum.g.dart';
 
-@HiveType(typeId: 13)
+@HiveType(typeId: 12)
 enum MuscleGroup {
   // Pecho
   @HiveField(0)
@@ -344,7 +344,9 @@ extension MuscleGroupExtension on MuscleGroup {
   }
 
   static List<MuscleGroup> getByCategory(String category) {
-    return MuscleGroup.values.where((muscle) => muscle.category == category).toList();
+    return MuscleGroup.values
+        .where((muscle) => muscle.category == category)
+        .toList();
   }
 
   static List<String> get allCategories => [

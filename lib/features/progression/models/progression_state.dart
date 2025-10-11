@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'progression_state.g.dart';
 
-@HiveType(typeId: 24)
+@HiveType(typeId: 19)
 @JsonSerializable()
 class ProgressionState extends Equatable {
   @HiveField(0)
@@ -82,7 +82,8 @@ class ProgressionState extends Equatable {
     required this.customData,
   });
 
-  factory ProgressionState.fromJson(Map<String, dynamic> json) => _$ProgressionStateFromJson(json);
+  factory ProgressionState.fromJson(Map<String, dynamic> json) =>
+      _$ProgressionStateFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionStateToJson(this);
 
   ProgressionState copyWith({

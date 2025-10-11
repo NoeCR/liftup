@@ -1,6 +1,7 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../common/enums/muscle_group_enum.dart';
 
 part 'exercise.g.dart';
@@ -87,7 +88,8 @@ class Exercise extends Equatable {
     this.exerciseType = ExerciseType.multiJoint,
   });
 
-  factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
+  factory Exercise.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseFromJson(json);
   Map<String, dynamic> toJson() => _$ExerciseToJson(this);
 
   Exercise copyWith({
@@ -231,7 +233,7 @@ enum ExerciseDifficulty {
   advanced,
 }
 
-@HiveType(typeId: 25)
+@HiveType(typeId: 20)
 enum ExerciseType {
   @HiveField(0)
   multiJoint('Multi-joint', 'Exercises involving multiple joints'),

@@ -1,153 +1,139 @@
 import 'package:equatable/equatable.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../common/enums/progression_type_enum.dart';
 
 part 'progression_template.g.dart';
 
-@HiveType(typeId: 36)
 @JsonSerializable()
 class ProgressionTemplate extends Equatable {
-  @HiveField(0)
   final String id;
-
-  @HiveField(1)
   final String name;
-
-  @HiveField(2)
   final String description;
+  final ProgressionType progressionType;
+  final String
+  category; // 'beginner', 'intermediate', 'advanced', 'specialized'
+  final String
+  goal; // 'strength', 'hypertrophy', 'endurance', 'power', 'general'
 
-  @HiveField(3)
-  final ProgressionType type;
+  // Configuración básica
+  final ProgressionUnit unit;
+  final ProgressionTarget primaryTarget;
+  final ProgressionTarget? secondaryTarget;
 
-  @HiveField(4)
-  final ProgressionUnit defaultUnit;
+  // Parámetros de progresión
+  final double incrementValue;
+  final int incrementFrequency;
+  final int cycleLength;
+  final int deloadWeek;
+  final double deloadPercentage;
 
-  @HiveField(5)
-  final ProgressionTarget defaultPrimaryTarget;
+  // Parámetros específicos de la estrategia
+  final Map<String, dynamic> customParameters;
 
-  @HiveField(6)
-  final ProgressionTarget? defaultSecondaryTarget;
+  // Información adicional
+  final String detailedDescription;
+  final String whenToUse;
+  final String deloadExplanation;
+  final String progressionExplanation;
+  final List<String> benefits;
+  final List<String> considerations;
 
-  @HiveField(7)
-  final double defaultIncrementValue;
-
-  @HiveField(8)
-  final int defaultIncrementFrequency;
-
-  @HiveField(9)
-  final int defaultCycleLength;
-
-  @HiveField(10)
-  final int defaultDeloadWeek;
-
-  @HiveField(11)
-  final double defaultDeloadPercentage;
-
-  @HiveField(12)
-  final Map<String, dynamic> defaultParameters;
-
-  @HiveField(13)
-  final List<String> recommendedFor;
-
-  @HiveField(14)
-  final String difficulty;
-
-  @HiveField(15)
-  final String example;
-
-  @HiveField(16)
-  final bool isBuiltIn;
-
-  @HiveField(17)
-  final DateTime createdAt;
+  // Metadatos
+  final int estimatedDuration; // semanas
+  final String difficulty; // 'easy', 'moderate', 'hard'
+  final List<String> targetAudience; // ['beginner', 'intermediate', 'advanced']
 
   const ProgressionTemplate({
     required this.id,
     required this.name,
     required this.description,
-    required this.type,
-    required this.defaultUnit,
-    required this.defaultPrimaryTarget,
-    this.defaultSecondaryTarget,
-    required this.defaultIncrementValue,
-    required this.defaultIncrementFrequency,
-    required this.defaultCycleLength,
-    required this.defaultDeloadWeek,
-    required this.defaultDeloadPercentage,
-    required this.defaultParameters,
-    required this.recommendedFor,
+    required this.progressionType,
+    required this.category,
+    required this.goal,
+    required this.unit,
+    required this.primaryTarget,
+    this.secondaryTarget,
+    required this.incrementValue,
+    required this.incrementFrequency,
+    required this.cycleLength,
+    required this.deloadWeek,
+    required this.deloadPercentage,
+    required this.customParameters,
+    required this.detailedDescription,
+    required this.whenToUse,
+    required this.deloadExplanation,
+    required this.progressionExplanation,
+    required this.benefits,
+    required this.considerations,
+    required this.estimatedDuration,
     required this.difficulty,
-    required this.example,
-    required this.isBuiltIn,
-    required this.createdAt,
+    required this.targetAudience,
   });
 
-  factory ProgressionTemplate.fromJson(Map<String, dynamic> json) => _$ProgressionTemplateFromJson(json);
-  Map<String, dynamic> toJson() => _$ProgressionTemplateToJson(this);
+  factory ProgressionTemplate.fromJson(Map<String, dynamic> json) =>
+      _$ProgressionTemplateFromJson(json);
 
-  ProgressionTemplate copyWith({
-    String? id,
-    String? name,
-    String? description,
-    ProgressionType? type,
-    ProgressionUnit? defaultUnit,
-    ProgressionTarget? defaultPrimaryTarget,
-    ProgressionTarget? defaultSecondaryTarget,
-    double? defaultIncrementValue,
-    int? defaultIncrementFrequency,
-    int? defaultCycleLength,
-    int? defaultDeloadWeek,
-    double? defaultDeloadPercentage,
-    Map<String, dynamic>? defaultParameters,
-    List<String>? recommendedFor,
-    String? difficulty,
-    String? example,
-    bool? isBuiltIn,
-    DateTime? createdAt,
-  }) {
-    return ProgressionTemplate(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      description: description ?? this.description,
-      type: type ?? this.type,
-      defaultUnit: defaultUnit ?? this.defaultUnit,
-      defaultPrimaryTarget: defaultPrimaryTarget ?? this.defaultPrimaryTarget,
-      defaultSecondaryTarget: defaultSecondaryTarget ?? this.defaultSecondaryTarget,
-      defaultIncrementValue: defaultIncrementValue ?? this.defaultIncrementValue,
-      defaultIncrementFrequency: defaultIncrementFrequency ?? this.defaultIncrementFrequency,
-      defaultCycleLength: defaultCycleLength ?? this.defaultCycleLength,
-      defaultDeloadWeek: defaultDeloadWeek ?? this.defaultDeloadWeek,
-      defaultDeloadPercentage: defaultDeloadPercentage ?? this.defaultDeloadPercentage,
-      defaultParameters: defaultParameters ?? this.defaultParameters,
-      recommendedFor: recommendedFor ?? this.recommendedFor,
-      difficulty: difficulty ?? this.difficulty,
-      example: example ?? this.example,
-      isBuiltIn: isBuiltIn ?? this.isBuiltIn,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
+  Map<String, dynamic> toJson() => _$ProgressionTemplateToJson(this);
 
   @override
   List<Object?> get props => [
     id,
     name,
     description,
-    type,
-    defaultUnit,
-    defaultPrimaryTarget,
-    defaultSecondaryTarget,
-    defaultIncrementValue,
-    defaultIncrementFrequency,
-    defaultCycleLength,
-    defaultDeloadWeek,
-    defaultDeloadPercentage,
-    defaultParameters,
-    recommendedFor,
+    progressionType,
+    category,
+    goal,
+    unit,
+    primaryTarget,
+    secondaryTarget,
+    incrementValue,
+    incrementFrequency,
+    cycleLength,
+    deloadWeek,
+    deloadPercentage,
+    customParameters,
+    detailedDescription,
+    whenToUse,
+    deloadExplanation,
+    progressionExplanation,
+    benefits,
+    considerations,
+    estimatedDuration,
     difficulty,
-    example,
-    isBuiltIn,
-    createdAt,
+    targetAudience,
   ];
+}
+
+/// Categorías de plantillas
+enum TemplateCategory {
+  beginner('Principiante'),
+  intermediate('Intermedio'),
+  advanced('Avanzado'),
+  specialized('Especializado');
+
+  const TemplateCategory(this.displayName);
+  final String displayName;
+}
+
+/// Objetivos de entrenamiento
+enum TrainingGoal {
+  strength('Fuerza'),
+  hypertrophy('Hipertrofia'),
+  endurance('Resistencia'),
+  power('Potencia'),
+  general('General');
+
+  const TrainingGoal(this.displayName);
+  final String displayName;
+}
+
+/// Niveles de dificultad
+enum TemplateDifficulty {
+  easy('Fácil'),
+  moderate('Moderado'),
+  hard('Difícil');
+
+  const TemplateDifficulty(this.displayName);
+  final String displayName;
 }

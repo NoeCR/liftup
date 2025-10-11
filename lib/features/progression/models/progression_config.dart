@@ -1,11 +1,12 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../common/enums/progression_type_enum.dart';
 
 part 'progression_config.g.dart';
 
-@HiveType(typeId: 23)
+@HiveType(typeId: 18)
 @JsonSerializable()
 class ProgressionConfig extends Equatable {
   @HiveField(0)
@@ -79,7 +80,8 @@ class ProgressionConfig extends Equatable {
     required this.updatedAt,
   });
 
-  factory ProgressionConfig.fromJson(Map<String, dynamic> json) => _$ProgressionConfigFromJson(json);
+  factory ProgressionConfig.fromJson(Map<String, dynamic> json) =>
+      _$ProgressionConfigFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionConfigToJson(this);
 
   ProgressionConfig copyWith({

@@ -646,22 +646,50 @@ if (ratio > 1.2) {
 
 #### **8.10 OverloadProgressionStrategy**
 ```dart
-// Sobrecarga progresiva
-final volumeOverload = config.volumeOverload;
-final intensityOverload = config.intensityOverload;
+// Sobrecarga progresiva con dos tipos: volumen o intensidad
+final overloadType = (config.customParameters['overload_type'] as String?) ?? 'volume';
+final overloadRate = (config.customParameters['overload_rate'] as num?)?.toDouble() ?? 0.1;
 
-return ProgressionCalculationResult(
-  newWeight: currentWeight + (incrementValue * intensityOverload),
-  newSets: currentSets + volumeOverload,
-  incrementApplied: true,
-  reason: 'Overload progression: volume +$volumeOverload, intensity +${intensityOverload}x',
-);
+if (overloadType == 'volume') {
+  // Fase 1: Incrementar volumen (series) manteniendo peso y reps
+  return ProgressionCalculationResult(
+    newWeight: currentWeight,
+    newReps: currentReps,
+    newSets: state.baseSets, // Mantiene series base
+    incrementApplied: true,
+    reason: 'Overload progression: increasing volume',
+  );
+} else {
+  // Fase 2: Incrementar intensidad (peso) por porcentaje
+  return ProgressionCalculationResult(
+    newWeight: currentWeight * (1 + overloadRate), // Incremento porcentual
+    newReps: currentReps,
+    newSets: state.baseSets,
+    incrementApplied: true,
+    reason: 'Overload progression: increasing intensity',
+  );
+}
 ```
 
 **Características:**
-- Sobrecarga de volumen e intensidad
-- Parámetros de sobrecarga configurables
-- Ideal para atletas de élite
+- **Dos tipos de sobrecarga**: Volumen (series) o Intensidad (peso)
+- **Incremento porcentual**: Para intensidad usa porcentaje (default 10%)
+- **Flexibilidad**: Permite enfocarse en volumen o intensidad según la fase
+- **Deload inteligente**: Preserva incrementos sobre peso base durante deload
+- **Ideal para**: Fases de acumulación de volumen y atletas avanzados
+
+**Parámetros configurables:**
+- `overload_type`: 'volume' o 'intensity' (default: 'volume')
+- `overload_rate`: Tasa de incremento porcentual (default: 0.1 = 10%)
+- `deloadWeek`: Semana de deload
+- `deloadPercentage`: Porcentaje de reducción durante deload
+
+**Algoritmo de deload:**
+```dart
+// Preserva incrementos sobre peso base durante deload
+final double increaseOverBase = (result.newWeight - state.baseWeight).clamp(0, double.infinity);
+final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+```
 
 #### **8.11 DefaultProgressionStrategy**
 ```dart

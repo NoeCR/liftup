@@ -1,11 +1,12 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../common/enums/section_muscle_group_enum.dart';
 
 part 'routine_section_template.g.dart';
 
-@HiveType(typeId: 14)
+@HiveType(typeId: 13)
 @JsonSerializable()
 class RoutineSectionTemplate extends Equatable {
   @HiveField(0)
@@ -47,7 +48,8 @@ class RoutineSectionTemplate extends Equatable {
     this.muscleGroup,
   });
 
-  factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) => _$RoutineSectionTemplateFromJson(json);
+  factory RoutineSectionTemplate.fromJson(Map<String, dynamic> json) =>
+      _$RoutineSectionTemplateFromJson(json);
   Map<String, dynamic> toJson() => _$RoutineSectionTemplateToJson(this);
 
   RoutineSectionTemplate copyWith({
@@ -75,7 +77,17 @@ class RoutineSectionTemplate extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, description, iconName, order, isDefault, createdAt, updatedAt, muscleGroup];
+  List<Object?> get props => [
+    id,
+    name,
+    description,
+    iconName,
+    order,
+    isDefault,
+    createdAt,
+    updatedAt,
+    muscleGroup,
+  ];
 }
 
 // Secciones predefinidas por defecto

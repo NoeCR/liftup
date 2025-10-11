@@ -74,21 +74,25 @@ void _runApp() async {
 
     // Initialize progression templates
     try {
-      final container = ProviderContainer();
-      final templateService = container.read(progressionTemplateServiceProvider.notifier);
-      await templateService.initializeBuiltInTemplates();
-      container.dispose();
-      LoggingService.instance.info('Progression templates initialized successfully');
+      ProgressionTemplateService.initializeTemplates();
+      LoggingService.instance.info(
+        'Progression templates initialized successfully',
+      );
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing progression templates', e, stackTrace, {
-        'component': 'progression_templates_initialization',
-      });
+      LoggingService.instance.error(
+        'Error initializing progression templates',
+        e,
+        stackTrace,
+        {'component': 'progression_templates_initialization'},
+      );
     }
   } catch (e, stackTrace) {
     print('Error initializing database: $e');
     print('Stack trace: $stackTrace');
     // If initialization fails, show error but do not auto-reset
-    print('Database initialization failed. User can manually reset from settings if needed.');
+    print(
+      'Database initialization failed. User can manually reset from settings if needed.',
+    );
     rethrow; // Re-throw to prevent app from running with broken database
   }
 
@@ -106,16 +110,23 @@ void _runApp() async {
 void _setupGlobalErrorHandling() {
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    LoggingService.instance.error('Flutter Error: ${details.exception}', details.exception, details.stack, {
-      'component': 'flutter_error',
-      'library': details.library,
-      'context': details.context?.toString(),
-    });
+    LoggingService.instance.error(
+      'Flutter Error: ${details.exception}',
+      details.exception,
+      details.stack,
+      {
+        'component': 'flutter_error',
+        'library': details.library,
+        'context': details.context?.toString(),
+      },
+    );
   };
 
   // Capture platform errors
   PlatformDispatcher.instance.onError = (error, stack) {
-    LoggingService.instance.error('Platform Error: $error', error, stack, {'component': 'platform_error'});
+    LoggingService.instance.error('Platform Error: $error', error, stack, {
+      'component': 'platform_error',
+    });
     return true;
   };
 }

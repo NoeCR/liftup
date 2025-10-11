@@ -22,12 +22,15 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   /// Inicializa las plantillas predefinidas si no existen
   Future<void> initializeTemplates() async {
     try {
-      final templateService = ref.read(progressionTemplateServiceProvider.notifier);
-      await templateService.initializeBuiltInTemplates();
+      ProgressionTemplateService.initializeTemplates();
 
       LoggingService.instance.info('Progression templates initialized');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing progression templates', e, stackTrace);
+      LoggingService.instance.error(
+        'Error initializing progression templates',
+        e,
+        stackTrace,
+      );
       rethrow;
     }
   }
@@ -35,15 +38,15 @@ class ProgressionNotifier extends _$ProgressionNotifier {
   /// Restaura todas las plantillas integradas (útil después de limpiar la base de datos)
   Future<void> restoreTemplates() async {
     try {
-      final templateService = ref.read(progressionTemplateServiceProvider.notifier);
-      await templateService.restoreBuiltInTemplates();
-
-      // Invalidar el provider para que se recarguen las plantillas
-      ref.invalidate(progressionTemplateServiceProvider);
+      ProgressionTemplateService.initializeTemplates();
 
       LoggingService.instance.info('Progression templates restored');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error restoring progression templates', e, stackTrace);
+      LoggingService.instance.error(
+        'Error restoring progression templates',
+        e,
+        stackTrace,
+      );
       rethrow;
     }
   }
@@ -65,7 +68,9 @@ class ProgressionNotifier extends _$ProgressionNotifier {
       // Desactivar progresión actual si existe
       final currentConfig = await future;
       if (currentConfig != null) {
-        final progressionService = ref.read(progressionServiceProvider.notifier);
+        final progressionService = ref.read(
+          progressionServiceProvider.notifier,
+        );
         final deactivatedConfig = currentConfig.copyWith(
           isActive: false,
           endDate: DateTime.now(),
@@ -100,7 +105,12 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         'type': type.name,
       });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error setting global progression', e, stackTrace, {'type': type.name});
+      LoggingService.instance.error(
+        'Error setting global progression',
+        e,
+        stackTrace,
+        {'type': type.name},
+      );
       state = AsyncValue.error(e, stackTrace);
       rethrow;
     }
@@ -111,7 +121,9 @@ class ProgressionNotifier extends _$ProgressionNotifier {
     try {
       final currentConfig = await future;
       if (currentConfig != null) {
-        final progressionService = ref.read(progressionServiceProvider.notifier);
+        final progressionService = ref.read(
+          progressionServiceProvider.notifier,
+        );
         final deactivatedConfig = currentConfig.copyWith(
           isActive: false,
           endDate: DateTime.now(),
@@ -121,28 +133,43 @@ class ProgressionNotifier extends _$ProgressionNotifier {
 
         state = AsyncValue.data(null);
 
-        LoggingService.instance.info('Global progression disabled', {'configId': currentConfig.id});
+        LoggingService.instance.info('Global progression disabled', {
+          'configId': currentConfig.id,
+        });
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error disabling global progression', e, stackTrace);
+      LoggingService.instance.error(
+        'Error disabling global progression',
+        e,
+        stackTrace,
+      );
       state = AsyncValue.error(e, stackTrace);
       rethrow;
     }
   }
 
   /// Obtiene el estado de progresión para un ejercicio específico
-  Future<ProgressionState?> getExerciseProgressionState(String exerciseId, String routineId) async {
+  Future<ProgressionState?> getExerciseProgressionState(
+    String exerciseId,
+    String routineId,
+  ) async {
     try {
       final config = await future;
       if (config == null) return null;
 
       final progressionService = ref.read(progressionServiceProvider.notifier);
-      return await progressionService.getProgressionStateByExercise(config.id, exerciseId, routineId);
+      return await progressionService.getProgressionStateByExercise(
+        config.id,
+        exerciseId,
+        routineId,
+      );
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting exercise progression state', e, stackTrace, {
-        'exerciseId': exerciseId,
-        'routineId': routineId,
-      });
+      LoggingService.instance.error(
+        'Error getting exercise progression state',
+        e,
+        stackTrace,
+        {'exerciseId': exerciseId, 'routineId': routineId},
+      );
       return null;
     }
   }
@@ -180,9 +207,12 @@ class ProgressionNotifier extends _$ProgressionNotifier {
 
       return state;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing exercise progression state', e, stackTrace, {
-        'exerciseId': exerciseId,
-      });
+      LoggingService.instance.error(
+        'Error initializing exercise progression state',
+        e,
+        stackTrace,
+        {'exerciseId': exerciseId},
+      );
       rethrow;
     }
   }
@@ -211,9 +241,12 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         exerciseType: exerciseType,
       );
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error calculating exercise progression', e, stackTrace, {
-        'exerciseId': exerciseId,
-      });
+      LoggingService.instance.error(
+        'Error calculating exercise progression',
+        e,
+        stackTrace,
+        {'exerciseId': exerciseId},
+      );
       return null;
     }
   }
@@ -232,7 +265,11 @@ class ProgressionNotifier extends _$ProgressionNotifier {
       final progressionService = ref.read(progressionServiceProvider.notifier);
 
       for (final exerciseId in exerciseIds) {
-        final state = await progressionService.getProgressionStateByExercise(config.id, exerciseId, routineId);
+        final state = await progressionService.getProgressionStateByExercise(
+          config.id,
+          exerciseId,
+          routineId,
+        );
         if (state == null) continue;
 
         final existing = Map<String, dynamic>.from(state.customData);
@@ -242,10 +279,12 @@ class ProgressionNotifier extends _$ProgressionNotifier {
         await progressionService.saveProgressionState(updatedState);
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error setting skip_next_progression flag for routine', e, stackTrace, {
-        'routineId': routineId,
-        'exerciseIds': exerciseIds,
-      });
+      LoggingService.instance.error(
+        'Error setting skip_next_progression flag for routine',
+        e,
+        stackTrace,
+        {'routineId': routineId, 'exerciseIds': exerciseIds},
+      );
     }
   }
 
@@ -263,20 +302,31 @@ class ProgressionNotifier extends _$ProgressionNotifier {
       final progressionService = ref.read(progressionServiceProvider.notifier);
 
       for (final exerciseId in exerciseIds) {
-        final state = await progressionService.getProgressionStateByExercise(config.id, exerciseId, routineId);
+        final state = await progressionService.getProgressionStateByExercise(
+          config.id,
+          exerciseId,
+          routineId,
+        );
         if (state == null) continue;
 
         final existing = Map<String, dynamic>.from(state.customData);
-        final updated = updateSkipNextByExerciseMap(existing, exerciseId, routineId, skip);
+        final updated = updateSkipNextByExerciseMap(
+          existing,
+          exerciseId,
+          routineId,
+          skip,
+        );
 
         final updatedState = state.copyWith(customData: updated);
         await progressionService.saveProgressionState(updatedState);
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error setting skip_next_progression flag for exercises', e, stackTrace, {
-        'routineId': routineId,
-        'exerciseIds': exerciseIds,
-      });
+      LoggingService.instance.error(
+        'Error setting skip_next_progression flag for exercises',
+        e,
+        stackTrace,
+        {'routineId': routineId, 'exerciseIds': exerciseIds},
+      );
     }
   }
 
@@ -292,9 +342,15 @@ class ProgressionNotifier extends _$ProgressionNotifier {
 }
 
 /// Helper pure function to update the skip_next_by_routine structure
-Map<String, dynamic> updateSkipNextByRoutineMap(Map<String, dynamic> customData, String routineId, bool skip) {
+Map<String, dynamic> updateSkipNextByRoutineMap(
+  Map<String, dynamic> customData,
+  String routineId,
+  bool skip,
+) {
   final next = Map<String, dynamic>.from(customData);
-  final byRoutine = Map<String, dynamic>.from((next['skip_next_by_routine'] as Map?) ?? const {});
+  final byRoutine = Map<String, dynamic>.from(
+    (next['skip_next_by_routine'] as Map?) ?? const {},
+  );
   if (skip) {
     byRoutine[routineId] = true;
   } else {
@@ -312,9 +368,13 @@ Map<String, dynamic> updateSkipNextByExerciseMap(
   bool skip,
 ) {
   final next = Map<String, dynamic>.from(customData);
-  final byExercise = Map<String, dynamic>.from((next['skip_next_by_exercise'] as Map?) ?? const {});
+  final byExercise = Map<String, dynamic>.from(
+    (next['skip_next_by_exercise'] as Map?) ?? const {},
+  );
 
-  final exerciseData = Map<String, dynamic>.from((byExercise[exerciseId] as Map?) ?? const {});
+  final exerciseData = Map<String, dynamic>.from(
+    (byExercise[exerciseId] as Map?) ?? const {},
+  );
 
   if (skip) {
     exerciseData[routineId] = true;

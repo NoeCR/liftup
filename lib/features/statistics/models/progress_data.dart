@@ -1,10 +1,10 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'progress_data.g.dart';
 
-@HiveType(typeId: 11)
+@HiveType(typeId: 10)
 @JsonSerializable()
 class ProgressData extends Equatable {
   @HiveField(0)
@@ -42,7 +42,8 @@ class ProgressData extends Equatable {
     this.duration,
   });
 
-  factory ProgressData.fromJson(Map<String, dynamic> json) => _$ProgressDataFromJson(json);
+  factory ProgressData.fromJson(Map<String, dynamic> json) =>
+      _$ProgressDataFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressDataToJson(this);
 
   ProgressData copyWith({
@@ -68,10 +69,19 @@ class ProgressData extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, exerciseId, date, maxWeight, totalReps, totalSets, totalVolume, duration];
+  List<Object?> get props => [
+    id,
+    exerciseId,
+    date,
+    maxWeight,
+    totalReps,
+    totalSets,
+    totalVolume,
+    duration,
+  ];
 }
 
-@HiveType(typeId: 12)
+@HiveType(typeId: 11)
 @JsonSerializable()
 class WorkoutStatistics extends Equatable {
   @HiveField(0)
@@ -113,7 +123,8 @@ class WorkoutStatistics extends Equatable {
     required this.exercisesPerformed,
   });
 
-  factory WorkoutStatistics.fromJson(Map<String, dynamic> json) => _$WorkoutStatisticsFromJson(json);
+  factory WorkoutStatistics.fromJson(Map<String, dynamic> json) =>
+      _$WorkoutStatisticsFromJson(json);
   Map<String, dynamic> toJson() => _$WorkoutStatisticsToJson(this);
 
   WorkoutStatistics copyWith({
