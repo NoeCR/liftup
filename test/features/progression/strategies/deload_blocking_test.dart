@@ -22,6 +22,9 @@ void main() {
         incrementFrequency: 1,
         cycleLength: 4,
         deloadWeek: 4, // Deload en semana 4
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadPercentage: 0.8,
         customParameters: const {},
         startDate: now,
@@ -84,6 +87,9 @@ void main() {
         incrementFrequency: 1,
         cycleLength: 4,
         deloadWeek: 4, // Deload en semana 4
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadPercentage: 0.8,
         customParameters: const {'min_reps': 6, 'max_reps': 10},
         startDate: now,
@@ -146,6 +152,9 @@ void main() {
         incrementFrequency: 1,
         cycleLength: 4,
         deloadWeek: 0, // Sin deload
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadPercentage: 0.8,
         customParameters: const {},
         startDate: now,
@@ -188,7 +197,7 @@ void main() {
       );
 
       // Verificar que se restauran los baseSets
-      expect(result.newSets, 4); // Debe restaurar a baseSets
+      expect(result.newSets, 3); // Debe restaurar a baseSets del config
       expect(result.incrementApplied, true);
       expect(result.reason, contains('Linear progression'));
     });

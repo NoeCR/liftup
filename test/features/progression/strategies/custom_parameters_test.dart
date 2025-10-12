@@ -25,6 +25,9 @@ void main() {
         incrementValue: 2.5, // Valor base
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 0,
         deloadPercentage: 0.9,
         customParameters: customParameters,

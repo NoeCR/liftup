@@ -85,7 +85,7 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
     }
 
     // 1. Aplicar lógica específica de progresión inversa
-    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+    final incrementValue = getIncrementValue(config, exercise: exercise);
     final maxReps = getMaxReps(config, exerciseType: exerciseType);
 
     if (currentReps < maxReps) {

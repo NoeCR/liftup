@@ -1,9 +1,10 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../common/enums/progression_type_enum.dart';
-import '../configs/adaptive_increment_config.dart';
 import '../../exercise/models/exercise.dart';
+import '../configs/adaptive_increment_config.dart';
 
 part 'progression_config.g.dart';
 
@@ -300,6 +301,26 @@ class ProgressionConfig extends Equatable {
     }
   }
 
+  /// Obtiene el incremento de series adaptativo basado en el ejercicio específico
+  /// Ahora usa únicamente AdaptiveIncrementConfig como fuente de verdad
+  /// para evitar duplicación de lógica con los presets
+  /// Considera tanto exerciseType como loadType del ejercicio
+  int getAdaptiveSeriesIncrement(dynamic exercise) {
+    try {
+      // Usar AdaptiveIncrementConfig como única fuente de verdad
+      // Considera tanto exerciseType como loadType del ejercicio
+      final adaptiveSeriesIncrement = _getSeriesIncrementFromAdaptiveConfig(exercise);
+      if (adaptiveSeriesIncrement != null) {
+        return adaptiveSeriesIncrement;
+      }
+    } catch (e) {
+      // Si hay error, usar el incremento por defecto
+    }
+
+    // Fallback al valor por defecto
+    return 1;
+  }
+
   /// Obtiene minReps desde customParameters
   int? _getMinRepsFromCustomParameters(dynamic exercise) {
     try {
@@ -426,28 +447,40 @@ class ProgressionConfig extends Equatable {
   bool isConfiguredForHypertrophy() {
     // Hipertrofia típicamente se enfoca en volumen y repeticiones
     return (primaryTarget == ProgressionTarget.volume || primaryTarget == ProgressionTarget.reps) &&
-        (secondaryTarget == ProgressionTarget.weight || secondaryTarget == ProgressionTarget.sets);
+        (secondaryTarget == ProgressionTarget.weight ||
+            secondaryTarget == ProgressionTarget.sets ||
+            secondaryTarget == ProgressionTarget.reps);
   }
 
   /// Determina si los targets están configurados para fuerza
   bool isConfiguredForStrength() {
     // Fuerza típicamente se enfoca en peso e intensidad
+    // Excluir casos que son específicamente para power
+    if (primaryTarget == ProgressionTarget.intensity && secondaryTarget == ProgressionTarget.intensity) {
+      return false; // Este caso es para power
+    }
     return (primaryTarget == ProgressionTarget.weight || primaryTarget == ProgressionTarget.intensity) &&
-        (secondaryTarget == ProgressionTarget.reps || secondaryTarget == null);
+        (secondaryTarget == ProgressionTarget.reps ||
+            secondaryTarget == ProgressionTarget.intensity ||
+            secondaryTarget == ProgressionTarget.weight ||
+            secondaryTarget == null);
   }
 
   /// Determina si los targets están configurados para resistencia
   bool isConfiguredForEndurance() {
     // Resistencia típicamente se enfoca en repeticiones y volumen
     return (primaryTarget == ProgressionTarget.reps || primaryTarget == ProgressionTarget.volume) &&
-        (secondaryTarget == ProgressionTarget.sets || secondaryTarget == null);
+        (secondaryTarget == ProgressionTarget.sets ||
+            secondaryTarget == ProgressionTarget.volume ||
+            secondaryTarget == null);
   }
 
   /// Determina si los targets están configurados para potencia
   bool isConfiguredForPower() {
     // Potencia típicamente se enfoca en intensidad y peso
-    return (primaryTarget == ProgressionTarget.intensity || primaryTarget == ProgressionTarget.weight) &&
-        (secondaryTarget == ProgressionTarget.reps || secondaryTarget == null);
+    // Para power, ambos targets deben ser intensity o weight
+    return (primaryTarget == ProgressionTarget.intensity && secondaryTarget == ProgressionTarget.intensity) ||
+        (primaryTarget == ProgressionTarget.weight && secondaryTarget == ProgressionTarget.reps);
   }
 
   /// Obtiene el objetivo de entrenamiento basado en los targets configurados
@@ -463,5 +496,24 @@ class ProgressionConfig extends Equatable {
   ProgressionConfig copyWithAdaptiveIncrement(dynamic exercise) {
     final adaptiveIncrement = getAdaptiveIncrement(exercise);
     return copyWith(incrementValue: adaptiveIncrement);
+  }
+
+  /// Obtiene incremento de series desde AdaptiveIncrementConfig
+  int? _getSeriesIncrementFromAdaptiveConfig(dynamic exercise) {
+    try {
+      // Verificar que el ejercicio tenga los campos necesarios
+      if (exercise == null) return null;
+
+      // Verificar que sea un objeto Exercise válido
+      if (exercise is! Exercise) return null;
+
+      // Usar AdaptiveIncrementConfig para obtener el incremento de series recomendado
+      return AdaptiveIncrementConfig.getRecommendedSeriesIncrement(
+        exercise,
+        ExperienceLevel.intermediate, // Por defecto intermedio
+      );
+    } catch (e) {
+      return null;
+    }
   }
 }

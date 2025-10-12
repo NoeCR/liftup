@@ -71,15 +71,8 @@ abstract class BaseProgressionStrategy {
   /// Prioridad: per_exercise > global > defaults por tipo > fallback
   /// Considera el tipo de ejercicio para elegir el incremento apropiado
   double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
-    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
-    if (exercise != null) {
-      return config.getAdaptiveIncrement(exercise);
-    }
-
-    // Fallback al método original para compatibilidad
+    // 1. Buscar en per_exercise primero (prioridad más alta)
     final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
     try {
       final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
       if (perExercise != null) {
@@ -97,7 +90,12 @@ abstract class BaseProgressionStrategy {
       // Si hay error en per_exercise, continuar con fallbacks
     }
 
-    // Fallback a global
+    // 2. Si se proporciona un ejercicio, usar el método adaptativo
+    if (exercise != null) {
+      return config.getAdaptiveIncrement(exercise);
+    }
+
+    // 3. Fallback a global en customParameters
     try {
       // Priorizar incremento específico por tipo de ejercicio
       final globalIncrement =
@@ -109,13 +107,18 @@ abstract class BaseProgressionStrategy {
       // Si hay error en global, usar defaults por tipo
     }
 
-    // Fallback a defaults por tipo de ejercicio
+    // 4. Fallback a defaults por tipo de ejercicio
     final typeDefaultIncrement = _getDefaultIncrementByExerciseType(exerciseType);
     if (typeDefaultIncrement != null) {
       return typeDefaultIncrement;
     }
 
-    return config.incrementValue; // fallback al valor base de la configuración
+    // 5. Fallback al incrementValue del preset
+    if (config.incrementValue > 0) {
+      return config.incrementValue;
+    }
+
+    return 0.0; // Si no hay ningún valor, devolver 0
   }
 
   /// Obtiene el máximo de repeticiones desde parámetros personalizados

@@ -81,8 +81,6 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
       final incrementValue = getIncrementValue(config, exerciseType: exerciseType, exercise: exercise);
 
       // Usar rangos de repeticiones del preset si está disponible el ejercicio
-      final adaptiveMinReps = exercise != null ? config.getAdaptiveMinReps(exercise) : config.minReps;
-      final adaptiveMaxReps = exercise != null ? config.getAdaptiveMaxReps(exercise) : config.maxReps;
       final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
 
       return ProgressionCalculationResult(

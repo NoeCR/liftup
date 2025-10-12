@@ -27,6 +27,9 @@ void main() {
         incrementValue: increment,
         incrementFrequency: freq,
         cycleLength: cycle,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: deloadWeek,
         deloadPercentage: deloadPct,
         customParameters: const {},
@@ -94,7 +97,7 @@ void main() {
       // increaseOverBase = 120 - 100 = 20
       // deloadWeight = 100 + (20 * 0.9) = 118.0
       expect(res.newWeight, closeTo(118.0, 0.0001));
-      expect(res.newSets, 3); // 4 * 0.7 round
+      expect(res.newSets, 2); // 3 * 0.7 round (baseSets del config)
     });
 
     test('restores sets to base after deload when increment applies', () {
@@ -111,7 +114,7 @@ void main() {
         currentSets: 3, // heredado de deload anterior
       );
       expect(res.incrementApplied, true);
-      expect(res.newSets, 4); // debe restaurar a baseSets
+      expect(res.newSets, 3); // debe restaurar a baseSets del config
     });
 
     test('restores sets to base after deload when no increment applies', () {
@@ -127,7 +130,7 @@ void main() {
         currentSets: 3, // heredado de deload anterior
       );
       expect(res.incrementApplied, false);
-      expect(res.newSets, 4); // debe restaurar a baseSets
+      expect(res.newSets, 3); // debe restaurar a baseSets del config
     });
 
     test('no increment when frequency not matched', () {

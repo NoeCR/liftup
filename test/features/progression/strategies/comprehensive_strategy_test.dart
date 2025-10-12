@@ -37,6 +37,9 @@ void main() {
         incrementValue: incrementValue,
         incrementFrequency: incrementFrequency,
         cycleLength: cycleLength,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: deloadWeek,
         deloadPercentage: deloadPercentage,
         customParameters: customParameters,
@@ -102,7 +105,7 @@ void main() {
         expect(result.incrementApplied, true);
         expect(result.newWeight, 102.5);
         expect(result.newReps, 10);
-        expect(result.newSets, 4);
+        expect(result.newSets, 3); // baseSets del config
         expect(result.reason, contains('Linear progression: weight +2.5kg'));
       });
 
@@ -148,7 +151,7 @@ void main() {
 
         expect(result.incrementApplied, true);
         expect(result.newWeight, 118.0); // 100 + (20 * 0.9)
-        expect(result.newSets, 3); // 4 * 0.7 round
+        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
         expect(result.reason, contains('deload'));
       });
 
@@ -233,7 +236,7 @@ void main() {
         );
 
         expect(result.newWeight, 118.0); // 100 + (20 * 0.9)
-        expect(result.newSets, 3);
+        expect(result.newSets, 2); // baseSets 3 * 0.7 = 2.1 -> 2
         expect(result.reason, contains('deload'));
       });
 
@@ -321,7 +324,7 @@ void main() {
         );
 
         expect(result.newWeight, 118.0);
-        expect(result.newSets, 3);
+        expect(result.newSets, 2); // baseSets 3 * 0.7 = 2.1 -> 2
         expect(result.reason, contains('deload'));
       });
     });
@@ -365,7 +368,7 @@ void main() {
         );
 
         expect(result.newWeight, 118.0);
-        expect(result.newSets, 3);
+        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
         expect(result.reason, contains('deload'));
       });
     });

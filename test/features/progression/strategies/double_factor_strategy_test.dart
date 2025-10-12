@@ -24,6 +24,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 0,
         deloadPercentage: 0.9,
         customParameters: const {'min_reps': 6, 'max_reps': 10, 'increment_value': 2.5},
@@ -102,6 +105,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 0,
         deloadPercentage: 0.9,
         customParameters: const {
@@ -148,6 +154,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 4, // Deload en semana 4
         deloadPercentage: 0.8,
         customParameters: const {'min_reps': 6, 'max_reps': 10},
@@ -238,6 +247,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 0,
         deloadPercentage: 0.9,
         customParameters: const {}, // Sin parámetros personalizados
@@ -259,7 +271,7 @@ void main() {
       );
 
       expect(result.newWeight, 72.5); // incrementValue del config (2.5kg)
-      expect(result.newReps, 5); // reps se mantienen (semana impar)
+      expect(result.newReps, 8); // reps se mantienen en minReps (semana impar)
     });
 
     test('simula 3 ciclos completos con deload cada 6 semanas para validar progresión a largo plazo', () {
@@ -274,6 +286,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 6, // Ciclo de 6 semanas
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 6, // Deload en semana 6
         deloadPercentage: 0.8, // Reducción del 20%
         customParameters: const {'min_reps': 6, 'max_reps': 10, 'increment_value': 2.5},

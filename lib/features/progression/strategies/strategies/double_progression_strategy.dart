@@ -79,7 +79,10 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
       // Deload: reduce peso manteniendo el incremento sobre base, reduce series
       final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
       final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-      final deloadSets = (currentSets * 0.7).round();
+
+      // Usar sets del preset para el deload
+      final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+      final deloadSets = (adaptiveBaseSets * 0.7).round();
       return ProgressionCalculationResult(
         newWeight: deloadWeight,
         newReps: currentReps,

@@ -229,6 +229,15 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
           as _i6.Future<void>);
 
   @override
+  _i6.Future<void> setProgressionConfig(_i8.ProgressionConfig? config) =>
+      (super.noSuchMethod(
+            Invocation.method(#setProgressionConfig, [config]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<void> setProgression({
     required _i9.ProgressionType? type,
     required _i9.ProgressionUnit? unit,
@@ -318,6 +327,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
     required int? currentReps,
     required int? currentSets,
     _i3.ExerciseType? exerciseType,
+    _i3.Exercise? exercise,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#calculateExerciseProgression, [], {
@@ -327,6 +337,7 @@ class MockProgressionNotifier extends _i1.Mock implements _i7.ProgressionNotifie
               #currentReps: currentReps,
               #currentSets: currentSets,
               #exerciseType: exerciseType,
+              #exercise: exercise,
             }),
             returnValue: _i6.Future<_i10.ProgressionCalculationResult?>.value(),
           )

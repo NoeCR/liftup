@@ -95,7 +95,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
 
     if (isOddWeek) {
       // Semana impar: Incrementar peso, mantener reps
-      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+      final incrementValue = getIncrementValue(config, exercise: exercise);
       return ProgressionCalculationResult(
         newWeight: currentWeight + incrementValue,
         newReps: currentReps.clamp(minReps, maxReps), // Asegurar que esté en rango

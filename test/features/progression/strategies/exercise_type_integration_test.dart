@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
@@ -17,6 +18,31 @@ void main() {
     late ProgressionState state;
     final now = DateTime.now();
 
+    // Helper function to create test exercises
+    Exercise createTestExercise({
+      required ExerciseType exerciseType,
+      required LoadType loadType,
+      String id = 'test-exercise',
+      String name = 'Test Exercise',
+    }) {
+      return Exercise(
+        id: id,
+        name: name,
+        description: 'Test description',
+        imageUrl: '',
+        muscleGroups:
+            exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
+        tips: [],
+        commonMistakes: [],
+        category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: exerciseType,
+        loadType: loadType,
+      );
+    }
+
     setUp(() {
       config = ProgressionConfig(
         id: 'test-config',
@@ -25,20 +51,15 @@ void main() {
         unit: ProgressionUnit.week,
         primaryTarget: ProgressionTarget.weight,
         secondaryTarget: null,
-        incrementValue: 2.5, // Valor base
+        incrementValue: 0, // Usar AdaptiveIncrementConfig
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 0,
         deloadPercentage: 0.8,
-        customParameters: {
-          // Parámetros específicos por tipo de ejercicio
-          'multi_increment_min': 5.0, // Incremento para multi-joint
-          'iso_increment_min': 1.25, // Incremento para isolation
-          'multi_reps_max': 8, // Max reps para multi-joint
-          'iso_reps_max': 15, // Max reps para isolation
-          'multi_reps_min': 3, // Min reps para multi-joint
-          'iso_reps_min': 8, // Min reps para isolation
-        },
+        customParameters: const {},
         startDate: now,
         endDate: null,
         isActive: true,
@@ -72,6 +93,9 @@ void main() {
       test('aplica incremento multi_increment_min para ejercicios multi-joint', () {
         final strategy = LinearProgressionStrategy();
 
+        // Crear ejercicio multi-joint para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+
         final result = strategy.calculate(
           config: config,
           state: state,
@@ -79,17 +103,22 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
+        // debería ser (5.0 + 7.0) / 2 = 6.0
+        expect(result.newWeight, 106.0); // 100 + 6.0
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+5.0kg'));
+        expect(result.reason, contains('+6.0kg'));
       });
 
       test('aplica incremento iso_increment_min para ejercicios isolation', () {
         final strategy = LinearProgressionStrategy();
 
+        // Crear ejercicio isolation para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
+
         final result = strategy.calculate(
           config: config,
           state: state,
@@ -97,19 +126,24 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
+        // AdaptiveIncrementConfig para dumbbell isolation con ExperienceLevel.intermediate
+        // debería ser (1.25 + 2.5) / 2 = 1.875
+        expect(result.newWeight, 101.875); // 100 + 1.875
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+1.25kg'));
+        expect(result.reason, contains('+1.875kg'));
       });
 
       test('usa incrementValue base cuando no hay tipo de ejercicio', () {
         final strategy = LinearProgressionStrategy();
 
+        // Crear un config con incrementValue > 0 para probar el fallback
+        final testConfig = config.copyWith(incrementValue: 2.5);
+
         final result = strategy.calculate(
-          config: config,
+          config: testConfig,
           state: state,
           routineId: 'test-routine',
           currentWeight: 100.0,
@@ -128,6 +162,9 @@ void main() {
       test('incrementa peso en semana impar para ejercicios multi-joint', () {
         final strategy = DoubleFactorProgressionStrategy();
 
+        // Crear ejercicio multi-joint para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+
         // Semana 1 (impar) - debería incrementar peso
         final result = strategy.calculate(
           config: config,
@@ -136,10 +173,12 @@ void main() {
           currentWeight: 100.0,
           currentReps: 8, // Máximo para multi-joint
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
+        // debería ser (5.0 + 7.0) / 2 = 6.0
+        expect(result.newWeight, 106.0); // 100 + 6.0
         expect(result.newReps, 8); // Reps se mantienen (semana impar)
         expect(result.incrementApplied, true);
         expect(result.reason, contains('increasing weight'));
@@ -148,19 +187,24 @@ void main() {
       test('incrementa peso en semana impar para ejercicios isolation', () {
         final strategy = DoubleFactorProgressionStrategy();
 
+        // Crear ejercicio isolation para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
+
         // Semana 1 (impar) - debería incrementar peso
         final result = strategy.calculate(
           config: config,
           state: state,
           routineId: 'test-routine',
           currentWeight: 100.0,
-          currentReps: 15, // Máximo para isolation
+          currentReps: 10, // Dentro del rango maxReps: 12
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
-        expect(result.newReps, 15); // Reps se mantienen (semana impar)
+        // AdaptiveIncrementConfig para dumbbell isolation con ExperienceLevel.intermediate
+        // debería ser (1.25 + 2.5) / 2 = 1.875
+        expect(result.newWeight, 101.875); // 100 + 1.875
+        expect(result.newReps, 10); // Reps se mantienen (semana impar)
         expect(result.incrementApplied, true);
         expect(result.reason, contains('increasing weight'));
       });
@@ -213,6 +257,10 @@ void main() {
     group('UndulatingProgressionStrategy', () {
       test('aplica incremento multi en día pesado para multi-joint', () {
         final strategy = UndulatingProgressionStrategy();
+
+        // Crear ejercicio multi-joint para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+
         // Semana 1 = día pesado (impar)
         final stateWeek1 = state.copyWith(currentWeek: 1);
 
@@ -223,16 +271,22 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
+        // debería ser (5.0 + 7.0) / 2 = 6.0
+        expect(result.newWeight, 106.0); // 100 + 6.0
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+5.0kg'));
+        expect(result.reason, contains('+6.0kg'));
       });
 
       test('aplica incremento iso en día pesado para isolation', () {
         final strategy = UndulatingProgressionStrategy();
+
+        // Crear ejercicio isolation para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
+
         // Semana 1 = día pesado (impar)
         final stateWeek1 = state.copyWith(currentWeek: 1);
 
@@ -243,16 +297,22 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
+        // AdaptiveIncrementConfig para dumbbell isolation con ExperienceLevel.intermediate
+        // debería ser (1.25 + 2.5) / 2 = 1.875
+        expect(result.newWeight, 101.875); // 100 + 1.875
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+1.25kg'));
+        expect(result.reason, contains('+1.875kg'));
       });
 
       test('reduce peso con incremento multi en día ligero para multi-joint', () {
         final strategy = UndulatingProgressionStrategy();
+
+        // Crear ejercicio multi-joint para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+
         // Semana 2 = día ligero (par)
         final stateWeek2 = state.copyWith(currentWeek: 2);
 
@@ -263,16 +323,22 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 95.0); // 100 - 5.0 (multi_increment_min)
+        // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
+        // debería ser (5.0 + 7.0) / 2 = 6.0
+        expect(result.newWeight, 94.0); // 100 - 6.0
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('-5.0kg'));
+        expect(result.reason, contains('-6.0kg'));
       });
 
       test('reduce peso con incremento iso en día ligero para isolation', () {
         final strategy = UndulatingProgressionStrategy();
+
+        // Crear ejercicio isolation para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
+
         // Semana 2 = día ligero (par)
         final stateWeek2 = state.copyWith(currentWeek: 2);
 
@@ -283,18 +349,24 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 98.75); // 100 - 1.25 (iso_increment_min)
+        // AdaptiveIncrementConfig para dumbbell isolation con ExperienceLevel.intermediate
+        // debería ser (1.25 + 2.5) / 2 = 1.875
+        expect(result.newWeight, 98.125); // 100 - 1.875
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('-1.25kg'));
+        expect(result.reason, contains('-1.875kg'));
       });
     });
 
     group('SteppedProgressionStrategy', () {
       test('acumula incremento multi para ejercicios multi-joint', () {
         final strategy = SteppedProgressionStrategy();
+
+        // Crear ejercicio multi-joint para usar AdaptiveIncrementConfig
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+
         // Semana 2 de acumulación
         final stateWeek2 = state.copyWith(currentWeek: 2);
 
@@ -305,12 +377,14 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
         // Acumulación: baseWeight + (increment * week)
-        // 100 + (5.0 * 2) = 110.0
-        expect(result.newWeight, 110.0);
+        // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
+        // debería ser (5.0 + 7.0) / 2 = 6.0
+        // 100 + (6.0 * 2) = 112.0
+        expect(result.newWeight, 112.0);
         expect(result.incrementApplied, true);
         expect(result.reason, contains('accumulation phase'));
       });
@@ -343,6 +417,7 @@ void main() {
         final strategy = WaveProgressionStrategy();
         // Semana 1 = alta intensidad
         final stateWeek1 = state.copyWith(currentWeek: 1);
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
 
         final result = strategy.calculate(
           config: config,
@@ -351,18 +426,19 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        expect(result.newWeight, 106.0); // 100 + 6.0 (AdaptiveIncrementConfig para barbell multi-joint)
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+5.0kg'));
+        expect(result.reason, contains('+6.0kg'));
       });
 
       test('aplica incremento iso en semana 1 (alta intensidad) para isolation', () {
         final strategy = WaveProgressionStrategy();
         // Semana 1 = alta intensidad
         final stateWeek1 = state.copyWith(currentWeek: 1);
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
 
         final result = strategy.calculate(
           config: config,
@@ -371,18 +447,19 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
+        expect(result.newWeight, 101.875); // 100 + 1.875 (AdaptiveIncrementConfig para dumbbell isolation)
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+1.25kg'));
+        expect(result.reason, contains('+1.875kg'));
       });
 
       test('reduce peso con incremento multi en semana 2 (alto volumen) para multi-joint', () {
         final strategy = WaveProgressionStrategy();
         // Semana 2 = alto volumen
         final stateWeek2 = state.copyWith(currentWeek: 2);
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
 
         final result = strategy.calculate(
           config: config,
@@ -391,20 +468,21 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
         // Alto volumen: reduce peso por 30% del incremento
-        // 100 - (5.0 * 0.3) = 98.5
-        expect(result.newWeight, 98.5);
+        // 100 - (6.0 * 0.3) = 98.2
+        expect(result.newWeight, 98.2);
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('-1.5kg'));
+        expect(result.reason, contains('-1.8kg'));
       });
 
       test('reduce peso con incremento iso en semana 2 (alto volumen) para isolation', () {
         final strategy = WaveProgressionStrategy();
         // Semana 2 = alto volumen
         final stateWeek2 = state.copyWith(currentWeek: 2);
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
 
         final result = strategy.calculate(
           config: config,
@@ -413,20 +491,21 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
         // Alto volumen: reduce peso por 30% del incremento
-        // 100 - (1.25 * 0.3) = 99.625
-        expect(result.newWeight, 99.625);
+        // 100 - (1.875 * 0.3) = 99.4375
+        expect(result.newWeight, 99.4375);
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('-0.4kg'));
+        expect(result.reason, contains('-0.6kg'));
       });
     });
 
     group('ReverseProgressionStrategy', () {
       test('reduce peso con incremento multi para ejercicios multi-joint', () {
         final strategy = ReverseProgressionStrategy();
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
 
         final result = strategy.calculate(
           config: config,
@@ -435,17 +514,18 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 95.0); // 100 - 5.0 (multi_increment_min)
+        expect(result.newWeight, 94.0); // 100 - 6.0 (AdaptiveIncrementConfig para barbell multi-joint)
         expect(result.newReps, 6); // Incrementa reps
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('-5.0kg'));
+        expect(result.reason, contains('-6.0kg'));
       });
 
       test('reduce peso con incremento iso para ejercicios isolation', () {
         final strategy = ReverseProgressionStrategy();
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
 
         final result = strategy.calculate(
           config: config,
@@ -454,13 +534,13 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 98.75); // 100 - 1.25 (iso_increment_min)
+        expect(result.newWeight, 98.125); // 100 - 1.875 (AdaptiveIncrementConfig para dumbbell isolation)
         expect(result.newReps, 6); // Incrementa reps
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('-1.25kg'));
+        expect(result.reason, contains('-1.875kg'));
       });
     });
 
@@ -473,6 +553,7 @@ void main() {
             'session_1': {'reps': 12}, // Más reps de las esperadas = RPE bajo
           },
         );
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
 
         final result = strategy.calculate(
           config: config,
@@ -481,12 +562,12 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 105.0); // 100 + 5.0 (multi_increment_min)
+        expect(result.newWeight, 106.0); // 100 + 6.0 (AdaptiveIncrementConfig para barbell multi-joint)
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+5.0kg'));
+        expect(result.reason, contains('+6.0kg'));
       });
 
       test('aplica incremento iso cuando RPE es bajo para isolation', () {
@@ -497,6 +578,7 @@ void main() {
             'session_1': {'reps': 12}, // Más reps de las esperadas = RPE bajo
           },
         );
+        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
 
         final result = strategy.calculate(
           config: config,
@@ -505,12 +587,12 @@ void main() {
           currentWeight: 100.0,
           currentReps: 5,
           currentSets: 3,
-          exerciseType: ExerciseType.isolation,
+          exercise: exercise,
         );
 
-        expect(result.newWeight, 101.25); // 100 + 1.25 (iso_increment_min)
+        expect(result.newWeight, 101.875); // 100 + 1.875 (AdaptiveIncrementConfig para dumbbell isolation)
         expect(result.incrementApplied, true);
-        expect(result.reason, contains('+1.25kg'));
+        expect(result.reason, contains('+1.875kg'));
       });
     });
 
@@ -571,6 +653,8 @@ void main() {
           customParameters: const {}, // Sin parámetros personalizados
         );
 
+        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+
         final strategies = <dynamic>[
           LinearProgressionStrategy(),
           DoubleFactorProgressionStrategy(),
@@ -606,10 +690,10 @@ void main() {
             currentWeight: 100.0,
             currentReps: currentReps,
             currentSets: 3,
-            exerciseType: ExerciseType.multiJoint,
+            exercise: exercise,
           );
 
-          // Deben usar defaults por tipo o incrementValue base
+          // Deben usar AdaptiveIncrementConfig (6.0 para barbell multi-joint)
           expect(result.newWeight, greaterThan(100.0));
           expect(result.incrementApplied, true);
         }

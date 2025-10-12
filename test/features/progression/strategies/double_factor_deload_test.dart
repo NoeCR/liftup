@@ -21,6 +21,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 4, // Deload en semana 4 (par)
         deloadPercentage: 0.8, // Reducción del 20%
         customParameters: const {'min_reps': 6, 'max_reps': 10},

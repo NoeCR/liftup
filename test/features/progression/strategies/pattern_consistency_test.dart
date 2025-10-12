@@ -32,6 +32,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 3,
         deloadPercentage: 0.8,
         customParameters: const {},
@@ -206,6 +209,7 @@ void main() {
 
         // Configurar parámetros específicos por tipo
         config = config.copyWith(
+          incrementValue: 0, // Usar 0 para que se prioricen los customParameters
           customParameters: {
             'multi_increment_min': 5.0,
             'iso_increment_min': 1.25,

@@ -207,13 +207,14 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
     int? currentReps,
     int? currentSets, {
     _i9.ExerciseType? exerciseType,
+    _i9.Exercise? exercise,
     bool? isExerciseLocked = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #calculateProgression,
               [configId, exerciseId, routineId, currentWeight, currentReps, currentSets],
-              {#exerciseType: exerciseType, #isExerciseLocked: isExerciseLocked},
+              {#exerciseType: exerciseType, #exercise: exercise, #isExerciseLocked: isExerciseLocked},
             ),
             returnValue: _i7.Future<_i4.ProgressionCalculationResult>.value(
               _FakeProgressionCalculationResult_2(
@@ -221,7 +222,7 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
                 Invocation.method(
                   #calculateProgression,
                   [configId, exerciseId, routineId, currentWeight, currentReps, currentSets],
-                  {#exerciseType: exerciseType, #isExerciseLocked: isExerciseLocked},
+                  {#exerciseType: exerciseType, #exercise: exercise, #isExerciseLocked: isExerciseLocked},
                 ),
               ),
             ),

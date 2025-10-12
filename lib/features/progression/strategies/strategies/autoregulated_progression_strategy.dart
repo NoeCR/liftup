@@ -95,7 +95,7 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     final targetReps = _getTargetReps(config);
     final maxReps = getMaxReps(config, exerciseType: exerciseType);
     final minReps = getMinReps(config, exerciseType: exerciseType);
-    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+    final incrementValue = getIncrementValue(config, exercise: exercise);
 
     final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
     final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;

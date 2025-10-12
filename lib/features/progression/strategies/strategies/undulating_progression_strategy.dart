@@ -85,7 +85,7 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
 
     // 1. Aplicar lógica específica de progresión ondulante
     final isHeavyDay = currentInCycle % 2 == 1;
-    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+    final incrementValue = getIncrementValue(config, exercise: exercise);
 
     if (isHeavyDay) {
       // Día pesado: más peso, menos reps
@@ -127,7 +127,7 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
     return ProgressionCalculationResult(
       newWeight: deloadWeight,
       newReps: currentReps,
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
+      newSets: (config.baseSets * 0.7).round(), // Use config.baseSets for deload calculation
       incrementApplied: true,
       isDeload: true,
       shouldResetCycle: false, // Undulating progression no reinicia ciclo - es progresión alternante

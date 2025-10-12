@@ -1,23 +1,24 @@
-import 'package:flutter/material.dart';
-import 'dart:typed_data';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:extended_image/extended_image.dart' as ext_img;
-import 'package:image/image.dart' as image;
 // import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'dart:typed_data';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:extended_image/extended_image.dart' as ext_img;
 import 'package:file_picker/file_picker.dart';
-import '../notifiers/exercise_notifier.dart';
-import '../models/exercise.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as image;
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
 import '../../../common/enums/muscle_group_enum.dart';
-import '../../progression/notifiers/progression_notifier.dart';
-import '../../progression/services/progression_service.dart';
 import '../../../common/enums/progression_type_enum.dart';
+import '../../progression/notifiers/progression_notifier.dart';
+import '../models/exercise.dart';
+import '../notifiers/exercise_notifier.dart';
 
 class ExerciseFormPage extends ConsumerStatefulWidget {
   final Exercise? exerciseToEdit;
@@ -45,19 +46,12 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   final _restTimeController = TextEditingController();
 
   // Progression settings controllers
-  final _multiIncMinController = TextEditingController();
-  final _multiIncMaxController = TextEditingController();
-  final _multiRepsMinController = TextEditingController();
-  final _multiRepsMaxController = TextEditingController();
-  final _isoIncMinController = TextEditingController();
-  final _isoIncMaxController = TextEditingController();
-  final _isoRepsMinController = TextEditingController();
-  final _isoRepsMaxController = TextEditingController();
+  // Los incrementos de peso y rangos de reps se manejan automáticamente
+  // por AdaptiveIncrementConfig y ProgressionConfig
   final _setsMinController = TextEditingController();
   final _setsMaxController = TextEditingController();
   final _targetRpeController = TextEditingController();
   final _incFreqController = TextEditingController();
-  ProgressionUnit? _perExerciseUnit;
 
   ExerciseCategory _selectedCategory = ExerciseCategory.chest;
   ExerciseDifficulty _selectedDifficulty = ExerciseDifficulty.beginner;
@@ -125,21 +119,12 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
       final current = perExercise != null ? (perExercise[exercise.id] as Map?)?.cast<String, dynamic>() : null;
       if (current == null) return;
 
-      // Prefill usando primero multi_* y si faltan valores, caer a iso_*
-      _multiIncMinController.text = (current['multi_increment_min'] ?? current['iso_increment_min'] ?? '').toString();
-      _multiIncMaxController.text = (current['multi_increment_max'] ?? current['iso_increment_max'] ?? '').toString();
-      _multiRepsMinController.text = (current['multi_reps_min'] ?? current['iso_reps_min'] ?? '').toString();
-      _multiRepsMaxController.text = (current['multi_reps_max'] ?? current['iso_reps_max'] ?? '').toString();
-      _isoIncMinController.text = '';
-      _isoIncMaxController.text = '';
-      _isoRepsMinController.text = '';
-      _isoRepsMaxController.text = '';
+      // Los incrementos de peso y rangos de reps se manejan automáticamente
+      // por AdaptiveIncrementConfig y ProgressionConfig
       _setsMinController.text = (current['sets_min'] ?? '').toString();
       _setsMaxController.text = (current['sets_max'] ?? '').toString();
       _targetRpeController.text = (current['target_rpe'] ?? '').toString();
       _incFreqController.text = (current['increment_frequency'] ?? '').toString();
-      final unitStr = (current['unit'] ?? '').toString();
-      _perExerciseUnit = ProgressionUnit.values.where((u) => u.name == unitStr).cast<ProgressionUnit?>().firstOrNull;
       if (mounted) setState(() {});
     } catch (_) {}
   }
@@ -245,7 +230,7 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: colorScheme.surfaceVariant.withOpacity(0.3),
+            color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
             border: Border.all(color: colorScheme.outline),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -1072,61 +1057,6 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     }
   }
 
-  Future<void> _savePerExerciseProgressionParams(String exerciseId) async {
-    try {
-      final config = await ref.read(progressionNotifierProvider.future);
-      if (config == null) return;
-
-      final Map<String, dynamic> updatedParams = Map<String, dynamic>.from(config.customParameters);
-      final Map<String, dynamic> perExercise = Map<String, dynamic>.from(
-        (updatedParams['per_exercise'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{},
-      );
-
-      final incMin = _parseNum(_multiIncMinController.text);
-      final incMax = _parseNum(_multiIncMaxController.text);
-      final repsMin = _parseInt(_multiRepsMinController.text);
-      final repsMax = _parseInt(_multiRepsMaxController.text);
-      final map = <String, dynamic>{
-        // Escribimos los mismos valores para multi_ e iso_ para simplificar la UI
-        'multi_increment_min': incMin,
-        'multi_increment_max': incMax,
-        'multi_reps_min': repsMin,
-        'multi_reps_max': repsMax,
-        'iso_increment_min': incMin,
-        'iso_increment_max': incMax,
-        'iso_reps_min': repsMin,
-        'iso_reps_max': repsMax,
-        'sets_min': _parseInt(_setsMinController.text),
-        'sets_max': _parseInt(_setsMaxController.text),
-        'target_rpe': _parseNum(_targetRpeController.text),
-        'increment_frequency': _parseInt(_incFreqController.text),
-      };
-      if (_perExerciseUnit != null) {
-        map['unit'] = _perExerciseUnit!.name;
-      }
-      map.removeWhere((key, value) => value == null);
-      perExercise[exerciseId] = map;
-
-      updatedParams['per_exercise'] = perExercise;
-
-      final updatedConfig = config.copyWith(customParameters: updatedParams, updatedAt: DateTime.now());
-
-      await ref.read(progressionServiceProvider.notifier).saveProgressionConfig(updatedConfig);
-    } catch (_) {}
-  }
-
-  num? _parseNum(String s) {
-    final t = s.trim();
-    if (t.isEmpty) return null;
-    return num.tryParse(t);
-  }
-
-  int? _parseInt(String s) {
-    final t = s.trim();
-    if (t.isEmpty) return null;
-    return int.tryParse(t);
-  }
-
   Future<String> _resolveAndPersistImagePath() async {
     try {
       final remote = _imageUrlController.text.trim();
@@ -1174,12 +1104,10 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 }
 
 // Visible for tests: construye el mapa per_exercise a partir de entradas del formulario
+// Los incrementos de peso y rangos de reps se manejan automáticamente
+// por AdaptiveIncrementConfig y ProgressionConfig
 @visibleForTesting
 Map<String, dynamic> buildPerExerciseOverrideMap({
-  num? incrementMin,
-  num? incrementMax,
-  int? repsMin,
-  int? repsMax,
   int? setsMin,
   int? setsMax,
   num? targetRpe,
@@ -1187,14 +1115,6 @@ Map<String, dynamic> buildPerExerciseOverrideMap({
   ProgressionUnit? unit,
 }) {
   final map = <String, dynamic>{
-    'multi_increment_min': incrementMin,
-    'multi_increment_max': incrementMax,
-    'multi_reps_min': repsMin,
-    'multi_reps_max': repsMax,
-    'iso_increment_min': incrementMin,
-    'iso_increment_max': incrementMax,
-    'iso_reps_min': repsMin,
-    'iso_reps_max': repsMax,
     'sets_min': setsMin,
     'sets_max': setsMax,
     'target_rpe': targetRpe,

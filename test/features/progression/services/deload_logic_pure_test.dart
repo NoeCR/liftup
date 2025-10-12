@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
 
 void main() {
   group('Deload Logic Pure Tests', () {
@@ -17,6 +17,9 @@ void main() {
         primaryTarget: ProgressionTarget.weight,
         incrementValue: 2.5,
         incrementFrequency: 1,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         cycleLength: 4,
         deloadWeek: 4,
         deloadPercentage: 0.8,

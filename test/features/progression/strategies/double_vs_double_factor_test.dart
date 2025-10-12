@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
 import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
 
 void main() {
   group('Double vs Double Factor Progression Tests', () {
@@ -22,6 +22,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 0,
         deloadPercentage: 0.8,
         customParameters: const {'min_reps': 6, 'max_reps': 10},

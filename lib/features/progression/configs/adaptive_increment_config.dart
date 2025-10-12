@@ -2,14 +2,14 @@ import '../../exercise/models/exercise.dart';
 
 /// Configuración de incrementos adaptativos basados en el tipo de ejercicio y carga
 ///
-/// Este sistema determina los incrementos de peso apropiados según:
+/// Este sistema determina los incrementos de peso y series apropiados según:
 /// - ExerciseType (multiJoint vs isolation)
 /// - LoadType (barbell, dumbbell, machine, etc.)
 ///
 /// Los incrementos se basan en la evidencia científica y las mejores prácticas
 /// de entrenamiento de fuerza.
 class AdaptiveIncrementConfig {
-  /// Configuración de incrementos por tipo de ejercicio y carga
+  /// Configuración de incrementos de peso por tipo de ejercicio y carga
   static const Map<ExerciseType, Map<LoadType, IncrementRange>> _incrementConfig = {
     ExerciseType.multiJoint: {
       LoadType.barbell: IncrementRange(min: 5.0, max: 7.0, defaultValue: 5.0),
@@ -30,6 +30,47 @@ class AdaptiveIncrementConfig {
       LoadType.plate: IncrementRange(min: 2.5, max: 5.0, defaultValue: 2.5),
       LoadType.bodyweight: IncrementRange(min: 0.0, max: 0.0, defaultValue: 0.0), // Sin incremento de peso
       LoadType.resistanceBand: IncrementRange(min: 0.0, max: 0.0, defaultValue: 0.0), // Sin incremento de peso
+    },
+  };
+
+  /// Configuración de incrementos de series por tipo de ejercicio y carga
+  /// Estos valores están optimizados para diferentes objetivos de entrenamiento
+  static const Map<ExerciseType, Map<LoadType, SeriesIncrementRange>> _seriesIncrementConfig = {
+    ExerciseType.multiJoint: {
+      LoadType.barbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.dumbbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.machine: SeriesIncrementRange(min: 1, max: 3, defaultValue: 2), // Mayor flexibilidad para máquinas
+      LoadType.cable: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.kettlebell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.plate: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.bodyweight: SeriesIncrementRange(
+        min: 1,
+        max: 3,
+        defaultValue: 2, // Mayor flexibilidad para peso corporal
+      ),
+      LoadType.resistanceBand: SeriesIncrementRange(
+        min: 1,
+        max: 3,
+        defaultValue: 2, // Mayor flexibilidad para bandas
+      ),
+    },
+    ExerciseType.isolation: {
+      LoadType.barbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.dumbbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.machine: SeriesIncrementRange(min: 1, max: 3, defaultValue: 2), // Mayor flexibilidad para máquinas
+      LoadType.cable: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.kettlebell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.plate: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.bodyweight: SeriesIncrementRange(
+        min: 1,
+        max: 3,
+        defaultValue: 2, // Mayor flexibilidad para peso corporal
+      ),
+      LoadType.resistanceBand: SeriesIncrementRange(
+        min: 1,
+        max: 3,
+        defaultValue: 2, // Mayor flexibilidad para bandas
+      ),
     },
   };
 
@@ -122,6 +163,94 @@ class AdaptiveIncrementConfig {
       return true;
     }).toList();
   }
+
+  // ===== MÉTODOS PARA INCREMENTOS DE SERIES =====
+
+  /// Obtiene el incremento de series por defecto para un ejercicio específico
+  static int getDefaultSeriesIncrement(Exercise exercise) {
+    final range = _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+    return range?.defaultValue ?? 1; // Fallback por defecto
+  }
+
+  /// Obtiene el incremento mínimo de series para un ejercicio específico
+  static int getMinSeriesIncrement(Exercise exercise) {
+    final range = _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+    return range?.min ?? 1; // Fallback por defecto
+  }
+
+  /// Obtiene el incremento máximo de series para un ejercicio específico
+  static int getMaxSeriesIncrement(Exercise exercise) {
+    final range = _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+    return range?.max ?? 2; // Fallback por defecto
+  }
+
+  /// Obtiene el rango completo de incrementos de series para un ejercicio específico
+  static SeriesIncrementRange? getSeriesIncrementRange(Exercise exercise) {
+    return _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+  }
+
+  /// Obtiene el incremento de series recomendado basado en el nivel de experiencia
+  static int getRecommendedSeriesIncrement(Exercise exercise, ExperienceLevel level) {
+    final range = getSeriesIncrementRange(exercise);
+    if (range == null) return 1;
+
+    switch (level) {
+      case ExperienceLevel.beginner:
+        return range.min;
+      case ExperienceLevel.intermediate:
+        return (range.min + range.max) ~/ 2;
+      case ExperienceLevel.advanced:
+        return range.max;
+    }
+  }
+
+  /// Verifica si un incremento de series es válido para un ejercicio específico
+  static bool isValidSeriesIncrement(Exercise exercise, int increment) {
+    final range = getSeriesIncrementRange(exercise);
+    if (range == null) return true; // Si no hay restricciones, es válido
+
+    return increment >= range.min && increment <= range.max;
+  }
+
+  /// Obtiene una descripción del rango de incrementos de series para un ejercicio
+  static String getSeriesIncrementDescription(Exercise exercise) {
+    final range = getSeriesIncrementRange(exercise);
+    if (range == null) return 'Incremento de series personalizable';
+
+    if (range.min == range.max) {
+      return 'Incremento de series fijo: ${range.defaultValue} serie(s)';
+    }
+
+    return 'Rango de incremento de series: ${range.min}-${range.max} serie(s) (por defecto: ${range.defaultValue} serie(s))';
+  }
+
+  /// Obtiene todos los tipos de carga que soportan incrementos de series
+  static List<LoadType> getLoadTypesWithSeriesIncrement() {
+    return LoadType.values.where((loadType) {
+      // Verificar si al menos un tipo de ejercicio tiene incremento de series > 0
+      for (final exerciseType in ExerciseType.values) {
+        final range = _seriesIncrementConfig[exerciseType]?[loadType];
+        if (range != null && range.max > 0) {
+          return true;
+        }
+      }
+      return false;
+    }).toList();
+  }
+
+  /// Obtiene todos los tipos de carga que NO soportan incrementos de series
+  static List<LoadType> getLoadTypesWithoutSeriesIncrement() {
+    return LoadType.values.where((loadType) {
+      // Verificar si todos los tipos de ejercicio tienen incremento de series = 0
+      for (final exerciseType in ExerciseType.values) {
+        final range = _seriesIncrementConfig[exerciseType]?[loadType];
+        if (range != null && range.max > 0) {
+          return false;
+        }
+      }
+      return true;
+    }).toList();
+  }
 }
 
 /// Rango de incrementos para un tipo específico de ejercicio y carga
@@ -135,6 +264,20 @@ class IncrementRange {
   @override
   String toString() {
     return 'IncrementRange(min: $min, max: $max, defaultValue: $defaultValue)';
+  }
+}
+
+/// Rango de incrementos de series para un tipo específico de ejercicio y carga
+class SeriesIncrementRange {
+  final int min;
+  final int max;
+  final int defaultValue;
+
+  const SeriesIncrementRange({required this.min, required this.max, required this.defaultValue});
+
+  @override
+  String toString() {
+    return 'SeriesIncrementRange(min: $min, max: $max, defaultValue: $defaultValue)';
   }
 }
 

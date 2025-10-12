@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/strategies/base_progression_strategy.dart';
-import 'package:liftly/features/progression/models/progression_config.dart';
-import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/features/progression/strategies/base_progression_strategy.dart';
 
 /// Test para validar la funcionalidad común de BaseProgressionStrategy
 void main() {
@@ -24,6 +25,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: 3,
         deloadPercentage: 0.8,
         customParameters: const {},
@@ -129,17 +133,57 @@ void main() {
       });
 
       test('usa incremento específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(customParameters: {'multi_increment_min': 5.0, 'iso_increment_min': 1.25});
+        // Crear un config con incrementValue 0 para usar AdaptiveIncrementConfig
+        final testConfig = config.copyWith(incrementValue: 0);
 
-        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
-        expect(increment, equals(5.0));
+        // Crear un ejercicio multi-joint para probar AdaptiveIncrementConfig
+        final exercise = Exercise(
+          id: 'test',
+          name: 'Test Exercise',
+          description: 'Test description',
+          imageUrl: '',
+          muscleGroups: [MuscleGroup.pectoralMajor],
+          tips: [],
+          commonMistakes: [],
+          category: ExerciseCategory.chest,
+          difficulty: ExerciseDifficulty.intermediate,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
+
+        final increment = strategy.getIncrementValue(testConfig, exercise: exercise);
+        // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
+        // debería ser (5.0 + 7.0) / 2 = 6.0
+        expect(increment, equals(6.0));
       });
 
       test('usa incremento específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(customParameters: {'multi_increment_min': 5.0, 'iso_increment_min': 1.25});
+        // Crear un config con incrementValue 0 para usar AdaptiveIncrementConfig
+        final testConfig = config.copyWith(incrementValue: 0);
 
-        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.isolation);
-        expect(increment, equals(1.25));
+        // Crear un ejercicio isolation para probar AdaptiveIncrementConfig
+        final exercise = Exercise(
+          id: 'test',
+          name: 'Test Exercise',
+          description: 'Test description',
+          imageUrl: '',
+          muscleGroups: [MuscleGroup.bicepsLongHead],
+          tips: [],
+          commonMistakes: [],
+          category: ExerciseCategory.biceps,
+          difficulty: ExerciseDifficulty.intermediate,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          exerciseType: ExerciseType.isolation,
+          loadType: LoadType.dumbbell,
+        );
+
+        final increment = strategy.getIncrementValue(testConfig, exercise: exercise);
+        // AdaptiveIncrementConfig para dumbbell isolation con ExperienceLevel.intermediate
+        // debería ser (1.25 + 2.5) / 2 = 1.875
+        expect(increment, equals(1.875));
       });
 
       test('usa incremento global como fallback', () {
@@ -208,7 +252,7 @@ void main() {
     group('getMinReps', () {
       test('usa valor por defecto cuando no hay parámetros personalizados', () {
         final minReps = strategy.getMinReps(config);
-        expect(minReps, equals(5)); // Valor por defecto
+        expect(minReps, equals(8)); // Valor por defecto del config
       });
 
       test('usa min_reps específico por tipo de ejercicio multi-joint', () {

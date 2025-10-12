@@ -89,7 +89,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy implements Progres
       return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
     }
 
-    final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
+    final incrementValue = getIncrementValue(config, exercise: exercise);
 
     // 1. Aplicar lógica específica de progresión por oleadas
     switch (currentInCycle) {

@@ -20,6 +20,9 @@ void main() {
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         deloadWeek: deloadWeek,
         deloadPercentage: 0.8,
         customParameters: const {'accumulation_weeks': 3},
@@ -82,7 +85,7 @@ void main() {
         currentSets: 4,
       );
       expect(res.newWeight, closeTo(108.0, 0.0001)); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
-      expect(res.newSets, 3);
+      expect(res.newSets, 2); // 3 * 0.7 round (baseSets del config)
     });
 
     test('blocks progression when exercise is locked', () {
