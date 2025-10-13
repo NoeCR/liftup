@@ -1,4 +1,5 @@
 import '../../exercise/models/exercise.dart';
+import '../models/exercise_progression_config.dart' as epc;
 
 /// Configuración de incrementos adaptativos basados en el tipo de ejercicio y carga
 ///
@@ -10,38 +11,76 @@ import '../../exercise/models/exercise.dart';
 /// de entrenamiento de fuerza.
 class AdaptiveIncrementConfig {
   /// Configuración de incrementos de peso por tipo de ejercicio y carga
-  static const Map<ExerciseType, Map<LoadType, IncrementRange>> _incrementConfig = {
+  static const Map<ExerciseType, Map<LoadType, IncrementRange>>
+  _incrementConfig = {
     ExerciseType.multiJoint: {
       LoadType.barbell: IncrementRange(min: 5.0, max: 7.0, defaultValue: 5.0),
       LoadType.dumbbell: IncrementRange(min: 2.5, max: 5.0, defaultValue: 2.5),
       LoadType.machine: IncrementRange(min: 5.0, max: 10.0, defaultValue: 5.0),
       LoadType.cable: IncrementRange(min: 2.5, max: 5.0, defaultValue: 2.5),
-      LoadType.kettlebell: IncrementRange(min: 4.0, max: 8.0, defaultValue: 4.0),
+      LoadType.kettlebell: IncrementRange(
+        min: 4.0,
+        max: 8.0,
+        defaultValue: 4.0,
+      ),
       LoadType.plate: IncrementRange(min: 5.0, max: 10.0, defaultValue: 5.0),
-      LoadType.bodyweight: IncrementRange(min: 0.0, max: 0.0, defaultValue: 0.0), // Sin incremento de peso
-      LoadType.resistanceBand: IncrementRange(min: 0.0, max: 0.0, defaultValue: 0.0), // Sin incremento de peso
+      LoadType.bodyweight: IncrementRange(
+        min: 0.0,
+        max: 0.0,
+        defaultValue: 0.0,
+      ), // Sin incremento de peso por defecto
+      LoadType.resistanceBand: IncrementRange(
+        min: 0.0,
+        max: 0.0,
+        defaultValue: 0.0,
+      ), // Sin incremento de peso por defecto
     },
     ExerciseType.isolation: {
       LoadType.barbell: IncrementRange(min: 2.5, max: 5.0, defaultValue: 2.5),
-      LoadType.dumbbell: IncrementRange(min: 1.25, max: 2.5, defaultValue: 1.25),
+      LoadType.dumbbell: IncrementRange(
+        min: 1.25,
+        max: 2.5,
+        defaultValue: 1.25,
+      ),
       LoadType.machine: IncrementRange(min: 2.5, max: 5.0, defaultValue: 2.5),
       LoadType.cable: IncrementRange(min: 1.25, max: 2.5, defaultValue: 1.25),
-      LoadType.kettlebell: IncrementRange(min: 2.0, max: 4.0, defaultValue: 2.0),
+      LoadType.kettlebell: IncrementRange(
+        min: 2.0,
+        max: 4.0,
+        defaultValue: 2.0,
+      ),
       LoadType.plate: IncrementRange(min: 2.5, max: 5.0, defaultValue: 2.5),
-      LoadType.bodyweight: IncrementRange(min: 0.0, max: 0.0, defaultValue: 0.0), // Sin incremento de peso
-      LoadType.resistanceBand: IncrementRange(min: 0.0, max: 0.0, defaultValue: 0.0), // Sin incremento de peso
+      LoadType.bodyweight: IncrementRange(
+        min: 0.0,
+        max: 0.0,
+        defaultValue: 0.0,
+      ), // Sin incremento de peso por defecto
+      LoadType.resistanceBand: IncrementRange(
+        min: 0.0,
+        max: 0.0,
+        defaultValue: 0.0,
+      ), // Sin incremento de peso por defecto
     },
   };
 
   /// Configuración de incrementos de series por tipo de ejercicio y carga
   /// Estos valores están optimizados para diferentes objetivos de entrenamiento
-  static const Map<ExerciseType, Map<LoadType, SeriesIncrementRange>> _seriesIncrementConfig = {
+  static const Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>
+  _seriesIncrementConfig = {
     ExerciseType.multiJoint: {
       LoadType.barbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
       LoadType.dumbbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
-      LoadType.machine: SeriesIncrementRange(min: 1, max: 3, defaultValue: 2), // Mayor flexibilidad para máquinas
+      LoadType.machine: SeriesIncrementRange(
+        min: 1,
+        max: 3,
+        defaultValue: 2,
+      ), // Mayor flexibilidad para máquinas
       LoadType.cable: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
-      LoadType.kettlebell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.kettlebell: SeriesIncrementRange(
+        min: 1,
+        max: 2,
+        defaultValue: 1,
+      ),
       LoadType.plate: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
       LoadType.bodyweight: SeriesIncrementRange(
         min: 1,
@@ -57,9 +96,17 @@ class AdaptiveIncrementConfig {
     ExerciseType.isolation: {
       LoadType.barbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
       LoadType.dumbbell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
-      LoadType.machine: SeriesIncrementRange(min: 1, max: 3, defaultValue: 2), // Mayor flexibilidad para máquinas
+      LoadType.machine: SeriesIncrementRange(
+        min: 1,
+        max: 3,
+        defaultValue: 2,
+      ), // Mayor flexibilidad para máquinas
       LoadType.cable: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
-      LoadType.kettlebell: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
+      LoadType.kettlebell: SeriesIncrementRange(
+        min: 1,
+        max: 2,
+        defaultValue: 1,
+      ),
       LoadType.plate: SeriesIncrementRange(min: 1, max: 2, defaultValue: 1),
       LoadType.bodyweight: SeriesIncrementRange(
         min: 1,
@@ -98,12 +145,15 @@ class AdaptiveIncrementConfig {
   }
 
   /// Obtiene el incremento recomendado basado en el nivel de experiencia
-  static double getRecommendedIncrement(Exercise exercise, ExperienceLevel level) {
+  static double getRecommendedIncrement(
+    Exercise exercise,
+    ExperienceLevel level,
+  ) {
     final range = getIncrementRange(exercise);
     if (range == null) return 2.5;
 
     switch (level) {
-      case ExperienceLevel.beginner:
+      case ExperienceLevel.initiated:
         return range.min;
       case ExperienceLevel.intermediate:
         return (range.min + range.max) / 2;
@@ -168,19 +218,22 @@ class AdaptiveIncrementConfig {
 
   /// Obtiene el incremento de series por defecto para un ejercicio específico
   static int getDefaultSeriesIncrement(Exercise exercise) {
-    final range = _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+    final range =
+        _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
     return range?.defaultValue ?? 1; // Fallback por defecto
   }
 
   /// Obtiene el incremento mínimo de series para un ejercicio específico
   static int getMinSeriesIncrement(Exercise exercise) {
-    final range = _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+    final range =
+        _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
     return range?.min ?? 1; // Fallback por defecto
   }
 
   /// Obtiene el incremento máximo de series para un ejercicio específico
   static int getMaxSeriesIncrement(Exercise exercise) {
-    final range = _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
+    final range =
+        _seriesIncrementConfig[exercise.exerciseType]?[exercise.loadType];
     return range?.max ?? 2; // Fallback por defecto
   }
 
@@ -190,12 +243,15 @@ class AdaptiveIncrementConfig {
   }
 
   /// Obtiene el incremento de series recomendado basado en el nivel de experiencia
-  static int getRecommendedSeriesIncrement(Exercise exercise, ExperienceLevel level) {
+  static int getRecommendedSeriesIncrement(
+    Exercise exercise,
+    ExperienceLevel level,
+  ) {
     final range = getSeriesIncrementRange(exercise);
     if (range == null) return 1;
 
     switch (level) {
-      case ExperienceLevel.beginner:
+      case ExperienceLevel.initiated:
         return range.min;
       case ExperienceLevel.intermediate:
         return (range.min + range.max) ~/ 2;
@@ -259,7 +315,11 @@ class IncrementRange {
   final double max;
   final double defaultValue;
 
-  const IncrementRange({required this.min, required this.max, required this.defaultValue});
+  const IncrementRange({
+    required this.min,
+    required this.max,
+    required this.defaultValue,
+  });
 
   @override
   String toString() {
@@ -273,7 +333,11 @@ class SeriesIncrementRange {
   final int max;
   final int defaultValue;
 
-  const SeriesIncrementRange({required this.min, required this.max, required this.defaultValue});
+  const SeriesIncrementRange({
+    required this.min,
+    required this.max,
+    required this.defaultValue,
+  });
 
   @override
   String toString() {
@@ -282,12 +346,84 @@ class SeriesIncrementRange {
 }
 
 /// Nivel de experiencia del usuario
+/// Lógica: initiated (grandes incrementos) → advanced (pequeños incrementos)
 enum ExperienceLevel {
-  beginner('Principiante'),
-  intermediate('Intermedio'),
-  advanced('Avanzado');
+  initiated('Iniciado', 'Puedes progresar rápidamente'),
+  intermediate('Intermedio', 'Progresión moderada'),
+  advanced('Avanzado', 'Progresión lenta, cerca del límite');
 
-  const ExperienceLevel(this.displayName);
+  const ExperienceLevel(this.displayName, this.description);
 
   final String displayName;
+  final String description;
+
+  /// Obtiene el factor de incremento (1.0 = normal, >1.0 = más rápido, <1.0 = más lento)
+  double get incrementFactor {
+    switch (this) {
+      case ExperienceLevel.initiated:
+        return 1.5; // 50% más rápido
+      case ExperienceLevel.intermediate:
+        return 1.0; // Normal
+      case ExperienceLevel.advanced:
+        return 0.5; // 50% más lento
+    }
+  }
+}
+
+/// Extensiones para soportar ExerciseProgressionConfig
+extension AdaptiveIncrementConfigExtensions on AdaptiveIncrementConfig {
+  /// Obtiene el incremento recomendado considerando ExerciseProgressionConfig
+  static double getRecommendedIncrementWithConfig(
+    Exercise exercise,
+    epc.ExerciseProgressionConfig? exerciseConfig,
+    ExperienceLevel defaultExperienceLevel,
+  ) {
+    // 1. Si hay configuración personalizada, usarla
+    if (exerciseConfig?.hasCustomIncrement == true) {
+      return exerciseConfig!.customIncrement!;
+    }
+
+    // 2. Usar ExperienceLevel del ejercicio o el por defecto
+    final experienceLevel =
+        exerciseConfig?.experienceLevel != null
+            ? ExperienceLevel.values.firstWhere(
+              (e) => e.name == exerciseConfig!.experienceLevel!.name,
+              orElse: () => defaultExperienceLevel,
+            )
+            : defaultExperienceLevel;
+
+    // 3. Obtener incremento base y aplicar factor de experiencia
+    final baseIncrement = AdaptiveIncrementConfig.getRecommendedIncrement(
+      exercise,
+      experienceLevel,
+    );
+    return baseIncrement * experienceLevel.incrementFactor;
+  }
+
+  /// Obtiene las repeticiones mínimas considerando ExerciseProgressionConfig
+  static int getMinRepsWithConfig(
+    Exercise exercise,
+    epc.ExerciseProgressionConfig? exerciseConfig,
+    int defaultMinReps,
+  ) {
+    return exerciseConfig?.customMinReps ?? defaultMinReps;
+  }
+
+  /// Obtiene las repeticiones máximas considerando ExerciseProgressionConfig
+  static int getMaxRepsWithConfig(
+    Exercise exercise,
+    epc.ExerciseProgressionConfig? exerciseConfig,
+    int defaultMaxReps,
+  ) {
+    return exerciseConfig?.customMaxReps ?? defaultMaxReps;
+  }
+
+  /// Obtiene las series base considerando ExerciseProgressionConfig
+  static int getBaseSetsWithConfig(
+    Exercise exercise,
+    epc.ExerciseProgressionConfig? exerciseConfig,
+    int defaultBaseSets,
+  ) {
+    return exerciseConfig?.customBaseSets ?? defaultBaseSets;
+  }
 }

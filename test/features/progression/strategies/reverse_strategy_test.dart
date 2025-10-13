@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/reverse_progression_strategy.dart';
@@ -57,9 +58,42 @@ void main() {
       currentWeight: 100,
       currentReps: 10,
       currentSets: 4,
+      exercise: Exercise(
+        id: 'ex',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      ),
     );
     expect(res.incrementApplied, true);
-    expect(res.newWeight, 97.5);
+    final inc = strategy.getIncrementValueSync(
+      cfg,
+      Exercise(
+        id: 'ex',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      ),
+    );
+    expect(res.newWeight, 100 - inc);
     expect(res.newReps, 11);
   });
 
@@ -115,6 +149,21 @@ void main() {
       currentWeight: 100,
       currentReps: 10,
       currentSets: 4,
+      exercise: Exercise(
+        id: 'ex',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      ),
       isExerciseLocked: true,
     );
     expect(res.incrementApplied, false);

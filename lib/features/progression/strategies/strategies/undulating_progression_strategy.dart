@@ -50,7 +50,8 @@ import '../progression_strategy.dart';
 /// - Más compleja de programar
 /// - Puede ser abrumadora para principiantes
 /// - Requiere mayor capacidad de recuperación
-class UndulatingProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class UndulatingProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -63,48 +64,81 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Undulating progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: state.baseSets,
+        reason:
+            'Undulating progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    // Si es deload, aplicar deload directamente sobre el peso actual
+    // Si es deload, aplicar deload estándar
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Undulating progression: exercise required for deload',
+        );
+      }
+
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
+      );
     }
 
-    // 1. Aplicar lógica específica de progresión ondulante
+    // Requerir ejercicio para aplicar progresión
+    if (exercise == null) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Undulating progression: exercise required for progression',
+      );
+    }
+
+    // Aplicar lógica específica de progresión ondulante
     final isHeavyDay = currentInCycle % 2 == 1;
-    final incrementValue = getIncrementValue(config, exercise: exercise);
+    final incrementValue = getIncrementValueSync(config, exercise);
+    final minReps = getMinRepsSync(config, exercise);
 
     if (isHeavyDay) {
       // Día pesado: más peso, menos reps
-      final minReps = getMinReps(config, exerciseType: exerciseType);
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: currentWeight + incrementValue,
-        newReps: (currentReps * 0.85).round().clamp(math.min(minReps, currentReps), currentReps),
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
+        newReps: (currentReps * 0.85).round().clamp(
+          math.min(minReps, currentReps),
+          currentReps,
+        ),
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Undulating progression: heavy day +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Día ligero: menos peso, más reps
-      final minReps = getMinReps(config, exerciseType: exerciseType);
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: (currentWeight - incrementValue).clamp(0, currentWeight),
         newReps: ((currentReps * 1.15).round()).clamp(minReps, 1000),
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Undulating progression: light day -${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
@@ -112,26 +146,12 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
     }
   }
 
-  /// Aplica deload específico para progresión ondulante
-  ProgressionCalculationResult _applyDeload(
-    ProgressionConfig config,
-    ProgressionState state,
-    double currentWeight,
-    int currentReps,
-    int currentSets,
-    int currentInCycle,
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-
-    return ProgressionCalculationResult(
-      newWeight: deloadWeight,
-      newReps: currentReps,
-      newSets: (config.baseSets * 0.7).round(), // Use config.baseSets for deload calculation
-      incrementApplied: true,
-      isDeload: true,
-      shouldResetCycle: false, // Undulating progression no reinicia ciclo - es progresión alternante
-      reason: 'Undulating progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
-    );
+    return true; // Undulating progression siempre aplica valores
   }
 }

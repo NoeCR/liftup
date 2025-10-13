@@ -40,7 +40,8 @@ import '../progression_strategy.dart';
 /// - Requiere conocimiento del usuario
 /// - Puede llevar a estancamiento sin planificación
 /// - No optimiza automáticamente las cargas
-class DefaultProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class DefaultProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -54,13 +55,21 @@ class DefaultProgressionStrategy extends BaseProgressionStrategy implements Prog
     bool isExerciseLocked = false,
   }) {
     // La progresión por defecto no aplica deloads ni cambios
-    return ProgressionCalculationResult(
+    return createProgressionResult(
       newWeight: currentWeight,
       newReps: currentReps,
       newSets: currentSets,
       incrementApplied: false,
-      isDeload: false,
       reason: 'Default progression: no changes applied',
     );
+  }
+
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
+    return true; // Default progression siempre aplica valores (aunque no los cambie)
   }
 }

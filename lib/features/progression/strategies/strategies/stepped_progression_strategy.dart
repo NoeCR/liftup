@@ -49,7 +49,8 @@ import '../progression_strategy.dart';
 /// - Requiere planificación cuidadosa de fases
 /// - Puede ser menos efectiva para ganancias rápidas
 /// - Necesita deloads apropiados
-class SteppedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class SteppedProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -62,88 +63,89 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: state.baseSets,
+        reason:
+            'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    // Si es deload, aplicar deload directamente sobre el peso actual
+    // Si es deload, aplicar deload estándar
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle, exercise: exercise);
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Stepped progression: exercise required for deload',
+        );
+      }
+
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
+      );
     }
 
-    // 1. Aplicar lógica específica de progresión escalonada
-    final accumulationWeeks = _getAccumulationWeeks(config);
-    final incrementValue = getIncrementValue(config, exerciseType: exerciseType, exercise: exercise);
+    // Requerir ejercicio para aplicar progresión
+    if (exercise == null) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Stepped progression: exercise required for progression',
+      );
+    }
 
-    // Usar rangos de repeticiones del preset si está disponible el ejercicio
-    final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+    // Aplicar lógica específica de progresión escalonada
+    final accumulationWeeks = _getAccumulationWeeks(config);
+    final incrementValue = getIncrementValueSync(config, exercise);
+    final baseSets = getBaseSetsSync(config, exercise);
 
     final totalIncrement =
-        currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
+        currentInCycle <= accumulationWeeks
+            ? incrementValue * currentInCycle
+            : incrementValue * accumulationWeeks;
 
-    return ProgressionCalculationResult(
-      newWeight: state.baseWeight + totalIncrement,
+    return createProgressionResult(
+      newWeight: currentWeight + totalIncrement,
       newReps: currentReps,
-      newSets: adaptiveBaseSets, // Usar sets del preset
+      newSets: baseSets,
       incrementApplied: true,
-      reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+      reason:
+          'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );
   }
 
-  /// Aplica deload específico para progresión escalonada
-  ProgressionCalculationResult _applyDeload(
-    ProgressionConfig config,
-    ProgressionState state,
-    double currentWeight,
-    int currentReps,
-    int currentSets,
-    int currentInCycle, {
-    Exercise? exercise,
-  }) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-
-    // Usar sets del preset para el deload
-    final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
-    final deloadSets = (adaptiveBaseSets * 0.7).round();
-
-    return ProgressionCalculationResult(
-      newWeight: deloadWeight,
-      newReps: currentReps,
-      newSets: deloadSets, // Usar sets del preset para deload
-      incrementApplied: true,
-      isDeload: true,
-      shouldResetCycle: true, // Reiniciar ciclo después del deload
-      reason: 'Stepped progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
-    );
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
+    return true; // Stepped progression siempre aplica valores
   }
 
   /// Obtiene las semanas de acumulación desde parámetros personalizados
   int _getAccumulationWeeks(ProgressionConfig config) {
     final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final weeks = exerciseParams['accumulation_weeks'];
-        if (weeks != null) return weeks as int;
-      }
-    }
-
-    // Fallback a global
     return customParams['accumulation_weeks'] ?? 3; // default
   }
 }

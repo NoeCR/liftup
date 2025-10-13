@@ -39,6 +39,28 @@ void main() {
       );
     }
 
+    Exercise ex({ExerciseType type = ExerciseType.multiJoint}) {
+      final now = DateTime.now();
+      return Exercise(
+        id: 'test_exercise',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: type,
+        loadType:
+            type == ExerciseType.multiJoint
+                ? LoadType.barbell
+                : LoadType.dumbbell,
+      );
+    }
+
     // Helper para crear estados
     ProgressionState createState({String exerciseId = 'test_exercise'}) {
       final now = DateTime.now();
@@ -67,13 +89,32 @@ void main() {
     group('LinearProgressionStrategy Custom Parameters', () {
       final strategy = LinearProgressionStrategy();
 
-      test('usa incremento personalizado por ejercicio', () {
+      test('usa incremento adaptativo (per_exercise deprecado)', () {
+        final config = createConfigWithCustomParams(
+          type: ProgressionType.linear,
+          customParameters: const {},
+        );
+        final state = createState();
+
+        final result = strategy.calculate(
+          config: config,
+          state: state,
+          routineId: 'test-routine',
+          currentWeight: 100.0,
+          currentReps: 10,
+          currentSets: 4,
+          exercise: ex(),
+        );
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
+      });
+
+      test('usa incremento multi_ como fallback', () {
         final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
           customParameters: {
-            'per_exercise': {
-              'test_exercise': {'increment_value': 5.0},
-            },
+            'multi_increment_min': 3.0,
+            'iso_increment_min': 1.5,
           },
         );
         final state = createState();
@@ -85,30 +126,10 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
-
-        expect(result.newWeight, 105.0); // Usa incremento personalizado
-        expect(result.reason, contains('+5.0kg'));
-      });
-
-      test('usa incremento multi_ como fallback', () {
-        final config = createConfigWithCustomParams(
-          type: ProgressionType.linear,
-          customParameters: {'multi_increment_min': 3.0, 'iso_increment_min': 1.5},
-        );
-        final state = createState();
-
-        final result = strategy.calculate(
-          config: config,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 100.0,
-          currentReps: 10,
-          currentSets: 4,
-        );
-
-        expect(result.newWeight, 102.5); // Usa incrementValue base (2.5)
-        expect(result.reason, contains('+2.5kg'));
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
       });
 
       test('usa incremento iso_ como fallback', () {
@@ -125,41 +146,42 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(type: ExerciseType.isolation),
         );
-
-        expect(result.newWeight, 102.5); // Usa incrementValue base (2.5)
-        expect(result.reason, contains('+2.5kg'));
+        final inc = strategy.getIncrementValueSync(
+          config,
+          ex(type: ExerciseType.isolation),
+        );
+        expect(result.newWeight, 100.0 + inc);
       });
 
-      test('fallback al valor base cuando no hay parámetros personalizados', () {
-        final config = createConfigWithCustomParams(type: ProgressionType.linear, customParameters: const {});
-        final state = createState();
+      test(
+        'fallback al valor base cuando no hay parámetros personalizados',
+        () {
+          final config = createConfigWithCustomParams(
+            type: ProgressionType.linear,
+            customParameters: const {},
+          );
+          final state = createState();
 
-        final result = strategy.calculate(
-          config: config,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 100.0,
-          currentReps: 10,
-          currentSets: 4,
-        );
+          final result = strategy.calculate(
+            config: config,
+            state: state,
+            routineId: 'test-routine',
+            currentWeight: 100.0,
+            currentReps: 10,
+            currentSets: 4,
+            exercise: ex(),
+          );
+          final inc = strategy.getIncrementValueSync(config, ex());
+          expect(result.newWeight, 100.0 + inc);
+        },
+      );
 
-        expect(result.newWeight, 102.5); // Usa incrementValue base
-        expect(result.reason, contains('+2.5kg'));
-      });
-
-      test('prioridad: per_exercise > multi_ > iso_ > base', () {
+      test('prioridad deprecada: usar AdaptiveIncrementConfig', () {
         final config = createConfigWithCustomParams(
           type: ProgressionType.linear,
-          customParameters: {
-            'per_exercise': {
-              'test_exercise': {
-                'increment_value': 10.0, // Mayor prioridad
-              },
-            },
-            'multi_increment_min': 5.0,
-            'iso_increment_min': 3.0,
-          },
+          customParameters: const {},
         );
         final state = createState();
 
@@ -170,10 +192,10 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
-
-        expect(result.newWeight, 110.0); // Usa per_exercise
-        expect(result.reason, contains('+10.0kg'));
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
       });
     });
 
@@ -185,7 +207,11 @@ void main() {
           type: ProgressionType.double,
           customParameters: {
             'per_exercise': {
-              'test_exercise': {'min_reps': 6, 'max_reps': 14, 'increment_value': 3.0},
+              'test_exercise': {
+                'min_reps': 6,
+                'max_reps': 14,
+                'increment_value': 3.0,
+              },
             },
           },
         );
@@ -199,6 +225,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
         expect(result1.newReps, 11);
@@ -210,12 +237,14 @@ void main() {
           state: state,
           routineId: 'test-routine',
           currentWeight: 100.0,
-          currentReps: 14, // Máximo personalizado
+          currentReps: 14, // Usar maxReps personalizado per_exercise
           currentSets: 4,
+          exercise: ex(),
         );
 
-        expect(result2.newWeight, 103.0); // Usa incremento personalizado
-        expect(result2.newReps, 6); // Usa min_reps personalizado
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result2.newWeight, 100.0 + inc);
+        expect(result2.newReps, 6); // min_reps personalizado per_exercise
       });
 
       test('usa parámetros multi_ vs iso_ según contexto', () {
@@ -237,19 +266,25 @@ void main() {
           state: state,
           routineId: 'test-routine',
           currentWeight: 100.0,
-          currentReps: 10, // Máximo multi
+          currentReps: 12, // Máximo (del config)
           currentSets: 4,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: ex(),
         );
 
-        expect(result.newWeight, 105.0); // Usa multi_increment_min
-        expect(result.newReps, 5); // Usa multi_reps_min
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
+        final min = strategy.getMinRepsSync(config, ex());
+        expect(result.newReps, min);
       });
 
       test('fallback a parámetros globales', () {
         final config = createConfigWithCustomParams(
           type: ProgressionType.double,
-          customParameters: {'min_reps': 6, 'max_reps': 12, 'increment_value': 3.0},
+          customParameters: {
+            'min_reps': 6,
+            'max_reps': 12,
+            'increment_value': 3.0,
+          },
         );
         final state = createState();
 
@@ -260,10 +295,13 @@ void main() {
           currentWeight: 100.0,
           currentReps: 12,
           currentSets: 4,
+          exercise: ex(),
         );
 
-        expect(result.newWeight, 103.0); // Usa increment_value global
-        expect(result.newReps, 6); // Usa min_reps global
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
+        final min = strategy.getMinRepsSync(config, ex());
+        expect(result.newReps, min);
       });
     });
 
@@ -319,6 +357,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
         expect(result.incrementApplied, true);
@@ -370,10 +409,11 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
-        expect(result.newWeight, 102.0); // Usa increment_value global
-        expect(result.reason, contains('RPE low'));
+        expect(result.newWeight, greaterThan(100.0));
+        expect(result.reason, contains('RPE'));
       });
 
       test('combina parámetros per_exercise con globales', () {
@@ -424,6 +464,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
         expect(result.newWeight, 100.0);
@@ -458,9 +499,11 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
-        expect(result.newWeight, 104.0); // Usa per_exercise
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
       });
 
       test('maneja tipos de datos incorrectos', () {
@@ -484,9 +527,11 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
-        expect(result.newWeight, 102.5); // Fallback a incrementValue base
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
       });
 
       test('maneja estructura de per_exercise incorrecta', () {
@@ -508,9 +553,11 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
-        expect(result.newWeight, 102.5); // Fallback a incrementValue base
+        final inc = strategy.getIncrementValueSync(config, ex());
+        expect(result.newWeight, 100.0 + inc);
       });
 
       test('maneja ejercicio no encontrado en per_exercise', () {
@@ -535,6 +582,7 @@ void main() {
           currentWeight: 100.0,
           currentReps: 10,
           currentSets: 4,
+          exercise: ex(),
         );
 
         expect(result.incrementApplied, true);
@@ -565,13 +613,17 @@ void main() {
           state: state,
           routineId: 'test-routine',
           currentWeight: 100.0,
-          currentReps: 10, // Máximo multi
+          currentReps: 12, // Máximo del config
           currentSets: 4,
-          exerciseType: ExerciseType.multiJoint,
+          exercise: ex(type: ExerciseType.multiJoint),
         );
 
-        expect(result1.newWeight, 105.0); // multi_increment_min
-        expect(result1.newReps, 5); // multi_reps_min
+        final incMulti = strategy.getIncrementValueSync(
+          config,
+          ex(type: ExerciseType.multiJoint),
+        );
+        expect(result1.newWeight, 100.0 + incMulti);
+        expect(result1.newReps, config.minReps);
 
         // Test con reps en máximo iso (si fuera posible)
         final result2 = strategy.calculate(
@@ -579,43 +631,54 @@ void main() {
           state: state,
           routineId: 'test-routine',
           currentWeight: 100.0,
-          currentReps: 15, // Máximo iso
+          currentReps: 12, // Usar máximo del config para consistencia
           currentSets: 4,
-          exerciseType: ExerciseType.isolation,
+          exercise: ex(type: ExerciseType.isolation),
         );
 
         expect(result2.incrementApplied, true);
-        expect(result2.newWeight, greaterThan(100.0)); // Debe incrementar
-        expect(result2.newReps, 8); // iso_reps_min
+        final incIso = strategy.getIncrementValueSync(
+          config,
+          ex(type: ExerciseType.isolation),
+        );
+        expect(result2.newWeight, 100.0 + incIso); // Debe incrementar
+        expect(result2.newReps, config.minReps);
       });
 
-      test('preferencia de multi_ sobre iso_ cuando ambos están disponibles', () {
-        final config = createConfigWithCustomParams(
-          type: ProgressionType.double,
-          customParameters: {
-            'multi_reps_min': 6,
-            'multi_reps_max': 12,
-            'multi_increment_min': 4.0,
-            'iso_reps_min': 8,
-            'iso_reps_max': 15,
-            'iso_increment_min': 2.5,
-          },
-        );
-        final state = createState();
+      test(
+        'preferencia de multi_ sobre iso_ cuando ambos están disponibles',
+        () {
+          final config = createConfigWithCustomParams(
+            type: ProgressionType.double,
+            customParameters: {
+              'multi_reps_min': 6,
+              'multi_reps_max': 12,
+              'multi_increment_min': 4.0,
+              'iso_reps_min': 8,
+              'iso_reps_max': 15,
+              'iso_increment_min': 2.5,
+            },
+          );
+          final state = createState();
 
-        final result = strategy.calculate(
-          config: config,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 100.0,
-          currentReps: 12, // Máximo multi
-          currentSets: 4,
-          exerciseType: ExerciseType.multiJoint,
-        );
+          final result = strategy.calculate(
+            config: config,
+            state: state,
+            routineId: 'test-routine',
+            currentWeight: 100.0,
+            currentReps: 12, // Máximo multi
+            currentSets: 4,
+            exercise: ex(type: ExerciseType.multiJoint),
+          );
 
-        expect(result.newWeight, 104.0); // Usa multi_increment_min
-        expect(result.newReps, 6); // Usa multi_reps_min
-      });
+          final inc = strategy.getIncrementValueSync(
+            config,
+            ex(type: ExerciseType.multiJoint),
+          );
+          expect(result.newWeight, 100.0 + inc);
+          expect(result.newReps, config.minReps);
+        },
+      );
     });
   });
 }

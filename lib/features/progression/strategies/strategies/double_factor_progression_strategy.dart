@@ -47,7 +47,8 @@ import '../progression_strategy.dart';
 /// - Requiere experiencia en autoregulación (RPE/RIR)
 /// - Necesita deloads más frecuentes
 /// - Puede ser abrumadora para principiantes
-class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
     // En Double Factor, aplicar deload cuando se alcance la semana configurada
@@ -67,39 +68,71 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: state.baseSets,
+        reason:
+            'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
+    // Si es deload, aplicar deload estándar
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Double factor progression: exercise required for deload',
+        );
+      }
+
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
+      );
+    }
+
+    // Requerir ejercicio para aplicar progresión
+    if (exercise == null) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Double factor progression: exercise required for progression',
+      );
     }
 
     // Obtener parámetros de doble factor
-    final maxReps = getMaxReps(config, exerciseType: exerciseType);
-    final minReps = getMinReps(config, exerciseType: exerciseType);
+    final maxReps = getMaxRepsSync(config, exercise);
+    final minReps = getMinRepsSync(config, exercise);
 
     // Determinar patrón de progresión basado en la semana del ciclo
     final isOddWeek = currentInCycle % 2 == 1;
 
     if (isOddWeek) {
       // Semana impar: Incrementar peso, mantener reps
-      final incrementValue = getIncrementValue(config, exercise: exercise);
-      return ProgressionCalculationResult(
+      final incrementValue = getIncrementValueSync(config, exercise);
+      return createProgressionResult(
         newWeight: currentWeight + incrementValue,
-        newReps: currentReps.clamp(minReps, maxReps), // Asegurar que esté en rango
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newReps: currentReps.clamp(minReps, maxReps),
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Double factor progression: increasing weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
@@ -107,10 +140,10 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
     } else {
       // Semana par: Incrementar reps, mantener peso
       final newReps = (currentReps + 1).clamp(minReps, maxReps);
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: currentWeight,
         newReps: newReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Double factor progression: increasing reps to $newReps (week $currentInCycle of ${config.cycleLength})',
@@ -118,34 +151,12 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
     }
   }
 
-  /// Aplica deload específico para progresión doble factor
-  /// Reduce tanto peso como reps proporcionalmente al progreso sobre los valores base
-  /// Después del deload, el siguiente ciclo empezará como "semana 1" (impar) para incrementar peso
-  ProgressionCalculationResult _applyDeload(
-    ProgressionConfig config,
-    ProgressionState state,
-    double currentWeight,
-    int currentReps,
-    int currentSets,
-    int currentInCycle,
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
   ) {
-    // Calcular incremento sobre peso base
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-
-    // Calcular incremento sobre reps base
-    final int increaseOverReps = (currentReps - state.baseReps).clamp(0, 100);
-    final int deloadReps = state.baseReps + (increaseOverReps * config.deloadPercentage).round();
-
-    return ProgressionCalculationResult(
-      newWeight: deloadWeight,
-      newReps: deloadReps, // Reducir reps proporcionalmente al progreso
-      newSets: (state.baseSets * 0.7).round(), // Reducir volumen
-      incrementApplied: true,
-      isDeload: true,
-      shouldResetCycle: true, // Reiniciar ciclo después del deload
-      reason:
-          'Double factor progression: deload week $currentInCycle of ${config.cycleLength} (weight: ${deloadWeight.toStringAsFixed(1)}kg, reps: $deloadReps). Next cycle starts as week 1 (odd) for weight increment.',
-    );
+    return true; // Double factor progression siempre aplica valores
   }
 }

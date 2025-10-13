@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
@@ -7,6 +8,25 @@ import 'package:liftly/features/progression/strategies/strategies/stepped_progre
 void main() {
   group('SteppedProgressionStrategy', () {
     final strategy = SteppedProgressionStrategy();
+
+    Exercise ex() {
+      final now = DateTime.now();
+      return Exercise(
+        id: 'ex',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+    }
 
     ProgressionConfig config({int deloadWeek = 0}) {
       final now = DateTime.now();
@@ -68,9 +88,11 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, 100 + 2 * 2.5);
+      final inc = strategy.getIncrementValueSync(cfg, ex());
+      expect(res.newWeight, 100 + 2 * inc);
     });
 
     test('deload applied at deloadWeek', () {
@@ -83,8 +105,12 @@ void main() {
         currentWeight: 110,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
-      expect(res.newWeight, closeTo(108.0, 0.0001)); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
+      expect(
+        res.newWeight,
+        closeTo(108.0, 0.0001),
+      ); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
       expect(res.newSets, 2); // 3 * 0.7 round (baseSets del config)
     });
 

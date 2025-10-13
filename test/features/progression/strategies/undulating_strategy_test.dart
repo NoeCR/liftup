@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
@@ -7,6 +8,25 @@ import 'package:liftly/features/progression/strategies/strategies/undulating_pro
 void main() {
   group('UndulatingProgressionStrategy', () {
     final strategy = UndulatingProgressionStrategy();
+
+    Exercise ex() {
+      final now = DateTime.now();
+      return Exercise(
+        id: 'ex',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+    }
 
     ProgressionConfig config() {
       final now = DateTime.now();
@@ -68,9 +88,11 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, closeTo(102.5, 0.0001));
+      final inc = strategy.getIncrementValueSync(cfg, ex());
+      expect(res.newWeight, closeTo(100 + inc, 0.0001));
       expect(res.newReps, 9);
       // clamp mínimo
       expect(res.newReps, greaterThanOrEqualTo(6));
@@ -86,9 +108,11 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, closeTo(97.5, 0.0001));
+      final inc = strategy.getIncrementValueSync(cfg, ex());
+      expect(res.newWeight, closeTo(100 - inc, 0.0001));
       expect(res.newReps, 12);
       // clamp mínimo
       expect(res.newReps, greaterThanOrEqualTo(6));

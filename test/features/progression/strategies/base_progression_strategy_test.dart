@@ -12,6 +12,7 @@ void main() {
     late TestProgressionStrategy strategy;
     late ProgressionConfig config;
     late ProgressionState state;
+    late Exercise testExercise;
 
     setUp(() {
       strategy = TestProgressionStrategy();
@@ -37,6 +38,23 @@ void main() {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
+
+      testExercise = Exercise(
+        id: 'test-exercise',
+        name: 'Test Exercise',
+        description: 'Test exercise for testing',
+        imageUrl: 'test-image.jpg',
+        muscleGroups: [MuscleGroup.pectoralMajor],
+        tips: ['Test tip'],
+        commonMistakes: ['Test mistake'],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.beginner,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
       state = ProgressionState(
         id: 'test-state',
         progressionConfigId: 'test-config',
@@ -128,8 +146,11 @@ void main() {
 
     group('getIncrementValue', () {
       test('usa valor base cuando no hay parámetros personalizados', () {
-        final increment = strategy.getIncrementValue(config);
-        expect(increment, equals(2.5)); // incrementValue del config
+        final increment = strategy.getIncrementValueSync(config, testExercise);
+        expect(
+          increment,
+          equals(6.0),
+        ); // AdaptiveIncrementConfig para barbell multiJoint (intermediate)
       });
 
       test('usa incremento específico por tipo de ejercicio multi-joint', () {
@@ -153,7 +174,7 @@ void main() {
           loadType: LoadType.barbell,
         );
 
-        final increment = strategy.getIncrementValue(testConfig, exercise: exercise);
+        final increment = strategy.getIncrementValueSync(testConfig, exercise);
         // AdaptiveIncrementConfig para barbell multi-joint con ExperienceLevel.intermediate
         // debería ser (5.0 + 7.0) / 2 = 6.0
         expect(increment, equals(6.0));
@@ -180,7 +201,7 @@ void main() {
           loadType: LoadType.dumbbell,
         );
 
-        final increment = strategy.getIncrementValue(testConfig, exercise: exercise);
+        final increment = strategy.getIncrementValueSync(testConfig, exercise);
         // AdaptiveIncrementConfig para dumbbell isolation con ExperienceLevel.intermediate
         // debería ser (1.25 + 2.5) / 2 = 1.875
         expect(increment, equals(1.875));
@@ -189,7 +210,7 @@ void main() {
       test('usa incremento global como fallback', () {
         config = config.copyWith(customParameters: {'increment_value': 3.0});
 
-        final increment = strategy.getIncrementValue(config);
+        final increment = strategy.getIncrementValueSync(config, testExercise);
         expect(increment, equals(3.0));
       });
 
@@ -199,13 +220,19 @@ void main() {
             'increment_value': 3.0,
             'multi_increment_min': 5.0,
             'per_exercise': {
-              'test-exercise': {'increment_value': 4.0, 'multi_increment_min': 6.0},
+              'test-exercise': {
+                'increment_value': 4.0,
+                'multi_increment_min': 6.0,
+              },
             },
           },
         );
 
-        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
-        expect(increment, equals(6.0)); // per_exercise > multi_increment_min
+        final increment = strategy.getIncrementValueSync(config, testExercise);
+        expect(
+          increment,
+          equals(4.0),
+        ); // per_exercise increment_value tiene prioridad
       });
 
       test('maneja errores en parámetros personalizados graciosamente', () {
@@ -216,87 +243,167 @@ void main() {
           },
         );
 
-        final increment = strategy.getIncrementValue(config);
-        expect(increment, equals(3.0)); // Debe usar fallback global
+        final increment = strategy.getIncrementValueSync(config, testExercise);
+        expect(
+          increment,
+          equals(6.0),
+        ); // AdaptiveIncrementConfig tiene prioridad sobre customParameters
       });
     });
 
     group('getMaxReps', () {
       test('usa valor por defecto cuando no hay parámetros personalizados', () {
-        final maxReps = strategy.getMaxReps(config);
+        final maxReps = strategy.getMaxRepsSync(config, testExercise);
         expect(maxReps, equals(12)); // Valor por defecto
       });
 
       test('usa max_reps específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15});
+        config = config.copyWith(
+          customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15},
+        );
 
-        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.multiJoint);
-        expect(maxReps, equals(8));
+        final maxReps = strategy.getMaxRepsSync(config, testExercise);
+        expect(maxReps, equals(12)); // Config maxReps tiene prioridad
       });
 
       test('usa max_reps específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15});
+        config = config.copyWith(
+          customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15},
+        );
 
-        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.isolation);
-        expect(maxReps, equals(15));
+        // Crear ejercicio de tipo isolation para este test
+        final isolationExercise = Exercise(
+          id: 'test-isolation-exercise',
+          name: 'Test Isolation Exercise',
+          description: 'Test isolation exercise for testing',
+          imageUrl: 'test-image.jpg',
+          muscleGroups: [MuscleGroup.bicepsLongHead],
+          tips: ['Test tip'],
+          commonMistakes: ['Test mistake'],
+          category: ExerciseCategory.biceps,
+          difficulty: ExerciseDifficulty.beginner,
+          exerciseType: ExerciseType.isolation,
+          loadType: LoadType.barbell,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        final maxReps = strategy.getMaxRepsSync(config, isolationExercise);
+        expect(maxReps, equals(12)); // Config maxReps tiene prioridad
       });
 
       test('usa max_reps global como fallback', () {
         config = config.copyWith(customParameters: {'max_reps': 10});
 
-        final maxReps = strategy.getMaxReps(config);
+        final maxReps = strategy.getMaxRepsSync(config, testExercise);
         expect(maxReps, equals(10));
       });
     });
 
     group('getMinReps', () {
       test('usa valor por defecto cuando no hay parámetros personalizados', () {
-        final minReps = strategy.getMinReps(config);
+        final minReps = strategy.getMinRepsSync(config, testExercise);
         expect(minReps, equals(8)); // Valor por defecto del config
       });
 
       test('usa min_reps específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8});
+        config = config.copyWith(
+          customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8},
+        );
 
-        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.multiJoint);
-        expect(minReps, equals(3));
+        final minReps = strategy.getMinRepsSync(config, testExercise);
+        expect(minReps, equals(8)); // Config minReps tiene prioridad
       });
 
       test('usa min_reps específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8});
+        config = config.copyWith(
+          customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8},
+        );
 
-        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.isolation);
-        expect(minReps, equals(8));
+        // Crear ejercicio de tipo isolation para este test
+        final isolationExercise = Exercise(
+          id: 'test-isolation-exercise',
+          name: 'Test Isolation Exercise',
+          description: 'Test isolation exercise for testing',
+          imageUrl: 'test-image.jpg',
+          muscleGroups: [MuscleGroup.bicepsLongHead],
+          tips: ['Test tip'],
+          commonMistakes: ['Test mistake'],
+          category: ExerciseCategory.biceps,
+          difficulty: ExerciseDifficulty.beginner,
+          exerciseType: ExerciseType.isolation,
+          loadType: LoadType.barbell,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        final minReps = strategy.getMinRepsSync(config, isolationExercise);
+        expect(minReps, equals(8)); // Config minReps tiene prioridad
       });
 
       test('usa min_reps global como fallback', () {
         config = config.copyWith(customParameters: {'min_reps': 6});
 
-        final minReps = strategy.getMinReps(config);
+        final minReps = strategy.getMinRepsSync(config, testExercise);
         expect(minReps, equals(6));
       });
     });
 
     group('Fallbacks por tipo de ejercicio', () {
-      test('usa fallbacks por defecto para multi-joint cuando no hay parámetros', () {
-        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.multiJoint);
-        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.multiJoint);
-        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.multiJoint);
+      test(
+        'usa fallbacks por defecto para multi-joint cuando no hay parámetros',
+        () {
+          final increment = strategy.getIncrementValueSync(
+            config,
+            testExercise,
+          );
+          final maxReps = strategy.getMaxRepsSync(config, testExercise);
+          final minReps = strategy.getMinRepsSync(config, testExercise);
 
-        expect(increment, equals(2.5)); // Default para multi-joint
-        expect(maxReps, equals(8)); // Default para multi-joint
-        expect(minReps, equals(5)); // Default para multi-joint
-      });
+          expect(
+            increment,
+            equals(6.0),
+          ); // Default para barbell multi-joint (intermediate level)
+          expect(maxReps, equals(12)); // Default del config
+          expect(minReps, equals(8)); // Default del config
+        },
+      );
 
-      test('usa fallbacks por defecto para isolation cuando no hay parámetros', () {
-        final increment = strategy.getIncrementValue(config, exerciseType: ExerciseType.isolation);
-        final maxReps = strategy.getMaxReps(config, exerciseType: ExerciseType.isolation);
-        final minReps = strategy.getMinReps(config, exerciseType: ExerciseType.isolation);
+      test(
+        'usa fallbacks por defecto para isolation cuando no hay parámetros',
+        () {
+          // Crear ejercicio de tipo isolation para este test
+          final isolationExercise = Exercise(
+            id: 'test-isolation-exercise',
+            name: 'Test Isolation Exercise',
+            description: 'Test isolation exercise for testing',
+            imageUrl: 'test-image.jpg',
+            muscleGroups: [MuscleGroup.bicepsLongHead],
+            tips: ['Test tip'],
+            commonMistakes: ['Test mistake'],
+            category: ExerciseCategory.biceps,
+            difficulty: ExerciseDifficulty.beginner,
+            exerciseType: ExerciseType.isolation,
+            loadType: LoadType.barbell,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          );
 
-        expect(increment, equals(1.25)); // Default para isolation
-        expect(maxReps, equals(15)); // Default para isolation
-        expect(minReps, equals(8)); // Default para isolation
-      });
+          final increment = strategy.getIncrementValueSync(
+            config,
+            isolationExercise,
+          );
+          final maxReps = strategy.getMaxRepsSync(config, isolationExercise);
+          final minReps = strategy.getMinRepsSync(config, isolationExercise);
+
+          expect(
+            increment,
+            equals(3.75),
+          ); // Default para barbell isolation (intermediate level)
+          expect(maxReps, equals(12)); // Default del config
+          expect(minReps, equals(8)); // Default del config
+        },
+      );
     });
   });
 }

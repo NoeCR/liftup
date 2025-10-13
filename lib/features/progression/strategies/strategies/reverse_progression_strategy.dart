@@ -51,7 +51,8 @@ import '../progression_strategy.dart';
 /// - Puede llevar a pérdida de fuerza absoluta
 /// - Requiere cambio eventual de estrategia
 /// - No es ideal para atletas de fuerza
-class ReverseProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class ReverseProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -64,46 +65,77 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Reverse progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: state.baseSets,
+        reason:
+            'Reverse progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    // Si es deload, aplicar deload directamente sobre el peso actual
+    // Si es deload, aplicar deload estándar
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Reverse progression: exercise required for deload',
+        );
+      }
+
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
+      );
     }
 
-    // 1. Aplicar lógica específica de progresión inversa
-    final incrementValue = getIncrementValue(config, exercise: exercise);
-    final maxReps = getMaxReps(config, exerciseType: exerciseType);
+    // Requerir ejercicio para aplicar progresión
+    if (exercise == null) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Reverse progression: exercise required for progression',
+      );
+    }
+
+    // Aplicar lógica específica de progresión inversa
+    final incrementValue = getIncrementValueSync(config, exercise);
+    final maxReps = getMaxRepsSync(config, exercise);
 
     if (currentReps < maxReps) {
       // Aumentar reps si no hemos llegado al máximo
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: (currentWeight - incrementValue).clamp(0, currentWeight),
         newReps: currentReps + 1,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Reverse progression: decreasing weight -${incrementValue}kg, increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Mantener reps en el máximo, seguir reduciendo peso
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: (currentWeight - incrementValue).clamp(0, currentWeight),
         newReps: currentReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Reverse progression: decreasing weight -${incrementValue}kg, maintaining max reps (week $currentInCycle of ${config.cycleLength})',
@@ -111,26 +143,12 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
     }
   }
 
-  /// Aplica deload específico para progresión inversa
-  ProgressionCalculationResult _applyDeload(
-    ProgressionConfig config,
-    ProgressionState state,
-    double currentWeight,
-    int currentReps,
-    int currentSets,
-    int currentInCycle,
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-
-    return ProgressionCalculationResult(
-      newWeight: deloadWeight,
-      newReps: currentReps,
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
-      incrementApplied: true,
-      isDeload: true,
-      shouldResetCycle: false, // Reverse progression no reinicia ciclo - es progresión inversa constante
-      reason: 'Reverse progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
-    );
+    return true; // Reverse progression siempre aplica valores
   }
 }

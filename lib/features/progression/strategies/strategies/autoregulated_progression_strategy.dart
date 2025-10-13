@@ -56,7 +56,8 @@ import '../progression_strategy.dart';
 /// - Más compleja de implementar
 /// - Dependiente de la autoevaluación del atleta
 /// - Puede ser inconsistente entre sesiones
-class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -69,36 +70,69 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: state.baseSets,
+        reason:
+            'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    // Si es deload, aplicar deload directamente sobre el peso actual
+    // Si es deload, aplicar deload estándar
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle);
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Autoregulated progression: exercise required for deload',
+        );
+      }
+
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
+      );
     }
 
-    // 1. Aplicar lógica específica de progresión autoregulada
+    // Requerir ejercicio para aplicar progresión
+    if (exercise == null) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Autoregulated progression: exercise required for progression',
+      );
+    }
+
+    // Aplicar lógica específica de progresión autoregulada
     final targetRPE = _getTargetRPE(config);
     final rpeThreshold = _getRPEThreshold(config);
     final targetReps = _getTargetReps(config);
-    final maxReps = getMaxReps(config, exerciseType: exerciseType);
-    final minReps = getMinReps(config, exerciseType: exerciseType);
-    final incrementValue = getIncrementValue(config, exercise: exercise);
+    final maxReps = getMaxRepsSync(config, exercise);
+    final minReps = getMinRepsSync(config, exercise);
+    final incrementValue = getIncrementValueSync(config, exercise);
 
-    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
-    final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
+    final lastSessionData =
+        state.sessionHistory['session_${state.currentSession}'];
+    final performedReps =
+        (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
 
     double estimatedRPE;
     if (performedReps >= targetReps) {
@@ -109,20 +143,23 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     estimatedRPE = estimatedRPE.clamp(1.0, 10.0);
 
     if (estimatedRPE < targetRPE - rpeThreshold) {
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: currentWeight + incrementValue,
         newReps: currentReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Autoregulated progression: RPE low (${estimatedRPE.toStringAsFixed(1)}), increasing weight +${incrementValue}kg',
       );
     } else if (estimatedRPE > targetRPE + rpeThreshold) {
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
-      return ProgressionCalculationResult(
-        newWeight: (currentWeight - incrementValue * 0.5).clamp(0, currentWeight),
+      return createProgressionResult(
+        newWeight: (currentWeight - incrementValue * 0.5).clamp(
+          0,
+          currentWeight,
+        ),
         newReps: adjustedReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             adjustedReps > currentReps
@@ -132,10 +169,10 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     } else {
       final baseReps = currentReps < minReps ? minReps : currentReps;
       final newReps = baseReps < maxReps ? baseReps + 1 : baseReps;
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: currentWeight,
         newReps: newReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: newReps > currentReps,
         reason:
             newReps > currentReps
@@ -145,44 +182,18 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     }
   }
 
-  /// Aplica deload específico para progresión autoregulada
-  ProgressionCalculationResult _applyDeload(
-    ProgressionConfig config,
-    ProgressionState state,
-    double currentWeight,
-    int currentReps,
-    int currentSets,
-    int currentInCycle,
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
   ) {
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-
-    return ProgressionCalculationResult(
-      newWeight: deloadWeight,
-      newReps: currentReps,
-      newSets: (state.baseSets * 0.7).round(), // Use baseSets for deload calculation
-      incrementApplied: true,
-      isDeload: true,
-      shouldResetCycle: false, // Autoregulated progression no reinicia ciclo - es basada en RPE
-      reason: 'Autoregulated progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
-    );
+    return true; // Autoregulated progression siempre aplica valores
   }
 
   /// Obtiene el RPE objetivo desde parámetros personalizados
   double _getTargetRPE(ProgressionConfig config) {
     final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-    if (perExercise != null) {
-      final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-      if (exerciseParams != null) {
-        final rpe = exerciseParams['target_rpe'];
-        if (rpe != null) return (rpe as num).toDouble();
-      }
-    }
-
-    // Fallback a global
     return (customParams['target_rpe'] as num?)?.toDouble() ?? 8.0;
   }
 

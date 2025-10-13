@@ -47,7 +47,8 @@ import '../progression_strategy.dart';
 /// - Progresión más lenta en peso absoluto
 /// - Requiere rangos de repeticiones apropiados
 /// - Puede ser menos efectiva para fuerza máxima
-class DoubleProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class DoubleProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -60,15 +61,19 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Double progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: state.baseSets,
+        reason:
+            'Double progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -76,47 +81,71 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
     if (isDeload) {
-      // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      // Aplicar deload estándar
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Double progression: exercise required for deload',
+        );
+      }
 
-      // Usar sets del preset para el deload
-      final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
-      final deloadSets = (adaptiveBaseSets * 0.7).round();
-      return ProgressionCalculationResult(
-        newWeight: deloadWeight,
-        newReps: currentReps,
-        newSets: deloadSets,
-        incrementApplied: true,
-        isDeload: true,
-        shouldResetCycle: false, // Double progression no reinicia ciclo - es progresión secuencial
-        reason: 'Double progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
       );
     }
 
-    // Leer parámetros de progresión con fallbacks apropiados
-    final maxReps = getMaxReps(config, exerciseType: exerciseType);
-    final minReps = getMinReps(config, exerciseType: exerciseType);
+    // Requerir ejercicio para aplicar progresión
+    if (exercise == null) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Double progression: exercise required for progression',
+      );
+    }
+
+    // Leer parámetros de progresión usando la nueva API
+    final maxReps = getMaxRepsSync(config, exercise);
+    final minReps = getMinRepsSync(config, exercise);
 
     if (currentReps < maxReps) {
-      return ProgressionCalculationResult(
+      // Incrementar repeticiones
+      return createProgressionResult(
         newWeight: currentWeight,
         newReps: currentReps < minReps ? minReps : currentReps + 1,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
-        reason: 'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
-      final incrementValue = getIncrementValue(config, exerciseType: exerciseType);
-      return ProgressionCalculationResult(
+      final incrementValue = getIncrementValueSync(config, exercise);
+      return createProgressionResult(
         newWeight: currentWeight + incrementValue,
         newReps: minReps,
-        newSets: state.baseSets, // Ensure sets recover to base after deload
+        newSets: state.baseSets,
         incrementApplied: true,
         reason:
             'Double progression: increasing weight +${incrementValue}kg and resetting reps to $minReps (week $currentInCycle of ${config.cycleLength})',
       );
     }
+  }
+
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
+    return true; // Double progression siempre aplica valores
   }
 }

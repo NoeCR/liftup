@@ -42,7 +42,23 @@ import '../progression_strategy.dart';
 /// - Puede volverse insostenible a largo plazo
 /// - No considera fatiga acumulada
 /// - Puede llevar a estancamiento
-class LinearProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class LinearProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
+  @override
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
+    if (progressionState == null) return false;
+    return !isProgressionBlocked(
+      progressionState,
+      progressionState.exerciseId,
+      routineId,
+      isExerciseLocked,
+    );
+  }
+
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -55,81 +71,103 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     Exercise? exercise,
     bool isExerciseLocked = false,
   }) {
-    // Verificar si la progresión está bloqueada (por rutina completa O por ejercicio específico)
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
-      return ProgressionCalculationResult(
-        newWeight: currentWeight,
-        newReps: currentReps,
-        newSets: state.baseSets, // Always use baseSets to avoid deload persistence
-        incrementApplied: false,
-        isDeload: false,
-        reason: 'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+    // 1. Validaciones básicas
+    if (!validateProgressionParams(config) ||
+        !validateProgressionState(state)) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason: 'Linear progression: invalid configuration or state',
       );
     }
 
+    // 2. Verificar si la progresión está bloqueada
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
+      return createBlockedResult(
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        reason:
+            'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+      );
+    }
+
+    // 3. Calcular posición en el ciclo
     final currentInCycle = getCurrentInCycle(config, state);
     final isDeload = isDeloadPeriod(config, currentInCycle);
 
-    // Si es deload, aplicar deload directamente sobre el peso actual
+    // 4. Aplicar deload si es necesario
     if (isDeload) {
-      return _applyDeload(config, state, currentWeight, currentReps, currentSets, currentInCycle, exercise: exercise);
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Linear progression: exercise required for deload',
+        );
+      }
+
+      return applyStandardDeload(
+        config: config,
+        state: state,
+        currentWeight: currentWeight,
+        currentReps: currentReps,
+        currentSets: currentSets,
+        currentInCycle: currentInCycle,
+        exercise: exercise,
+      );
     }
 
-    // 1. Aplicar lógica específica de progresión lineal
-    if (currentInCycle % config.incrementFrequency == 0) {
-      // Obtener incremento apropiado usando AdaptiveIncrementConfig si está disponible el ejercicio
-      final incrementValue = getIncrementValue(config, exerciseType: exerciseType, exercise: exercise);
+    // 5. Aplicar progresión lineal
+    if (shouldApplyProgression(config, currentInCycle)) {
+      // Requerir ejercicio para aplicar progresión
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Linear progression: exercise required for progression',
+        );
+      }
 
-      // Usar rangos de repeticiones del preset si está disponible el ejercicio
-      final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+      final incrementValue = getIncrementValueSync(config, exercise);
+      final baseSets = getBaseSetsSync(config, exercise);
 
-      return ProgressionCalculationResult(
+      return createProgressionResult(
         newWeight: currentWeight + incrementValue,
-        newReps: currentReps, // Mantener repeticiones actuales en progresión lineal
-        newSets: adaptiveBaseSets, // Usar sets del preset
+        newReps: currentReps, // Mantener repeticiones en progresión lineal
+        newSets: baseSets,
         incrementApplied: true,
-        reason: 'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
-      // Usar rangos de repeticiones del preset si está disponible el ejercicio
-      final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
+      // 6. Mantener valores actuales
+      if (exercise == null) {
+        return createBlockedResult(
+          currentWeight: currentWeight,
+          currentReps: currentReps,
+          currentSets: currentSets,
+          reason: 'Linear progression: exercise required for progression',
+        );
+      }
 
-      return ProgressionCalculationResult(
+      final baseSets = getBaseSetsSync(config, exercise);
+
+      return createProgressionResult(
         newWeight: currentWeight,
         newReps: currentReps,
-        newSets: adaptiveBaseSets, // Usar sets del preset
+        newSets: baseSets,
         incrementApplied: false,
-        reason: 'Linear progression: no increment (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: maintaining current values (week $currentInCycle of ${config.cycleLength})',
       );
     }
-  }
-
-  /// Aplica deload específico para progresión lineal
-  ProgressionCalculationResult _applyDeload(
-    ProgressionConfig config,
-    ProgressionState state,
-    double currentWeight,
-    int currentReps,
-    int currentSets,
-    int currentInCycle, {
-    Exercise? exercise,
-  }) {
-    // Deload: reduce peso manteniendo el incremento sobre base, reduce series
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
-
-    // Usar sets del preset para el deload
-    final adaptiveBaseSets = exercise != null ? config.getAdaptiveBaseSets(exercise) : config.baseSets;
-    final deloadSets = (adaptiveBaseSets * 0.7).round();
-
-    return ProgressionCalculationResult(
-      newWeight: deloadWeight,
-      newReps: currentReps,
-      newSets: deloadSets, // Usar sets del preset para deload
-      incrementApplied: true,
-      isDeload: true,
-      shouldResetCycle: false, // Linear progression no reinicia ciclo - es progresión constante
-      reason: 'Linear progression: deload ${config.unit.name} (week $currentInCycle of ${config.cycleLength})',
-    );
   }
 }

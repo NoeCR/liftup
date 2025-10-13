@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
@@ -7,6 +8,25 @@ import 'package:liftly/features/progression/strategies/strategies/linear_progres
 void main() {
   group('LinearProgressionStrategy', () {
     final strategy = LinearProgressionStrategy();
+
+    Exercise ex() {
+      final now = DateTime.now();
+      return Exercise(
+        id: 'ex',
+        name: 'Test',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+    }
 
     ProgressionConfig config({
       ProgressionUnit unit = ProgressionUnit.session,
@@ -41,7 +61,13 @@ void main() {
       );
     }
 
-    ProgressionState state({int session = 1, int week = 1, double baseW = 100, int baseR = 10, int baseS = 4}) {
+    ProgressionState state({
+      int session = 1,
+      int week = 1,
+      double baseW = 100,
+      int baseR = 10,
+      int baseS = 4,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -75,14 +101,20 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, 102.5);
+      final inc = strategy.getIncrementValueSync(cfg, ex());
+      expect(res.newWeight, 100 + inc);
       expect(res.newReps, 10);
     });
 
     test('applies deload on deloadWeek', () {
-      final cfg = config(unit: ProgressionUnit.session, deloadWeek: 1, deloadPct: 0.9);
+      final cfg = config(
+        unit: ProgressionUnit.session,
+        deloadWeek: 1,
+        deloadPct: 0.9,
+      );
       final st = state(session: 1);
       final res = strategy.calculate(
         config: cfg,
@@ -91,6 +123,7 @@ void main() {
         currentWeight: 120,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
       expect(res.incrementApplied, true);
       // Deload: baseWeight + (increaseOverBase * deloadPercentage)
@@ -112,6 +145,7 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 3, // heredado de deload anterior
+        exercise: ex(),
       );
       expect(res.incrementApplied, true);
       expect(res.newSets, 3); // debe restaurar a baseSets del config
@@ -128,6 +162,7 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 3, // heredado de deload anterior
+        exercise: ex(),
       );
       expect(res.incrementApplied, false);
       expect(res.newSets, 3); // debe restaurar a baseSets del config
@@ -143,6 +178,7 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 4,
+        exercise: ex(),
       );
       expect(res.incrementApplied, false);
       expect(res.newWeight, 100);

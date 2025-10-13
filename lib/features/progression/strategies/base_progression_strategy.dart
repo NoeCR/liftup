@@ -1,308 +1,285 @@
+import 'package:liftly/features/progression/models/progression_calculation_result.dart';
+
 import '../../../../common/enums/progression_type_enum.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
+import '../services/exercise_progression_config_service.dart';
 
-/// Clase base abstracta que proporciona funcionalidad común
-/// para las estrategias de progresión
+/// Clase base para estrategias de progresión
 ///
-/// Contiene métodos helper compartidos y utilidades comunes
+/// Esta versión elimina la complejidad innecesaria y se enfoca en:
+/// 1. Usar AdaptiveIncrementConfig como fuente principal de verdad
+/// 2. Fallbacks simples y claros
+/// 3. Métodos más limpios y mantenibles
 abstract class BaseProgressionStrategy {
-  /// Métodos de utilidad compartidos
+  // ===== MÉTODOS DE UTILIDAD BÁSICOS =====
+
+  /// Calcula la posición actual en el ciclo (sesión o semana)
   int getCurrentInCycle(ProgressionConfig config, ProgressionState state) {
     final bool isSessionUnit = config.unit == ProgressionUnit.session;
-    final int rawIndex = isSessionUnit ? state.currentSession : state.currentWeek;
-    if (rawIndex <= 0) {
-      // Evita (-1 % n) -> n-1; la primera sesión/semana debe ser 1
-      return 1;
-    }
+    final int rawIndex =
+        isSessionUnit ? state.currentSession : state.currentWeek;
+    if (rawIndex <= 0) return 1;
+
+    // Si cycleLength es 0, no hay ciclo (estrategias autoreguladas)
+    if (config.cycleLength <= 0) return 1;
+
     return ((rawIndex - 1) % config.cycleLength) + 1;
   }
 
+  /// Verifica si es período de deload
   bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
     return config.deloadWeek > 0 && currentInCycle == config.deloadWeek;
   }
 
-  /// Calcula la próxima sesión y semana basado en la configuración
+  /// Calcula la próxima sesión y semana
   ({int session, int week}) calculateNextSessionAndWeek({
     required ProgressionConfig config,
     required ProgressionState state,
   }) {
-    final sessionsPerWeek = config.customParameters['sessions_per_week'] ?? 3;
+    final sessionsPerWeek =
+        (config.customParameters['sessions_per_week'] ?? 3) as int;
     final newSession = state.currentSession + 1;
     final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
-
     return (session: newSession, week: newWeek);
   }
 
-  /// Verifica si la progresión está bloqueada para una rutina específica
-  bool isProgressionBlockedForRoutine(ProgressionState state, String routineId) {
-    final customData = state.customData;
-    final skipNextByRoutine = customData['skip_next_by_routine'] as Map<String, dynamic>?;
-    if (skipNextByRoutine == null) return false;
-
-    return skipNextByRoutine[routineId] == true;
-  }
-
-  /// Verifica si la progresión está bloqueada (por rutina O por ejercicio específico)
-  bool isProgressionBlocked(ProgressionState state, String exerciseId, String routineId, bool isExerciseLocked) {
-    // Verificar bloqueo por rutina completa
-    if (isProgressionBlockedForRoutine(state, routineId)) {
-      return true;
-    }
-
-    // Verificar bloqueo por ejercicio específico (usando el campo del modelo Exercise)
-    if (isExerciseLocked) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /// Helper method to check if progression values should be applied to an exercise
-  /// Returns true if progression values should be used, false if blocked
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
-    if (progressionState == null) return false;
-
-    return !isProgressionBlocked(progressionState, progressionState.exerciseId, routineId, isExerciseLocked);
-  }
-
-  /// Obtiene el valor de incremento desde parámetros personalizados
-  /// Prioridad: per_exercise > global > defaults por tipo > fallback
-  /// Considera el tipo de ejercicio para elegir el incremento apropiado
-  double getIncrementValue(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
-    // 1. Buscar en per_exercise primero (prioridad más alta)
-    final customParams = config.customParameters;
-    try {
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          // Priorizar incremento específico por tipo de ejercicio
-          final increment =
-              _getIncrementByExerciseType(exerciseParams, exerciseType) ?? exerciseParams['increment_value'];
-          if (increment != null && increment is num) {
-            return increment.toDouble();
-          }
-        }
-      }
-    } catch (e) {
-      // Si hay error en per_exercise, continuar con fallbacks
-    }
-
-    // 2. Si se proporciona un ejercicio, usar el método adaptativo
-    if (exercise != null) {
-      return config.getAdaptiveIncrement(exercise);
-    }
-
-    // 3. Fallback a global en customParameters
-    try {
-      // Priorizar incremento específico por tipo de ejercicio
-      final globalIncrement =
-          _getIncrementByExerciseType(customParams, exerciseType) ?? customParams['increment_value'];
-      if (globalIncrement != null && globalIncrement is num) {
-        return globalIncrement.toDouble();
-      }
-    } catch (e) {
-      // Si hay error en global, usar defaults por tipo
-    }
-
-    // 4. Fallback a defaults por tipo de ejercicio
-    final typeDefaultIncrement = _getDefaultIncrementByExerciseType(exerciseType);
-    if (typeDefaultIncrement != null) {
-      return typeDefaultIncrement;
-    }
-
-    // 5. Fallback al incrementValue del preset
-    if (config.incrementValue > 0) {
-      return config.incrementValue;
-    }
-
-    return 0.0; // Si no hay ningún valor, devolver 0
-  }
-
-  /// Obtiene el máximo de repeticiones desde parámetros personalizados
-  /// Prioridad: per_exercise > global > defaults por tipo
-  int getMaxReps(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
-    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
-    if (exercise != null) {
-      return config.getAdaptiveMaxReps(exercise);
-    }
-
-    // Fallback al método original para compatibilidad
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    try {
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final maxReps = _getRepsByExerciseType(exerciseParams, exerciseType, 'max') ?? exerciseParams['max_reps'];
-          if (maxReps != null && maxReps is num) {
-            return maxReps.toInt();
-          }
-        }
-      }
-    } catch (e) {
-      // Si hay error en per_exercise, continuar con fallbacks
-    }
-
-    // Fallback a global
-    try {
-      final globalMaxReps = _getRepsByExerciseType(customParams, exerciseType, 'max') ?? customParams['max_reps'];
-      if (globalMaxReps != null && globalMaxReps is num) {
-        return globalMaxReps.toInt();
-      }
-    } catch (e) {
-      // Si hay error en global, usar defaults por tipo
-    }
-
-    // Fallback a defaults por tipo de ejercicio
-    final typeDefaultMaxReps = _getDefaultRepsByExerciseType(exerciseType, 'max');
-    if (typeDefaultMaxReps != null) {
-      return typeDefaultMaxReps;
-    }
-
-    return config.maxReps; // Usar el campo maxReps de la configuración
-  }
-
-  /// Obtiene el mínimo de repeticiones desde parámetros personalizados
-  /// Prioridad: per_exercise > global > defaults por tipo
-  int getMinReps(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
-    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
-    if (exercise != null) {
-      return config.getAdaptiveMinReps(exercise);
-    }
-
-    // Fallback al método original para compatibilidad
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    try {
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final minReps = _getRepsByExerciseType(exerciseParams, exerciseType, 'min') ?? exerciseParams['min_reps'];
-          if (minReps != null && minReps is num) {
-            return minReps.toInt();
-          }
-        }
-      }
-    } catch (e) {
-      // Si hay error en per_exercise, continuar con fallbacks
-    }
-
-    // Fallback a global
-    try {
-      final globalMinReps = _getRepsByExerciseType(customParams, exerciseType, 'min') ?? customParams['min_reps'];
-      if (globalMinReps != null && globalMinReps is num) {
-        return globalMinReps.toInt();
-      }
-    } catch (e) {
-      // Si hay error en global, usar defaults por tipo
-    }
-
-    // Fallback a defaults por tipo de ejercicio
-    final typeDefaultMinReps = _getDefaultRepsByExerciseType(exerciseType, 'min');
-    if (typeDefaultMinReps != null) {
-      return typeDefaultMinReps;
-    }
-
-    return config.minReps; // Usar el campo minReps de la configuración
-  }
-
-  /// Obtiene las series base desde parámetros personalizados
-  /// Prioridad: per_exercise > global > defaults por tipo
-  int getBaseSets(ProgressionConfig config, {ExerciseType? exerciseType, dynamic exercise}) {
-    // Si se proporciona un ejercicio, usar el método adaptativo de ProgressionConfig
-    if (exercise != null) {
-      return config.getAdaptiveBaseSets(exercise);
-    }
-
-    // Fallback al método original para compatibilidad
-    final customParams = config.customParameters;
-
-    // Buscar en per_exercise primero
-    try {
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final baseSets = exerciseParams['base_sets'];
-          if (baseSets != null && baseSets is num) {
-            return baseSets.toInt();
-          }
-        }
-      }
-    } catch (e) {
-      // Si hay error en per_exercise, continuar con fallbacks
-    }
-
-    // Fallback a global
-    try {
-      final globalBaseSets = customParams['base_sets'];
-      if (globalBaseSets != null && globalBaseSets is num) {
-        return globalBaseSets.toInt();
-      }
-    } catch (e) {
-      // Si hay error en global, usar defaults por tipo
-    }
-
-    return config.baseSets; // Usar el campo baseSets de la configuración
-  }
-
-  /// Métodos privados helper
-  double? _getIncrementByExerciseType(Map<String, dynamic> params, ExerciseType? exerciseType) {
-    if (exerciseType == null) return null;
-
-    final bool isMulti = exerciseType == ExerciseType.multiJoint;
-    final String prefix = isMulti ? 'multi' : 'iso';
-
-    final value = params['${prefix}_increment_min'] as num?;
-    return value?.toDouble();
-  }
-
-  int? _getRepsByExerciseType(
-    Map<String, dynamic> params,
-    ExerciseType? exerciseType,
-    String type, // 'min' o 'max'
+  /// Verifica si la progresión está bloqueada
+  bool isProgressionBlocked(
+    ProgressionState state,
+    String exerciseId,
+    String routineId,
+    bool isExerciseLocked,
   ) {
-    if (exerciseType == null) return null;
+    // Verificar bloqueo por rutina completa
+    final customData = state.customData;
+    final skipNextByRoutine =
+        customData['skip_next_by_routine'] as Map<String, dynamic>?;
+    if (skipNextByRoutine?[routineId] == true) return true;
 
-    final bool isMulti = exerciseType == ExerciseType.multiJoint;
-    final String prefix = isMulti ? 'multi' : 'iso';
-
-    final value = params['${prefix}_reps_$type'] as num?;
-    return value?.toInt();
+    // Verificar bloqueo por ejercicio específico
+    return isExerciseLocked;
   }
 
-  double? _getDefaultIncrementByExerciseType(ExerciseType? exerciseType) {
-    if (exerciseType == null) return null;
+  // ===== MÉTODOS DE CONFIGURACIÓN SIMPLIFICADOS =====
 
-    switch (exerciseType) {
-      case ExerciseType.multiJoint:
-        // Ejercicios multiarticulares (sentadilla, press banca, peso muerto)
-        // Típicamente pueden manejar incrementos más grandes
-        return 2.5;
-      case ExerciseType.isolation:
-        // Ejercicios de aislamiento (curl, extensiones, etc.)
-        // Típicamente requieren incrementos más pequeños
-        return 1.25;
+  /// Obtiene el valor de incremento de peso
+  /// Prioridad: ExerciseProgressionConfig > AdaptiveIncrementConfig > config.incrementValue > 0
+  Future<double> getIncrementValue(
+    ProgressionConfig config,
+    Exercise exercise,
+    ExerciseProgressionConfigService? configService,
+  ) async {
+    // 1. Buscar configuración específica del ejercicio
+    if (configService != null) {
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
+      if (exerciseConfig?.hasCustomIncrement == true) {
+        return exerciseConfig!.customIncrement!;
+      }
     }
+
+    // 2. Usar AdaptiveIncrementConfig (fuente principal de verdad)
+    return config.getAdaptiveIncrement(exercise);
   }
 
-  int? _getDefaultRepsByExerciseType(ExerciseType? exerciseType, String type) {
-    if (exerciseType == null) return null;
+  /// Versión síncrona para compatibilidad (usa fallback)
+  double getIncrementValueSync(ProgressionConfig config, Exercise exercise) {
+    // Fallback: usar AdaptiveIncrementConfig directamente
+    return config.getAdaptiveIncrement(exercise);
+  }
 
-    switch (exerciseType) {
-      case ExerciseType.multiJoint:
-        // Ejercicios multiarticulares típicamente usan rangos más bajos
-        return type == 'max' ? 8 : 5;
-      case ExerciseType.isolation:
-        // Ejercicios de aislamiento típicamente usan rangos más altos
-        return type == 'max' ? 15 : 8;
+  /// Obtiene el máximo de repeticiones
+  /// Prioridad: ExerciseProgressionConfig > AdaptiveIncrementConfig > config.maxReps
+  Future<int> getMaxReps(
+    ProgressionConfig config,
+    Exercise exercise,
+    ExerciseProgressionConfigService? configService,
+  ) async {
+    // 1. Buscar configuración específica del ejercicio
+    if (configService != null) {
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
+      if (exerciseConfig?.hasCustomMaxReps == true) {
+        return exerciseConfig!.customMaxReps!;
+      }
     }
+
+    // 2. Usar AdaptiveIncrementConfig
+    return config.getAdaptiveMaxReps(exercise);
+  }
+
+  /// Versión síncrona para compatibilidad
+  int getMaxRepsSync(ProgressionConfig config, Exercise exercise) {
+    return config.getAdaptiveMaxReps(exercise);
+  }
+
+  /// Obtiene el mínimo de repeticiones
+  /// Prioridad: ExerciseProgressionConfig > AdaptiveIncrementConfig > config.minReps
+  Future<int> getMinReps(
+    ProgressionConfig config,
+    Exercise exercise,
+    ExerciseProgressionConfigService? configService,
+  ) async {
+    // 1. Buscar configuración específica del ejercicio
+    if (configService != null) {
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
+      if (exerciseConfig?.hasCustomMinReps == true) {
+        return exerciseConfig!.customMinReps!;
+      }
+    }
+
+    // 2. Usar AdaptiveIncrementConfig
+    return config.getAdaptiveMinReps(exercise);
+  }
+
+  /// Versión síncrona para compatibilidad
+  int getMinRepsSync(ProgressionConfig config, Exercise exercise) {
+    return config.getAdaptiveMinReps(exercise);
+  }
+
+  /// Obtiene las series base
+  /// Prioridad: ExerciseProgressionConfig > AdaptiveIncrementConfig > config.baseSets
+  Future<int> getBaseSets(
+    ProgressionConfig config,
+    Exercise exercise,
+    ExerciseProgressionConfigService? configService,
+  ) async {
+    // 1. Buscar configuración específica del ejercicio
+    if (configService != null) {
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
+      if (exerciseConfig?.hasCustomBaseSets == true) {
+        return exerciseConfig!.customBaseSets!;
+      }
+    }
+
+    // 2. Usar AdaptiveIncrementConfig
+    return config.getAdaptiveBaseSets(exercise);
+  }
+
+  /// Versión síncrona para compatibilidad
+  int getBaseSetsSync(ProgressionConfig config, Exercise exercise) {
+    return config.getAdaptiveBaseSets(exercise);
+  }
+
+  // ===== MÉTODOS DE DELOAD SIMPLIFICADOS =====
+
+  /// Aplica deload estándar
+  /// Reduce el peso manteniendo el incremento sobre el peso base
+  ProgressionCalculationResult applyStandardDeload({
+    required ProgressionConfig config,
+    required ProgressionState state,
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+    required int currentInCycle,
+    required Exercise exercise,
+  }) {
+    // Calcular peso de deload manteniendo incremento sobre base
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    // Calcular series de deload (70% de las series base)
+    final int baseSets = getBaseSetsSync(config, exercise);
+    final int deloadSets = (baseSets * 0.7).round();
+
+    return ProgressionCalculationResult(
+      newWeight: deloadWeight,
+      newReps: currentReps,
+      newSets: deloadSets,
+      incrementApplied: true,
+      isDeload: true,
+      shouldResetCycle: false,
+      reason: 'Deload session (week $currentInCycle of ${config.cycleLength})',
+    );
+  }
+
+  // ===== MÉTODOS DE VALIDACIÓN =====
+
+  /// Valida que los parámetros de progresión sean válidos
+  bool validateProgressionParams(ProgressionConfig config) {
+    return config.minReps > 0 &&
+        config.maxReps > 0 &&
+        config.minReps <= config.maxReps &&
+        config.baseSets > 0 &&
+        config.cycleLength > 0 &&
+        config.deloadPercentage > 0 &&
+        config.deloadPercentage <= 1.0;
+  }
+
+  /// Valida que el estado de progresión sea válido
+  bool validateProgressionState(ProgressionState state) {
+    return state.currentWeight >= 0 &&
+        state.currentReps > 0 &&
+        state.currentSets > 0 &&
+        state.currentSession > 0;
+  }
+
+  // ===== MÉTODOS DE UTILIDAD PARA ESTRATEGIAS =====
+
+  /// Crea un resultado de progresión estándar
+  ProgressionCalculationResult createProgressionResult({
+    required double newWeight,
+    required int newReps,
+    required int newSets,
+    required bool incrementApplied,
+    required String reason,
+    bool isDeload = false,
+    bool shouldResetCycle = false,
+  }) {
+    return ProgressionCalculationResult(
+      newWeight: newWeight,
+      newReps: newReps,
+      newSets: newSets,
+      incrementApplied: incrementApplied,
+      isDeload: isDeload,
+      shouldResetCycle: shouldResetCycle,
+      reason: reason,
+    );
+  }
+
+  /// Crea un resultado de progresión bloqueada
+  ProgressionCalculationResult createBlockedResult({
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+    required String reason,
+  }) {
+    return ProgressionCalculationResult(
+      newWeight: currentWeight,
+      newReps: currentReps,
+      newSets: currentSets,
+      incrementApplied: false,
+      isDeload: false,
+      shouldResetCycle: false,
+      reason: reason,
+    );
+  }
+
+  /// Verifica si se debe aplicar progresión en esta sesión
+  bool shouldApplyProgression(ProgressionConfig config, int currentInCycle) {
+    // Aplicar progresión cada incrementFrequency sesiones
+    return currentInCycle % config.incrementFrequency == 0;
+  }
+
+  /// Calcula el incremento de series si es aplicable
+  int? calculateSeriesIncrement(ProgressionConfig config, Exercise exercise) {
+    final seriesIncrement = config.getAdaptiveSeriesIncrement(exercise);
+    return seriesIncrement > 0 ? seriesIncrement : null;
   }
 }
