@@ -31,30 +31,26 @@ void main() {
 
     group('Linear Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell);
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+        );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
         final strategy = strategies['linear']!;
-        
-        final result = _simulateLongTermProgression(
-          strategy: strategy,
-          preset: preset,
-          exercise: exercise,
-          months: 6,
-        );
-        
+
+        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
         expect(result.totalSessions, greaterThan(0));
         expect(result.finalWeight, greaterThan(result.initialWeight));
         expect(result.deloadCount, greaterThan(0));
-        
+
         // Validar incrementos consistentes
         expect(result.averageWeightIncrement, closeTo(6.0, 0.1)); // 6kg promedio por sesión de incremento
-        
+
         // Validar que se aplicaron deloads
         expect(result.deloadCount, greaterThan(0));
-        
+
         print('\n📊 Linear Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
@@ -65,25 +61,21 @@ void main() {
       });
 
       test('6-month simulation with dumbbell isolation', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell);
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+        );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
         final strategy = strategies['linear']!;
-        
-        final result = _simulateLongTermProgression(
-          strategy: strategy,
-          preset: preset,
-          exercise: exercise,
-          months: 6,
-        );
-        
+
+        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
         expect(result.finalWeight, greaterThan(result.initialWeight));
-        
+
         // Validar incrementos más pequeños para isolation
         expect(result.averageWeightIncrement, closeTo(1.875, 0.1)); // 1.875kg promedio
-        
+
         print('\n📊 Linear Progression (Dumbbell Isolation) - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
@@ -92,23 +84,19 @@ void main() {
       });
 
       test('Bodyweight exercises should not increment weight over 6 months', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.bodyweight);
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.bodyweight,
+        );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
         final strategy = strategies['linear']!;
-        
-        final result = _simulateLongTermProgression(
-          strategy: strategy,
-          preset: preset,
-          exercise: exercise,
-          months: 6,
-        );
-        
+
+        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+
         // Validar que no hay incremento de peso
         expect(result.success, isTrue);
         expect(result.finalWeight, equals(result.initialWeight));
         expect(result.averageWeightIncrement, equals(0.0));
-        
+
         print('\n📊 Linear Progression (Bodyweight) - 6 months:');
         print('  Weight: ${result.finalWeight}kg (no change)');
         print('  Total Sessions: ${result.totalSessions}');
@@ -117,26 +105,22 @@ void main() {
 
     group('Stepped Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell);
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+        );
         final preset = PresetProgressionConfigs.createSteppedHypertrophyPreset();
         final strategy = strategies['stepped']!;
-        
-        final result = _simulateLongTermProgression(
-          strategy: strategy,
-          preset: preset,
-          exercise: exercise,
-          months: 6,
-        );
-        
+
+        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
         expect(result.finalWeight, greaterThan(result.initialWeight));
-        
+
         // Stepped progression should have larger total gains due to accumulation
         final totalGain = result.finalWeight - result.initialWeight;
         expect(totalGain, greaterThan(50.0)); // Should gain more than linear over 6 months
-        
+
         print('\n📊 Stepped Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
@@ -147,22 +131,18 @@ void main() {
 
     group('Double Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell);
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+        );
         final preset = PresetProgressionConfigs.createDoubleHypertrophyPreset();
         final strategy = strategies['double']!;
-        
-        final result = _simulateLongTermProgression(
-          strategy: strategy,
-          preset: preset,
-          exercise: exercise,
-          months: 6,
-        );
-        
+
+        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
         expect(result.finalWeight, greaterThan(result.initialWeight));
-        
+
         print('\n📊 Double Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
@@ -173,25 +153,21 @@ void main() {
 
     group('Undulating Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell);
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+        );
         final preset = PresetProgressionConfigs.createUndulatingHypertrophyPreset();
         final strategy = strategies['undulating']!;
-        
-        final result = _simulateLongTermProgression(
-          strategy: strategy,
-          preset: preset,
-          exercise: exercise,
-          months: 6,
-        );
-        
+
+        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
         expect(result.finalWeight, greaterThan(result.initialWeight));
-        
+
         // Undulating should show more variability
         expect(result.weightVariance, greaterThan(0));
-        
+
         print('\n📊 Undulating Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
@@ -202,15 +178,16 @@ void main() {
 
     group('Cross-Strategy Comparison', () {
       test('Compare all strategies over 3 months', () {
-        final exercise = testExercises.firstWhere((e) => 
-          e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell);
-        
+        final exercise = testExercises.firstWhere(
+          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+        );
+
         final results = <String, LongTermResult>{};
-        
+
         for (final entry in strategies.entries) {
           final strategyName = entry.key;
           final strategy = entry.value;
-          
+
           ProgressionConfig preset;
           switch (strategyName) {
             case 'linear':
@@ -228,25 +205,27 @@ void main() {
             default:
               continue;
           }
-          
+
           final result = _simulateLongTermProgression(
             strategy: strategy,
             preset: preset,
             exercise: exercise,
             months: 3,
           );
-          
+
           results[strategyName] = result;
         }
-        
+
         // Validar que todas las estrategias funcionaron
         for (final entry in results.entries) {
-          expect(entry.value.success, isTrue, 
-            reason: '${entry.key} strategy failed');
-          expect(entry.value.finalWeight, greaterThan(entry.value.initialWeight),
-            reason: '${entry.key} strategy did not increase weight');
+          expect(entry.value.success, isTrue, reason: '${entry.key} strategy failed');
+          expect(
+            entry.value.finalWeight,
+            greaterThan(entry.value.initialWeight),
+            reason: '${entry.key} strategy did not increase weight',
+          );
         }
-        
+
         print('\n📊 Cross-Strategy Comparison (3 months):');
         for (final entry in results.entries) {
           final result = entry.value;
@@ -262,7 +241,7 @@ void main() {
 List<Exercise> _createTestExercises() {
   final now = DateTime.now();
   final exercises = <Exercise>[];
-  
+
   // Crear ejercicios representativos
   final combinations = [
     {'type': ExerciseType.multiJoint, 'load': LoadType.barbell},
@@ -272,32 +251,31 @@ List<Exercise> _createTestExercises() {
     {'type': ExerciseType.multiJoint, 'load': LoadType.bodyweight},
     {'type': ExerciseType.isolation, 'load': LoadType.resistanceBand},
   ];
-  
+
   for (final combo in combinations) {
     final exerciseType = combo['type'] as ExerciseType;
     final loadType = combo['load'] as LoadType;
-    
-    exercises.add(Exercise(
-      id: 'test-${exerciseType.name}-${loadType.name}',
-      name: 'Test ${exerciseType.name} ${loadType.name}',
-      description: 'Test exercise for ${exerciseType.name} ${loadType.name}',
-      imageUrl: '',
-      muscleGroups: exerciseType == ExerciseType.multiJoint 
-          ? [MuscleGroup.pectoralMajor] 
-          : [MuscleGroup.bicepsLongHead],
-      tips: [],
-      commonMistakes: [],
-      category: exerciseType == ExerciseType.multiJoint 
-          ? ExerciseCategory.chest 
-          : ExerciseCategory.biceps,
-      difficulty: ExerciseDifficulty.intermediate,
-      createdAt: now,
-      updatedAt: now,
-      exerciseType: exerciseType,
-      loadType: loadType,
-    ));
+
+    exercises.add(
+      Exercise(
+        id: 'test-${exerciseType.name}-${loadType.name}',
+        name: 'Test ${exerciseType.name} ${loadType.name}',
+        description: 'Test exercise for ${exerciseType.name} ${loadType.name}',
+        imageUrl: '',
+        muscleGroups:
+            exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
+        tips: [],
+        commonMistakes: [],
+        category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: exerciseType,
+        loadType: loadType,
+      ),
+    );
   }
-  
+
   return exercises;
 }
 
@@ -312,7 +290,7 @@ LongTermResult _simulateLongTermProgression({
     // Calcular número de sesiones (asumiendo 3 sesiones por semana)
     final sessionsPerWeek = (preset.customParameters['sessions_per_week'] ?? 3) as int;
     final totalSessions = months * 4 * sessionsPerWeek; // 4 semanas por mes
-    
+
     // Estado inicial
     var currentState = ProgressionState(
       id: 'test-state',
@@ -333,13 +311,13 @@ LongTermResult _simulateLongTermProgression({
       isDeloadWeek: false,
       customData: {},
     );
-    
+
     // Variables para tracking
     final progressionHistory = <SessionData>[];
     var totalWeightIncrements = 0.0;
     var deloadCount = 0;
     var incrementSessionCount = 0;
-    
+
     // Simular todas las sesiones
     for (int session = 1; session <= totalSessions; session++) {
       final result = strategy.calculate(
@@ -351,14 +329,14 @@ LongTermResult _simulateLongTermProgression({
         currentSets: currentState.currentSets,
         exercise: exercise,
       );
-      
+
       // Trackear progresión antes de actualizar el estado
       final weightChange = result.newWeight - currentState.currentWeight;
       if (result.incrementApplied && weightChange > 0) {
         totalWeightIncrements += weightChange;
         incrementSessionCount++;
       }
-      
+
       // Actualizar estado
       currentState = currentState.copyWith(
         currentWeight: result.newWeight,
@@ -367,30 +345,30 @@ LongTermResult _simulateLongTermProgression({
         currentSession: session,
         lastUpdated: DateTime.now(),
       );
-      
+
       if (result.isDeload) {
         deloadCount++;
       }
-      
+
       // Guardar datos de la sesión
-      progressionHistory.add(SessionData(
-        session: session,
-        weight: result.newWeight,
-        reps: result.newReps,
-        sets: result.newSets,
-        incrementApplied: result.incrementApplied,
-        isDeload: result.isDeload,
-        reason: result.reason,
-      ));
+      progressionHistory.add(
+        SessionData(
+          session: session,
+          weight: result.newWeight,
+          reps: result.newReps,
+          sets: result.newSets,
+          incrementApplied: result.incrementApplied,
+          isDeload: result.isDeload,
+          reason: result.reason,
+        ),
+      );
     }
-    
+
     // Calcular estadísticas
-    final averageWeightIncrement = incrementSessionCount > 0 
-        ? totalWeightIncrements / incrementSessionCount 
-        : 0.0;
-    
+    final averageWeightIncrement = incrementSessionCount > 0 ? totalWeightIncrements / incrementSessionCount : 0.0;
+
     final weightVariance = _calculateWeightVariance(progressionHistory);
-    
+
     return LongTermResult(
       success: true,
       initialWeight: 100.0,
@@ -401,7 +379,6 @@ LongTermResult _simulateLongTermProgression({
       weightVariance: weightVariance,
       progressionHistory: progressionHistory,
     );
-    
   } catch (e) {
     return LongTermResult(
       success: false,
@@ -420,11 +397,11 @@ LongTermResult _simulateLongTermProgression({
 /// Helper function para calcular la varianza de peso
 double _calculateWeightVariance(List<SessionData> history) {
   if (history.length < 2) return 0.0;
-  
+
   final weights = history.map((s) => s.weight).toList();
   final mean = weights.reduce((a, b) => a + b) / weights.length;
   final variance = weights.map((w) => (w - mean) * (w - mean)).reduce((a, b) => a + b) / weights.length;
-  
+
   return variance;
 }
 
@@ -439,7 +416,7 @@ class LongTermResult {
   final double weightVariance;
   final List<SessionData> progressionHistory;
   final String? error;
-  
+
   const LongTermResult({
     required this.success,
     required this.initialWeight,
@@ -461,7 +438,7 @@ class SessionData {
   final bool incrementApplied;
   final bool isDeload;
   final String reason;
-  
+
   const SessionData({
     required this.session,
     required this.weight,

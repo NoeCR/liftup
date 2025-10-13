@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
-import 'package:liftly/features/progression/configs/adaptive_increment_config.dart'
-    as adaptive;
+import 'package:liftly/features/progression/configs/adaptive_increment_config.dart' as adaptive;
 import 'package:liftly/features/progression/models/exercise_progression_config.dart';
 import 'package:liftly/features/progression/models/progression_calculation_result.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
@@ -81,8 +80,7 @@ void main() {
 
     group('AdaptiveIncrementConfig Validation', () {
       test('getRecommendedIncrement works correctly', () {
-        final increment = adaptive
-            .AdaptiveIncrementConfig.getRecommendedIncrement(
+        final increment = adaptive.AdaptiveIncrementConfig.getRecommendedIncrement(
           testExercise,
           adaptive.ExperienceLevel.intermediate,
         );
@@ -94,10 +92,7 @@ void main() {
       test('ExperienceLevel factors work correctly', () {
         // Verificar que los factores de incremento son correctos
         expect(adaptive.ExperienceLevel.initiated.incrementFactor, equals(1.5));
-        expect(
-          adaptive.ExperienceLevel.intermediate.incrementFactor,
-          equals(1.0),
-        );
+        expect(adaptive.ExperienceLevel.intermediate.incrementFactor, equals(1.0));
         expect(adaptive.ExperienceLevel.advanced.incrementFactor, equals(0.5));
 
         // Verificar que initiated > intermediate > advanced
@@ -122,13 +117,11 @@ void main() {
           loadType: LoadType.dumbbell,
         );
 
-        final barbellIncrement = adaptive
-            .AdaptiveIncrementConfig.getRecommendedIncrement(
+        final barbellIncrement = adaptive.AdaptiveIncrementConfig.getRecommendedIncrement(
           barbellExercise,
           adaptive.ExperienceLevel.intermediate,
         );
-        final dumbbellIncrement = adaptive
-            .AdaptiveIncrementConfig.getRecommendedIncrement(
+        final dumbbellIncrement = adaptive.AdaptiveIncrementConfig.getRecommendedIncrement(
           dumbbellExercise,
           adaptive.ExperienceLevel.intermediate,
         );
@@ -163,12 +156,7 @@ void main() {
 
       test('migration from per_exercise data works', () {
         final perExerciseData = {
-          testExercise.id: {
-            'increment_value': 7.5,
-            'min_reps': 8,
-            'max_reps': 15,
-            'base_sets': 5,
-          },
+          testExercise.id: {'increment_value': 7.5, 'min_reps': 8, 'max_reps': 15, 'base_sets': 5},
         };
 
         final now = DateTime.now();
@@ -176,8 +164,7 @@ void main() {
           id: '${testExercise.id}_${testConfig.id}',
           exerciseId: testExercise.id,
           progressionConfigId: testConfig.id,
-          customIncrement:
-              perExerciseData[testExercise.id]!['increment_value'] as double,
+          customIncrement: perExerciseData[testExercise.id]!['increment_value'] as double,
           customMinReps: perExerciseData[testExercise.id]!['min_reps'] as int,
           customMaxReps: perExerciseData[testExercise.id]!['max_reps'] as int,
           customBaseSets: perExerciseData[testExercise.id]!['base_sets'] as int,
@@ -208,10 +195,7 @@ void main() {
 
         expect(result, isA<ProgressionCalculationResult>());
         expect(result.newWeight, greaterThanOrEqualTo(testState.currentWeight));
-        expect(
-          result.newReps,
-          inInclusiveRange(testConfig.minReps, testConfig.maxReps),
-        );
+        expect(result.newReps, inInclusiveRange(testConfig.minReps, testConfig.maxReps));
         expect(result.newSets, greaterThan(0));
         expect(result.incrementApplied, isTrue);
         expect(result.isDeload, isFalse);
@@ -252,8 +236,7 @@ void main() {
         expect(simpleConfig.customParameters.isEmpty, isTrue);
 
         // Verificar que AdaptiveIncrementConfig funciona sin customParameters
-        final increment = adaptive
-            .AdaptiveIncrementConfig.getRecommendedIncrement(
+        final increment = adaptive.AdaptiveIncrementConfig.getRecommendedIncrement(
           testExercise,
           adaptive.ExperienceLevel.intermediate,
         );

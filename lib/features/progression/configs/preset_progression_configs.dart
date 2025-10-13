@@ -18,8 +18,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 4,
       deloadWeek: 4,
@@ -63,8 +62,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -108,8 +106,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.reps,
       secondaryTarget: ProgressionTarget.volume,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 3,
       deloadWeek: 3,
@@ -153,8 +150,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 3,
       deloadWeek: 3,
@@ -204,8 +200,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -220,8 +215,7 @@ class PresetProgressionConfigs {
         'rest_time_seconds': 90,
 
         // Parámetros específicos de progresión doble
-        'weight_increment':
-            2.5, // Valor base, será adaptado por AdaptiveIncrementConfig
+        'weight_increment': 2.5, // Valor base, será adaptado por AdaptiveIncrementConfig
         'rep_increment': 1,
         'max_reps_before_weight_increase': 12,
         'min_reps_after_weight_increase': 8,
@@ -248,8 +242,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 0, // Autoregulada no tiene ciclo fijo
       deloadWeek: 0,
@@ -293,8 +286,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
@@ -567,8 +559,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 3,
       deloadWeek: 3,
@@ -829,8 +820,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
@@ -867,8 +857,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
@@ -905,8 +894,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -945,8 +933,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -983,8 +970,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
@@ -1021,8 +1007,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1059,8 +1044,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1099,8 +1083,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1137,8 +1120,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
@@ -1175,8 +1157,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1213,8 +1194,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1253,8 +1233,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 4,
       deloadWeek: 4,
@@ -1291,8 +1270,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1329,8 +1307,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1367,8 +1344,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1407,8 +1383,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
@@ -1444,8 +1419,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
@@ -1481,8 +1455,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
@@ -1518,8 +1491,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
@@ -1557,8 +1529,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1594,8 +1565,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
@@ -1631,8 +1601,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1668,8 +1637,7 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue:
-          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
@@ -1704,10 +1672,8 @@ class PresetProgressionConfigs {
 
     // Usar las claves de internacionalización definidas en customParameters
     final titleKey = customParams['title_key'] ?? 'presets.general.title';
-    final descriptionKey =
-        customParams['description_key'] ?? 'presets.general.description';
-    final keyPointsKey =
-        customParams['key_points_key'] ?? 'presets.general.key_points';
+    final descriptionKey = customParams['description_key'] ?? 'presets.general.description';
+    final keyPointsKey = customParams['key_points_key'] ?? 'presets.general.key_points';
 
     // Función helper para manejar la internacionalización de forma segura
     String translate(String key, {Map<String, String>? namedArgs}) {
@@ -1729,23 +1695,11 @@ class PresetProgressionConfigs {
       'key_points': [
         translate(
           '$keyPointsKey.repRange',
-          namedArgs: {
-            'minReps': config.minReps.toString(),
-            'maxReps': config.maxReps.toString(),
-          },
+          namedArgs: {'minReps': config.minReps.toString(), 'maxReps': config.maxReps.toString()},
         ),
-        translate(
-          '$keyPointsKey.baseSets',
-          namedArgs: {'baseSets': config.baseSets.toString()},
-        ),
-        translate(
-          '$keyPointsKey.targetRpe',
-          namedArgs: {'targetRpe': targetRpe.toString()},
-        ),
-        translate(
-          '$keyPointsKey.restTime',
-          namedArgs: {'restTime': restTime.toString()},
-        ),
+        translate('$keyPointsKey.baseSets', namedArgs: {'baseSets': config.baseSets.toString()}),
+        translate('$keyPointsKey.targetRpe', namedArgs: {'targetRpe': targetRpe.toString()}),
+        translate('$keyPointsKey.restTime', namedArgs: {'restTime': restTime.toString()}),
       ],
     };
   }

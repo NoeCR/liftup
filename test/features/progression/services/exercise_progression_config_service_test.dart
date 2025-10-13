@@ -37,68 +37,49 @@ void main() {
         expect(testConfig.hasCustomConfig, isTrue);
       });
 
-      test(
-        'hasCustomIncrement returns true when customIncrement is set and > 0',
-        () {
-          expect(testConfig.hasCustomIncrement, isTrue);
-        },
-      );
+      test('hasCustomIncrement returns true when customIncrement is set and > 0', () {
+        expect(testConfig.hasCustomIncrement, isTrue);
+      });
     });
 
     group('Service Logic Tests', () {
-      test(
-        'migrateFromPerExercise creates correct ExerciseProgressionConfig',
-        () {
-          final perExerciseData = {
-            'exercise-1': {
-              'increment_value': 5.0,
-              'min_reps': 6,
-              'max_reps': 12,
-              'base_sets': 4,
-            },
-            'exercise-2': {
-              'increment_value': 7.5,
-              'min_reps': 8,
-              'max_reps': 15,
-              'base_sets': 3,
-            },
-          };
+      test('migrateFromPerExercise creates correct ExerciseProgressionConfig', () {
+        final perExerciseData = {
+          'exercise-1': {'increment_value': 5.0, 'min_reps': 6, 'max_reps': 12, 'base_sets': 4},
+          'exercise-2': {'increment_value': 7.5, 'min_reps': 8, 'max_reps': 15, 'base_sets': 3},
+        };
 
-          // Simular la lógica de migración sin usar Hive
-          final _ = ExerciseProgressionConfigService();
-          final now = DateTime.now();
+        // Simular la lógica de migración sin usar Hive
+        final _ = ExerciseProgressionConfigService();
+        final now = DateTime.now();
 
-          for (final entry in perExerciseData.entries) {
-            final exerciseId = entry.key;
-            final exerciseData = entry.value as Map<String, dynamic>?;
+        for (final entry in perExerciseData.entries) {
+          final exerciseId = entry.key;
+          final exerciseData = entry.value as Map<String, dynamic>?;
 
-            if (exerciseData != null) {
-              final config = ExerciseProgressionConfig(
-                id: '${exerciseId}_test-progression-1',
-                exerciseId: exerciseId,
-                progressionConfigId: 'test-progression-1',
-                customIncrement: exerciseData['increment_value'] as double?,
-                customMinReps: exerciseData['min_reps'] as int?,
-                customMaxReps: exerciseData['max_reps'] as int?,
-                customBaseSets: exerciseData['base_sets'] as int?,
-                createdAt: now,
-                updatedAt: now,
-              );
+          if (exerciseData != null) {
+            final config = ExerciseProgressionConfig(
+              id: '${exerciseId}_test-progression-1',
+              exerciseId: exerciseId,
+              progressionConfigId: 'test-progression-1',
+              customIncrement: exerciseData['increment_value'] as double?,
+              customMinReps: exerciseData['min_reps'] as int?,
+              customMaxReps: exerciseData['max_reps'] as int?,
+              customBaseSets: exerciseData['base_sets'] as int?,
+              createdAt: now,
+              updatedAt: now,
+            );
 
-              // Verificar que la configuración se creó correctamente
-              expect(config.exerciseId, equals(exerciseId));
-              expect(config.progressionConfigId, equals('test-progression-1'));
-              expect(
-                config.customIncrement,
-                equals(exerciseData['increment_value']),
-              );
-              expect(config.customMinReps, equals(exerciseData['min_reps']));
-              expect(config.customMaxReps, equals(exerciseData['max_reps']));
-              expect(config.customBaseSets, equals(exerciseData['base_sets']));
-            }
+            // Verificar que la configuración se creó correctamente
+            expect(config.exerciseId, equals(exerciseId));
+            expect(config.progressionConfigId, equals('test-progression-1'));
+            expect(config.customIncrement, equals(exerciseData['increment_value']));
+            expect(config.customMinReps, equals(exerciseData['min_reps']));
+            expect(config.customMaxReps, equals(exerciseData['max_reps']));
+            expect(config.customBaseSets, equals(exerciseData['base_sets']));
           }
-        },
-      );
+        }
+      });
 
       test('handles malformed per_exercise data gracefully', () {
         final malformedData = {

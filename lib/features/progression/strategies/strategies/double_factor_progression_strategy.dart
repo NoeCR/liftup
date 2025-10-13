@@ -47,8 +47,7 @@ import '../progression_strategy.dart';
 /// - Requiere experiencia en autoregulación (RPE/RIR)
 /// - Necesita deloads más frecuentes
 /// - Puede ser abrumadora para principiantes
-class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
     // En Double Factor, aplicar deload cuando se alcance la semana configurada
@@ -69,18 +68,12 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -152,11 +145,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Double factor progression siempre aplica valores
   }
 }

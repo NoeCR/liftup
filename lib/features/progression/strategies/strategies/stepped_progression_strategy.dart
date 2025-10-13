@@ -49,8 +49,7 @@ import '../progression_strategy.dart';
 /// - Requiere planificación cuidadosa de fases
 /// - Puede ser menos efectiva para ganancias rápidas
 /// - Necesita deloads apropiados
-class SteppedProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class SteppedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -64,18 +63,12 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -120,26 +113,19 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy
     final baseSets = getBaseSetsSync(config, exercise);
 
     final totalIncrement =
-        currentInCycle <= accumulationWeeks
-            ? incrementValue * currentInCycle
-            : incrementValue * accumulationWeeks;
+        currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
 
     return createProgressionResult(
       newWeight: currentWeight + totalIncrement,
       newReps: currentReps,
       newSets: baseSets,
       incrementApplied: true,
-      reason:
-          'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+      reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Stepped progression siempre aplica valores
   }
 

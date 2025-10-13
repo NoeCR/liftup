@@ -66,13 +66,7 @@ void main() {
 
         // Obtener presets para esta estrategia
         final strategyPresets =
-            allPresets
-                .where(
-                  (preset) =>
-                      preset.type.name.toLowerCase() ==
-                      strategyName.toLowerCase(),
-                )
-                .toList();
+            allPresets.where((preset) => preset.type.name.toLowerCase() == strategyName.toLowerCase()).toList();
 
         if (strategyPresets.isEmpty) {
           print('  ⚠️  No se encontraron presets para $strategyName');
@@ -90,9 +84,7 @@ void main() {
             testCount++;
 
             try {
-              print(
-                '    🏋️  ${exercise.exerciseType.name} + ${exercise.loadType.name}',
-              );
+              print('    🏋️  ${exercise.exerciseType.name} + ${exercise.loadType.name}');
 
               final result = _executeLongCycleTest(
                 strategy: strategy,
@@ -154,12 +146,8 @@ void main() {
       print('  • Total de tests: $testCount');
       print('  • Exitosos: $successCount');
       print('  • Fallidos: $failureCount');
-      print(
-        '  • Duración: ${duration.inMinutes} minutos ${duration.inSeconds % 60} segundos',
-      );
-      print(
-        '  • Tasa de éxito: ${(successCount / testCount * 100).toStringAsFixed(1)}%',
-      );
+      print('  • Duración: ${duration.inMinutes} minutos ${duration.inSeconds % 60} segundos');
+      print('  • Tasa de éxito: ${(successCount / testCount * 100).toStringAsFixed(1)}%');
 
       // Generar resumen ejecutivo
       if (allSummaries.isNotEmpty) {
@@ -187,11 +175,7 @@ void main() {
       _generateCSVReports(allSummaries);
 
       // Verificar que todos los tests pasaron
-      expect(
-        failureCount,
-        equals(0),
-        reason: 'Algunos tests fallaron. Revisar los logs para más detalles.',
-      );
+      expect(failureCount, equals(0), reason: 'Algunos tests fallaron. Revisar los logs para más detalles.');
     });
 
     test('Quick Validation Test - 1 Month Simulation', () {
@@ -200,26 +184,10 @@ void main() {
 
       // Test rápido con solo algunas combinaciones
       final quickTests = [
-        {
-          'strategy': 'linear',
-          'preset': 'hypertrophy',
-          'exercise': 'barbell-multijoint',
-        },
-        {
-          'strategy': 'stepped',
-          'preset': 'strength',
-          'exercise': 'dumbbell-isolation',
-        },
-        {
-          'strategy': 'undulating',
-          'preset': 'hypertrophy',
-          'exercise': 'machine-multijoint',
-        },
-        {
-          'strategy': 'autoregulated',
-          'preset': 'strength',
-          'exercise': 'cable-isolation',
-        },
+        {'strategy': 'linear', 'preset': 'hypertrophy', 'exercise': 'barbell-multijoint'},
+        {'strategy': 'stepped', 'preset': 'strength', 'exercise': 'dumbbell-isolation'},
+        {'strategy': 'undulating', 'preset': 'hypertrophy', 'exercise': 'machine-multijoint'},
+        {'strategy': 'autoregulated', 'preset': 'strength', 'exercise': 'cable-isolation'},
       ];
 
       for (final testConfig in quickTests) {
@@ -246,13 +214,10 @@ void main() {
           expect(
             result.success,
             isTrue,
-            reason:
-                'Quick test failed for $strategyName + $presetName + $exerciseType: ${result.errorMessage}',
+            reason: 'Quick test failed for $strategyName + $presetName + $exerciseType: ${result.errorMessage}',
           );
 
-          print(
-            '  ✅ Éxito: ${result.summary.finalWeight - result.summary.initialWeight}kg ganados',
-          );
+          print('  ✅ Éxito: ${result.summary.finalWeight - result.summary.initialWeight}kg ganados');
         }
       }
     });
@@ -271,19 +236,13 @@ List<Exercise> _createTestExercises() {
         Exercise(
           id: 'test-${exerciseType.name}-${loadType.name}',
           name: 'Test ${exerciseType.name} ${loadType.name}',
-          description:
-              'Test exercise for ${exerciseType.name} ${loadType.name}',
+          description: 'Test exercise for ${exerciseType.name} ${loadType.name}',
           imageUrl: '',
           muscleGroups:
-              exerciseType == ExerciseType.multiJoint
-                  ? [MuscleGroup.pectoralMajor]
-                  : [MuscleGroup.bicepsLongHead],
+              exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
           tips: [],
           commonMistakes: [],
-          category:
-              exerciseType == ExerciseType.multiJoint
-                  ? ExerciseCategory.chest
-                  : ExerciseCategory.biceps,
+          category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
           difficulty: ExerciseDifficulty.intermediate,
           createdAt: now,
           updatedAt: now,
@@ -368,8 +327,7 @@ TestExecutionResult _executeLongCycleTest({
 }) {
   try {
     // Calcular número de sesiones
-    final sessionsPerWeek =
-        (preset.customParameters['sessions_per_week'] ?? 3) as int;
+    final sessionsPerWeek = (preset.customParameters['sessions_per_week'] ?? 3) as int;
     final totalSessions = months * 4 * sessionsPerWeek;
 
     // Estado inicial
@@ -433,8 +391,7 @@ TestExecutionResult _executeLongCycleTest({
       }
 
       if (result.newSets > previousSets) {
-        totalSeriesIncrements =
-            totalSeriesIncrements + (result.newSets - previousSets);
+        totalSeriesIncrements = totalSeriesIncrements + (result.newSets - previousSets);
         seriesIncrementCount++;
       }
 
@@ -509,9 +466,7 @@ double _calculateWeightVariance(List<SessionResult> history) {
 
   final weights = history.map((s) => s.weight).toList();
   final mean = weights.reduce((a, b) => a + b) / weights.length;
-  final variance =
-      weights.map((w) => (w - mean) * (w - mean)).reduce((a, b) => a + b) /
-      weights.length;
+  final variance = weights.map((w) => (w - mean) * (w - mean)).reduce((a, b) => a + b) / weights.length;
 
   return variance;
 }
@@ -557,25 +512,16 @@ void _generateCSVReports(List<TestSummary> summaries) {
   // Análisis por estrategia
   final strategies = summaries.map((s) => s.strategy).toSet();
   for (final strategy in strategies) {
-    final strategySummaries =
-        summaries.where((s) => s.strategy == strategy).toList();
+    final strategySummaries = summaries.where((s) => s.strategy == strategy).toList();
     final avgWeightGain =
-        strategySummaries
-            .map((s) => s.finalWeight - s.initialWeight)
-            .reduce((a, b) => a + b) /
+        strategySummaries.map((s) => s.finalWeight - s.initialWeight).reduce((a, b) => a + b) /
         strategySummaries.length;
-    final avgDeloads =
-        strategySummaries.map((s) => s.deloadCount).reduce((a, b) => a + b) /
-        strategySummaries.length;
+    final avgDeloads = strategySummaries.map((s) => s.deloadCount).reduce((a, b) => a + b) / strategySummaries.length;
 
     analysisBuffer.writeln('$strategy:');
     analysisBuffer.writeln('  - Tests: ${strategySummaries.length}');
-    analysisBuffer.writeln(
-      '  - Ganancia promedio: ${avgWeightGain.toStringAsFixed(1)}kg',
-    );
-    analysisBuffer.writeln(
-      '  - Deloads promedio: ${avgDeloads.toStringAsFixed(1)}',
-    );
+    analysisBuffer.writeln('  - Ganancia promedio: ${avgWeightGain.toStringAsFixed(1)}kg');
+    analysisBuffer.writeln('  - Deloads promedio: ${avgDeloads.toStringAsFixed(1)}');
     analysisBuffer.writeln('');
   }
 

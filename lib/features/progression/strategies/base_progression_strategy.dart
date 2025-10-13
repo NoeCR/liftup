@@ -18,8 +18,7 @@ abstract class BaseProgressionStrategy {
   /// Calcula la posición actual en el ciclo (sesión o semana)
   int getCurrentInCycle(ProgressionConfig config, ProgressionState state) {
     final bool isSessionUnit = config.unit == ProgressionUnit.session;
-    final int rawIndex =
-        isSessionUnit ? state.currentSession : state.currentWeek;
+    final int rawIndex = isSessionUnit ? state.currentSession : state.currentWeek;
     if (rawIndex <= 0) return 1;
 
     // Si cycleLength es 0, no hay ciclo (estrategias autoreguladas)
@@ -38,24 +37,17 @@ abstract class BaseProgressionStrategy {
     required ProgressionConfig config,
     required ProgressionState state,
   }) {
-    final sessionsPerWeek =
-        (config.customParameters['sessions_per_week'] ?? 3) as int;
+    final sessionsPerWeek = (config.customParameters['sessions_per_week'] ?? 3) as int;
     final newSession = state.currentSession + 1;
     final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
     return (session: newSession, week: newWeek);
   }
 
   /// Verifica si la progresión está bloqueada
-  bool isProgressionBlocked(
-    ProgressionState state,
-    String exerciseId,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool isProgressionBlocked(ProgressionState state, String exerciseId, String routineId, bool isExerciseLocked) {
     // Verificar bloqueo por rutina completa
     final customData = state.customData;
-    final skipNextByRoutine =
-        customData['skip_next_by_routine'] as Map<String, dynamic>?;
+    final skipNextByRoutine = customData['skip_next_by_routine'] as Map<String, dynamic>?;
     if (skipNextByRoutine?[routineId] == true) return true;
 
     // Verificar bloqueo por ejercicio específico
@@ -73,10 +65,7 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(
-        exercise.id,
-        config.id,
-      );
+      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
       if (exerciseConfig?.hasCustomIncrement == true) {
         return exerciseConfig!.customIncrement!;
       }
@@ -101,10 +90,7 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(
-        exercise.id,
-        config.id,
-      );
+      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
       if (exerciseConfig?.hasCustomMaxReps == true) {
         return exerciseConfig!.customMaxReps!;
       }
@@ -128,10 +114,7 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(
-        exercise.id,
-        config.id,
-      );
+      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
       if (exerciseConfig?.hasCustomMinReps == true) {
         return exerciseConfig!.customMinReps!;
       }
@@ -155,10 +138,7 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(
-        exercise.id,
-        config.id,
-      );
+      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
       if (exerciseConfig?.hasCustomBaseSets == true) {
         return exerciseConfig!.customBaseSets!;
       }
@@ -187,12 +167,8 @@ abstract class BaseProgressionStrategy {
     required Exercise exercise,
   }) {
     // Calcular peso de deload manteniendo incremento sobre base
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-      0,
-      double.infinity,
-    );
-    final double deloadWeight =
-        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     // Calcular series de deload (70% de las series base)
     final int baseSets = getBaseSetsSync(config, exercise);
@@ -224,10 +200,7 @@ abstract class BaseProgressionStrategy {
 
   /// Valida que el estado de progresión sea válido
   bool validateProgressionState(ProgressionState state) {
-    return state.currentWeight >= 0 &&
-        state.currentReps > 0 &&
-        state.currentSets > 0 &&
-        state.currentSession > 0;
+    return state.currentWeight >= 0 && state.currentReps > 0 && state.currentSets > 0 && state.currentSession > 0;
   }
 
   // ===== MÉTODOS DE UTILIDAD PARA ESTRATEGIAS =====

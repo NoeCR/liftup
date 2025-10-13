@@ -22,9 +22,7 @@ class ProgressionTestReporter {
     print('\n📊 CONFIGURACIÓN:');
     print('  • Estrategia: $strategyName');
     print('  • Preset: $presetName');
-    print(
-      '  • Ejercicio: ${exercise.name} (${exercise.exerciseType.name} + ${exercise.loadType.name})',
-    );
+    print('  • Ejercicio: ${exercise.name} (${exercise.exerciseType.name} + ${exercise.loadType.name})');
     print('  • Duración: $months meses');
     print('  • Total de sesiones: ${progressionHistory.length}');
 
@@ -35,9 +33,7 @@ class ProgressionTestReporter {
     print('  • Peso inicial: ${initialWeight.toStringAsFixed(1)}kg');
     print('  • Peso final: ${finalWeight.toStringAsFixed(1)}kg');
     print('  • Ganancia total: ${totalGain.toStringAsFixed(1)}kg');
-    print(
-      '  • Incrementos aplicados: ${totalWeightIncrements.toStringAsFixed(1)}kg',
-    );
+    print('  • Incrementos aplicados: ${totalWeightIncrements.toStringAsFixed(1)}kg');
 
     print('\n📊 PROGRESIÓN DE SERIES:');
     final initialSets = progressionHistory.first.sets;
@@ -51,9 +47,7 @@ class ProgressionTestReporter {
     print('  • Total de deloads: $deloadCount');
     if (deloadCount > 0) {
       final deloadFrequency = progressionHistory.length / deloadCount;
-      print(
-        '  • Frecuencia promedio: cada ${deloadFrequency.toStringAsFixed(1)} sesiones',
-      );
+      print('  • Frecuencia promedio: cada ${deloadFrequency.toStringAsFixed(1)} sesiones');
     }
 
     print('\n📅 CRONOLOGÍA DE PROGRESIÓN:');
@@ -103,16 +97,11 @@ class ProgressionTestReporter {
     }
   }
 
-  static void _analyzeProgressionPatterns(
-    List<SessionResult> history,
-    String strategyName,
-  ) {
+  static void _analyzeProgressionPatterns(List<SessionResult> history, String strategyName) {
     // Analizar frecuencia de incrementos
     final incrementSessions = history.where((s) => s.incrementApplied).length;
     final incrementFrequency = history.length / incrementSessions;
-    print(
-      '  • Frecuencia de incrementos: cada ${incrementFrequency.toStringAsFixed(1)} sesiones',
-    );
+    print('  • Frecuencia de incrementos: cada ${incrementFrequency.toStringAsFixed(1)} sesiones');
 
     // Analizar patrones específicos por estrategia
     switch (strategyName.toLowerCase()) {
@@ -151,13 +140,9 @@ class ProgressionTestReporter {
     }
 
     if (increments.isNotEmpty) {
-      final avgIncrement =
-          increments.reduce((a, b) => a + b) / increments.length;
+      final avgIncrement = increments.reduce((a, b) => a + b) / increments.length;
       final incrementVariance =
-          increments
-              .map((i) => (i - avgIncrement).abs())
-              .reduce((a, b) => a + b) /
-          increments.length;
+          increments.map((i) => (i - avgIncrement).abs()).reduce((a, b) => a + b) / increments.length;
       print('  • Incremento promedio: ${avgIncrement.toStringAsFixed(2)}kg');
       print('  • Variabilidad: ${incrementVariance.toStringAsFixed(2)}kg');
     }
@@ -167,17 +152,14 @@ class ProgressionTestReporter {
     print('  • Patrón Escalonado: Incrementos cada 2 sesiones');
 
     // Verificar que los incrementos ocurren cada 2 sesiones
-    final incrementSessions =
-        history.where((s) => s.incrementApplied).map((s) => s.session).toList();
+    final incrementSessions = history.where((s) => s.incrementApplied).map((s) => s.session).toList();
     if (incrementSessions.length > 1) {
       final intervals = <int>[];
       for (int i = 1; i < incrementSessions.length; i++) {
         intervals.add(incrementSessions[i] - incrementSessions[i - 1]);
       }
       final avgInterval = intervals.reduce((a, b) => a + b) / intervals.length;
-      print(
-        '  • Intervalo promedio entre incrementos: ${avgInterval.toStringAsFixed(1)} sesiones',
-      );
+      print('  • Intervalo promedio entre incrementos: ${avgInterval.toStringAsFixed(1)} sesiones');
     }
   }
 
@@ -252,13 +234,8 @@ class ProgressionTestReporter {
     }
 
     if (weightChanges.isNotEmpty) {
-      final avgChange =
-          weightChanges.reduce((a, b) => a + b) / weightChanges.length;
-      final variance =
-          weightChanges
-              .map((c) => (c - avgChange).abs())
-              .reduce((a, b) => a + b) /
-          weightChanges.length;
+      final avgChange = weightChanges.reduce((a, b) => a + b) / weightChanges.length;
+      final variance = weightChanges.map((c) => (c - avgChange).abs()).reduce((a, b) => a + b) / weightChanges.length;
       print('  • Variabilidad de progresión: ${variance.toStringAsFixed(2)}kg');
       print('  • Adaptabilidad: ${variance > 1.0 ? 'Alta' : 'Baja'}');
     }
@@ -271,9 +248,7 @@ class ProgressionTestReporter {
     final totalGain = weights.last - weights.first;
     final avgGainPerSession = totalGain / history.length;
 
-    print(
-      '  • Ganancia promedio por sesión: ${avgGainPerSession.toStringAsFixed(3)}kg',
-    );
+    print('  • Ganancia promedio por sesión: ${avgGainPerSession.toStringAsFixed(3)}kg');
   }
 
   /// Genera un reporte CSV para análisis posterior
@@ -312,52 +287,35 @@ class ProgressionTestReporter {
     print('\n📊 ESTADÍSTICAS GENERALES:');
     print('  • Total de tests ejecutados: ${summaries.length}');
 
-    final totalWeightGains =
-        summaries.map((s) => s.finalWeight - s.initialWeight).toList();
-    final avgWeightGain =
-        totalWeightGains.reduce((a, b) => a + b) / totalWeightGains.length;
+    final totalWeightGains = summaries.map((s) => s.finalWeight - s.initialWeight).toList();
+    final avgWeightGain = totalWeightGains.reduce((a, b) => a + b) / totalWeightGains.length;
     final maxWeightGain = totalWeightGains.reduce((a, b) => a > b ? a : b);
     final minWeightGain = totalWeightGains.reduce((a, b) => a < b ? a : b);
 
-    print(
-      '  • Ganancia promedio de peso: ${avgWeightGain.toStringAsFixed(1)}kg',
-    );
+    print('  • Ganancia promedio de peso: ${avgWeightGain.toStringAsFixed(1)}kg');
     print('  • Ganancia máxima de peso: ${maxWeightGain.toStringAsFixed(1)}kg');
     print('  • Ganancia mínima de peso: ${minWeightGain.toStringAsFixed(1)}kg');
 
-    final totalDeloads = summaries
-        .map((s) => s.deloadCount)
-        .reduce((a, b) => a + b);
+    final totalDeloads = summaries.map((s) => s.deloadCount).reduce((a, b) => a + b);
     print('  • Total de deloads aplicados: $totalDeloads');
 
     print('\n🏆 MEJORES ESTRATEGIAS POR CATEGORÍA:');
 
     // Mejor ganancia de peso
     final bestWeightGain = summaries.reduce(
-      (a, b) =>
-          (b.finalWeight - b.initialWeight) > (a.finalWeight - a.initialWeight)
-              ? b
-              : a,
+      (a, b) => (b.finalWeight - b.initialWeight) > (a.finalWeight - a.initialWeight) ? b : a,
     );
     print(
       '  • Mayor ganancia de peso: ${bestWeightGain.strategy} (${(bestWeightGain.finalWeight - bestWeightGain.initialWeight).toStringAsFixed(1)}kg)',
     );
 
     // Menor variabilidad
-    final leastVariable = summaries.reduce(
-      (a, b) => b.weightVariance < a.weightVariance ? b : a,
-    );
-    print(
-      '  • Menor variabilidad: ${leastVariable.strategy} (${leastVariable.weightVariance.toStringAsFixed(2)}kg)',
-    );
+    final leastVariable = summaries.reduce((a, b) => b.weightVariance < a.weightVariance ? b : a);
+    print('  • Menor variabilidad: ${leastVariable.strategy} (${leastVariable.weightVariance.toStringAsFixed(2)}kg)');
 
     // Más deloads (mayor recuperación)
-    final mostDeloads = summaries.reduce(
-      (a, b) => b.deloadCount > a.deloadCount ? b : a,
-    );
-    print(
-      '  • Mayor frecuencia de deloads: ${mostDeloads.strategy} ($mostDeloads.deloadCount deloads)',
-    );
+    final mostDeloads = summaries.reduce((a, b) => b.deloadCount > a.deloadCount ? b : a);
+    print('  • Mayor frecuencia de deloads: ${mostDeloads.strategy} ($mostDeloads.deloadCount deloads)');
 
     print('\n📈 RECOMENDACIONES:');
     print('  • Para principiantes: Estrategias con menor variabilidad');

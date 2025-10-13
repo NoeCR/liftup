@@ -56,8 +56,7 @@ import '../progression_strategy.dart';
 /// - Más compleja de implementar
 /// - Dependiente de la autoevaluación del atleta
 /// - Puede ser inconsistente entre sesiones
-class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -71,18 +70,12 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -129,10 +122,8 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     final minReps = getMinRepsSync(config, exercise);
     final incrementValue = getIncrementValueSync(config, exercise);
 
-    final lastSessionData =
-        state.sessionHistory['session_${state.currentSession}'];
-    final performedReps =
-        (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
+    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
+    final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
 
     double estimatedRPE;
     if (performedReps >= targetReps) {
@@ -154,10 +145,7 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
     } else if (estimatedRPE > targetRPE + rpeThreshold) {
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
       return createProgressionResult(
-        newWeight: (currentWeight - incrementValue * 0.5).clamp(
-          0,
-          currentWeight,
-        ),
+        newWeight: (currentWeight - incrementValue * 0.5).clamp(0, currentWeight),
         newReps: adjustedReps,
         newSets: state.baseSets,
         incrementApplied: true,
@@ -183,11 +171,7 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Autoregulated progression siempre aplica valores
   }
 

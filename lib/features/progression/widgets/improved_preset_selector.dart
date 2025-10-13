@@ -23,12 +23,10 @@ class ImprovedPresetSelector extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ImprovedPresetSelector> createState() =>
-      _ImprovedPresetSelectorState();
+  ConsumerState<ImprovedPresetSelector> createState() => _ImprovedPresetSelectorState();
 }
 
-class _ImprovedPresetSelectorState
-    extends ConsumerState<ImprovedPresetSelector> {
+class _ImprovedPresetSelectorState extends ConsumerState<ImprovedPresetSelector> {
   ProgressionConfig? _selectedConfig;
   late final List<ProgressionConfig> _filteredPresets;
 
@@ -39,10 +37,7 @@ class _ImprovedPresetSelectorState
     // Filtrar presets por tipo si se especifica
     final allPresets = PresetProgressionConfigs.getAllPresets();
     if (widget.filterByType != null) {
-      _filteredPresets =
-          allPresets
-              .where((preset) => preset.type == widget.filterByType)
-              .toList();
+      _filteredPresets = allPresets.where((preset) => preset.type == widget.filterByType).toList();
     } else {
       _filteredPresets = allPresets;
     }
@@ -140,9 +135,7 @@ class _ImprovedPresetSelectorState
             const SizedBox(height: 8),
             Text(
               'Elige una configuración preestablecida optimizada para tu objetivo de entrenamiento',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 20),
 
@@ -174,12 +167,7 @@ class _ImprovedPresetSelectorState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Objetivo de Entrenamiento',
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        Text('Objetivo de Entrenamiento', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
 
         // Dropdown para seleccionar preset
@@ -193,9 +181,7 @@ class _ImprovedPresetSelectorState
           isExpanded: true, // Evita overflow horizontal
           items:
               _filteredPresets.map((preset) {
-                final objective = _getObjectiveDisplayName(
-                  preset.getTrainingObjective(),
-                );
+                final objective = _getObjectiveDisplayName(preset.getTrainingObjective());
                 final strategy = _getStrategyDisplayName(preset.type);
 
                 return DropdownMenuItem<ProgressionConfig>(
@@ -206,16 +192,12 @@ class _ImprovedPresetSelectorState
                     children: [
                       Text(
                         '$objective - $strategy',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         '${preset.minReps}-${preset.maxReps} reps, ${preset.baseSets} sets',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
@@ -238,12 +220,8 @@ class _ImprovedPresetSelectorState
   Widget _buildPresetDescription(ThemeData theme) {
     if (_selectedConfig == null) return const SizedBox.shrink();
 
-    final metadata = PresetProgressionConfigs.getPresetMetadata(
-      _selectedConfig!,
-    );
-    final objective = _getObjectiveDisplayName(
-      _selectedConfig!.getTrainingObjective(),
-    );
+    final metadata = PresetProgressionConfigs.getPresetMetadata(_selectedConfig!);
+    final objective = _getObjectiveDisplayName(_selectedConfig!.getTrainingObjective());
     final strategy = _getStrategyDisplayName(_selectedConfig!.type);
 
     return Column(
@@ -252,11 +230,7 @@ class _ImprovedPresetSelectorState
         // Título de la descripción
         Row(
           children: [
-            Icon(
-              Icons.info_outline,
-              color: theme.colorScheme.primary,
-              size: 20,
-            ),
+            Icon(Icons.info_outline, color: theme.colorScheme.primary, size: 20),
             const SizedBox(width: 8),
             Text(
               'Configuración Seleccionada',
@@ -275,35 +249,17 @@ class _ImprovedPresetSelectorState
           decoration: BoxDecoration(
             color: theme.colorScheme.primaryContainer.withOpacity(0.3),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.colorScheme.primary.withOpacity(0.2),
-            ),
+            border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildInfoRow('Objetivo', objective, theme),
               _buildInfoRow('Estrategia', strategy, theme),
-              _buildInfoRow(
-                'Rango de Reps',
-                '${_selectedConfig!.minReps}-${_selectedConfig!.maxReps}',
-                theme,
-              ),
-              _buildInfoRow(
-                'Series Base',
-                '${_selectedConfig!.baseSets}',
-                theme,
-              ),
-              _buildInfoRow(
-                'RPE Objetivo',
-                '${_selectedConfig!.customParameters['target_rpe'] ?? 8.0}',
-                theme,
-              ),
-              _buildInfoRow(
-                'Descanso',
-                '${_selectedConfig!.customParameters['rest_time_seconds'] ?? 90}s',
-                theme,
-              ),
+              _buildInfoRow('Rango de Reps', '${_selectedConfig!.minReps}-${_selectedConfig!.maxReps}', theme),
+              _buildInfoRow('Series Base', '${_selectedConfig!.baseSets}', theme),
+              _buildInfoRow('RPE Objetivo', '${_selectedConfig!.customParameters['target_rpe'] ?? 8.0}', theme),
+              _buildInfoRow('Descanso', '${_selectedConfig!.customParameters['rest_time_seconds'] ?? 90}s', theme),
             ],
           ),
         ),
@@ -311,32 +267,17 @@ class _ImprovedPresetSelectorState
         const SizedBox(height: 16),
 
         // Descripción detallada
-        if (metadata['description'] != null &&
-            metadata['description'].toString().isNotEmpty) ...[
-          Text(
-            'Descripción',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        if (metadata['description'] != null && metadata['description'].toString().isNotEmpty) ...[
+          Text('Descripción', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
-          Text(
-            _getTranslatedDescription(metadata['description'].toString()),
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(_getTranslatedDescription(metadata['description'].toString()), style: theme.textTheme.bodyMedium),
         ],
 
         const SizedBox(height: 16),
 
         // Puntos clave
-        if (metadata['key_points'] != null &&
-            metadata['key_points'] is List) ...[
-          Text(
-            'Características Clave',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        if (metadata['key_points'] != null && metadata['key_points'] is List) ...[
+          Text('Características Clave', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           ...((metadata['key_points'] as List).map(
             (point) => Padding(
@@ -344,18 +285,9 @@ class _ImprovedPresetSelectorState
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    size: 16,
-                    color: theme.colorScheme.primary,
-                  ),
+                  Icon(Icons.check_circle_outline, size: 16, color: theme.colorScheme.primary),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _getTranslatedKeyPoint(point.toString()),
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ),
+                  Expanded(child: Text(_getTranslatedKeyPoint(point.toString()), style: theme.textTheme.bodySmall)),
                 ],
               ),
             ),
@@ -381,14 +313,7 @@ class _ImprovedPresetSelectorState
               ),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+          Expanded(child: Text(value, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500))),
         ],
       ),
     );

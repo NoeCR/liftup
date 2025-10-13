@@ -91,8 +91,7 @@ class ExerciseProgressionConfig {
       experienceLevel != null;
 
   /// Verifica si tiene incremento personalizado
-  bool get hasCustomIncrement =>
-      customIncrement != null && customIncrement! > 0;
+  bool get hasCustomIncrement => customIncrement != null && customIncrement! > 0;
 
   /// Verifica si tiene configuración de repeticiones personalizada
   bool get hasCustomReps => customMinReps != null || customMaxReps != null;

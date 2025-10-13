@@ -66,12 +66,9 @@ void main() {
         expect(minimalConfig.hasCustomConfig, isFalse);
       });
 
-      test(
-        'hasCustomIncrement returns true when customIncrement is set and > 0',
-        () {
-          expect(config.hasCustomIncrement, isTrue);
-        },
-      );
+      test('hasCustomIncrement returns true when customIncrement is set and > 0', () {
+        expect(config.hasCustomIncrement, isTrue);
+      });
 
       test('hasCustomIncrement returns false when customIncrement is null', () {
         final configWithoutIncrement = ExerciseProgressionConfig(
@@ -105,18 +102,12 @@ void main() {
 
     group('copyWith Method', () {
       test('creates copy with modified fields', () {
-        final modifiedConfig = config.copyWith(
-          customIncrement: 7.5,
-          customMinReps: 8,
-        );
+        final modifiedConfig = config.copyWith(customIncrement: 7.5, customMinReps: 8);
 
         expect(modifiedConfig.customIncrement, equals(7.5));
         expect(modifiedConfig.customMinReps, equals(8));
         expect(modifiedConfig.customMaxReps, equals(12)); // Unchanged
-        expect(
-          modifiedConfig.exerciseId,
-          equals('test-exercise-1'),
-        ); // Unchanged
+        expect(modifiedConfig.exerciseId, equals('test-exercise-1')); // Unchanged
       });
 
       test('creates copy with null values', () {
@@ -162,10 +153,7 @@ void main() {
 
         expect(recreatedConfig.id, equals(config.id));
         expect(recreatedConfig.exerciseId, equals(config.exerciseId));
-        expect(
-          recreatedConfig.progressionConfigId,
-          equals(config.progressionConfigId),
-        );
+        expect(recreatedConfig.progressionConfigId, equals(config.progressionConfigId));
         expect(recreatedConfig.customIncrement, equals(config.customIncrement));
         expect(recreatedConfig.customMinReps, equals(config.customMinReps));
         expect(recreatedConfig.customMaxReps, equals(config.customMaxReps));
@@ -216,24 +204,15 @@ void main() {
   group('ExperienceLevel Tests', () {
     test('all experience levels have correct properties', () {
       expect(ExperienceLevel.initiated.displayName, equals('Iniciado'));
-      expect(
-        ExperienceLevel.initiated.description,
-        equals('Puedes progresar rápidamente'),
-      );
+      expect(ExperienceLevel.initiated.description, equals('Puedes progresar rápidamente'));
       expect(ExperienceLevel.initiated.incrementFactor, equals(1.5));
 
       expect(ExperienceLevel.intermediate.displayName, equals('Intermedio'));
-      expect(
-        ExperienceLevel.intermediate.description,
-        equals('Progresión moderada'),
-      );
+      expect(ExperienceLevel.intermediate.description, equals('Progresión moderada'));
       expect(ExperienceLevel.intermediate.incrementFactor, equals(1.0));
 
       expect(ExperienceLevel.advanced.displayName, equals('Avanzado'));
-      expect(
-        ExperienceLevel.advanced.description,
-        equals('Progresión lenta, cerca del límite'),
-      );
+      expect(ExperienceLevel.advanced.description, equals('Progresión lenta, cerca del límite'));
       expect(ExperienceLevel.advanced.incrementFactor, equals(0.5));
     });
 

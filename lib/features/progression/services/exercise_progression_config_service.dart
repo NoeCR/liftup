@@ -13,15 +13,10 @@ class ExerciseProgressionConfigService {
   }
 
   /// Obtiene la configuración de progresión para un ejercicio específico
-  Future<ExerciseProgressionConfig?> getConfig(
-    String exerciseId,
-    String progressionConfigId,
-  ) async {
+  Future<ExerciseProgressionConfig?> getConfig(String exerciseId, String progressionConfigId) async {
     try {
       return _box.values.firstWhere(
-        (config) =>
-            config.exerciseId == exerciseId &&
-            config.progressionConfigId == progressionConfigId,
+        (config) => config.exerciseId == exerciseId && config.progressionConfigId == progressionConfigId,
       );
     } catch (e) {
       return null;
@@ -34,10 +29,7 @@ class ExerciseProgressionConfigService {
   }
 
   /// Elimina la configuración de progresión para un ejercicio
-  Future<void> deleteConfig(
-    String exerciseId,
-    String progressionConfigId,
-  ) async {
+  Future<void> deleteConfig(String exerciseId, String progressionConfigId) async {
     final config = await getConfig(exerciseId, progressionConfigId);
     if (config != null) {
       await _box.delete(config.id);
@@ -45,28 +37,17 @@ class ExerciseProgressionConfigService {
   }
 
   /// Obtiene todas las configuraciones para un ejercicio
-  Future<List<ExerciseProgressionConfig>> getConfigsForExercise(
-    String exerciseId,
-  ) async {
-    return _box.values
-        .where((config) => config.exerciseId == exerciseId)
-        .toList();
+  Future<List<ExerciseProgressionConfig>> getConfigsForExercise(String exerciseId) async {
+    return _box.values.where((config) => config.exerciseId == exerciseId).toList();
   }
 
   /// Obtiene todas las configuraciones para una progresión
-  Future<List<ExerciseProgressionConfig>> getConfigsForProgression(
-    String progressionConfigId,
-  ) async {
-    return _box.values
-        .where((config) => config.progressionConfigId == progressionConfigId)
-        .toList();
+  Future<List<ExerciseProgressionConfig>> getConfigsForProgression(String progressionConfigId) async {
+    return _box.values.where((config) => config.progressionConfigId == progressionConfigId).toList();
   }
 
   /// Migra datos de per_exercise a ExerciseProgressionConfig
-  Future<void> migrateFromPerExercise(
-    Map<String, dynamic> perExerciseData,
-    String progressionConfigId,
-  ) async {
+  Future<void> migrateFromPerExercise(Map<String, dynamic> perExerciseData, String progressionConfigId) async {
     for (final entry in perExerciseData.entries) {
       final exerciseId = entry.key;
       final exerciseData = entry.value as Map<String, dynamic>?;

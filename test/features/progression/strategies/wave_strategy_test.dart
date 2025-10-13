@@ -109,14 +109,8 @@ void main() {
         currentSets: 4,
         exercise: ex(),
       );
-      expect(
-        res.newWeight,
-        114.0,
-      ); // baseWeight + (increaseOverBase * 0.7) = 100 + (20*0.7)
-      expect(
-        res.newSets,
-        2,
-      ); // 4 * 0.7 = 2.8 -> round = 3? En base aplicamos 70% de baseSets=4 => 2.8 -> 2
+      expect(res.newWeight, 114.0); // baseWeight + (increaseOverBase * 0.7) = 100 + (20*0.7)
+      expect(res.newSets, 2); // 4 * 0.7 = 2.8 -> round = 3? En base aplicamos 70% de baseSets=4 => 2.8 -> 2
     });
 
     test('blocks progression when exercise is locked', () {

@@ -107,10 +107,7 @@ void main() {
         currentSets: 4,
         exercise: ex(),
       );
-      expect(
-        res.newWeight,
-        closeTo(108.0, 0.0001),
-      ); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
+      expect(res.newWeight, closeTo(108.0, 0.0001)); // Deload: 100 + ((110 - 100) * 0.8) = 100 + (10 * 0.8) = 108.0
       expect(res.newSets, 2); // 3 * 0.7 round (baseSets del config)
     });
 

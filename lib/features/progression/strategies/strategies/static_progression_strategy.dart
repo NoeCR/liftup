@@ -38,8 +38,7 @@ import '../progression_strategy.dart';
 /// - Puede llevar a estancamiento a largo plazo
 /// - No es efectiva para ganancias continuas
 /// - Requiere cambio eventual de estrategia
-class StaticProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class StaticProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -63,11 +62,7 @@ class StaticProgressionStrategy extends BaseProgressionStrategy
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Static progression siempre aplica valores (aunque no los cambie)
   }
 }
