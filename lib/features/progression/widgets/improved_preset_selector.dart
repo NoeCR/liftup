@@ -166,10 +166,10 @@ class _ImprovedPresetSelectorState extends ConsumerState<ImprovedPresetSelector>
 
     return DropdownButtonFormField<ProgressionConfig>(
       value: _selectedConfig,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Objetivo de Entrenamiento',
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.flag_outlined),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        prefixIcon: const Icon(Icons.flag_outlined),
       ),
       isExpanded: true,
       items:
