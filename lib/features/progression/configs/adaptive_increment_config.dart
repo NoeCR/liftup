@@ -67,98 +67,250 @@ class AdaptiveIncrementConfig {
   /// Configuración base de rangos de SERIES por objetivo, tipo de ejercicio y carga
   /// Estos valores establecen mínimos/máximos coherentes por objetivo; los presets
   /// pueden sobreescribirlos vía customParameters (sets_min/sets_max).
-  static const Map<TrainingObjective, Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>> _objectiveSeriesConfig = {
+  static const Map<
+    TrainingObjective,
+    Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>
+  >
+  _objectiveSeriesConfig = {
     // Fuerza
     TrainingObjective.strength: {
       ExerciseType.multiJoint: {
         LoadType.barbell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
-        LoadType.dumbbell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
         LoadType.cable: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.kettlebell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
-        LoadType.bodyweight: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
       },
       ExerciseType.isolation: {
         LoadType.barbell: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.dumbbell: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
         LoadType.cable: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.kettlebell: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.bodyweight: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
       },
     },
     // Hipertrofia
     TrainingObjective.hypertrophy: {
       ExerciseType.multiJoint: {
         LoadType.barbell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
-        LoadType.dumbbell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
         LoadType.cable: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
-        LoadType.kettlebell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
-        LoadType.bodyweight: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
       },
       ExerciseType.isolation: {
         LoadType.barbell: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
-        LoadType.dumbbell: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 3,
+          max: 4,
+          defaultValue: 3,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
         LoadType.cable: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
-        LoadType.kettlebell: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 3,
+          max: 4,
+          defaultValue: 3,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
-        LoadType.bodyweight: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 3, max: 4, defaultValue: 3),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 3,
+          max: 4,
+          defaultValue: 3,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 3,
+          max: 4,
+          defaultValue: 3,
+        ),
       },
     },
     // Resistencia
     TrainingObjective.endurance: {
       ExerciseType.multiJoint: {
         LoadType.barbell: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.dumbbell: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
         LoadType.cable: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.kettlebell: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 3,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.bodyweight: SeriesIncrementRange(min: 2, max: 5, defaultValue: 3),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 2, max: 5, defaultValue: 3),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 2,
+          max: 5,
+          defaultValue: 3,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 2,
+          max: 5,
+          defaultValue: 3,
+        ),
       },
       ExerciseType.isolation: {
         LoadType.barbell: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.dumbbell: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 2,
+          max: 3,
+          defaultValue: 2,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
         LoadType.cable: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.kettlebell: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 2,
+          max: 3,
+          defaultValue: 2,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.bodyweight: SeriesIncrementRange(min: 2, max: 4, defaultValue: 2),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 2, max: 4, defaultValue: 2),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 2,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 2,
+          max: 4,
+          defaultValue: 2,
+        ),
       },
     },
     // Potencia
     TrainingObjective.power: {
       ExerciseType.multiJoint: {
         LoadType.barbell: SeriesIncrementRange(min: 3, max: 6, defaultValue: 4),
-        LoadType.dumbbell: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 3,
+          max: 5,
+          defaultValue: 4,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 3, max: 5, defaultValue: 4),
         LoadType.cable: SeriesIncrementRange(min: 2, max: 4, defaultValue: 3),
-        LoadType.kettlebell: SeriesIncrementRange(min: 3, max: 6, defaultValue: 4),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 3,
+          max: 6,
+          defaultValue: 4,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 3, max: 6, defaultValue: 4),
-        LoadType.bodyweight: SeriesIncrementRange(min: 3, max: 6, defaultValue: 4),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 3, max: 6, defaultValue: 4),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 3,
+          max: 6,
+          defaultValue: 4,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 3,
+          max: 6,
+          defaultValue: 4,
+        ),
       },
       ExerciseType.isolation: {
         LoadType.barbell: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.dumbbell: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
+        LoadType.dumbbell: SeriesIncrementRange(
+          min: 2,
+          max: 3,
+          defaultValue: 2,
+        ),
         LoadType.machine: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
         LoadType.cable: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.kettlebell: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
+        LoadType.kettlebell: SeriesIncrementRange(
+          min: 2,
+          max: 3,
+          defaultValue: 2,
+        ),
         LoadType.plate: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.bodyweight: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
-        LoadType.resistanceBand: SeriesIncrementRange(min: 2, max: 3, defaultValue: 2),
+        LoadType.bodyweight: SeriesIncrementRange(
+          min: 2,
+          max: 3,
+          defaultValue: 2,
+        ),
+        LoadType.resistanceBand: SeriesIncrementRange(
+          min: 2,
+          max: 3,
+          defaultValue: 2,
+        ),
       },
+    },
+  };
+
+  /// Configuración base de tiempos de descanso por objetivo y tipo de ejercicio (segundos)
+  static const Map<TrainingObjective, Map<ExerciseType, int>> _objectiveRestSeconds = {
+    TrainingObjective.strength: {
+      ExerciseType.multiJoint: 180,
+      ExerciseType.isolation: 120,
+    },
+    TrainingObjective.hypertrophy: {
+      ExerciseType.multiJoint: 90,
+      ExerciseType.isolation: 60,
+    },
+    TrainingObjective.endurance: {
+      ExerciseType.multiJoint: 60,
+      ExerciseType.isolation: 45,
+    },
+    TrainingObjective.power: {
+      ExerciseType.multiJoint: 180,
+      ExerciseType.isolation: 120,
     },
   };
 
@@ -386,11 +538,33 @@ class AdaptiveIncrementConfig {
   /// Obtiene el rango de repeticiones a usar combinando objetivo del preset y overrides en customParameters
   static (int min, int max) getRepetitionsRange(
     Exercise exercise, {
+    TrainingObjective? objective,
     Map<String, dynamic>? customParameters,
   }) {
-    // En esta versión, si vienen overrides de preset se respetan; si no, fallback simple según tipo
-    int min = exercise.exerciseType == ExerciseType.multiJoint ? 8 : 8;
-    int max = exercise.exerciseType == ExerciseType.multiJoint ? 15 : 12;
+    // Fallback por objetivo
+    int min;
+    int max;
+    switch (objective) {
+      case TrainingObjective.strength:
+        min = exercise.exerciseType == ExerciseType.multiJoint ? 3 : 6;
+        max = exercise.exerciseType == ExerciseType.multiJoint ? 6 : 10;
+        break;
+      case TrainingObjective.hypertrophy:
+        min = exercise.exerciseType == ExerciseType.multiJoint ? 8 : 10;
+        max = exercise.exerciseType == ExerciseType.multiJoint ? 15 : 20;
+        break;
+      case TrainingObjective.endurance:
+        min = exercise.exerciseType == ExerciseType.multiJoint ? 12 : 15;
+        max = exercise.exerciseType == ExerciseType.multiJoint ? 20 : 25;
+        break;
+      case TrainingObjective.power:
+        min = exercise.exerciseType == ExerciseType.multiJoint ? 3 : 5;
+        max = exercise.exerciseType == ExerciseType.multiJoint ? 5 : 8;
+        break;
+      default:
+        min = exercise.exerciseType == ExerciseType.multiJoint ? 8 : 8;
+        max = exercise.exerciseType == ExerciseType.multiJoint ? 15 : 12;
+    }
 
     if (customParameters != null) {
       final overrideMin =
@@ -413,6 +587,15 @@ class AdaptiveIncrementConfig {
     return (min, max);
   }
 
+  /// Devuelve el tiempo de descanso recomendado por objetivo (segundos)
+  static int getRestTimeSeconds(
+    Exercise exercise, {
+    required TrainingObjective objective,
+  }) {
+    return _objectiveRestSeconds[objective]?[exercise.exerciseType] ??
+        (exercise.exerciseType == ExerciseType.multiJoint ? 90 : 60);
+  }
+
   // ===== MÉTODOS PARA SERIES POR OBJETIVO =====
 
   /// Devuelve el rango de series según objetivo + overrides de preset.
@@ -421,7 +604,9 @@ class AdaptiveIncrementConfig {
     required TrainingObjective objective,
     Map<String, dynamic>? customParameters,
   }) {
-    final base = _objectiveSeriesConfig[objective]?[exercise.exerciseType]?[exercise.loadType];
+    final base =
+        _objectiveSeriesConfig[objective]?[exercise.exerciseType]?[exercise
+            .loadType];
     var min = base?.min ?? getMinSeriesIncrement(exercise);
     var max = base?.max ?? getMaxSeriesIncrement(exercise);
     var def = base?.defaultValue ?? getDefaultSeriesIncrement(exercise);
@@ -432,9 +617,12 @@ class AdaptiveIncrementConfig {
     if (setsMin != null) min = setsMin;
     if (setsMax != null) max = setsMax;
     if (min > max) {
-      final t = min; min = max; max = t;
+      final t = min;
+      min = max;
+      max = t;
     }
-    if (def < min) def = min; if (def > max) def = max;
+    if (def < min) def = min;
+    if (def > max) def = max;
 
     return SeriesIncrementRange(min: min, max: max, defaultValue: def);
   }
@@ -443,7 +631,8 @@ class AdaptiveIncrementConfig {
     Exercise exercise, {
     required TrainingObjective objective,
     Map<String, dynamic>? customParameters,
-  }) => getSeriesRangeByObjective(
+  }) =>
+      getSeriesRangeByObjective(
         exercise,
         objective: objective,
         customParameters: customParameters,
@@ -453,7 +642,8 @@ class AdaptiveIncrementConfig {
     Exercise exercise, {
     required TrainingObjective objective,
     Map<String, dynamic>? customParameters,
-  }) => getSeriesRangeByObjective(
+  }) =>
+      getSeriesRangeByObjective(
         exercise,
         objective: objective,
         customParameters: customParameters,

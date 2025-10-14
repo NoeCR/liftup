@@ -16,9 +16,10 @@ enum TrainingObjective {
     descriptionKey: 'objective.power.description',
   );
 
-  const TrainingObjective({required this.titleKey, required this.descriptionKey});
+  const TrainingObjective({
+    required this.titleKey,
+    required this.descriptionKey,
+  });
   final String titleKey;
   final String descriptionKey;
 }
-
-
