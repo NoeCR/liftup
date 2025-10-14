@@ -42,11 +42,21 @@ import '../progression_strategy.dart';
 /// - Puede volverse insostenible a largo plazo
 /// - No considera fatiga acumulada
 /// - Puede llevar a estancamiento
-class LinearProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class LinearProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     if (progressionState == null) return false;
-    return !isProgressionBlocked(progressionState, progressionState.exerciseId, routineId, isExerciseLocked);
+    return !isProgressionBlocked(
+      progressionState,
+      progressionState.exerciseId,
+      routineId,
+      isExerciseLocked,
+    );
   }
 
   @override
@@ -62,7 +72,8 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     bool isExerciseLocked = false,
   }) {
     // 1. Validaciones básicas
-    if (!validateProgressionParams(config) || !validateProgressionState(state)) {
+    if (!validateProgressionParams(config) ||
+        !validateProgressionState(state)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
@@ -72,12 +83,18 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
     }
 
     // 2. Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: currentSets,
-        reason: 'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Linear progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -119,7 +136,7 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
         );
       }
 
-      final incrementValue = getIncrementValueSync(config, exercise);
+      final incrementValue = getIncrementValueSync(config, exercise, state);
       final baseSets = getBaseSetsSync(config, exercise);
 
       return createProgressionResult(
@@ -127,7 +144,8 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
         newReps: currentReps, // Mantener repeticiones en progresión lineal
         newSets: baseSets,
         incrementApplied: true,
-        reason: 'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: weight +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // 6. Mantener valores actuales
@@ -147,7 +165,8 @@ class LinearProgressionStrategy extends BaseProgressionStrategy implements Progr
         newReps: currentReps,
         newSets: baseSets,
         incrementApplied: false,
-        reason: 'Linear progression: maintaining current values (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Linear progression: maintaining current values (week $currentInCycle of ${config.cycleLength})',
       );
     }
   }

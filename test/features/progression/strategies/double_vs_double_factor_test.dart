@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
@@ -9,6 +11,7 @@ void main() {
   group('Double vs Double Factor Progression Tests', () {
     late ProgressionConfig config;
     late ProgressionState state;
+    late Exercise testExercise;
 
     setUp(() {
       final now = DateTime.now();
@@ -55,76 +58,101 @@ void main() {
         oneRepMax: null,
         customData: const {},
       );
+
+      // Crear ejercicio de prueba
+      testExercise = Exercise(
+        id: 'test-exercise',
+        name: 'Test Exercise',
+        description: 'Test exercise for progression',
+        imageUrl: '',
+        muscleGroups: [MuscleGroup.pectoralMajor],
+        tips: [],
+        commonMistakes: [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
     });
 
-    test('Double Progression: incrementa reps primero, luego peso (secuencial)', () {
-      final strategy = DoubleProgressionStrategy();
+    test(
+      'Double Progression: incrementa reps primero, luego peso (secuencial)',
+      () {
+        final strategy = DoubleProgressionStrategy();
 
-      // Semana 1: Incrementar reps (6 -> 7)
-      var result = strategy.calculate(
-        config: config,
-        state: state,
-        routineId: 'test-routine',
-        currentWeight: 80.0,
-        currentReps: 6,
-        currentSets: 3,
-      );
-      expect(result.newWeight, 80.0);
-      expect(result.newReps, 7);
-      expect(result.reason, contains('increasing reps'));
+        // Semana 1: Incrementar reps (6 -> 7)
+        var result = strategy.calculate(
+          config: config,
+          state: state,
+          routineId: 'test-routine',
+          currentWeight: 80.0,
+          currentReps: 6,
+          currentSets: 3,
+          exercise: testExercise,
+        );
+        expect(result.newWeight, 80.0);
+        expect(result.newReps, 7);
+        expect(result.reason, contains('increasing reps'));
 
-      // Semana 2: Incrementar reps (7 -> 8)
-      result = strategy.calculate(
-        config: config,
-        state: state.copyWith(currentWeek: 2),
-        routineId: 'test-routine',
-        currentWeight: 80.0,
-        currentReps: 7,
-        currentSets: 3,
-      );
-      expect(result.newWeight, 80.0);
-      expect(result.newReps, 8);
-      expect(result.reason, contains('increasing reps'));
+        // Semana 2: Incrementar reps (7 -> 8)
+        result = strategy.calculate(
+          config: config,
+          state: state.copyWith(currentWeek: 2),
+          routineId: 'test-routine',
+          currentWeight: 80.0,
+          currentReps: 7,
+          currentSets: 3,
+          exercise: testExercise,
+        );
+        expect(result.newWeight, 80.0);
+        expect(result.newReps, 8);
+        expect(result.reason, contains('increasing reps'));
 
-      // Semana 3: Incrementar reps (8 -> 9)
-      result = strategy.calculate(
-        config: config,
-        state: state.copyWith(currentWeek: 3),
-        routineId: 'test-routine',
-        currentWeight: 80.0,
-        currentReps: 8,
-        currentSets: 3,
-      );
-      expect(result.newWeight, 80.0);
-      expect(result.newReps, 9);
-      expect(result.reason, contains('increasing reps'));
+        // Semana 3: Incrementar reps (8 -> 9)
+        result = strategy.calculate(
+          config: config,
+          state: state.copyWith(currentWeek: 3),
+          routineId: 'test-routine',
+          currentWeight: 80.0,
+          currentReps: 8,
+          currentSets: 3,
+          exercise: testExercise,
+        );
+        expect(result.newWeight, 80.0);
+        expect(result.newReps, 9);
+        expect(result.reason, contains('increasing reps'));
 
-      // Semana 4: Incrementar reps (9 -> 10)
-      result = strategy.calculate(
-        config: config,
-        state: state.copyWith(currentWeek: 4),
-        routineId: 'test-routine',
-        currentWeight: 80.0,
-        currentReps: 9,
-        currentSets: 3,
-      );
-      expect(result.newWeight, 80.0);
-      expect(result.newReps, 10);
-      expect(result.reason, contains('increasing reps'));
+        // Semana 4: Incrementar reps (9 -> 10)
+        result = strategy.calculate(
+          config: config,
+          state: state.copyWith(currentWeek: 4),
+          routineId: 'test-routine',
+          currentWeight: 80.0,
+          currentReps: 9,
+          currentSets: 3,
+          exercise: testExercise,
+        );
+        expect(result.newWeight, 80.0);
+        expect(result.newReps, 10);
+        expect(result.reason, contains('increasing reps'));
 
-      // Semana 5: Alcanzó max reps, incrementar peso y resetear reps
-      result = strategy.calculate(
-        config: config,
-        state: state.copyWith(currentWeek: 5),
-        routineId: 'test-routine',
-        currentWeight: 80.0,
-        currentReps: 10,
-        currentSets: 3,
-      );
-      expect(result.newWeight, 82.5); // 80 + 2.5
-      expect(result.newReps, 6); // Reset a min reps
-      expect(result.reason, contains('increasing weight'));
-    });
+        // Semana 5: Alcanzó max reps, incrementar peso y resetear reps
+        result = strategy.calculate(
+          config: config,
+          state: state.copyWith(currentWeek: 5),
+          routineId: 'test-routine',
+          currentWeight: 80.0,
+          currentReps: 10,
+          currentSets: 3,
+          exercise: testExercise,
+        );
+        expect(result.newWeight, 86.0); // 80 + 6.0 (incremento adaptativo)
+        expect(result.newReps, 6); // Reset a min reps
+        expect(result.reason, contains('increasing weight'));
+      },
+    );
 
     test('Double Factor Progression: alterna peso y reps (simultáneo)', () {
       final strategy = DoubleFactorProgressionStrategy();
@@ -137,8 +165,9 @@ void main() {
         currentWeight: 80.0,
         currentReps: 6,
         currentSets: 3,
+        exercise: testExercise,
       );
-      expect(result.newWeight, 82.5); // 80 + 2.5
+      expect(result.newWeight, 86.0); // 80 + 6.0 (incremento adaptativo)
       expect(result.newReps, 6); // Mantiene reps
       expect(result.reason, contains('increasing weight'));
 
@@ -150,6 +179,7 @@ void main() {
         currentWeight: 82.5,
         currentReps: 6,
         currentSets: 3,
+        exercise: testExercise,
       );
       expect(result.newWeight, 82.5); // Mantiene peso
       expect(result.newReps, 7); // Incrementa reps
@@ -163,8 +193,9 @@ void main() {
         currentWeight: 82.5,
         currentReps: 7,
         currentSets: 3,
+        exercise: testExercise,
       );
-      expect(result.newWeight, 85.0); // 82.5 + 2.5
+      expect(result.newWeight, 88.5); // 82.5 + 6.0 (incremento adaptativo)
       expect(result.newReps, 7); // Mantiene reps
       expect(result.reason, contains('increasing weight'));
 
@@ -176,6 +207,7 @@ void main() {
         currentWeight: 85.0,
         currentReps: 7,
         currentSets: 3,
+        exercise: testExercise,
       );
       expect(result.newWeight, 85.0); // Mantiene peso
       expect(result.newReps, 8); // Incrementa reps
@@ -193,6 +225,7 @@ void main() {
         currentWeight: 80.0,
         currentReps: 10, // Max reps
         currentSets: 3,
+        exercise: testExercise,
       );
       expect(result.newWeight, 80.0);
       expect(result.newReps, 10); // Se mantiene en max
@@ -213,6 +246,7 @@ void main() {
         currentWeight: 80.0,
         currentReps: 6,
         currentSets: 3,
+        exercise: testExercise,
       );
 
       final doubleFactorResult = doubleFactorStrategy.calculate(
@@ -222,6 +256,7 @@ void main() {
         currentWeight: 80.0,
         currentReps: 6,
         currentSets: 3,
+        exercise: testExercise,
       );
 
       // Double Progression: incrementa reps
@@ -229,11 +264,14 @@ void main() {
       expect(doubleResult.newReps, 7);
 
       // Double Factor: incrementa peso
-      expect(doubleFactorResult.newWeight, 82.5);
+      expect(doubleFactorResult.newWeight, 86.0);
       expect(doubleFactorResult.newReps, 6);
 
       // Los resultados deben ser diferentes
-      expect(doubleResult.newWeight, isNot(equals(doubleFactorResult.newWeight)));
+      expect(
+        doubleResult.newWeight,
+        isNot(equals(doubleFactorResult.newWeight)),
+      );
       expect(doubleResult.newReps, isNot(equals(doubleFactorResult.newReps)));
     });
 

@@ -1,0 +1,55 @@
+ANÁLISIS DE TESTS DE PROGRESIÓN
+==================================================
+Fecha: 2025-10-14 08:01:28.212318
+Total de tests: 240
+
+linear:
+  - Tests: 24
+  - Ganancia promedio: 38.4kg
+  - Deloads promedio: 18.5
+
+stepped:
+  - Tests: 24
+  - Ganancia promedio: 110.8kg
+  - Deloads promedio: 12.3
+
+double:
+  - Tests: 24
+  - Ganancia promedio: 10.6kg
+  - Deloads promedio: 14.0
+
+undulating:
+  - Tests: 24
+  - Ganancia promedio: 5.5kg
+  - Deloads promedio: 30.5
+
+autoregulated:
+  - Tests: 24
+  - Ganancia promedio: -4.0kg
+  - Deloads promedio: 8.5
+
+doubleFactor:
+  - Tests: 24
+  - Ganancia promedio: 36.4kg
+  - Deloads promedio: 11.3
+
+wave:
+  - Tests: 24
+  - Ganancia promedio: 47.1kg
+  - Deloads promedio: 11.3
+
+overload:
+  - Tests: 24
+  - Ganancia promedio: 0.0kg
+  - Deloads promedio: 13.5
+
+static:
+  - Tests: 24
+  - Ganancia promedio: 0.0kg
+  - Deloads promedio: 0.0
+
+reverse:
+  - Tests: 24
+  - Ganancia promedio: -15.8kg
+  - Deloads promedio: 11.3
+

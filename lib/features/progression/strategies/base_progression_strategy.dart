@@ -2,6 +2,7 @@ import 'package:liftly/features/progression/models/progression_calculation_resul
 
 import '../../../../common/enums/progression_type_enum.dart';
 import '../../../features/exercise/models/exercise.dart';
+import '../configs/adaptive_increment_config.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
 import '../services/exercise_progression_config_service.dart';
@@ -18,7 +19,8 @@ abstract class BaseProgressionStrategy {
   /// Calcula la posición actual en el ciclo (sesión o semana)
   int getCurrentInCycle(ProgressionConfig config, ProgressionState state) {
     final bool isSessionUnit = config.unit == ProgressionUnit.session;
-    final int rawIndex = isSessionUnit ? state.currentSession : state.currentWeek;
+    final int rawIndex =
+        isSessionUnit ? state.currentSession : state.currentWeek;
     if (rawIndex <= 0) return 1;
 
     // Si cycleLength es 0, no hay ciclo (estrategias autoreguladas)
@@ -37,17 +39,24 @@ abstract class BaseProgressionStrategy {
     required ProgressionConfig config,
     required ProgressionState state,
   }) {
-    final sessionsPerWeek = (config.customParameters['sessions_per_week'] ?? 3) as int;
+    final sessionsPerWeek =
+        (config.customParameters['sessions_per_week'] ?? 3) as int;
     final newSession = state.currentSession + 1;
     final newWeek = ((newSession - 1) ~/ sessionsPerWeek) + 1;
     return (session: newSession, week: newWeek);
   }
 
   /// Verifica si la progresión está bloqueada
-  bool isProgressionBlocked(ProgressionState state, String exerciseId, String routineId, bool isExerciseLocked) {
+  bool isProgressionBlocked(
+    ProgressionState state,
+    String exerciseId,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     // Verificar bloqueo por rutina completa
     final customData = state.customData;
-    final skipNextByRoutine = customData['skip_next_by_routine'] as Map<String, dynamic>?;
+    final skipNextByRoutine =
+        customData['skip_next_by_routine'] as Map<String, dynamic>?;
     if (skipNextByRoutine?[routineId] == true) return true;
 
     // Verificar bloqueo por ejercicio específico
@@ -65,7 +74,10 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
       if (exerciseConfig?.hasCustomIncrement == true) {
         return exerciseConfig!.customIncrement!;
       }
@@ -75,9 +87,49 @@ abstract class BaseProgressionStrategy {
     return config.getAdaptiveIncrement(exercise);
   }
 
-  /// Versión síncrona para compatibilidad (usa fallback)
-  double getIncrementValueSync(ProgressionConfig config, Exercise exercise) {
-    // Fallback: usar AdaptiveIncrementConfig directamente
+  /// Deriva el nivel de experiencia de forma dinámica a partir del estado
+  /// Si `adaptive_experience` no está habilitado en `customParameters`, retorna `ExperienceLevel.intermediate`.
+  ExperienceLevel _deriveExperienceLevel(
+    ProgressionConfig config,
+    ProgressionState state,
+  ) {
+    final adaptiveEnabled =
+        (config.customParameters['adaptive_experience'] == true);
+    if (!adaptiveEnabled) return ExperienceLevel.intermediate;
+
+    // Progreso total dentro de los ciclos (independiente de si es por semana o sesión)
+    final currentInCycle = getCurrentInCycle(config, state);
+    final totalUnitsElapsed =
+        ((state.currentCycle - 1) *
+            (config.cycleLength > 0 ? config.cycleLength : 1)) +
+        currentInCycle;
+
+    // Heurística:
+    // - initiated: primeras 1x ciclo
+    // - intermediate: hasta 3 ciclos completos
+    // - advanced: más de 3 ciclos completos
+    if (totalUnitsElapsed <= (config.cycleLength.clamp(1, 999999))) {
+      return ExperienceLevel.initiated;
+    }
+    if (state.currentCycle <= 3) {
+      return ExperienceLevel.intermediate;
+    }
+    return ExperienceLevel.advanced;
+  }
+
+  /// Versión síncrona, con soporte opcional para experiencia dinámica basada en estado
+  double getIncrementValueSync(
+    ProgressionConfig config,
+    Exercise exercise, [
+    ProgressionState? state,
+  ]) {
+    if (state != null &&
+        (config.customParameters['adaptive_experience'] == true)) {
+      final level = _deriveExperienceLevel(config, state);
+      // Usar AdaptiveIncrementConfig con nivel derivado
+      return AdaptiveIncrementConfig.getRecommendedIncrement(exercise, level);
+    }
+    // Fallback: usar AdaptiveIncrementConfig directamente (que internamente usará intermedio por defecto) o incrementValue
     return config.getAdaptiveIncrement(exercise);
   }
 
@@ -90,7 +142,10 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
       if (exerciseConfig?.hasCustomMaxReps == true) {
         return exerciseConfig!.customMaxReps!;
       }
@@ -114,7 +169,10 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
       if (exerciseConfig?.hasCustomMinReps == true) {
         return exerciseConfig!.customMinReps!;
       }
@@ -138,7 +196,10 @@ abstract class BaseProgressionStrategy {
   ) async {
     // 1. Buscar configuración específica del ejercicio
     if (configService != null) {
-      final exerciseConfig = await configService.getConfig(exercise.id, config.id);
+      final exerciseConfig = await configService.getConfig(
+        exercise.id,
+        config.id,
+      );
       if (exerciseConfig?.hasCustomBaseSets == true) {
         return exerciseConfig!.customBaseSets!;
       }
@@ -167,8 +228,12 @@ abstract class BaseProgressionStrategy {
     required Exercise exercise,
   }) {
     // Calcular peso de deload manteniendo incremento sobre base
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
-    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     // Calcular series de deload (70% de las series base)
     final int baseSets = getBaseSetsSync(config, exercise);
@@ -200,7 +265,10 @@ abstract class BaseProgressionStrategy {
 
   /// Valida que el estado de progresión sea válido
   bool validateProgressionState(ProgressionState state) {
-    return state.currentWeight >= 0 && state.currentReps > 0 && state.currentSets > 0 && state.currentSession > 0;
+    return state.currentWeight >= 0 &&
+        state.currentReps > 0 &&
+        state.currentSets > 0 &&
+        state.currentSession > 0;
   }
 
   // ===== MÉTODOS DE UTILIDAD PARA ESTRATEGIAS =====

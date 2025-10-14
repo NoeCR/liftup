@@ -47,7 +47,8 @@ import '../progression_strategy.dart';
 /// - Progresión más lenta en peso absoluto
 /// - Requiere rangos de repeticiones apropiados
 /// - Puede ser menos efectiva para fuerza máxima
-class DoubleProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class DoubleProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -61,12 +62,18 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Double progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Double progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -116,11 +123,12 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
         newReps: currentReps < minReps ? minReps : currentReps + 1,
         newSets: state.baseSets,
         incrementApplied: true,
-        reason: 'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
+        reason:
+            'Double progression: increasing reps (week $currentInCycle of ${config.cycleLength})',
       );
     } else {
       // Incrementar peso y resetear reps al mínimo
-      final incrementValue = getIncrementValueSync(config, exercise);
+      final incrementValue = getIncrementValueSync(config, exercise, state);
       return createProgressionResult(
         newWeight: currentWeight + incrementValue,
         newReps: minReps,
@@ -133,7 +141,11 @@ class DoubleProgressionStrategy extends BaseProgressionStrategy implements Progr
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Double progression siempre aplica valores
   }
 }

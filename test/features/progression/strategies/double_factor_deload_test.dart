@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/double_factor_progression_strategy.dart';
@@ -8,6 +10,7 @@ void main() {
   group('Double Factor Deload Tests', () {
     late ProgressionConfig config;
     late ProgressionState state;
+    late Exercise testExercise;
 
     setUp(() {
       final now = DateTime.now();
@@ -54,6 +57,23 @@ void main() {
         oneRepMax: null,
         customData: const {},
       );
+
+      // Crear ejercicio de prueba
+      testExercise = Exercise(
+        id: 'test-exercise',
+        name: 'Test Exercise',
+        description: 'Test exercise for progression',
+        imageUrl: '',
+        muscleGroups: [MuscleGroup.pectoralMajor],
+        tips: [],
+        commonMistakes: [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
     });
 
     test('deload se aplica cuando se alcanza la semana configurada', () {
@@ -68,11 +88,12 @@ void main() {
         currentWeight: 85.0,
         currentReps: 7,
         currentSets: 3,
+        exercise: testExercise,
       );
 
       // Debe ser deload porque alcanzó la semana 3
       expect(result.isDeload, true);
-      expect(result.reason, contains('deload'));
+      expect(result.reason, contains('Deload'));
 
       // Semana 4 - debe aplicar deload si está configurado para semana 4
       result = strategy.calculate(
@@ -82,10 +103,11 @@ void main() {
         currentWeight: 85.0,
         currentReps: 8,
         currentSets: 3,
+        exercise: testExercise,
       );
 
       expect(result.isDeload, true);
-      expect(result.reason, contains('deload'));
+      expect(result.reason, contains('Deload'));
     });
 
     test('deload reduce peso y reps proporcionalmente al progreso', () {
@@ -101,6 +123,7 @@ void main() {
         currentWeight: 87.5, // 80 + 7.5 (3 incrementos de 2.5kg)
         currentReps: 8, // 6 + 2 (2 incrementos de reps)
         currentSets: 3,
+        exercise: testExercise,
       );
 
       // Deload debe reducir proporcionalmente:
@@ -110,7 +133,7 @@ void main() {
       expect(result.newWeight, 86.0); // 80 + (7.5 * 0.8)
       expect(result.newReps, 8); // 6 + (2 * 0.8) = 7.6 ≈ 8
       expect(result.newSets, 2); // 3 * 0.7 = 2.1 ≈ 2
-      expect(result.reason, contains('weight: 86.0kg, reps: 8'));
+      expect(result.reason, contains('Deload session'));
     });
 
     test('deload con progreso mínimo mantiene valores base', () {
@@ -124,6 +147,7 @@ void main() {
         currentWeight: 80.0, // Sin progreso en peso
         currentReps: 6, // Sin progreso en reps
         currentSets: 3,
+        exercise: testExercise,
       );
 
       // Deload debe mantener valores base
@@ -144,6 +168,7 @@ void main() {
         currentWeight: 100.0, // 80 + 20kg de progreso
         currentReps: 10, // 6 + 4 reps de progreso
         currentSets: 3,
+        exercise: testExercise,
       );
 
       // Deload debe reducir significativamente:
@@ -173,6 +198,7 @@ void main() {
           currentWeight: weight,
           currentReps: reps,
           currentSets: sets,
+          exercise: testExercise,
         );
 
         weight = result.newWeight;
@@ -182,7 +208,9 @@ void main() {
         final isDeload = result.isDeload;
         final deloadMark = isDeload ? ' [DELOAD]' : '';
 
-        print('Semana $week: ${weight}kg x $reps reps x $sets sets$deloadMark - ${result.reason}');
+        print(
+          'Semana $week: ${weight}kg x $reps reps x $sets sets$deloadMark - ${result.reason}',
+        );
       }
 
       // Verificar que el deload se aplicó correctamente
@@ -190,27 +218,34 @@ void main() {
       // Los sets se restauran después del deload, no se mantienen reducidos
     });
 
-    test('deload se aplica independientemente de si la semana es par o impar', () {
-      final strategy = DoubleFactorProgressionStrategy();
-      final configOddDeload = config.copyWith(deloadWeek: 3); // Semana impar
+    test(
+      'deload se aplica independientemente de si la semana es par o impar',
+      () {
+        final strategy = DoubleFactorProgressionStrategy();
+        final configOddDeload = config.copyWith(deloadWeek: 3); // Semana impar
 
-      // Semana 3 (impar) - SÍ debe aplicar deload porque alcanzó la semana configurada
-      final result = strategy.calculate(
-        config: configOddDeload,
-        state: state.copyWith(currentWeek: 3),
-        routineId: 'test-routine',
-        currentWeight: 85.0,
-        currentReps: 7,
-        currentSets: 3,
-      );
+        // Semana 3 (impar) - SÍ debe aplicar deload porque alcanzó la semana configurada
+        final result = strategy.calculate(
+          config: configOddDeload,
+          state: state.copyWith(currentWeek: 3),
+          routineId: 'test-routine',
+          currentWeight: 85.0,
+          currentReps: 7,
+          currentSets: 3,
+          exercise: testExercise,
+        );
 
-      expect(result.isDeload, true);
-      expect(result.reason, contains('deload')); // Aplica deload
-    });
+        expect(result.isDeload, true);
+        expect(result.reason, contains('Deload')); // Aplica deload
+      },
+    );
 
     test('deload se aplica correctamente en semana 6 (par)', () {
       final strategy = DoubleFactorProgressionStrategy();
-      final config6Weeks = config.copyWith(cycleLength: 6, deloadWeek: 6); // Semana par
+      final config6Weeks = config.copyWith(
+        cycleLength: 6,
+        deloadWeek: 6,
+      ); // Semana par
 
       // Semana 6 (par) - SÍ debe aplicar deload
       final result = strategy.calculate(
@@ -220,10 +255,11 @@ void main() {
         currentWeight: 90.0,
         currentReps: 8,
         currentSets: 3,
+        exercise: testExercise,
       );
 
       expect(result.isDeload, true);
-      expect(result.reason, contains('deload'));
+      expect(result.reason, contains('Deload'));
       expect(result.newWeight, lessThan(90.0)); // Debe reducir peso
       expect(result.newSets, equals(2)); // Debe reducir sets
       // Las reps se reducen proporcionalmente al progreso sobre la base

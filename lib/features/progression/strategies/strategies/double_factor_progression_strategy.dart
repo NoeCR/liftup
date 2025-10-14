@@ -47,7 +47,8 @@ import '../progression_strategy.dart';
 /// - Requiere experiencia en autoregulación (RPE/RIR)
 /// - Necesita deloads más frecuentes
 /// - Puede ser abrumadora para principiantes
-class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
     // En Double Factor, aplicar deload cuando se alcance la semana configurada
@@ -68,12 +69,18 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -91,7 +98,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
         );
       }
 
-      return applyStandardDeload(
+      return _applyDoubleFactorDeload(
         config: config,
         state: state,
         currentWeight: currentWeight,
@@ -121,7 +128,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
 
     if (isOddWeek) {
       // Semana impar: Incrementar peso, mantener reps
-      final incrementValue = getIncrementValueSync(config, exercise);
+      final incrementValue = getIncrementValueSync(config, exercise, state);
       return createProgressionResult(
         newWeight: currentWeight + incrementValue,
         newReps: currentReps.clamp(minReps, maxReps),
@@ -145,7 +152,55 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Double factor progression siempre aplica valores
+  }
+
+  /// Aplica deload específico para Double Factor con reset de ciclo
+  ProgressionCalculationResult _applyDoubleFactorDeload({
+    required ProgressionConfig config,
+    required ProgressionState state,
+    required double currentWeight,
+    required int currentReps,
+    required int currentSets,
+    required int currentInCycle,
+    required Exercise exercise,
+  }) {
+    // Calcular peso de deload manteniendo incremento sobre base
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
+      0,
+      double.infinity,
+    );
+    final double deloadWeight =
+        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+
+    // Calcular reps de deload manteniendo incremento sobre base
+    final int increaseOverBaseReps = (currentReps - state.baseReps).clamp(
+      0,
+      100,
+    );
+    final int deloadReps =
+        state.baseReps +
+        (increaseOverBaseReps * config.deloadPercentage).round();
+
+    // Calcular series de deload (70% de las series base)
+    final int baseSets = getBaseSetsSync(config, exercise);
+    final int deloadSets = (baseSets * 0.7).round();
+
+    return ProgressionCalculationResult(
+      newWeight: deloadWeight,
+      newReps: deloadReps,
+      newSets: deloadSets,
+      incrementApplied: true,
+      isDeload: true,
+      shouldResetCycle:
+          true, // Double Factor resetea el ciclo después del deload
+      reason:
+          'Deload session (week $currentInCycle of ${config.cycleLength}). Next cycle starts as week 1 (odd) for weight increment.',
+    );
   }
 }

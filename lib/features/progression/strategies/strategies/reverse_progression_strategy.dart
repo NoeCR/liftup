@@ -51,7 +51,8 @@ import '../progression_strategy.dart';
 /// - Puede llevar a pérdida de fuerza absoluta
 /// - Requiere cambio eventual de estrategia
 /// - No es ideal para atletas de fuerza
-class ReverseProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class ReverseProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -65,12 +66,18 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Reverse progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Reverse progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -110,7 +117,7 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
     }
 
     // Aplicar lógica específica de progresión inversa
-    final incrementValue = getIncrementValueSync(config, exercise);
+    final incrementValue = getIncrementValueSync(config, exercise, state);
     final maxReps = getMaxRepsSync(config, exercise);
 
     if (currentReps < maxReps) {
@@ -137,7 +144,11 @@ class ReverseProgressionStrategy extends BaseProgressionStrategy implements Prog
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Reverse progression siempre aplica valores
   }
 }

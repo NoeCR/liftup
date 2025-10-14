@@ -23,7 +23,7 @@ abstract class ProgressionStrategy {
     required double currentWeight,
     required int currentReps,
     required int currentSets,
-    required Exercise exercise,
+    Exercise? exercise,
     bool isExerciseLocked = false,
   });
 
@@ -35,7 +35,11 @@ abstract class ProgressionStrategy {
 
   /// Helper method to check if progression values should be applied to an exercise
   /// Returns true if progression values should be used, false if blocked
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked);
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  );
 }
 
 class ProgressionStrategyFactory {

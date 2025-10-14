@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
@@ -7,8 +9,30 @@ import 'package:liftly/features/progression/strategies/strategies/double_progres
 void main() {
   group('DoubleProgressionStrategy', () {
     final strategy = DoubleProgressionStrategy();
+    final now = DateTime.now();
 
-    ProgressionConfig config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
+    // Crear ejercicio de prueba
+    final testExercise = Exercise(
+      id: 'test-exercise',
+      name: 'Test Exercise',
+      description: 'Test exercise for progression',
+      imageUrl: '',
+      muscleGroups: [MuscleGroup.pectoralMajor],
+      tips: [],
+      commonMistakes: [],
+      category: ExerciseCategory.chest,
+      difficulty: ExerciseDifficulty.intermediate,
+      createdAt: now,
+      updatedAt: now,
+      exerciseType: ExerciseType.multiJoint,
+      loadType: LoadType.barbell,
+    );
+
+    ProgressionConfig config({
+      double increment = 2.5,
+      int cycle = 4,
+      int deloadWeek = 0,
+    }) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -34,7 +58,11 @@ void main() {
       );
     }
 
-    ProgressionState state({int session = 1, int reps = 10, double weight = 100}) {
+    ProgressionState state({
+      int session = 1,
+      int reps = 10,
+      double weight = 100,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -68,6 +96,7 @@ void main() {
         currentWeight: 100,
         currentReps: 10,
         currentSets: 4,
+        exercise: testExercise,
       );
       expect(res.incrementApplied, true);
       expect(res.newReps, 11);
@@ -84,9 +113,13 @@ void main() {
         currentWeight: 100,
         currentReps: 12,
         currentSets: 4,
+        exercise: testExercise,
       );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, 102.5);
+      expect(
+        res.newWeight,
+        106.0,
+      ); // incrementValue adaptativo (6.0kg para barbell multiJoint)
       expect(res.newReps, 8);
     });
 

@@ -1,9 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 /// Configuración para las pruebas de progresión
 class ProgressionTestConfig {
@@ -12,9 +12,13 @@ class ProgressionTestConfig {
 
   /// Inicializa el entorno de pruebas
   static Future<void> setUp() async {
-    // Crear directorio temporal para las pruebas
-    final tempDir = await getTemporaryDirectory();
-    testDir = '${tempDir.path}/progression_tests';
+    // Inicializar el binding de Flutter para tests
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Crear directorio temporal para las pruebas usando el directorio temporal del sistema
+    final tempDir = Directory.systemTemp;
+    testDir =
+        '${tempDir.path}/progression_tests_${DateTime.now().millisecondsSinceEpoch}';
 
     // Crear directorio si no existe
     final dir = Directory(testDir);
@@ -31,13 +35,20 @@ class ProgressionTestConfig {
 
   /// Limpia el entorno de pruebas
   static Future<void> tearDown() async {
-    // Cerrar todas las cajas
-    await Hive.close();
+    try {
+      // Cerrar todas las cajas
+      await Hive.close();
 
-    // Eliminar directorio temporal
-    final dir = Directory(testDir);
-    if (await dir.exists()) {
-      await dir.delete(recursive: true);
+      // Eliminar directorio temporal solo si se inicializó
+      if (testDir.isNotEmpty) {
+        final dir = Directory(testDir);
+        if (await dir.exists()) {
+          await dir.delete(recursive: true);
+        }
+      }
+    } catch (e) {
+      // Ignorar errores durante la limpieza
+      print('Warning: Error during test cleanup: $e');
     }
   }
 
@@ -80,8 +91,14 @@ class WidgetTestConfig {
   }
 
   /// Configuración para pruebas con Riverpod
-  static Widget createTestAppWithProvider({required Widget child, List<Override> overrides = const []}) {
-    return ProviderScope(overrides: overrides, child: createTestApp(child: child));
+  static Widget createTestAppWithProvider({
+    required Widget child,
+    List<Override> overrides = const [],
+  }) {
+    return ProviderScope(
+      overrides: overrides,
+      child: createTestApp(child: child),
+    );
   }
 }
 
@@ -114,8 +131,20 @@ class ProgressionTestUtils {
           'name': 'Test Routine',
           'description': 'Test routine description',
           'exercises': [
-            {'id': 'test-routine-exercise-1', 'exerciseId': 'test-exercise-1', 'weight': 100.0, 'reps': 10, 'sets': 3},
-            {'id': 'test-routine-exercise-2', 'exerciseId': 'test-exercise-2', 'weight': 80.0, 'reps': 12, 'sets': 3},
+            {
+              'id': 'test-routine-exercise-1',
+              'exerciseId': 'test-exercise-1',
+              'weight': 100.0,
+              'reps': 10,
+              'sets': 3,
+            },
+            {
+              'id': 'test-routine-exercise-2',
+              'exerciseId': 'test-exercise-2',
+              'weight': 80.0,
+              'reps': 12,
+              'sets': 3,
+            },
           ],
         },
       ],
@@ -205,8 +234,16 @@ class ProgressionTestUtils {
     // Por ahora, solo validamos que los datos estén presentes
     expect(type, isNotEmpty, reason: 'Progression type should not be empty');
     expect(parameters, isNotEmpty, reason: 'Parameters should not be empty');
-    expect(initialState, isNotEmpty, reason: 'Initial state should not be empty');
-    expect(expectedState, isNotEmpty, reason: 'Expected state should not be empty');
+    expect(
+      initialState,
+      isNotEmpty,
+      reason: 'Initial state should not be empty',
+    );
+    expect(
+      expectedState,
+      isNotEmpty,
+      reason: 'Expected state should not be empty',
+    );
     expect(description, isNotEmpty, reason: 'Description should not be empty');
   }
 }
