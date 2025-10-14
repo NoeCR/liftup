@@ -391,20 +391,25 @@ class SessionNotifier extends _$SessionNotifier {
       final existingState = await progressionNotifier.getExerciseProgressionState(exercise.id, routineId);
 
       if (existingState == null) {
+        // Intentar usar configuración activa para sembrar reps/sets
+        final activeConfig = await ref.read(progressionNotifierProvider.future);
+        final baseReps = activeConfig?.minReps ?? (valuesUsed['reps'] as int);
+        final baseSets = activeConfig?.baseSets ?? (exercise.defaultSets ?? (valuesUsed['sets'] as int));
+
         await progressionNotifier.initializeExerciseProgression(
           exerciseId: exercise.id,
           routineId: routineId,
           baseWeight: valuesUsed['weight'] as double,
-          baseReps: valuesUsed['reps'] as int,
-          baseSets: exercise.defaultSets ?? (valuesUsed['sets'] as int),
+          baseReps: baseReps,
+          baseSets: baseSets,
         );
 
         LoggingService.instance.info('Initialized progression state with session values', {
           'exerciseId': exercise.id,
           'exerciseName': exercise.name,
           'baseWeight': valuesUsed['weight'],
-          'baseReps': valuesUsed['reps'],
-          'baseSets': valuesUsed['sets'],
+          'baseReps': baseReps,
+          'baseSets': baseSets,
         });
       }
     } catch (e) {
