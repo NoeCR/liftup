@@ -133,6 +133,7 @@ class SessionNotifier extends _$SessionNotifier {
                   if (exercise != null) {
                     // Get progression strategy using cached helper
                     final strategy = await _getProgressionStrategy();
+                    final config = await _getProgressionConfig();
                     if (strategy != null) {
                       // Use centralized helper to check if progression values should be applied
                       final shouldApply = strategy.shouldApplyProgressionValues(
@@ -142,11 +143,20 @@ class SessionNotifier extends _$SessionNotifier {
                       );
 
                       if (shouldApply) {
+                        // Determine base sets (planned sets) from config for this exercise
+                        final baseSets = config != null
+                            ? config.getAdaptiveBaseSets(exercise)
+                            : (exercise.defaultSets ?? progressionState.currentSets);
+
+                        // Read rest time seconds from preset/custom parameters when available
+                        final restTimeSeconds = (config?.customParameters['rest_time_seconds'] as num?)?.toInt();
+
                         // Store progression values for this session without modifying Exercise defaults
                         _sessionProgressionValues[exercise.id] = {
                           'weight': progressionState.currentWeight,
                           'reps': progressionState.currentReps,
-                          'sets': progressionState.currentSets,
+                          'sets': baseSets,
+                          if (restTimeSeconds != null) 'rest_time_seconds': restTimeSeconds,
                         };
 
                         LoggingService.instance.info('Using progression values for session', {
@@ -154,7 +164,8 @@ class SessionNotifier extends _$SessionNotifier {
                           'exerciseName': exercise.name,
                           'progressionWeight': progressionState.currentWeight,
                           'progressionReps': progressionState.currentReps,
-                          'progressionSets': progressionState.currentSets,
+                          'progressionSets': baseSets,
+                          if (restTimeSeconds != null) 'restTimeSeconds': restTimeSeconds,
                           'originalWeight': exercise.defaultWeight,
                           'originalReps': exercise.defaultReps,
                           'originalSets': exercise.defaultSets,
