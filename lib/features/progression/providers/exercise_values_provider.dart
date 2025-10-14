@@ -3,6 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../exercise/models/exercise.dart';
 import '../notifiers/progression_notifier.dart';
+import '../../sessions/notifiers/session_notifier.dart';
 
 part 'exercise_values_provider.g.dart';
 
@@ -32,21 +33,44 @@ Future<ExerciseDisplayValues> exerciseDisplayValues(
         .read(progressionNotifierProvider.notifier)
         .getExerciseProgressionState(exercise.id, routineId);
 
-    if (progressionState == null) {
-      return ExerciseDisplayValues(
-        weight: exercise.defaultWeight ?? 0.0,
-        reps: exercise.defaultReps ?? 10,
-        sets: exercise.defaultSets ?? 4,
-        source: ExerciseValueSource.base,
-      );
+    // Valores base si no hay estado
+    double weight = exercise.defaultWeight ?? 0.0;
+    int reps = exercise.defaultReps ?? 10;
+    int sets = exercise.defaultSets ?? 4;
+    ExerciseValueSource source = ExerciseValueSource.base;
+    dynamic attachedProgressionState;
+
+    if (progressionState != null) {
+      weight = progressionState.currentWeight;
+      reps = progressionState.currentReps;
+      sets = progressionState.currentSets;
+      source = ExerciseValueSource.progression;
+      attachedProgressionState = progressionState;
+    }
+
+    // Aplicar overrides de la sesión (plan actual) si existen
+    final sessionValues = ref
+        .read(sessionNotifierProvider.notifier)
+        .getSessionProgressionValues(exercise.id);
+
+    int? restTimeSeconds;
+    if (sessionValues != null) {
+      // Ajustar sets planificados desde la sesión (p. ej., base_sets del preset)
+      final plannedSets = sessionValues['sets'] as int?;
+      if (plannedSets != null) {
+        sets = plannedSets;
+      }
+      // Propagar tiempo de descanso desde la sesión
+      restTimeSeconds = (sessionValues['rest_time_seconds'] as num?)?.toInt();
     }
 
     return ExerciseDisplayValues(
-      weight: progressionState.currentWeight,
-      reps: progressionState.currentReps,
-      sets: progressionState.currentSets,
-      source: ExerciseValueSource.progression,
-      progressionState: progressionState,
+      weight: weight,
+      reps: reps,
+      sets: sets,
+      restTimeSeconds: restTimeSeconds,
+      source: source,
+      progressionState: attachedProgressionState,
     );
   } catch (_) {
     return ExerciseDisplayValues(
@@ -63,6 +87,7 @@ class ExerciseDisplayValues {
   final double weight;
   final int reps;
   final int sets;
+  final int? restTimeSeconds;
   final ExerciseValueSource source;
   final dynamic progressionState; // ProgressionState opcional
 
@@ -70,6 +95,7 @@ class ExerciseDisplayValues {
     required this.weight,
     required this.reps,
     required this.sets,
+    this.restTimeSeconds,
     required this.source,
     this.progressionState,
   });
