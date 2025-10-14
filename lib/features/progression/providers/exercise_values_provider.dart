@@ -34,6 +34,7 @@ Future<ExerciseDisplayValues> exerciseDisplayValues(
         .getExerciseProgressionState(exercise.id, routineId);
 
     // Valores base si no hay estado
+    final activeConfig = progressionAsync.value; // ProgressionConfig activa
     double weight = exercise.defaultWeight ?? 0.0;
     int reps = exercise.defaultReps ?? 10;
     int sets = exercise.defaultSets ?? 4;
@@ -46,6 +47,10 @@ Future<ExerciseDisplayValues> exerciseDisplayValues(
       sets = progressionState.currentSets;
       source = ExerciseValueSource.progression;
       attachedProgressionState = progressionState;
+    } else if (activeConfig != null) {
+      // Si hay config activa pero aún no hay estado, usar preset para reps/sets iniciales
+      reps = activeConfig.minReps;
+      sets = activeConfig.baseSets;
     }
 
     // Aplicar overrides de la sesión (plan actual) si existen
