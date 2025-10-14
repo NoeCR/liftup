@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../exercise/models/exercise.dart';
-import '../notifiers/progression_notifier.dart';
 import '../../sessions/notifiers/session_notifier.dart';
+import '../notifiers/progression_notifier.dart';
 
 part 'exercise_values_provider.g.dart';
 

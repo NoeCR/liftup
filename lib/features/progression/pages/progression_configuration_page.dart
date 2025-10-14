@@ -476,6 +476,20 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             ),
             const SizedBox(height: 16),
 
+            // Adaptive experience switch
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Experiencia adaptativa'),
+              subtitle: const Text('Ajusta los incrementos según ciclos/tiempo'),
+              value: (_customParameters['adaptive_experience'] as bool?) ?? false,
+              onChanged: (v) {
+                setState(() {
+                  _customParameters['adaptive_experience'] = v;
+                });
+              },
+            ),
+            const SizedBox(height: 12),
+
             // Defaults por tipo de ejercicio (multi/isolation)
             ..._buildPerTypeDefaults(),
             const SizedBox(height: 16),
