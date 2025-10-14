@@ -77,82 +77,79 @@ void main() {
       );
     });
 
-    test(
-      'Double Progression: incrementa reps primero, luego peso (secuencial)',
-      () {
-        final strategy = DoubleProgressionStrategy();
+    test('Double Progression: incrementa reps primero, luego peso (secuencial)', () {
+      final strategy = DoubleProgressionStrategy();
 
-        // Semana 1: Incrementar reps (6 -> 7)
-        var result = strategy.calculate(
-          config: config,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 80.0,
-          currentReps: 6,
-          currentSets: 3,
-          exercise: testExercise,
-        );
-        expect(result.newWeight, 80.0);
-        expect(result.newReps, 7);
-        expect(result.reason, contains('increasing reps'));
+      // Semana 1: Incrementar reps (6 -> 7)
+      var result = strategy.calculate(
+        config: config,
+        state: state,
+        routineId: 'test-routine',
+        currentWeight: 80.0,
+        currentReps: 6,
+        currentSets: 3,
+        exercise: testExercise,
+      );
+      expect(result.newWeight, 80.0);
+      expect(result.newReps, 7);
+      expect(result.reason, contains('increasing reps'));
 
-        // Semana 2: Incrementar reps (7 -> 8)
-        result = strategy.calculate(
-          config: config,
-          state: state.copyWith(currentWeek: 2),
-          routineId: 'test-routine',
-          currentWeight: 80.0,
-          currentReps: 7,
-          currentSets: 3,
-          exercise: testExercise,
-        );
-        expect(result.newWeight, 80.0);
-        expect(result.newReps, 8);
-        expect(result.reason, contains('increasing reps'));
+      // Semana 2: Incrementar reps (7 -> 8)
+      result = strategy.calculate(
+        config: config,
+        state: state.copyWith(currentWeek: 2),
+        routineId: 'test-routine',
+        currentWeight: 80.0,
+        currentReps: 7,
+        currentSets: 3,
+        exercise: testExercise,
+      );
+      expect(result.newWeight, 80.0);
+      expect(result.newReps, 8);
+      expect(result.reason, contains('increasing reps'));
 
-        // Semana 3: Incrementar reps (8 -> 9)
-        result = strategy.calculate(
-          config: config,
-          state: state.copyWith(currentWeek: 3),
-          routineId: 'test-routine',
-          currentWeight: 80.0,
-          currentReps: 8,
-          currentSets: 3,
-          exercise: testExercise,
-        );
-        expect(result.newWeight, 80.0);
-        expect(result.newReps, 9);
-        expect(result.reason, contains('increasing reps'));
+      // Semana 3: Incrementar reps (8 -> 9)
+      result = strategy.calculate(
+        config: config,
+        state: state.copyWith(currentWeek: 3),
+        routineId: 'test-routine',
+        currentWeight: 80.0,
+        currentReps: 8,
+        currentSets: 3,
+        exercise: testExercise,
+      );
+      expect(result.newWeight, 80.0);
+      expect(result.newReps, 9);
+      expect(result.reason, contains('increasing reps'));
 
-        // Semana 4: Incrementar reps (9 -> 10)
-        result = strategy.calculate(
-          config: config,
-          state: state.copyWith(currentWeek: 4),
-          routineId: 'test-routine',
-          currentWeight: 80.0,
-          currentReps: 9,
-          currentSets: 3,
-          exercise: testExercise,
-        );
-        expect(result.newWeight, 80.0);
-        expect(result.newReps, 10);
-        expect(result.reason, contains('increasing reps'));
+      // Semana 4: Incrementar reps (9 -> 10)
+      result = strategy.calculate(
+        config: config,
+        state: state.copyWith(currentWeek: 4),
+        routineId: 'test-routine',
+        currentWeight: 80.0,
+        currentReps: 9,
+        currentSets: 3,
+        exercise: testExercise,
+      );
+      expect(result.newWeight, 80.0);
+      expect(result.newReps, 10);
+      expect(result.reason, contains('increasing reps'));
 
-        // Semana 5: Alcanzó max reps, incrementar peso y resetear reps
-        result = strategy.calculate(
-          config: config,
-          state: state.copyWith(currentWeek: 5),
-          routineId: 'test-routine',
-          currentWeight: 80.0,
-          currentReps: 10,
-          currentSets: 3,
-          exercise: testExercise,
-        );
-        expect(result.newWeight, 86.0); // 80 + 6.0 (incremento adaptativo)
-        expect(result.newReps, 6); // Reset a min reps
-        expect(result.reason, contains('increasing weight'));
-      },
-    );
+      // Semana 5: Alcanzó max reps, incrementar peso y resetear reps
+      result = strategy.calculate(
+        config: config,
+        state: state.copyWith(currentWeek: 5),
+        routineId: 'test-routine',
+        currentWeight: 80.0,
+        currentReps: 10,
+        currentSets: 3,
+        exercise: testExercise,
+      );
+      expect(result.newWeight, 86.0); // 80 + 6.0 (incremento adaptativo)
+      expect(result.newReps, 6); // Reset a min reps
+      expect(result.reason, contains('increasing weight'));
+    });
 
     test('Double Factor Progression: alterna peso y reps (simultáneo)', () {
       final strategy = DoubleFactorProgressionStrategy();
@@ -268,10 +265,7 @@ void main() {
       expect(doubleFactorResult.newReps, 6);
 
       // Los resultados deben ser diferentes
-      expect(
-        doubleResult.newWeight,
-        isNot(equals(doubleFactorResult.newWeight)),
-      );
+      expect(doubleResult.newWeight, isNot(equals(doubleFactorResult.newWeight)));
       expect(doubleResult.newReps, isNot(equals(doubleFactorResult.newReps)));
     });
 

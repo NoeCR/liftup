@@ -17,8 +17,7 @@ class ProgressionTestConfig {
 
     // Crear directorio temporal para las pruebas usando el directorio temporal del sistema
     final tempDir = Directory.systemTemp;
-    testDir =
-        '${tempDir.path}/progression_tests_${DateTime.now().millisecondsSinceEpoch}';
+    testDir = '${tempDir.path}/progression_tests_${DateTime.now().millisecondsSinceEpoch}';
 
     // Crear directorio si no existe
     final dir = Directory(testDir);
@@ -91,14 +90,8 @@ class WidgetTestConfig {
   }
 
   /// Configuración para pruebas con Riverpod
-  static Widget createTestAppWithProvider({
-    required Widget child,
-    List<Override> overrides = const [],
-  }) {
-    return ProviderScope(
-      overrides: overrides,
-      child: createTestApp(child: child),
-    );
+  static Widget createTestAppWithProvider({required Widget child, List<Override> overrides = const []}) {
+    return ProviderScope(overrides: overrides, child: createTestApp(child: child));
   }
 }
 
@@ -131,20 +124,8 @@ class ProgressionTestUtils {
           'name': 'Test Routine',
           'description': 'Test routine description',
           'exercises': [
-            {
-              'id': 'test-routine-exercise-1',
-              'exerciseId': 'test-exercise-1',
-              'weight': 100.0,
-              'reps': 10,
-              'sets': 3,
-            },
-            {
-              'id': 'test-routine-exercise-2',
-              'exerciseId': 'test-exercise-2',
-              'weight': 80.0,
-              'reps': 12,
-              'sets': 3,
-            },
+            {'id': 'test-routine-exercise-1', 'exerciseId': 'test-exercise-1', 'weight': 100.0, 'reps': 10, 'sets': 3},
+            {'id': 'test-routine-exercise-2', 'exerciseId': 'test-exercise-2', 'weight': 80.0, 'reps': 12, 'sets': 3},
           ],
         },
       ],
@@ -234,16 +215,8 @@ class ProgressionTestUtils {
     // Por ahora, solo validamos que los datos estén presentes
     expect(type, isNotEmpty, reason: 'Progression type should not be empty');
     expect(parameters, isNotEmpty, reason: 'Parameters should not be empty');
-    expect(
-      initialState,
-      isNotEmpty,
-      reason: 'Initial state should not be empty',
-    );
-    expect(
-      expectedState,
-      isNotEmpty,
-      reason: 'Expected state should not be empty',
-    );
+    expect(initialState, isNotEmpty, reason: 'Initial state should not be empty');
+    expect(expectedState, isNotEmpty, reason: 'Expected state should not be empty');
     expect(description, isNotEmpty, reason: 'Description should not be empty');
   }
 }
