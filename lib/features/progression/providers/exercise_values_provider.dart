@@ -49,9 +49,7 @@ Future<ExerciseDisplayValues> exerciseDisplayValues(
     }
 
     // Aplicar overrides de la sesión (plan actual) si existen
-    final sessionValues = ref
-        .read(sessionNotifierProvider.notifier)
-        .getSessionProgressionValues(exercise.id);
+    final sessionValues = ref.read(sessionNotifierProvider.notifier).getSessionProgressionValues(exercise.id);
 
     int? restTimeSeconds;
     if (sessionValues != null) {

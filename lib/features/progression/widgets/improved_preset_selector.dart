@@ -164,56 +164,36 @@ class _ImprovedPresetSelectorState extends ConsumerState<ImprovedPresetSelector>
       groupedPresets.putIfAbsent(objective, () => []).add(preset);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Objetivo de Entrenamiento', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-        const SizedBox(height: 8),
+    return DropdownButtonFormField<ProgressionConfig>(
+      value: _selectedConfig,
+      decoration: const InputDecoration(
+        labelText: 'Objetivo de Entrenamiento',
+        border: OutlineInputBorder(),
+        prefixIcon: Icon(Icons.flag_outlined),
+      ),
+      isExpanded: true,
+      items:
+          _filteredPresets.map((preset) {
+            final objective = _getObjectiveDisplayName(preset.getTrainingObjective());
+            final strategy = _getStrategyDisplayName(preset.type);
 
-        // Dropdown para seleccionar preset
-        DropdownButtonFormField<ProgressionConfig>(
-          value: _selectedConfig,
-          decoration: const InputDecoration(
-            labelText: 'Selecciona un preset',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.fitness_center),
-          ),
-          isExpanded: true, // Evita overflow horizontal
-          items:
-              _filteredPresets.map((preset) {
-                final objective = _getObjectiveDisplayName(preset.getTrainingObjective());
-                final strategy = _getStrategyDisplayName(preset.type);
-
-                return DropdownMenuItem<ProgressionConfig>(
-                  value: preset,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$objective - $strategy',
-                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        '${preset.minReps}-${preset.maxReps} reps, ${preset.baseSets} sets',
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-          onChanged: (ProgressionConfig? newValue) {
-            if (newValue != null) {
-              setState(() {
-                _selectedConfig = newValue;
-              });
-              widget.onConfigSelected(newValue);
-            }
-          },
-        ),
-      ],
+            return DropdownMenuItem<ProgressionConfig>(
+              value: preset,
+              child: Text(
+                '$objective - $strategy',
+                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }).toList(),
+      onChanged: (ProgressionConfig? newValue) {
+        if (newValue != null) {
+          setState(() {
+            _selectedConfig = newValue;
+          });
+          widget.onConfigSelected(newValue);
+        }
+      },
     );
   }
 
