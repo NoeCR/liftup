@@ -230,16 +230,10 @@ void main() {
         expect(deserializedSession.name, equals(simpleSession.name));
         expect(deserializedSession.startTime, equals(simpleSession.startTime));
         expect(deserializedSession.endTime, equals(simpleSession.endTime));
-        expect(
-          deserializedSession.exerciseSets.length,
-          equals(simpleSession.exerciseSets.length),
-        );
+        expect(deserializedSession.exerciseSets.length, equals(simpleSession.exerciseSets.length));
         expect(deserializedSession.notes, equals(simpleSession.notes));
         expect(deserializedSession.status, equals(simpleSession.status));
-        expect(
-          deserializedSession.totalWeight,
-          equals(simpleSession.totalWeight),
-        );
+        expect(deserializedSession.totalWeight, equals(simpleSession.totalWeight));
         expect(deserializedSession.totalReps, equals(simpleSession.totalReps));
       });
     });
@@ -247,22 +241,12 @@ void main() {
 
   group('SessionStatus', () {
     test('should have correct enum values', () {
-      expect(
-        SessionStatus.values,
-        containsAll([
-          SessionStatus.active,
-          SessionStatus.completed,
-          SessionStatus.paused,
-        ]),
-      );
+      expect(SessionStatus.values, containsAll([SessionStatus.active, SessionStatus.completed, SessionStatus.paused]));
     });
 
     test('should have correct string representation', () {
       expect(SessionStatus.active.toString(), equals('SessionStatus.active'));
-      expect(
-        SessionStatus.completed.toString(),
-        equals('SessionStatus.completed'),
-      );
+      expect(SessionStatus.completed.toString(), equals('SessionStatus.completed'));
       expect(SessionStatus.paused.toString(), equals('SessionStatus.paused'));
     });
   });

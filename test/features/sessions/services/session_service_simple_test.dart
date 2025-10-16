@@ -106,8 +106,7 @@ void main() {
         // Act
         final activeSessions = sessions.where((s) => s.isActive).toList();
         final completedSessions = sessions.where((s) => s.isCompleted).toList();
-        final pausedSessions =
-            sessions.where((s) => s.status == SessionStatus.paused).toList();
+        final pausedSessions = sessions.where((s) => s.status == SessionStatus.paused).toList();
 
         // Assert
         expect(activeSessions.length, equals(1));
@@ -148,8 +147,7 @@ void main() {
         ];
 
         // Act
-        final sortedSessions = List<WorkoutSession>.from(sessions)
-          ..sort((a, b) => b.startTime.compareTo(a.startTime));
+        final sortedSessions = List<WorkoutSession>.from(sessions)..sort((a, b) => b.startTime.compareTo(a.startTime));
 
         // Assert
         expect(sortedSessions[0].id, equals('session-2')); // Newest first
@@ -189,8 +187,7 @@ void main() {
         // Act
         final sessionsInRange =
             sessions.where((session) {
-              return session.startTime.isAfter(startDate) &&
-                  session.startTime.isBefore(endDate);
+              return session.startTime.isAfter(startDate) && session.startTime.isBefore(endDate);
             }).toList();
 
         // Assert
@@ -264,10 +261,7 @@ void main() {
         }
 
         // Assert
-        expect(
-          totalTime,
-          equals(Duration(hours: 1, minutes: 30)),
-        ); // 1 hour + 30 minutes
+        expect(totalTime, equals(Duration(hours: 1, minutes: 30))); // 1 hour + 30 minutes
       });
 
       test('should calculate total weight lifted correctly', () {
@@ -328,10 +322,7 @@ void main() {
         final pausedSession = session.copyWith(status: SessionStatus.paused);
 
         // Act - Transition to completed
-        final completedSession = pausedSession.copyWith(
-          status: SessionStatus.completed,
-          endTime: DateTime.now(),
-        );
+        final completedSession = pausedSession.copyWith(status: SessionStatus.completed, endTime: DateTime.now());
 
         // Assert
         expect(session.isActive, isTrue);
@@ -362,19 +353,13 @@ void main() {
         );
 
         // Act
-        final updatedSession = originalSession.copyWith(
-          status: SessionStatus.completed,
-          endTime: DateTime.now(),
-        );
+        final updatedSession = originalSession.copyWith(status: SessionStatus.completed, endTime: DateTime.now());
 
         // Assert
         expect(updatedSession.id, equals(originalSession.id));
         expect(updatedSession.name, equals(originalSession.name));
         expect(updatedSession.startTime, equals(originalSession.startTime));
-        expect(
-          updatedSession.exerciseSets,
-          equals(originalSession.exerciseSets),
-        );
+        expect(updatedSession.exerciseSets, equals(originalSession.exerciseSets));
         expect(updatedSession.totalWeight, equals(originalSession.totalWeight));
         expect(updatedSession.totalReps, equals(originalSession.totalReps));
         expect(updatedSession.status, equals(SessionStatus.completed));

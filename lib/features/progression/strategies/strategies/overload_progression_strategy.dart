@@ -54,8 +54,7 @@ import '../progression_strategy.dart';
 /// - Puede llevar a sobreentrenamiento si no se maneja bien
 /// - Necesita deloads apropiados
 /// - Requiere monitoreo de fatiga
-class OverloadProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class OverloadProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -69,18 +68,12 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Overload progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Overload progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -146,11 +139,7 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Overload progression siempre aplica valores
   }
 
@@ -164,9 +153,7 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy
     }
 
     // Derivar tipo de overload por objetivo
-    final objective = AdaptiveIncrementConfig.parseObjective(
-      config.getTrainingObjective(),
-    );
+    final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
     switch (objective) {
       case TrainingObjective.strength:
@@ -190,9 +177,7 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy
     }
 
     // Derivar tasa de overload por objetivo
-    final objective = AdaptiveIncrementConfig.parseObjective(
-      config.getTrainingObjective(),
-    );
+    final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
     switch (objective) {
       case TrainingObjective.strength:

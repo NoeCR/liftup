@@ -56,8 +56,7 @@ import '../progression_strategy.dart';
 /// - Requiere mayor experiencia
 /// - Puede ser abrumadora para principiantes
 /// - Necesita planificación cuidadosa de ciclos
-class WaveProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class WaveProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -71,18 +70,12 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Wave progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Wave progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -101,20 +94,15 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
       }
 
       // Mantener series en baseSets durante deload en Wave (expectativa: 3)
-      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-        0,
-        double.infinity,
-      );
-      final double deloadWeight =
-          state.baseWeight + (increaseOverBase * config.deloadPercentage);
+      final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+      final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
       return createProgressionResult(
         newWeight: deloadWeight,
         newReps: currentReps,
         newSets: 3, // Wave deload: fijar sets en 3 para consistencia
         incrementApplied: true,
-        reason:
-            'Wave progression: Deload session (week $currentInCycle of ${config.cycleLength})',
+        reason: 'Wave progression: Deload session (week $currentInCycle of ${config.cycleLength})',
         isDeload: true,
         shouldResetCycle: false,
       );
@@ -139,10 +127,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
         final minReps = getMinRepsSync(config, exercise);
         return createProgressionResult(
           newWeight: currentWeight + incrementValue,
-          newReps: (currentReps * 0.85).round().clamp(
-            math.min(minReps, currentReps),
-            currentReps,
-          ),
+          newReps: (currentReps * 0.85).round().clamp(math.min(minReps, currentReps), currentReps),
           newSets: state.baseSets,
           incrementApplied: true,
           reason:
@@ -152,10 +137,7 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
         // Semana 2: Alto volumen (menos peso, más reps, más series)
         final minReps = getMinRepsSync(config, exercise);
         return createProgressionResult(
-          newWeight: (currentWeight - incrementValue * 0.3).clamp(
-            0,
-            currentWeight,
-          ),
+          newWeight: (currentWeight - incrementValue * 0.3).clamp(0, currentWeight),
           newReps: ((currentReps * 1.2).round()).clamp(minReps, 1000),
           newSets: currentSets + 1,
           incrementApplied: true,
@@ -170,18 +152,13 @@ class WaveProgressionStrategy extends BaseProgressionStrategy
           newReps: currentReps.clamp(minReps, 1000),
           newSets: state.baseSets,
           incrementApplied: true,
-          reason:
-              'Wave progression: normal +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
+          reason: 'Wave progression: normal +${incrementValue}kg (week $currentInCycle of ${config.cycleLength})',
         );
     }
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Wave progression siempre aplica valores
   }
 }

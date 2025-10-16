@@ -66,10 +66,7 @@ void main() {
         final result = SessionCalculations.calculateTotalWeight(sets);
 
         // Assert
-        expect(
-          result,
-          equals(1540.0),
-        ); // (60*10) + (65*8) + (70*6) = 600 + 520 + 420 = 1540
+        expect(result, equals(1540.0)); // (60*10) + (65*8) + (70*6) = 600 + 520 + 420 = 1540
       });
 
       test('should handle zero weight and reps', () {
@@ -252,10 +249,7 @@ void main() {
         final result = SessionCalculations.calculateAverageWeightPerRep(sets);
 
         // Assert
-        expect(
-          result,
-          equals(70.0),
-        ); // (600 + 800) / (10 + 10) = 1400 / 20 = 70
+        expect(result, equals(70.0)); // (600 + 800) / (10 + 10) = 1400 / 20 = 70
       });
 
       test('should handle zero reps', () {

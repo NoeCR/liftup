@@ -43,13 +43,9 @@ class MockSessionService extends SessionService {
   }
 
   @override
-  Future<List<WorkoutSession>> getSessionsByDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
+  Future<List<WorkoutSession>> getSessionsByDateRange(DateTime startDate, DateTime endDate) async {
     return _sessions.where((session) {
-      return session.startTime.isAfter(startDate) &&
-          session.startTime.isBefore(endDate);
+      return session.startTime.isAfter(startDate) && session.startTime.isBefore(endDate);
     }).toList();
   }
 
@@ -90,10 +86,7 @@ class MockSessionService extends SessionService {
 
   @override
   Future<double> getTotalWeightLifted() async {
-    return _sessions.fold<double>(
-      0.0,
-      (sum, session) => sum + (session.totalWeight ?? 0.0),
-    );
+    return _sessions.fold<double>(0.0, (sum, session) => sum + (session.totalWeight ?? 0.0));
   }
 
   // Helper methods for testing
@@ -135,9 +128,7 @@ void main() {
           sessionServiceProvider.overrideWith(() => mockSessionService),
           routineNotifierProvider.overrideWith(() => _FakeRoutineNotifier()),
           exerciseNotifierProvider.overrideWith(() => _FakeExerciseNotifier()),
-          performedSetsNotifierProvider.overrideWith(
-            (ref) => _FakePerformedSetsNotifier(),
-          ),
+          performedSetsNotifierProvider.overrideWith((ref) => _FakePerformedSetsNotifier()),
         ],
       );
     });
@@ -264,10 +255,7 @@ void main() {
         await notifier.completeSession();
 
         // Act
-        final sessionsInRange = await notifier.getSessionsByDateRange(
-          yesterday,
-          tomorrow,
-        );
+        final sessionsInRange = await notifier.getSessionsByDateRange(yesterday, tomorrow);
 
         // Assert
         expect(sessionsInRange, hasLength(2));
@@ -289,10 +277,7 @@ void main() {
         // Assert
         expect(recentSessions, hasLength(3));
         // Validar orden por fecha, no el nombre exacto
-        expect(
-          recentSessions.first.startTime.isAfter(recentSessions.last.startTime),
-          isTrue,
-        );
+        expect(recentSessions.first.startTime.isAfter(recentSessions.last.startTime), isTrue);
       });
     });
 
@@ -391,8 +376,7 @@ void main() {
         // Assert
         final currentSession = await notifier.getCurrentOngoingSession();
         expect(currentSession!.exerciseSets, hasLength(3));
-        final weights =
-            currentSession.exerciseSets.map((e) => e.weight).toList();
+        final weights = currentSession.exerciseSets.map((e) => e.weight).toList();
         expect(weights, containsAll(<double>[105.0, 110.0, 115.0]));
       });
     });

@@ -48,8 +48,7 @@ import '../progression_strategy.dart';
 /// - Más compleja de programar
 /// - Puede ser abrumadora para principiantes
 /// - Requiere mayor capacidad de recuperación
-class UndulatingProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class UndulatingProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -63,18 +62,12 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Undulating progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Undulating progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -145,11 +138,7 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Undulating progression siempre aplica valores
   }
 }

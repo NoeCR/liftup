@@ -52,9 +52,7 @@ void main() {
           baseSets: 5,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int targetRPE;
         switch (objective) {
@@ -98,9 +96,7 @@ void main() {
           baseSets: 4,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int targetRPE;
         switch (objective) {
@@ -144,9 +140,7 @@ void main() {
           baseSets: 2,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int targetRPE;
         switch (objective) {
@@ -190,9 +184,7 @@ void main() {
           baseSets: 6,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int targetRPE;
         switch (objective) {
@@ -238,9 +230,7 @@ void main() {
           baseSets: 5,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int rpeRange;
         switch (objective) {
@@ -284,9 +274,7 @@ void main() {
           baseSets: 4,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int rpeRange;
         switch (objective) {
@@ -330,9 +318,7 @@ void main() {
           baseSets: 2,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int rpeRange;
         switch (objective) {
@@ -376,9 +362,7 @@ void main() {
           baseSets: 6,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
         int rpeRange;
         switch (objective) {
@@ -424,14 +408,9 @@ void main() {
           baseSets: 5,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
-          testExercise,
-          objective: objective,
-        );
+        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(testExercise, objective: objective);
 
         expect(restTime, 240); // Fuerza multi-joint debería ser 240s (4 min)
       });
@@ -459,19 +438,11 @@ void main() {
           baseSets: 4,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
-          testExercise,
-          objective: objective,
-        );
+        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(testExercise, objective: objective);
 
-        expect(
-          restTime,
-          120,
-        ); // Hipertrofia multi-joint debería ser 120s (2 min)
+        expect(restTime, 120); // Hipertrofia multi-joint debería ser 120s (2 min)
       });
 
       test('debería derivar tiempo correcto para RESISTENCIA', () {
@@ -497,14 +468,9 @@ void main() {
           baseSets: 2,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
-          testExercise,
-          objective: objective,
-        );
+        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(testExercise, objective: objective);
 
         expect(restTime, 60); // Resistencia multi-joint debería ser 60s (1 min)
       });
@@ -532,14 +498,9 @@ void main() {
           baseSets: 6,
         );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          config.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
 
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
-          testExercise,
-          objective: objective,
-        );
+        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(testExercise, objective: objective);
 
         expect(restTime, 240); // Potencia multi-joint debería ser 240s (4 min)
       });
@@ -547,69 +508,42 @@ void main() {
 
     group('Integración con Presets', () {
       test('debería derivar valores correctos para preset de FUERZA', () {
-        final presets = PresetProgressionConfigs.getPresetsForType(
-          ProgressionType.linear,
-        );
-        final strengthPreset = presets.firstWhere(
-          (preset) => preset.primaryTarget == ProgressionTarget.weight,
-        );
+        final presets = PresetProgressionConfigs.getPresetsForType(ProgressionType.linear);
+        final strengthPreset = presets.firstWhere((preset) => preset.primaryTarget == ProgressionTarget.weight);
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          strengthPreset.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(strengthPreset.getTrainingObjective());
 
         expect(objective, TrainingObjective.strength);
 
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
-          testExercise,
-          objective: objective,
-        );
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(testExercise, objective: objective);
 
         expect(minReps, 3);
         expect(maxReps, 6);
       });
 
       test('debería derivar valores correctos para preset de HIPERTROFIA', () {
-        final presets = PresetProgressionConfigs.getPresetsForType(
-          ProgressionType.linear,
-        );
-        final hypertrophyPreset = presets.firstWhere(
-          (preset) => preset.primaryTarget == ProgressionTarget.volume,
-        );
+        final presets = PresetProgressionConfigs.getPresetsForType(ProgressionType.linear);
+        final hypertrophyPreset = presets.firstWhere((preset) => preset.primaryTarget == ProgressionTarget.volume);
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          hypertrophyPreset.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(hypertrophyPreset.getTrainingObjective());
 
         expect(objective, TrainingObjective.hypertrophy);
 
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
-          testExercise,
-          objective: objective,
-        );
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(testExercise, objective: objective);
 
         expect(minReps, 6);
         expect(maxReps, 12);
       });
 
       test('debería derivar valores correctos para preset de RESISTENCIA', () {
-        final presets = PresetProgressionConfigs.getPresetsForType(
-          ProgressionType.linear,
-        );
-        final endurancePreset = presets.firstWhere(
-          (preset) => preset.primaryTarget == ProgressionTarget.reps,
-        );
+        final presets = PresetProgressionConfigs.getPresetsForType(ProgressionType.linear);
+        final endurancePreset = presets.firstWhere((preset) => preset.primaryTarget == ProgressionTarget.reps);
 
-        final objective = AdaptiveIncrementConfig.parseObjective(
-          endurancePreset.getTrainingObjective(),
-        );
+        final objective = AdaptiveIncrementConfig.parseObjective(endurancePreset.getTrainingObjective());
 
         expect(objective, TrainingObjective.endurance);
 
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
-          testExercise,
-          objective: objective,
-        );
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(testExercise, objective: objective);
 
         expect(minReps, 15);
         expect(maxReps, 25);

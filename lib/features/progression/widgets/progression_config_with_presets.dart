@@ -23,12 +23,10 @@ class ProgressionConfigWithPresets extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ProgressionConfigWithPresets> createState() =>
-      _ProgressionConfigWithPresetsState();
+  ConsumerState<ProgressionConfigWithPresets> createState() => _ProgressionConfigWithPresetsState();
 }
 
-class _ProgressionConfigWithPresetsState
-    extends ConsumerState<ProgressionConfigWithPresets> {
+class _ProgressionConfigWithPresetsState extends ConsumerState<ProgressionConfigWithPresets> {
   bool _usePreset = true;
   ProgressionConfig? _selectedPreset;
   ProgressionConfig? _customConfig;
@@ -116,9 +114,7 @@ class _ProgressionConfigWithPresetsState
           children: [
             Text(
               'Tipo de Configuración',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Row(
@@ -150,13 +146,7 @@ class _ProgressionConfigWithPresetsState
     );
   }
 
-  Widget _buildModeOption(
-    String title,
-    String subtitle,
-    IconData icon,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
+  Widget _buildModeOption(String title, String subtitle, IconData icon, bool isSelected, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -164,19 +154,11 @@ class _ProgressionConfigWithPresetsState
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(
-            color:
-                isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outline,
+            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
-          color:
-              isSelected
-                  ? Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer.withValues(alpha: 0.3)
-                  : null,
+          color: isSelected ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
         ),
         child: Column(
           children: [
@@ -185,9 +167,7 @@ class _ProgressionConfigWithPresetsState
               color:
                   isSelected
                       ? Theme.of(context).colorScheme.primary
-                      : Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               size: 32,
             ),
             const SizedBox(height: 8),
@@ -195,19 +175,16 @@ class _ProgressionConfigWithPresetsState
               title,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color:
-                    isSelected ? Theme.of(context).colorScheme.primary : null,
+                color: isSelected ? Theme.of(context).colorScheme.primary : null,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               textAlign: TextAlign.center,
             ),
           ],
@@ -226,16 +203,12 @@ class _ProgressionConfigWithPresetsState
             Icon(
               Icons.construction,
               size: 48,
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 16),
             Text(
               'Configuración Manual',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
@@ -243,9 +216,7 @@ class _ProgressionConfigWithPresetsState
               'Por ahora, usa las configuraciones preestablecidas para obtener\n'
               'configuraciones optimizadas para tu objetivo.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
               ),
               textAlign: TextAlign.center,
             ),
@@ -266,11 +237,7 @@ class _ProgressionConfigWithPresetsState
       child: TextButton.icon(
         onPressed: () => _setMode(!_usePreset),
         icon: Icon(_usePreset ? Icons.settings : Icons.recommend),
-        label: Text(
-          _usePreset
-              ? 'Cambiar a Configuración Manual'
-              : 'Cambiar a Configuraciones Preestablecidas',
-        ),
+        label: Text(_usePreset ? 'Cambiar a Configuración Manual' : 'Cambiar a Configuraciones Preestablecidas'),
       ),
     );
   }
@@ -294,11 +261,7 @@ class ProgressionConfigSummary extends StatelessWidget {
   final ProgressionConfig config;
   final bool isPreset;
 
-  const ProgressionConfigSummary({
-    super.key,
-    required this.config,
-    this.isPreset = false,
-  });
+  const ProgressionConfigSummary({super.key, required this.config, this.isPreset = false});
 
   @override
   Widget build(BuildContext context) {
@@ -311,15 +274,10 @@ class ProgressionConfigSummary extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  isPreset ? Icons.recommend : Icons.settings,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                Icon(isPreset ? Icons.recommend : Icons.settings, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  isPreset
-                      ? 'Configuración Preestablecida'
-                      : 'Configuración Personalizada',
+                  isPreset ? 'Configuración Preestablecida' : 'Configuración Personalizada',
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
@@ -332,16 +290,8 @@ class ProgressionConfigSummary extends StatelessWidget {
             // Información básica
             _buildSummaryRow(context, 'Tipo', _getTypeDisplayName(config.type)),
             _buildSummaryRow(context, 'Unidad', config.unit.name),
-            _buildSummaryRow(
-              context,
-              'Duración del ciclo',
-              '${config.cycleLength} ${config.unit.name}',
-            ),
-            _buildSummaryRow(
-              context,
-              'Rango de reps',
-              '${config.minReps}–${config.maxReps}',
-            ),
+            _buildSummaryRow(context, 'Duración del ciclo', '${config.cycleLength} ${config.unit.name}'),
+            _buildSummaryRow(context, 'Rango de reps', '${config.minReps}–${config.maxReps}'),
             _buildSummaryRow(context, 'Series', '${config.baseSets}'),
             _buildSummaryRow(
               context,
@@ -359,9 +309,7 @@ class ProgressionConfigSummary extends StatelessWidget {
                 Text(
                   config.customParameters['description'] as String,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                    color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                   ),
                 ),
             ],
@@ -383,18 +331,16 @@ class ProgressionConfigSummary extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w500,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
+                color: Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
               ),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
             ),
           ),
         ],

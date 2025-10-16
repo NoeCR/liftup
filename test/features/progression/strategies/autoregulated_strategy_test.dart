@@ -35,11 +35,8 @@ void main() {
         isGlobal: true,
         type: ProgressionType.autoregulated,
         unit: ProgressionUnit.week,
-        primaryTarget:
-            ProgressionTarget
-                .volume, // Cambiar a volume para que sea hypertrophy
-        secondaryTarget:
-            ProgressionTarget.reps, // Mantener reps para hypertrophy
+        primaryTarget: ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
+        secondaryTarget: ProgressionTarget.reps, // Mantener reps para hypertrophy
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,

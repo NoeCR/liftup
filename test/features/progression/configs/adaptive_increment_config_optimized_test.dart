@@ -53,10 +53,7 @@ void main() {
         expect(maxReps, 6);
 
         // Isolation
-        final (
-          minRepsIso,
-          maxRepsIso,
-        ) = AdaptiveIncrementConfig.getRepetitionsRange(
+        final (minRepsIso, maxRepsIso) = AdaptiveIncrementConfig.getRepetitionsRange(
           isolationDumbbell,
           objective: TrainingObjective.strength,
         );
@@ -74,10 +71,7 @@ void main() {
         expect(maxReps, 12);
 
         // Isolation
-        final (
-          minRepsIso,
-          maxRepsIso,
-        ) = AdaptiveIncrementConfig.getRepetitionsRange(
+        final (minRepsIso, maxRepsIso) = AdaptiveIncrementConfig.getRepetitionsRange(
           isolationDumbbell,
           objective: TrainingObjective.hypertrophy,
         );
@@ -95,10 +89,7 @@ void main() {
         expect(maxReps, 25);
 
         // Isolation
-        final (
-          minRepsIso,
-          maxRepsIso,
-        ) = AdaptiveIncrementConfig.getRepetitionsRange(
+        final (minRepsIso, maxRepsIso) = AdaptiveIncrementConfig.getRepetitionsRange(
           isolationDumbbell,
           objective: TrainingObjective.endurance,
         );
@@ -116,10 +107,7 @@ void main() {
         expect(maxReps, 5);
 
         // Isolation
-        final (
-          minRepsIso,
-          maxRepsIso,
-        ) = AdaptiveIncrementConfig.getRepetitionsRange(
+        final (minRepsIso, maxRepsIso) = AdaptiveIncrementConfig.getRepetitionsRange(
           isolationDumbbell,
           objective: TrainingObjective.power,
         );
@@ -188,80 +176,72 @@ void main() {
 
     group('Series Base Optimizadas', () {
       test('debería devolver series correctas para FUERZA', () {
-        final seriesRange =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              multiJointBarbell,
-              objective: TrainingObjective.strength,
-            );
+        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          multiJointBarbell,
+          objective: TrainingObjective.strength,
+        );
         expect(seriesRange?.min, 1);
         expect(seriesRange?.max, 2);
         expect(seriesRange?.defaultValue, 1);
 
-        final seriesRangeIso =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              isolationDumbbell,
-              objective: TrainingObjective.strength,
-            );
+        final seriesRangeIso = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          isolationDumbbell,
+          objective: TrainingObjective.strength,
+        );
         expect(seriesRangeIso?.min, 1);
         expect(seriesRangeIso?.max, 2);
         expect(seriesRangeIso?.defaultValue, 1);
       });
 
       test('debería devolver series correctas para HIPERTROFIA', () {
-        final seriesRange =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              multiJointBarbell,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          multiJointBarbell,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(seriesRange?.min, 1);
         expect(seriesRange?.max, 2);
         expect(seriesRange?.defaultValue, 1);
 
-        final seriesRangeIso =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              isolationDumbbell,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final seriesRangeIso = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          isolationDumbbell,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(seriesRangeIso?.min, 1);
         expect(seriesRangeIso?.max, 2);
         expect(seriesRangeIso?.defaultValue, 1);
       });
 
       test('debería devolver series correctas para RESISTENCIA', () {
-        final seriesRange =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              multiJointBarbell,
-              objective: TrainingObjective.endurance,
-            );
+        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          multiJointBarbell,
+          objective: TrainingObjective.endurance,
+        );
         expect(seriesRange?.min, 1);
         expect(seriesRange?.max, 3);
         expect(seriesRange?.defaultValue, 2);
 
-        final seriesRangeIso =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              isolationDumbbell,
-              objective: TrainingObjective.endurance,
-            );
+        final seriesRangeIso = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          isolationDumbbell,
+          objective: TrainingObjective.endurance,
+        );
         expect(seriesRangeIso?.min, 1);
         expect(seriesRangeIso?.max, 2);
         expect(seriesRangeIso?.defaultValue, 1);
       });
 
       test('debería devolver series correctas para POTENCIA', () {
-        final seriesRange =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              multiJointBarbell,
-              objective: TrainingObjective.power,
-            );
+        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          multiJointBarbell,
+          objective: TrainingObjective.power,
+        );
         expect(seriesRange?.min, 1);
         expect(seriesRange?.max, 2);
         expect(seriesRange?.defaultValue, 1);
 
-        final seriesRangeIso =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              isolationDumbbell,
-              objective: TrainingObjective.power,
-            );
+        final seriesRangeIso = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          isolationDumbbell,
+          objective: TrainingObjective.power,
+        );
         expect(seriesRangeIso?.min, 1);
         expect(seriesRangeIso?.max, 2);
         expect(seriesRangeIso?.defaultValue, 1);
@@ -270,74 +250,66 @@ void main() {
 
     group('Incrementos de Peso Optimizados', () {
       test('debería devolver incrementos correctos para FUERZA', () {
-        final increment =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              multiJointBarbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.strength,
-            );
+        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          multiJointBarbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.strength,
+        );
         expect(increment, 6.25); // Valor optimizado para fuerza
 
-        final incrementIso =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              isolationDumbbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.strength,
-            );
+        final incrementIso = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          isolationDumbbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.strength,
+        );
         expect(incrementIso, 1.875); // Valor conservador para aislamiento
       });
 
       test('debería devolver incrementos correctos para HIPERTROFIA', () {
-        final increment =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              multiJointBarbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          multiJointBarbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(increment, 3.75); // Valor optimizado para hipertrofia
 
-        final incrementIso =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              isolationDumbbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final incrementIso = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          isolationDumbbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(incrementIso, 1.625); // Valor moderado para aislamiento
       });
 
       test('debería devolver incrementos correctos para RESISTENCIA', () {
-        final increment =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              multiJointBarbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.endurance,
-            );
+        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          multiJointBarbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.endurance,
+        );
         expect(increment, 1.875); // Valor pequeño para resistencia
 
-        final incrementIso =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              isolationDumbbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.endurance,
-            );
+        final incrementIso = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          isolationDumbbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.endurance,
+        );
         expect(incrementIso, 1.25); // Valor muy pequeño para aislamiento
       });
 
       test('debería devolver incrementos correctos para POTENCIA', () {
-        final increment =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              multiJointBarbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.power,
-            );
+        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          multiJointBarbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.power,
+        );
         expect(increment, 7.5); // Valor agresivo para potencia
 
-        final incrementIso =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              isolationDumbbell,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.power,
-            );
+        final incrementIso = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          isolationDumbbell,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.power,
+        );
         expect(incrementIso, 1.875); // Valor moderado-agresivo para aislamiento
       });
     });
@@ -377,42 +349,32 @@ void main() {
         );
 
         // Beginner -> Initiated
-        final incrementBeginner =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              beginnerExercise,
-              ExperienceLevel.initiated,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final incrementBeginner = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          beginnerExercise,
+          ExperienceLevel.initiated,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(incrementBeginner, 0.0); // Valor mínimo
 
         // Advanced -> Advanced
-        final incrementAdvanced =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              advancedExercise,
-              ExperienceLevel.advanced,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final incrementAdvanced = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          advancedExercise,
+          ExperienceLevel.advanced,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(incrementAdvanced, 0.0); // Valor máximo
       });
     });
 
     group('Compatibilidad con Fallbacks', () {
-      test(
-        'debería usar valores por defecto cuando no se especifica objetivo',
-        () {
-          final (
-            minReps,
-            maxReps,
-          ) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell);
-          expect(minReps, 6); // Fallback a hipertrofia
-          expect(maxReps, 12);
+      test('debería usar valores por defecto cuando no se especifica objetivo', () {
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell);
+        expect(minReps, 6); // Fallback a hipertrofia
+        expect(maxReps, 12);
 
-          final increment = AdaptiveIncrementConfig.getDefaultIncrement(
-            multiJointBarbell,
-          );
-          expect(increment, 2.5); // Fallback a hipertrofia
-        },
-      );
+        final increment = AdaptiveIncrementConfig.getDefaultIncrement(multiJointBarbell);
+        expect(increment, 2.5); // Fallback a hipertrofia
+      });
 
       test('debería manejar ejercicios con tipos de carga especiales', () {
         final bodyweightExercise = Exercise(
@@ -431,12 +393,11 @@ void main() {
           loadType: LoadType.bodyweight,
         );
 
-        final increment =
-            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-              bodyweightExercise,
-              ExperienceLevel.intermediate,
-              objective: TrainingObjective.hypertrophy,
-            );
+        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          bodyweightExercise,
+          ExperienceLevel.intermediate,
+          objective: TrainingObjective.hypertrophy,
+        );
         expect(increment, 0.0); // Sin incremento de peso para peso corporal
       });
     });

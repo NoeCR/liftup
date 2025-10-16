@@ -26,10 +26,7 @@ void main() {
 
         // Verificar parámetros personalizados
         expect(preset.customParameters, isNotEmpty);
-        expect(
-          preset.customParameters['title_key'],
-          equals('presets.hypertrophy.title'),
-        );
+        expect(preset.customParameters['title_key'], equals('presets.hypertrophy.title'));
       });
 
       test('linear strength preset tiene configuración correcta', () {
@@ -72,8 +69,7 @@ void main() {
 
     group('Undulating Presets', () {
       test('undulating hypertrophy preset alterna correctamente', () {
-        final preset =
-            PresetProgressionConfigs.createUndulatingHypertrophyPreset();
+        final preset = PresetProgressionConfigs.createUndulatingHypertrophyPreset();
 
         expect(preset.type, equals(ProgressionType.undulating));
         expect(preset.getTrainingObjective(), equals('hypertrophy'));
@@ -83,8 +79,7 @@ void main() {
       });
 
       test('undulating strength preset alterna correctamente', () {
-        final preset =
-            PresetProgressionConfigs.createUndulatingStrengthPreset();
+        final preset = PresetProgressionConfigs.createUndulatingStrengthPreset();
 
         expect(preset.type, equals(ProgressionType.undulating));
         expect(preset.getTrainingObjective(), equals('strength'));

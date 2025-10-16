@@ -35,11 +35,8 @@ void main() {
         isGlobal: true,
         type: ProgressionType.wave,
         unit: ProgressionUnit.week,
-        primaryTarget:
-            ProgressionTarget
-                .volume, // Cambiar a volume para que sea hypertrophy
-        secondaryTarget:
-            ProgressionTarget.reps, // Cambiar a reps para hypertrophy
+        primaryTarget: ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
+        secondaryTarget: ProgressionTarget.reps, // Cambiar a reps para hypertrophy
         incrementValue: 5.0,
         incrementFrequency: 3,
         cycleLength: 9,
@@ -112,14 +109,8 @@ void main() {
         currentSets: 4,
         exercise: ex(),
       );
-      expect(
-        res.newWeight,
-        114.0,
-      ); // baseWeight + (increaseOverBase * 0.7) = 100 + (20*0.7)
-      expect(
-        res.newSets,
-        3,
-      ); // 4 * 0.7 = 2.8 -> round = 3 (baseSets del sistema adaptativo)
+      expect(res.newWeight, 114.0); // baseWeight + (increaseOverBase * 0.7) = 100 + (20*0.7)
+      expect(res.newSets, 3); // 4 * 0.7 = 2.8 -> round = 3 (baseSets del sistema adaptativo)
     });
 
     test('blocks progression when exercise is locked', () {

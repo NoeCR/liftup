@@ -57,10 +57,7 @@ void main() {
 
         // Assert
         expect(notifier.state.length, equals(1));
-        expect(
-          notifier.state['exercise-1']!.order,
-          equals(1),
-        ); // Original order preserved
+        expect(notifier.state['exercise-1']!.order, equals(1)); // Original order preserved
       });
 
       test('should add multiple exercises to state', () {

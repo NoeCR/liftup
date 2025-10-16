@@ -34,9 +34,7 @@ void main() {
         isGlobal: true,
         type: type,
         unit: unit,
-        primaryTarget:
-            ProgressionTarget
-                .volume, // Cambiar a volume para que sea hypertrophy
+        primaryTarget: ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
         secondaryTarget: ProgressionTarget.reps, // Añadir reps para hypertrophy
         incrementValue: incrementValue,
         incrementFrequency: incrementFrequency,
@@ -112,11 +110,7 @@ void main() {
       }
 
       test('incrementa peso cuando coincide la frecuencia', () {
-        final config = createConfig(
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          incrementFrequency: 1,
-        );
+        final config = createConfig(type: ProgressionType.linear, unit: ProgressionUnit.session, incrementFrequency: 1);
         final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
@@ -138,11 +132,7 @@ void main() {
       });
 
       test('no incrementa cuando no coincide la frecuencia', () {
-        final config = createConfig(
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          incrementFrequency: 2,
-        );
+        final config = createConfig(type: ProgressionType.linear, unit: ProgressionUnit.session, incrementFrequency: 2);
         final state = createState(currentSession: 1);
 
         final result = strategy.calculate(
@@ -185,10 +175,7 @@ void main() {
 
         expect(result.incrementApplied, true);
         expect(result.newWeight, 118.0); // 100 + (20 * 0.9)
-        expect(
-          result.newSets,
-          3,
-        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
+        expect(result.newSets, 3); // 4 * 0.7 round (baseSets del sistema adaptativo)
         expect(result.reason, contains('Deload'));
       });
 
@@ -213,10 +200,7 @@ void main() {
           exercise: ex(),
         );
 
-        expect(
-          result.newWeight,
-          103.75,
-        ); // Usa incremento del sistema adaptativo (hypertrophy multiJoint intermediate)
+        expect(result.newWeight, 103.75); // Usa incremento del sistema adaptativo (hypertrophy multiJoint intermediate)
         expect(result.reason, contains('+3.75kg')); // Sistema adaptativo
       });
     });
@@ -243,10 +227,7 @@ void main() {
       }
 
       test('incrementa reps hasta máximo', () {
-        final config = createConfig(
-          type: ProgressionType.double,
-          customParameters: {'min_reps': 8, 'max_reps': 12},
-        );
+        final config = createConfig(type: ProgressionType.double, customParameters: {'min_reps': 8, 'max_reps': 12});
         final state = createState(currentReps: 10);
 
         final result = strategy.calculate(
@@ -284,28 +265,14 @@ void main() {
         );
 
         expect(result.incrementApplied, true);
-        expect(
-          result.newWeight,
-          greaterThan(100.0),
-        ); // Incrementa peso cuando reps están en máximo
+        expect(result.newWeight, greaterThan(100.0)); // Incrementa peso cuando reps están en máximo
         expect(result.newReps, 6); // Resetea reps al mínimo
-        expect(
-          result.reason,
-          contains('increasing weight'),
-        ); // Incrementa peso cuando reps están en máximo
+        expect(result.reason, contains('increasing weight')); // Incrementa peso cuando reps están en máximo
       });
 
       test('deload correcto manteniendo progreso', () {
-        final config = createConfig(
-          type: ProgressionType.double,
-          deloadWeek: 1,
-          deloadPercentage: 0.9,
-        );
-        final state = createState(
-          currentSession: 1,
-          currentWeight: 120.0,
-          baseWeight: 100.0,
-        );
+        final config = createConfig(type: ProgressionType.double, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
@@ -324,9 +291,7 @@ void main() {
 
       test('usa parámetros multi_ vs iso_ según tipo de ejercicio', () {
         final config = createConfig(type: ProgressionType.double);
-        final state = createState(
-          currentReps: 12,
-        ); // forzar incremento de peso y reset de reps
+        final state = createState(currentReps: 12); // forzar incremento de peso y reset de reps
 
         final result = strategy.calculate(
           config: config,
@@ -338,10 +303,7 @@ void main() {
           exercise: ex(),
         );
 
-        expect(
-          result.newReps,
-          lessThanOrEqualTo(15),
-        ); // maxReps del sistema adaptativo para hypertrophy multiJoint
+        expect(result.newReps, lessThanOrEqualTo(15)); // maxReps del sistema adaptativo para hypertrophy multiJoint
       });
     });
 
@@ -367,10 +329,7 @@ void main() {
       }
 
       test('día pesado: más peso, menos reps', () {
-        final config = createConfig(
-          type: ProgressionType.undulating,
-          unit: ProgressionUnit.session,
-        );
+        final config = createConfig(type: ProgressionType.undulating, unit: ProgressionUnit.session);
         final state = createState(currentSession: 1); // Impar = día pesado
 
         final result = strategy.calculate(
@@ -391,10 +350,7 @@ void main() {
       });
 
       test('día ligero: menos peso, más reps', () {
-        final config = createConfig(
-          type: ProgressionType.undulating,
-          unit: ProgressionUnit.session,
-        );
+        final config = createConfig(type: ProgressionType.undulating, unit: ProgressionUnit.session);
         final state = createState(currentSession: 2); // Par = día ligero
 
         final result = strategy.calculate(
@@ -415,16 +371,8 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = createConfig(
-          type: ProgressionType.undulating,
-          deloadWeek: 1,
-          deloadPercentage: 0.9,
-        );
-        final state = createState(
-          currentSession: 1,
-          currentWeight: 120.0,
-          baseWeight: 100.0,
-        );
+        final config = createConfig(type: ProgressionType.undulating, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
@@ -488,16 +436,8 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = createConfig(
-          type: ProgressionType.stepped,
-          deloadWeek: 1,
-          deloadPercentage: 0.9,
-        );
-        final state = createState(
-          currentSession: 1,
-          currentWeight: 120.0,
-          baseWeight: 100.0,
-        );
+        final config = createConfig(type: ProgressionType.stepped, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
@@ -510,10 +450,7 @@ void main() {
         );
 
         expect(result.newWeight, 118.0);
-        expect(
-          result.newSets,
-          3,
-        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
+        expect(result.newSets, 3); // 4 * 0.7 round (baseSets del sistema adaptativo)
         expect(result.reason, contains('Deload'));
       });
     });
@@ -540,10 +477,7 @@ void main() {
       }
 
       test('semana 1: alta intensidad', () {
-        final config = createConfig(
-          type: ProgressionType.wave,
-          unit: ProgressionUnit.week,
-        );
+        final config = createConfig(type: ProgressionType.wave, unit: ProgressionUnit.week);
         final state = createState(currentWeek: 1);
 
         final result = strategy.calculate(
@@ -564,10 +498,7 @@ void main() {
       });
 
       test('semana 2: alto volumen', () {
-        final config = createConfig(
-          type: ProgressionType.wave,
-          unit: ProgressionUnit.week,
-        );
+        final config = createConfig(type: ProgressionType.wave, unit: ProgressionUnit.week);
         final state = createState(currentWeek: 2);
 
         final result = strategy.calculate(
@@ -596,11 +527,7 @@ void main() {
           deloadWeek: 3,
           deloadPercentage: 0.9,
         );
-        final state = createState(
-          currentWeek: 3,
-          currentWeight: 120.0,
-          baseWeight: 100.0,
-        );
+        final state = createState(currentWeek: 3, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
@@ -646,10 +573,7 @@ void main() {
       final strategy = ReverseProgressionStrategy();
 
       test('reduce peso y aumenta reps', () {
-        final config = createConfig(
-          type: ProgressionType.reverse,
-          customParameters: {'max_reps': 15},
-        );
+        final config = createConfig(type: ProgressionType.reverse, customParameters: {'max_reps': 15});
         final state = createState(currentReps: 10);
 
         final result = strategy.calculate(
@@ -702,10 +626,7 @@ void main() {
       });
 
       test('mantiene reps en máximo y sigue reduciendo peso', () {
-        final config = createConfig(
-          type: ProgressionType.reverse,
-          customParameters: {'max_reps': 15},
-        );
+        final config = createConfig(type: ProgressionType.reverse, customParameters: {'max_reps': 15});
         final state = createState(currentReps: 15);
 
         final result = strategy.calculate(
@@ -757,16 +678,8 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = createConfig(
-          type: ProgressionType.reverse,
-          deloadWeek: 1,
-          deloadPercentage: 0.9,
-        );
-        final state = createState(
-          currentSession: 1,
-          currentWeight: 120.0,
-          baseWeight: 100.0,
-        );
+        final config = createConfig(type: ProgressionType.reverse, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
@@ -793,10 +706,7 @@ void main() {
         );
 
         expect(result.newWeight, 118.0);
-        expect(
-          result.newSets,
-          3,
-        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
+        expect(result.newSets, 3); // 4 * 0.7 round (baseSets del sistema adaptativo)
         expect(result.reason, contains('Deload'));
       });
     });
@@ -807,13 +717,7 @@ void main() {
       test('incrementa peso cuando RPE es bajo', () {
         final config = createConfig(
           type: ProgressionType.autoregulated,
-          customParameters: {
-            'target_rpe': 8.0,
-            'rpe_threshold': 0.5,
-            'target_reps': 10,
-            'max_reps': 12,
-            'min_reps': 5,
-          },
+          customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
         );
         final state = createState(currentSession: 1);
         // Simular sessionHistory en customData para el test
@@ -873,13 +777,7 @@ void main() {
       test('reduce peso cuando RPE es alto', () {
         final config = createConfig(
           type: ProgressionType.autoregulated,
-          customParameters: {
-            'target_rpe': 8.0,
-            'rpe_threshold': 0.5,
-            'target_reps': 10,
-            'max_reps': 12,
-            'min_reps': 5,
-          },
+          customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
         );
         final state = createState(currentSession: 1);
         final stateWithHistory = ProgressionState(
@@ -938,13 +836,7 @@ void main() {
       test('incrementa reps cuando RPE es óptimo', () {
         final config = createConfig(
           type: ProgressionType.autoregulated,
-          customParameters: {
-            'target_rpe': 8.0,
-            'rpe_threshold': 0.5,
-            'target_reps': 10,
-            'max_reps': 12,
-            'min_reps': 5,
-          },
+          customParameters: {'target_rpe': 8.0, 'rpe_threshold': 0.5, 'target_reps': 10, 'max_reps': 12, 'min_reps': 5},
         );
         final state = createState(currentSession: 1);
         final stateWithHistory = ProgressionState(
@@ -1001,16 +893,8 @@ void main() {
       });
 
       test('deload correcto', () {
-        final config = createConfig(
-          type: ProgressionType.autoregulated,
-          deloadWeek: 1,
-          deloadPercentage: 0.9,
-        );
-        final state = createState(
-          currentSession: 1,
-          currentWeight: 120.0,
-          baseWeight: 100.0,
-        );
+        final config = createConfig(type: ProgressionType.autoregulated, deloadWeek: 1, deloadPercentage: 0.9);
+        final state = createState(currentSession: 1, currentWeight: 120.0, baseWeight: 100.0);
 
         final result = strategy.calculate(
           config: config,
@@ -1036,10 +920,7 @@ void main() {
           ),
         );
         expect(result.newWeight, 118.0);
-        expect(
-          result.newSets,
-          3,
-        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
+        expect(result.newSets, 3); // 4 * 0.7 round (baseSets del sistema adaptativo)
         expect(result.reason, contains('Deload'));
       });
     });
@@ -1105,9 +986,7 @@ void main() {
       test('maneja reps mínimas correctamente', () {
         final strategy = UndulatingProgressionStrategy();
         final config = createConfig(type: ProgressionType.undulating);
-        final state = createState(
-          currentReps: 10,
-        ); // Usar valor más alto para permitir reducción
+        final state = createState(currentReps: 10); // Usar valor más alto para permitir reducción
 
         final result = strategy.calculate(
           config: config,

@@ -83,10 +83,7 @@ void main() {
         );
 
         expect(result.incrementApplied, isTrue);
-        expect(
-          result.newWeight,
-          equals(103.75),
-        ); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
+        expect(result.newWeight, equals(103.75)); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
         expect(result.reason, contains('+3.75kg'));
       });
     });
@@ -97,12 +94,7 @@ void main() {
           customParameters: {
             ...preset.customParameters,
             'per_exercise': {
-              'test-exercise': {
-                'increment_value': 5.0,
-                'max_reps': 15,
-                'min_reps': 6,
-                'base_sets': 4,
-              },
+              'test-exercise': {'increment_value': 5.0, 'max_reps': 15, 'min_reps': 6, 'base_sets': 4},
             },
           },
         );
@@ -118,48 +110,38 @@ void main() {
         );
 
         expect(result.incrementApplied, isTrue);
-        expect(
-          result.newWeight,
-          equals(103.75),
-        ); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
+        expect(result.newWeight, equals(103.75)); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
         expect(result.newSets, equals(4)); // per_exercise base_sets
         expect(result.reason, contains('+3.75kg'));
       });
 
-      test(
-        'should fallback to AdaptiveIncrementConfig when per_exercise not found',
-        () {
-          // Crear un preset limpio sin per_exercise para evitar conflictos
-          final cleanPreset =
-              PresetProgressionConfigs.createLinearHypertrophyPreset().copyWith(
-                customParameters: {
-                  'per_exercise': {
-                    'other-exercise': {
-                      // Diferente ID
-                      'increment_value': 5.0,
-                    },
-                  },
-                },
-              );
+      test('should fallback to AdaptiveIncrementConfig when per_exercise not found', () {
+        // Crear un preset limpio sin per_exercise para evitar conflictos
+        final cleanPreset = PresetProgressionConfigs.createLinearHypertrophyPreset().copyWith(
+          customParameters: {
+            'per_exercise': {
+              'other-exercise': {
+                // Diferente ID
+                'increment_value': 5.0,
+              },
+            },
+          },
+        );
 
-          final result = strategy.calculate(
-            config: cleanPreset,
-            state: testState,
-            routineId: 'test',
-            currentWeight: 100.0,
-            currentReps: 8,
-            currentSets: 3,
-            exercise: testExercise,
-          );
+        final result = strategy.calculate(
+          config: cleanPreset,
+          state: testState,
+          routineId: 'test',
+          currentWeight: 100.0,
+          currentReps: 8,
+          currentSets: 3,
+          exercise: testExercise,
+        );
 
-          expect(result.incrementApplied, isTrue);
-          expect(
-            result.newWeight,
-            equals(103.75),
-          ); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
-          expect(result.reason, contains('+3.75kg'));
-        },
-      );
+        expect(result.incrementApplied, isTrue);
+        expect(result.newWeight, equals(103.75)); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
+        expect(result.reason, contains('+3.75kg'));
+      });
 
       test('should handle malformed per_exercise gracefully', () {
         final configWithMalformedPerExercise = preset.copyWith(
@@ -182,10 +164,7 @@ void main() {
         );
 
         expect(result.incrementApplied, isTrue);
-        expect(
-          result.newWeight,
-          equals(103.75),
-        ); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
+        expect(result.newWeight, equals(103.75)); // 100 + 3.75 (AdaptiveIncrementConfig optimizado)
         expect(result.reason, contains('+3.75kg'));
       });
     });
@@ -193,22 +172,10 @@ void main() {
     group('API Simplification Benefits', () {
       test('should have consistent behavior across all methods', () {
         // Test que todos los métodos helper requieren Exercise
-        expect(
-          () => strategy.getIncrementValueSync(preset, testExercise),
-          returnsNormally,
-        );
-        expect(
-          () => strategy.getMaxRepsSync(preset, testExercise),
-          returnsNormally,
-        );
-        expect(
-          () => strategy.getMinRepsSync(preset, testExercise),
-          returnsNormally,
-        );
-        expect(
-          () => strategy.getBaseSetsSync(preset, testExercise),
-          returnsNormally,
-        );
+        expect(() => strategy.getIncrementValueSync(preset, testExercise), returnsNormally);
+        expect(() => strategy.getMaxRepsSync(preset, testExercise), returnsNormally);
+        expect(() => strategy.getMinRepsSync(preset, testExercise), returnsNormally);
+        expect(() => strategy.getBaseSetsSync(preset, testExercise), returnsNormally);
       });
 
       test('should provide clear error messages when exercise is missing', () {
@@ -228,27 +195,24 @@ void main() {
     });
 
     group('Backward Compatibility', () {
-      test(
-        'should maintain same results as original implementation for valid cases',
-        () {
-          // Test que los resultados son consistentes con la implementación original
-          // cuando se proporciona un Exercise válido
-          final result = strategy.calculate(
-            config: preset,
-            state: testState,
-            routineId: 'test',
-            currentWeight: 100.0,
-            currentReps: 8,
-            currentSets: 3,
-            exercise: testExercise,
-          );
+      test('should maintain same results as original implementation for valid cases', () {
+        // Test que los resultados son consistentes con la implementación original
+        // cuando se proporciona un Exercise válido
+        final result = strategy.calculate(
+          config: preset,
+          state: testState,
+          routineId: 'test',
+          currentWeight: 100.0,
+          currentReps: 8,
+          currentSets: 3,
+          exercise: testExercise,
+        );
 
-          // Debería usar AdaptiveIncrementConfig (6.0 para barbell multi-joint)
-          expect(result.newWeight, equals(103.75));
-          expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('Linear progression'));
-        },
-      );
+        // Debería usar AdaptiveIncrementConfig (6.0 para barbell multi-joint)
+        expect(result.newWeight, equals(103.75));
+        expect(result.incrementApplied, isTrue);
+        expect(result.reason, contains('Linear progression'));
+      });
     });
   });
 }

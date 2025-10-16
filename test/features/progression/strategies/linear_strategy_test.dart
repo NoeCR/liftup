@@ -42,9 +42,7 @@ void main() {
         isGlobal: true,
         type: ProgressionType.linear,
         unit: unit,
-        primaryTarget:
-            ProgressionTarget
-                .volume, // Cambiar a volume para que sea hypertrophy
+        primaryTarget: ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
         secondaryTarget: ProgressionTarget.reps, // Añadir reps para hypertrophy
         incrementValue: increment,
         incrementFrequency: freq,
@@ -63,13 +61,7 @@ void main() {
       );
     }
 
-    ProgressionState state({
-      int session = 1,
-      int week = 1,
-      double baseW = 100,
-      int baseR = 10,
-      int baseS = 4,
-    }) {
+    ProgressionState state({int session = 1, int week = 1, double baseW = 100, int baseR = 10, int baseS = 4}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -112,11 +104,7 @@ void main() {
     });
 
     test('applies deload on deloadWeek', () {
-      final cfg = config(
-        unit: ProgressionUnit.session,
-        deloadWeek: 1,
-        deloadPct: 0.9,
-      );
+      final cfg = config(unit: ProgressionUnit.session, deloadWeek: 1, deloadPct: 0.9);
       final st = state(session: 1);
       final res = strategy.calculate(
         config: cfg,
@@ -150,10 +138,7 @@ void main() {
         exercise: ex(),
       );
       expect(res.incrementApplied, true);
-      expect(
-        res.newSets,
-        4,
-      ); // debe restaurar a baseSets del sistema adaptativo
+      expect(res.newSets, 4); // debe restaurar a baseSets del sistema adaptativo
     });
 
     test('restores sets to base after deload when no increment applies', () {
@@ -170,10 +155,7 @@ void main() {
         exercise: ex(),
       );
       expect(res.incrementApplied, false);
-      expect(
-        res.newSets,
-        4,
-      ); // debe restaurar a baseSets del sistema adaptativo
+      expect(res.newSets, 4); // debe restaurar a baseSets del sistema adaptativo
     });
 
     test('no increment when frequency not matched', () {

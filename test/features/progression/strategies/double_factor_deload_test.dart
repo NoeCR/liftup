@@ -208,9 +208,7 @@ void main() {
         final isDeload = result.isDeload;
         final deloadMark = isDeload ? ' [DELOAD]' : '';
 
-        print(
-          'Semana $week: ${weight}kg x $reps reps x $sets sets$deloadMark - ${result.reason}',
-        );
+        print('Semana $week: ${weight}kg x $reps reps x $sets sets$deloadMark - ${result.reason}');
       }
 
       // Verificar que el deload se aplicó correctamente
@@ -218,34 +216,28 @@ void main() {
       // Los sets se restauran después del deload, no se mantienen reducidos
     });
 
-    test(
-      'deload se aplica independientemente de si la semana es par o impar',
-      () {
-        final strategy = DoubleFactorProgressionStrategy();
-        final configOddDeload = config.copyWith(deloadWeek: 3); // Semana impar
+    test('deload se aplica independientemente de si la semana es par o impar', () {
+      final strategy = DoubleFactorProgressionStrategy();
+      final configOddDeload = config.copyWith(deloadWeek: 3); // Semana impar
 
-        // Semana 3 (impar) - SÍ debe aplicar deload porque alcanzó la semana configurada
-        final result = strategy.calculate(
-          config: configOddDeload,
-          state: state.copyWith(currentWeek: 3),
-          routineId: 'test-routine',
-          currentWeight: 85.0,
-          currentReps: 7,
-          currentSets: 3,
-          exercise: testExercise,
-        );
+      // Semana 3 (impar) - SÍ debe aplicar deload porque alcanzó la semana configurada
+      final result = strategy.calculate(
+        config: configOddDeload,
+        state: state.copyWith(currentWeek: 3),
+        routineId: 'test-routine',
+        currentWeight: 85.0,
+        currentReps: 7,
+        currentSets: 3,
+        exercise: testExercise,
+      );
 
-        expect(result.isDeload, true);
-        expect(result.reason, contains('Deload')); // Aplica deload
-      },
-    );
+      expect(result.isDeload, true);
+      expect(result.reason, contains('Deload')); // Aplica deload
+    });
 
     test('deload se aplica correctamente en semana 6 (par)', () {
       final strategy = DoubleFactorProgressionStrategy();
-      final config6Weeks = config.copyWith(
-        cycleLength: 6,
-        deloadWeek: 6,
-      ); // Semana par
+      final config6Weeks = config.copyWith(cycleLength: 6, deloadWeek: 6); // Semana par
 
       // Semana 6 (par) - SÍ debe aplicar deload
       final result = strategy.calculate(

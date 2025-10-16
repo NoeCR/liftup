@@ -81,11 +81,7 @@ class ExerciseMockFactory {
     return createExercise(
       id: id,
       name: name ?? 'Bench Press',
-      muscleGroups: [
-        MuscleGroup.pectoralMajor,
-        MuscleGroup.anteriorDeltoid,
-        MuscleGroup.tricepsLateralHead,
-      ],
+      muscleGroups: [MuscleGroup.pectoralMajor, MuscleGroup.anteriorDeltoid, MuscleGroup.tricepsLateralHead],
       category: ExerciseCategory.chest,
       difficulty: ExerciseDifficulty.intermediate,
       defaultWeight: defaultWeight ?? 135.0,
@@ -107,11 +103,7 @@ class ExerciseMockFactory {
     return createExercise(
       id: id,
       name: name ?? 'Push-ups',
-      muscleGroups: [
-        MuscleGroup.pectoralMajor,
-        MuscleGroup.anteriorDeltoid,
-        MuscleGroup.tricepsLateralHead,
-      ],
+      muscleGroups: [MuscleGroup.pectoralMajor, MuscleGroup.anteriorDeltoid, MuscleGroup.tricepsLateralHead],
       category: ExerciseCategory.chest,
       difficulty: ExerciseDifficulty.beginner,
       defaultWeight: defaultWeight ?? 0.0,

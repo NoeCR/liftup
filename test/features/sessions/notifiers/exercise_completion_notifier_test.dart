@@ -93,20 +93,17 @@ void main() {
         expect(result, isFalse);
       });
 
-      test(
-        'should return false when exercise was completed then toggled off',
-        () {
-          // Arrange
-          notifier.toggleExerciseCompletion('exercise-1');
-          notifier.toggleExerciseCompletion('exercise-1');
+      test('should return false when exercise was completed then toggled off', () {
+        // Arrange
+        notifier.toggleExerciseCompletion('exercise-1');
+        notifier.toggleExerciseCompletion('exercise-1');
 
-          // Act
-          final result = notifier.isExerciseCompleted('exercise-1');
+        // Act
+        final result = notifier.isExerciseCompleted('exercise-1');
 
-          // Assert
-          expect(result, isFalse);
-        },
-      );
+        // Assert
+        expect(result, isFalse);
+      });
     });
 
     group('clearCompletedExercises', () {

@@ -8,10 +8,8 @@ import '../configs/training_objective.dart';
 
 /// Widget para configurar incrementos personalizados de AdaptiveIncrementConfig
 class AdaptiveIncrementConfigEditor extends ConsumerStatefulWidget {
-  final Map<ExerciseType, Map<LoadType, IncrementRange>>?
-  customWeightIncrements;
-  final Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>?
-  customSeriesIncrements;
+  final Map<ExerciseType, Map<LoadType, IncrementRange>>? customWeightIncrements;
+  final Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>? customSeriesIncrements;
   final Function(
     Map<ExerciseType, Map<LoadType, IncrementRange>>,
     Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>,
@@ -26,12 +24,10 @@ class AdaptiveIncrementConfigEditor extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdaptiveIncrementConfigEditor> createState() =>
-      _AdaptiveIncrementConfigEditorState();
+  ConsumerState<AdaptiveIncrementConfigEditor> createState() => _AdaptiveIncrementConfigEditorState();
 }
 
-class _AdaptiveIncrementConfigEditorState
-    extends ConsumerState<AdaptiveIncrementConfigEditor> {
+class _AdaptiveIncrementConfigEditorState extends ConsumerState<AdaptiveIncrementConfigEditor> {
   late Map<ExerciseType, Map<LoadType, IncrementRange>> _weightIncrements;
   late Map<ExerciseType, Map<LoadType, SeriesIncrementRange>> _seriesIncrements;
 
@@ -46,14 +42,11 @@ class _AdaptiveIncrementConfigEditorState
 
   void _initializeIncrements() {
     // Inicializar con valores por defecto o personalizados
-    _weightIncrements =
-        widget.customWeightIncrements ?? _getDefaultWeightIncrements();
-    _seriesIncrements =
-        widget.customSeriesIncrements ?? _getDefaultSeriesIncrements();
+    _weightIncrements = widget.customWeightIncrements ?? _getDefaultWeightIncrements();
+    _seriesIncrements = widget.customSeriesIncrements ?? _getDefaultSeriesIncrements();
   }
 
-  Map<ExerciseType, Map<LoadType, IncrementRange>>
-  _getDefaultWeightIncrements() {
+  Map<ExerciseType, Map<LoadType, IncrementRange>> _getDefaultWeightIncrements() {
     final Map<ExerciseType, Map<LoadType, IncrementRange>> defaults = {};
 
     for (final exerciseType in ExerciseType.values) {
@@ -71,8 +64,7 @@ class _AdaptiveIncrementConfigEditorState
     return defaults;
   }
 
-  Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>
-  _getDefaultSeriesIncrements() {
+  Map<ExerciseType, Map<LoadType, SeriesIncrementRange>> _getDefaultSeriesIncrements() {
     final Map<ExerciseType, Map<LoadType, SeriesIncrementRange>> defaults = {};
 
     for (final exerciseType in ExerciseType.values) {
@@ -80,11 +72,10 @@ class _AdaptiveIncrementConfigEditorState
       for (final loadType in LoadType.values) {
         // Crear un ejercicio temporal para obtener el rango
         final tempExercise = _createTempExercise(exerciseType, loadType);
-        final range =
-            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-              tempExercise,
-              objective: TrainingObjective.hypertrophy,
-            ); // Usar objetivo del preset cuando esté disponible
+        final range = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+          tempExercise,
+          objective: TrainingObjective.hypertrophy,
+        ); // Usar objetivo del preset cuando esté disponible
         if (range != null) {
           defaults[exerciseType]![loadType] = range;
         }
@@ -106,16 +97,12 @@ class _AdaptiveIncrementConfigEditorState
           children: [
             Text(
               'Configuración de Incrementos Personalizados',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
               'Personaliza los incrementos de peso y series para cada tipo de ejercicio y carga.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: 16),
 
@@ -141,16 +128,10 @@ class _AdaptiveIncrementConfigEditorState
         Expanded(
           child: DropdownButtonFormField<ExerciseType>(
             value: _selectedExerciseType,
-            decoration: const InputDecoration(
-              labelText: 'Tipo de Ejercicio',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Tipo de Ejercicio', border: OutlineInputBorder()),
             items:
                 ExerciseType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(_getExerciseTypeDisplayName(type)),
-                  );
+                  return DropdownMenuItem(value: type, child: Text(_getExerciseTypeDisplayName(type)));
                 }).toList(),
             onChanged: (value) {
               if (value != null) {
@@ -165,16 +146,10 @@ class _AdaptiveIncrementConfigEditorState
         Expanded(
           child: DropdownButtonFormField<LoadType>(
             value: _selectedLoadType,
-            decoration: const InputDecoration(
-              labelText: 'Tipo de Carga',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Tipo de Carga', border: OutlineInputBorder()),
             items:
                 LoadType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(_getLoadTypeDisplayName(type)),
-                  );
+                  return DropdownMenuItem(value: type, child: Text(_getLoadTypeDisplayName(type)));
                 }).toList(),
             onChanged: (value) {
               if (value != null) {
@@ -190,40 +165,28 @@ class _AdaptiveIncrementConfigEditorState
   }
 
   Widget _buildIncrementConfig(ThemeData theme) {
-    final weightRange =
-        _weightIncrements[_selectedExerciseType]?[_selectedLoadType];
-    final seriesRange =
-        _seriesIncrements[_selectedExerciseType]?[_selectedLoadType];
+    final weightRange = _weightIncrements[_selectedExerciseType]?[_selectedLoadType];
+    final seriesRange = _seriesIncrements[_selectedExerciseType]?[_selectedLoadType];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Configuración para ${_getExerciseTypeDisplayName(_selectedExerciseType)} + ${_getLoadTypeDisplayName(_selectedLoadType)}',
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
 
         // Incrementos de peso
         if (weightRange != null) ...[
-          Text(
-            'Incrementos de Peso (kg)',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text('Incrementos de Peso (kg)', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: TextFormField(
                   initialValue: weightRange.min.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Mínimo',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Mínimo', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final min = double.tryParse(value);
@@ -237,10 +200,7 @@ class _AdaptiveIncrementConfigEditorState
               Expanded(
                 child: TextFormField(
                   initialValue: weightRange.defaultValue.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Por Defecto',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Por Defecto', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final defaultValue = double.tryParse(value);
@@ -254,10 +214,7 @@ class _AdaptiveIncrementConfigEditorState
               Expanded(
                 child: TextFormField(
                   initialValue: weightRange.max.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Máximo',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Máximo', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final max = double.tryParse(value);
@@ -274,22 +231,14 @@ class _AdaptiveIncrementConfigEditorState
 
         // Incrementos de series
         if (seriesRange != null) ...[
-          Text(
-            'Incrementos de Series',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text('Incrementos de Series', style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: TextFormField(
                   initialValue: seriesRange.min.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Mínimo',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Mínimo', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final min = int.tryParse(value);
@@ -303,10 +252,7 @@ class _AdaptiveIncrementConfigEditorState
               Expanded(
                 child: TextFormField(
                   initialValue: seriesRange.defaultValue.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Por Defecto',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Por Defecto', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final defaultValue = int.tryParse(value);
@@ -320,10 +266,7 @@ class _AdaptiveIncrementConfigEditorState
               Expanded(
                 child: TextFormField(
                   initialValue: seriesRange.max.toString(),
-                  decoration: const InputDecoration(
-                    labelText: 'Máximo',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Máximo', border: OutlineInputBorder()),
                   keyboardType: TextInputType.number,
                   onChanged: (value) {
                     final max = int.tryParse(value);
@@ -363,8 +306,7 @@ class _AdaptiveIncrementConfigEditorState
   }
 
   void _updateWeightRange({double? min, double? max, double? defaultValue}) {
-    final currentRange =
-        _weightIncrements[_selectedExerciseType]?[_selectedLoadType];
+    final currentRange = _weightIncrements[_selectedExerciseType]?[_selectedLoadType];
     if (currentRange != null) {
       final newRange = IncrementRange(
         min: min ?? currentRange.min,
@@ -379,8 +321,7 @@ class _AdaptiveIncrementConfigEditorState
   }
 
   void _updateSeriesRange({int? min, int? max, int? defaultValue}) {
-    final currentRange =
-        _seriesIncrements[_selectedExerciseType]?[_selectedLoadType];
+    final currentRange = _seriesIncrements[_selectedExerciseType]?[_selectedLoadType];
     if (currentRange != null) {
       final newRange = SeriesIncrementRange(
         min: min ?? currentRange.min,
@@ -405,10 +346,7 @@ class _AdaptiveIncrementConfigEditorState
     widget.onConfigChanged(_weightIncrements, _seriesIncrements);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Configuración de incrementos guardada'),
-        backgroundColor: Colors.green,
-      ),
+      const SnackBar(content: Text('Configuración de incrementos guardada'), backgroundColor: Colors.green),
     );
   }
 
@@ -449,15 +387,10 @@ class _AdaptiveIncrementConfigEditorState
       description: 'Temporary exercise for config',
       imageUrl: '',
       muscleGroups:
-          exerciseType == ExerciseType.multiJoint
-              ? [MuscleGroup.pectoralMajor]
-              : [MuscleGroup.bicepsLongHead],
+          exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
       tips: [],
       commonMistakes: [],
-      category:
-          exerciseType == ExerciseType.multiJoint
-              ? ExerciseCategory.chest
-              : ExerciseCategory.biceps,
+      category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
       difficulty: ExerciseDifficulty.intermediate,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),

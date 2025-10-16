@@ -41,12 +41,10 @@ class AdvancedProgressionConfig extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdvancedProgressionConfig> createState() =>
-      _AdvancedProgressionConfigState();
+  ConsumerState<AdvancedProgressionConfig> createState() => _AdvancedProgressionConfigState();
 }
 
-class _AdvancedProgressionConfigState
-    extends ConsumerState<AdvancedProgressionConfig> {
+class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionConfig> {
   ConfigurationMode _configurationMode = ConfigurationMode.preset;
   ProgressionConfig? _selectedPreset;
   ProgressionConfig? _customConfig;
@@ -61,10 +59,8 @@ class _AdvancedProgressionConfigState
   ProgressionTarget _primaryTarget = ProgressionTarget.volume;
   ProgressionTarget? _secondaryTarget = ProgressionTarget.reps;
   int _minReps = 8; // Valores por defecto, se derivan por objetivo en initState
-  int _maxReps =
-      12; // Valores por defecto, se derivan por objetivo en initState
-  int _baseSets =
-      3; // Valores por defecto, se derivan por objetivo en initState
+  int _maxReps = 12; // Valores por defecto, se derivan por objetivo en initState
+  int _baseSets = 3; // Valores por defecto, se derivan por objetivo en initState
 
   @override
   void initState() {
@@ -82,9 +78,7 @@ class _AdvancedProgressionConfigState
   }
 
   void _checkIfMatchesPreset(ProgressionConfig config) {
-    final presets = PresetProgressionConfigs.getPresetsForType(
-      widget.progressionType,
-    );
+    final presets = PresetProgressionConfigs.getPresetsForType(widget.progressionType);
 
     for (final preset in presets) {
       if (_configsMatch(config, preset)) {
@@ -128,20 +122,13 @@ class _AdvancedProgressionConfigState
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final presets = PresetProgressionConfigs.getPresetsForType(
-      widget.progressionType,
-    );
+    final presets = PresetProgressionConfigs.getPresetsForType(widget.progressionType);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Título de la sección
-        Text(
-          'advancedConfig.title'.tr(),
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text('advancedConfig.title'.tr(), style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
 
         // Selector de modo (Preset vs Manual)
@@ -179,9 +166,7 @@ class _AdvancedProgressionConfigState
           children: [
             Text(
               'advancedConfig.modeSelector.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<ConfigurationMode>(
@@ -189,21 +174,14 @@ class _AdvancedProgressionConfigState
               decoration: InputDecoration(
                 hintText: 'advancedConfig.modeSelector.hint'.tr(),
                 border: const OutlineInputBorder(),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: [
                 DropdownMenuItem(
                   value: ConfigurationMode.preset,
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.settings_applications,
-                        size: 20,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.settings_applications, size: 20, color: theme.colorScheme.primary),
                       const SizedBox(width: 8),
                       Text(ConfigurationMode.preset.displayName),
                     ],
@@ -214,11 +192,7 @@ class _AdvancedProgressionConfigState
                     value: ConfigurationMode.manual,
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.tune,
-                          size: 20,
-                          color: theme.colorScheme.primary,
-                        ),
+                        Icon(Icons.tune, size: 20, color: theme.colorScheme.primary),
                         const SizedBox(width: 8),
                         Text(ConfigurationMode.manual.displayName),
                       ],
@@ -251,9 +225,7 @@ class _AdvancedProgressionConfigState
           children: [
             Text(
               'advancedConfig.presetSelector.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             ...presets.map((preset) => _buildPresetOption(preset)),
@@ -297,9 +269,7 @@ class _AdvancedProgressionConfigState
   /// Descripción del preset seleccionado
   Widget _buildSelectedPresetDescription() {
     final theme = Theme.of(context);
-    final metadata = PresetProgressionConfigs.getPresetMetadata(
-      _selectedPreset!,
-    );
+    final metadata = PresetProgressionConfigs.getPresetMetadata(_selectedPreset!);
 
     return Card(
       child: Padding(
@@ -309,9 +279,7 @@ class _AdvancedProgressionConfigState
           children: [
             Text(
               'advancedConfig.presetDescription.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
             Text(metadata['description'], style: theme.textTheme.bodyMedium),
@@ -340,24 +308,16 @@ class _AdvancedProgressionConfigState
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(
-              Icons.info_outline,
-              size: 48,
-              color: theme.colorScheme.primary,
-            ),
+            Icon(Icons.info_outline, size: 48, color: theme.colorScheme.primary),
             const SizedBox(height: 12),
             Text(
               'advancedConfig.noPresets.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
               'advancedConfig.noPresets.message'.tr(
-                namedArgs: {
-                  'progressionType': widget.progressionType.displayNameKey.tr(),
-                },
+                namedArgs: {'progressionType': widget.progressionType.displayNameKey.tr()},
               ),
               style: theme.textTheme.bodyMedium,
               textAlign: TextAlign.center,
@@ -380,9 +340,7 @@ class _AdvancedProgressionConfigState
           children: [
             Text(
               'advancedConfig.manualConfig.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
 
@@ -508,10 +466,7 @@ class _AdvancedProgressionConfigState
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         initialValue: isInteger ? value.toInt().toString() : value.toString(),
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-        ),
+        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
         keyboardType: TextInputType.number,
         onChanged: (text) {
           final parsed = double.tryParse(text);
@@ -583,9 +538,7 @@ class _AdvancedProgressionConfigState
       );
 
       // Derivar objetivo de entrenamiento
-      final objective = AdaptiveIncrementConfig.parseObjective(
-        tempConfig.getTrainingObjective(),
-      );
+      final objective = AdaptiveIncrementConfig.parseObjective(tempConfig.getTrainingObjective());
 
       // Crear un ejercicio temporal para obtener valores adaptativos
       final tempExercise = Exercise(
@@ -605,15 +558,11 @@ class _AdvancedProgressionConfigState
       );
 
       // Obtener valores adaptativos por objetivo
-      final repsRange = AdaptiveIncrementConfig.getRepetitionsRange(
+      final repsRange = AdaptiveIncrementConfig.getRepetitionsRange(tempExercise, objective: objective);
+      final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
         tempExercise,
         objective: objective,
       );
-      final seriesRange =
-          AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-            tempExercise,
-            objective: objective,
-          );
 
       // Actualizar valores
       _minReps = repsRange.$1;

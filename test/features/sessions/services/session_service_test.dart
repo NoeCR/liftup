@@ -98,45 +98,42 @@ void main() {
     });
 
     group('getAllSessions', () {
-      test(
-        'should return all sessions sorted by startTime descending',
-        () async {
-          // Arrange
-          final now = DateTime.now();
-          final session1 = WorkoutSession(
-            id: 'session-1',
-            name: 'Session 1',
-            startTime: now.subtract(Duration(hours: 2)),
-            exerciseSets: [],
-            status: SessionStatus.completed,
-          );
-          final session2 = WorkoutSession(
-            id: 'session-2',
-            name: 'Session 2',
-            startTime: now.subtract(Duration(hours: 1)),
-            exerciseSets: [],
-            status: SessionStatus.completed,
-          );
-          final session3 = WorkoutSession(
-            id: 'session-3',
-            name: 'Session 3',
-            startTime: now,
-            exerciseSets: [],
-            status: SessionStatus.active,
-          );
+      test('should return all sessions sorted by startTime descending', () async {
+        // Arrange
+        final now = DateTime.now();
+        final session1 = WorkoutSession(
+          id: 'session-1',
+          name: 'Session 1',
+          startTime: now.subtract(Duration(hours: 2)),
+          exerciseSets: [],
+          status: SessionStatus.completed,
+        );
+        final session2 = WorkoutSession(
+          id: 'session-2',
+          name: 'Session 2',
+          startTime: now.subtract(Duration(hours: 1)),
+          exerciseSets: [],
+          status: SessionStatus.completed,
+        );
+        final session3 = WorkoutSession(
+          id: 'session-3',
+          name: 'Session 3',
+          startTime: now,
+          exerciseSets: [],
+          status: SessionStatus.active,
+        );
 
-          when(mockBox.values).thenReturn([session1, session2, session3]);
+        when(mockBox.values).thenReturn([session1, session2, session3]);
 
-          // Act
-          final result = await sessionService.getAllSessions();
+        // Act
+        final result = await sessionService.getAllSessions();
 
-          // Assert
-          expect(result.length, equals(3));
-          expect(result[0], equals(session3)); // Most recent first
-          expect(result[1], equals(session2));
-          expect(result[2], equals(session1));
-        },
-      );
+        // Assert
+        expect(result.length, equals(3));
+        expect(result[0], equals(session3)); // Most recent first
+        expect(result[1], equals(session2));
+        expect(result[2], equals(session1));
+      });
 
       test('should return empty list when no sessions exist', () async {
         // Arrange
@@ -181,10 +178,7 @@ void main() {
         when(mockBox.values).thenReturn([session1, session2, session3]);
 
         // Act
-        final result = await sessionService.getSessionsByDateRange(
-          startDate,
-          endDate,
-        );
+        final result = await sessionService.getSessionsByDateRange(startDate, endDate);
 
         // Assert
         expect(result.length, equals(2));
@@ -209,10 +203,7 @@ void main() {
         when(mockBox.values).thenReturn([session]);
 
         // Act
-        final result = await sessionService.getSessionsByDateRange(
-          startDate,
-          endDate,
-        );
+        final result = await sessionService.getSessionsByDateRange(startDate, endDate);
 
         // Assert
         expect(result, isEmpty);
@@ -245,30 +236,27 @@ void main() {
         expect(result[9].id, equals('session-9'));
       });
 
-      test(
-        'should return all sessions when limit is greater than total',
-        () async {
-          // Arrange
-          final sessions = List.generate(
-            5,
-            (index) => WorkoutSession(
-              id: 'session-$index',
-              name: 'Session $index',
-              startTime: DateTime.now().subtract(Duration(hours: index)),
-              exerciseSets: [],
-              status: SessionStatus.completed,
-            ),
-          );
+      test('should return all sessions when limit is greater than total', () async {
+        // Arrange
+        final sessions = List.generate(
+          5,
+          (index) => WorkoutSession(
+            id: 'session-$index',
+            name: 'Session $index',
+            startTime: DateTime.now().subtract(Duration(hours: index)),
+            exerciseSets: [],
+            status: SessionStatus.completed,
+          ),
+        );
 
-          when(mockBox.values).thenReturn(sessions);
+        when(mockBox.values).thenReturn(sessions);
 
-          // Act
-          final result = await sessionService.getRecentSessions(limit: 10);
+        // Act
+        final result = await sessionService.getRecentSessions(limit: 10);
 
-          // Assert
-          expect(result.length, equals(5));
-        },
-      );
+        // Assert
+        expect(result.length, equals(5));
+      });
     });
 
     group('getCompletedSessions', () {
@@ -364,10 +352,7 @@ void main() {
         when(mockBox.delete('session-1')).thenThrow(Exception('Delete failed'));
 
         // Act & Assert
-        expect(
-          () => sessionService.deleteSession('session-1'),
-          throwsException,
-        );
+        expect(() => sessionService.deleteSession('session-1'), throwsException);
       });
     });
 
@@ -430,10 +415,7 @@ void main() {
         final result = await sessionService.getTotalWorkoutTime();
 
         // Assert
-        expect(
-          result,
-          equals(Duration(hours: 1, minutes: 30)),
-        ); // 1 hour + 30 minutes
+        expect(result, equals(Duration(hours: 1, minutes: 30))); // 1 hour + 30 minutes
       });
 
       test('should return zero when no completed sessions', () async {
@@ -585,17 +567,9 @@ class _MockSessionService extends SessionService {
   }
 
   @override
-  Future<List<WorkoutSession>> getSessionsByDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) async {
+  Future<List<WorkoutSession>> getSessionsByDateRange(DateTime startDate, DateTime endDate) async {
     final allSessions = await getAllSessions();
-    return allSessions
-        .where(
-          (s) =>
-              s.startTime.isAfter(startDate) && s.startTime.isBefore(endDate),
-        )
-        .toList();
+    return allSessions.where((s) => s.startTime.isAfter(startDate) && s.startTime.isBefore(endDate)).toList();
   }
 
   @override
