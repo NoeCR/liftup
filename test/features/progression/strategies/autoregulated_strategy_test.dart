@@ -35,8 +35,11 @@ void main() {
         isGlobal: true,
         type: ProgressionType.autoregulated,
         unit: ProgressionUnit.week,
-        primaryTarget: ProgressionTarget.weight,
-        secondaryTarget: ProgressionTarget.reps,
+        primaryTarget:
+            ProgressionTarget
+                .volume, // Cambiar a volume para que sea hypertrophy
+        secondaryTarget:
+            ProgressionTarget.reps, // Mantener reps para hypertrophy
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
@@ -122,7 +125,7 @@ void main() {
         exercise: ex(),
       );
       expect(res.newWeight, lessThan(100));
-      expect(res.newReps, 8);
+      expect(res.newReps, 6);
     });
 
     test('blocks progression when exercise is locked', () {

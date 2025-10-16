@@ -1,9 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
+
+import '../../../common/enums/progression_type_enum.dart';
+import '../../../features/exercise/models/exercise.dart';
+import '../configs/adaptive_increment_config.dart';
 import '../configs/preset_progression_configs.dart';
 import '../models/progression_config.dart';
-import '../../../common/enums/progression_type_enum.dart';
 
 /// Enum para los modos de configuración
 enum ConfigurationMode { preset, manual }
@@ -38,10 +41,12 @@ class AdvancedProgressionConfig extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AdvancedProgressionConfig> createState() => _AdvancedProgressionConfigState();
+  ConsumerState<AdvancedProgressionConfig> createState() =>
+      _AdvancedProgressionConfigState();
 }
 
-class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionConfig> {
+class _AdvancedProgressionConfigState
+    extends ConsumerState<AdvancedProgressionConfig> {
   ConfigurationMode _configurationMode = ConfigurationMode.preset;
   ProgressionConfig? _selectedPreset;
   ProgressionConfig? _customConfig;
@@ -55,14 +60,19 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
   ProgressionUnit _unit = ProgressionUnit.session;
   ProgressionTarget _primaryTarget = ProgressionTarget.volume;
   ProgressionTarget? _secondaryTarget = ProgressionTarget.reps;
-  int _minReps = 8;
-  int _maxReps = 12;
-  int _baseSets = 3;
+  int _minReps = 8; // Valores por defecto, se derivan por objetivo en initState
+  int _maxReps =
+      12; // Valores por defecto, se derivan por objetivo en initState
+  int _baseSets =
+      3; // Valores por defecto, se derivan por objetivo en initState
 
   @override
   void initState() {
     super.initState();
     _customConfig = widget.initialConfig;
+
+    // Derivar valores por objetivo de entrenamiento
+    _deriveValuesByObjective();
 
     // Si hay una configuración inicial, verificar si coincide con algún preset
     if (widget.initialConfig != null) {
@@ -72,7 +82,9 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
   }
 
   void _checkIfMatchesPreset(ProgressionConfig config) {
-    final presets = PresetProgressionConfigs.getPresetsForType(widget.progressionType);
+    final presets = PresetProgressionConfigs.getPresetsForType(
+      widget.progressionType,
+    );
 
     for (final preset in presets) {
       if (_configsMatch(config, preset)) {
@@ -116,13 +128,20 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final presets = PresetProgressionConfigs.getPresetsForType(widget.progressionType);
+    final presets = PresetProgressionConfigs.getPresetsForType(
+      widget.progressionType,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Título de la sección
-        Text('advancedConfig.title'.tr(), style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'advancedConfig.title'.tr(),
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         const SizedBox(height: 16),
 
         // Selector de modo (Preset vs Manual)
@@ -160,7 +179,9 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
           children: [
             Text(
               'advancedConfig.modeSelector.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<ConfigurationMode>(
@@ -168,14 +189,21 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
               decoration: InputDecoration(
                 hintText: 'advancedConfig.modeSelector.hint'.tr(),
                 border: const OutlineInputBorder(),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
               items: [
                 DropdownMenuItem(
                   value: ConfigurationMode.preset,
                   child: Row(
                     children: [
-                      Icon(Icons.settings_applications, size: 20, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.settings_applications,
+                        size: 20,
+                        color: theme.colorScheme.primary,
+                      ),
                       const SizedBox(width: 8),
                       Text(ConfigurationMode.preset.displayName),
                     ],
@@ -186,7 +214,11 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
                     value: ConfigurationMode.manual,
                     child: Row(
                       children: [
-                        Icon(Icons.tune, size: 20, color: theme.colorScheme.primary),
+                        Icon(
+                          Icons.tune,
+                          size: 20,
+                          color: theme.colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(ConfigurationMode.manual.displayName),
                       ],
@@ -219,7 +251,9 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
           children: [
             Text(
               'advancedConfig.presetSelector.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             ...presets.map((preset) => _buildPresetOption(preset)),
@@ -263,7 +297,9 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
   /// Descripción del preset seleccionado
   Widget _buildSelectedPresetDescription() {
     final theme = Theme.of(context);
-    final metadata = PresetProgressionConfigs.getPresetMetadata(_selectedPreset!);
+    final metadata = PresetProgressionConfigs.getPresetMetadata(
+      _selectedPreset!,
+    );
 
     return Card(
       child: Padding(
@@ -273,7 +309,9 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
           children: [
             Text(
               'advancedConfig.presetDescription.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             Text(metadata['description'], style: theme.textTheme.bodyMedium),
@@ -302,16 +340,24 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Icon(Icons.info_outline, size: 48, color: theme.colorScheme.primary),
+            Icon(
+              Icons.info_outline,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
             const SizedBox(height: 12),
             Text(
               'advancedConfig.noPresets.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'advancedConfig.noPresets.message'.tr(
-                namedArgs: {'progressionType': widget.progressionType.displayNameKey.tr()},
+                namedArgs: {
+                  'progressionType': widget.progressionType.displayNameKey.tr(),
+                },
               ),
               style: theme.textTheme.bodyMedium,
               textAlign: TextAlign.center,
@@ -334,7 +380,9 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
           children: [
             Text(
               'advancedConfig.manualConfig.title'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -460,7 +508,10 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         initialValue: isInteger ? value.toInt().toString() : value.toString(),
-        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
         keyboardType: TextInputType.number,
         onChanged: (text) {
           final parsed = double.tryParse(text);
@@ -503,5 +554,76 @@ class _AdvancedProgressionConfigState extends ConsumerState<AdvancedProgressionC
     });
 
     widget.onConfigChanged(config);
+  }
+
+  /// Deriva valores de reps y sets basados en el objetivo de entrenamiento
+  void _deriveValuesByObjective() {
+    try {
+      // Crear configuración temporal para derivar objetivo
+      final tempConfig = ProgressionConfig(
+        id: 'temp',
+        isGlobal: true,
+        type: ProgressionType.linear,
+        unit: _unit,
+        primaryTarget: _primaryTarget,
+        secondaryTarget: _secondaryTarget,
+        incrementValue: 0,
+        incrementFrequency: 1,
+        cycleLength: 4,
+        deloadWeek: 0,
+        deloadPercentage: 0.9,
+        customParameters: {},
+        startDate: DateTime.now(),
+        isActive: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
+      );
+
+      // Derivar objetivo de entrenamiento
+      final objective = AdaptiveIncrementConfig.parseObjective(
+        tempConfig.getTrainingObjective(),
+      );
+
+      // Crear un ejercicio temporal para obtener valores adaptativos
+      final tempExercise = Exercise(
+        id: 'temp',
+        name: 'Temporary Exercise',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+
+      // Obtener valores adaptativos por objetivo
+      final repsRange = AdaptiveIncrementConfig.getRepetitionsRange(
+        tempExercise,
+        objective: objective,
+      );
+      final seriesRange =
+          AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+            tempExercise,
+            objective: objective,
+          );
+
+      // Actualizar valores
+      _minReps = repsRange.$1;
+      _maxReps = repsRange.$2;
+      _baseSets = seriesRange?.defaultValue ?? 3;
+    } catch (e) {
+      // Si hay error, mantener valores por defecto
+      _minReps = 8;
+      _maxReps = 12;
+      _baseSets = 3;
+    }
   }
 }

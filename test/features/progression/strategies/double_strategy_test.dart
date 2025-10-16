@@ -28,7 +28,11 @@ void main() {
       loadType: LoadType.barbell,
     );
 
-    ProgressionConfig config({double increment = 2.5, int cycle = 4, int deloadWeek = 0}) {
+    ProgressionConfig config({
+      double increment = 2.5,
+      int cycle = 4,
+      int deloadWeek = 0,
+    }) {
       final now = DateTime.now();
       return ProgressionConfig(
         id: 'cfg',
@@ -54,7 +58,11 @@ void main() {
       );
     }
 
-    ProgressionState state({int session = 1, int reps = 10, double weight = 100}) {
+    ProgressionState state({
+      int session = 1,
+      int reps = 10,
+      double weight = 100,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'st',
@@ -108,8 +116,11 @@ void main() {
         exercise: testExercise,
       );
       expect(res.incrementApplied, true);
-      expect(res.newWeight, 106.0); // incrementValue adaptativo (6.0kg para barbell multiJoint)
-      expect(res.newReps, 8);
+      expect(
+        res.newWeight,
+        103.75,
+      ); // incrementValue adaptativo (3.75kg para barbell multiJoint)
+      expect(res.newReps, 6);
     });
 
     test('blocks progression when exercise is locked', () {

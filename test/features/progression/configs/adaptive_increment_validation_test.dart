@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/configs/adaptive_increment_config.dart';
+import 'package:liftly/features/progression/configs/training_objective.dart';
 
 /// Tests para validar incrementos adaptativos por exerciseType y loadType
 /// Verifica que AdaptiveIncrementConfig devuelva valores correctos para cada combinación
@@ -32,7 +33,10 @@ void main() {
 
     group('Weight Increments - Multi-Joint', () {
       test('barbell multi-joint tiene incremento correcto', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
         final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
         final range = AdaptiveIncrementConfig.getIncrementRange(exercise);
@@ -45,7 +49,10 @@ void main() {
       });
 
       test('dumbbell multi-joint tiene incremento correcto', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.dumbbell);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.dumbbell,
+        );
 
         final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
 
@@ -55,30 +62,49 @@ void main() {
       });
 
       test('machine multi-joint tiene incremento correcto', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.machine);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.machine,
+        );
 
         final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
 
         // Máquinas pueden tener incrementos más precisos
         expect(increment, greaterThan(0));
-        expect(AdaptiveIncrementConfig.isValidIncrement(exercise, increment), isTrue);
+        expect(
+          AdaptiveIncrementConfig.isValidIncrement(exercise, increment),
+          isTrue,
+        );
       });
     });
 
     group('Weight Increments - Isolation', () {
       test('barbell isolation tiene incremento más pequeño', () {
-        final multiJoint = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
-        final isolation = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.barbell);
+        final multiJoint = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
+        final isolation = createTestExercise(
+          exerciseType: ExerciseType.isolation,
+          loadType: LoadType.barbell,
+        );
 
-        final multiIncrement = AdaptiveIncrementConfig.getDefaultIncrement(multiJoint);
-        final isoIncrement = AdaptiveIncrementConfig.getDefaultIncrement(isolation);
+        final multiIncrement = AdaptiveIncrementConfig.getDefaultIncrement(
+          multiJoint,
+        );
+        final isoIncrement = AdaptiveIncrementConfig.getDefaultIncrement(
+          isolation,
+        );
 
         // Isolation debería tener incrementos menores que multi-joint
         expect(isoIncrement, lessThanOrEqualTo(multiIncrement));
       });
 
       test('dumbbell isolation tiene incremento más pequeño', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.isolation,
+          loadType: LoadType.dumbbell,
+        );
 
         final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
 
@@ -90,10 +116,21 @@ void main() {
 
     group('Series Increments - Multi-Joint', () {
       test('barbell multi-joint tiene incremento de series correcto', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
-        final seriesIncrement = AdaptiveIncrementConfig.getDefaultSeriesIncrement(exercise);
-        final range = AdaptiveIncrementConfig.getSeriesIncrementRange(exercise);
+        final seriesIncrement =
+            AdaptiveIncrementConfig.getDefaultSeriesIncrement(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
+        final range =
+            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
 
         expect(seriesIncrement, greaterThan(0));
         expect(range?.min ?? 0, lessThanOrEqualTo(seriesIncrement));
@@ -101,10 +138,21 @@ void main() {
       });
 
       test('machine multi-joint tiene mayor flexibilidad en series', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.machine);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.machine,
+        );
 
-        final seriesIncrement = AdaptiveIncrementConfig.getDefaultSeriesIncrement(exercise);
-        final range = AdaptiveIncrementConfig.getSeriesIncrementRange(exercise);
+        final seriesIncrement =
+            AdaptiveIncrementConfig.getDefaultSeriesIncrement(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
+        final range =
+            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
 
         // Máquinas deberían tener mayor flexibilidad
         expect(seriesIncrement, greaterThanOrEqualTo(1));
@@ -112,10 +160,21 @@ void main() {
       });
 
       test('bodyweight multi-joint tiene mayor flexibilidad en series', () {
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.bodyweight);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.bodyweight,
+        );
 
-        final seriesIncrement = AdaptiveIncrementConfig.getDefaultSeriesIncrement(exercise);
-        final range = AdaptiveIncrementConfig.getSeriesIncrementRange(exercise);
+        final seriesIncrement =
+            AdaptiveIncrementConfig.getDefaultSeriesIncrement(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
+        final range =
+            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
 
         // Peso corporal debería permitir más series
         expect(range?.max ?? 0, greaterThanOrEqualTo(2));
@@ -126,72 +185,156 @@ void main() {
     group('Series Increments - Isolation', () {
       test('isolation exercises tienen incrementos de series válidos', () {
         for (final loadType in LoadType.values) {
-          final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: loadType);
+          final exercise = createTestExercise(
+            exerciseType: ExerciseType.isolation,
+            loadType: loadType,
+          );
 
-          final seriesIncrement = AdaptiveIncrementConfig.getDefaultSeriesIncrement(exercise);
-          final range = AdaptiveIncrementConfig.getSeriesIncrementRange(exercise);
+          final seriesIncrement =
+              AdaptiveIncrementConfig.getDefaultSeriesIncrement(
+                exercise,
+                objective: TrainingObjective.hypertrophy,
+              );
+          final range =
+              AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+                exercise,
+                objective: TrainingObjective.hypertrophy,
+              );
 
           expect(seriesIncrement, greaterThan(0));
           expect(range?.min, greaterThan(0));
           expect(range?.max ?? 0, greaterThanOrEqualTo(range?.min ?? 0));
-          expect(AdaptiveIncrementConfig.isValidSeriesIncrement(exercise, seriesIncrement), isTrue);
+          expect(
+            AdaptiveIncrementConfig.isValidSeriesIncrement(
+              exercise,
+              seriesIncrement,
+            ),
+            isTrue,
+          );
         }
       });
     });
 
     group('All Combinations', () {
-      test('todas las combinaciones de exerciseType y loadType tienen configuración', () {
-        for (final exerciseType in ExerciseType.values) {
-          for (final loadType in LoadType.values) {
-            final exercise = createTestExercise(exerciseType: exerciseType, loadType: loadType);
+      test(
+        'todas las combinaciones de exerciseType y loadType tienen configuración',
+        () {
+          for (final exerciseType in ExerciseType.values) {
+            for (final loadType in LoadType.values) {
+              final exercise = createTestExercise(
+                exerciseType: exerciseType,
+                loadType: loadType,
+              );
 
-            // Verificar weight increment (excluir bodyweight y resistanceBand que no usan peso)
-            if (loadType != LoadType.bodyweight && loadType != LoadType.resistanceBand) {
-              final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
-              expect(increment, greaterThan(0), reason: 'Weight increment for $exerciseType + $loadType should be > 0');
+              // Verificar weight increment (excluir bodyweight y resistanceBand que no usan peso)
+              if (loadType != LoadType.bodyweight &&
+                  loadType != LoadType.resistanceBand) {
+                final increment = AdaptiveIncrementConfig.getDefaultIncrement(
+                  exercise,
+                );
+                expect(
+                  increment,
+                  greaterThan(0),
+                  reason:
+                      'Weight increment for $exerciseType + $loadType should be > 0',
+                );
 
-              final range = AdaptiveIncrementConfig.getIncrementRange(exercise);
-              expect(range?.min, greaterThan(0));
-              expect(range?.max ?? 0, greaterThanOrEqualTo(range?.min ?? 0));
-            } else {
-              // Para bodyweight y resistanceBand, verificar que el incremento es 0
-              final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
-              expect(increment, equals(0.0), reason: 'Weight increment for $exerciseType + $loadType should be 0');
+                final range = AdaptiveIncrementConfig.getIncrementRange(
+                  exercise,
+                );
+                expect(range?.min, greaterThan(0));
+                expect(range?.max ?? 0, greaterThanOrEqualTo(range?.min ?? 0));
+              } else {
+                // Para bodyweight y resistanceBand, verificar que el incremento es 0
+                final increment = AdaptiveIncrementConfig.getDefaultIncrement(
+                  exercise,
+                );
+                expect(
+                  increment,
+                  equals(0.0),
+                  reason:
+                      'Weight increment for $exerciseType + $loadType should be 0',
+                );
+              }
+
+              // Verificar series increment
+              final seriesIncrement =
+                  AdaptiveIncrementConfig.getDefaultSeriesIncrement(
+                    exercise,
+                    objective: TrainingObjective.hypertrophy,
+                  );
+              expect(
+                seriesIncrement,
+                greaterThan(0),
+                reason:
+                    'Series increment for $exerciseType + $loadType should be > 0',
+              );
+
+              final seriesRange =
+                  AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+                    exercise,
+                    objective: TrainingObjective.hypertrophy,
+                  );
+              expect(seriesRange?.min ?? 0, greaterThan(0));
+              expect(
+                seriesRange?.max ?? 0,
+                greaterThanOrEqualTo(seriesRange?.min ?? 0),
+              );
             }
-
-            // Verificar series increment
-            final seriesIncrement = AdaptiveIncrementConfig.getDefaultSeriesIncrement(exercise);
-            expect(
-              seriesIncrement,
-              greaterThan(0),
-              reason: 'Series increment for $exerciseType + $loadType should be > 0',
-            );
-
-            final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRange(exercise);
-            expect(seriesRange?.min ?? 0, greaterThan(0));
-            expect(seriesRange?.max ?? 0, greaterThanOrEqualTo(seriesRange?.min ?? 0));
           }
-        }
-      });
+        },
+      );
 
       test('incrementos son validados correctamente', () {
         for (final exerciseType in ExerciseType.values) {
           for (final loadType in LoadType.values) {
-            final exercise = createTestExercise(exerciseType: exerciseType, loadType: loadType);
+            final exercise = createTestExercise(
+              exerciseType: exerciseType,
+              loadType: loadType,
+            );
 
-            final increment = AdaptiveIncrementConfig.getDefaultIncrement(exercise);
+            final increment = AdaptiveIncrementConfig.getDefaultIncrement(
+              exercise,
+            );
             final range = AdaptiveIncrementConfig.getIncrementRange(exercise);
 
             // Verificar que el incremento recomendado es válido
-            expect(AdaptiveIncrementConfig.isValidIncrement(exercise, increment), isTrue);
+            expect(
+              AdaptiveIncrementConfig.isValidIncrement(exercise, increment),
+              isTrue,
+            );
 
             // Verificar que valores fuera del rango son inválidos
-            expect(AdaptiveIncrementConfig.isValidIncrement(exercise, (range?.min ?? 0) - 0.1), isFalse);
-            expect(AdaptiveIncrementConfig.isValidIncrement(exercise, (range?.max ?? 0) + 0.1), isFalse);
+            expect(
+              AdaptiveIncrementConfig.isValidIncrement(
+                exercise,
+                (range?.min ?? 0) - 0.1,
+              ),
+              isFalse,
+            );
+            expect(
+              AdaptiveIncrementConfig.isValidIncrement(
+                exercise,
+                (range?.max ?? 0) + 0.1,
+              ),
+              isFalse,
+            );
 
             // Verificar que valores dentro del rango son válidos
-            expect(AdaptiveIncrementConfig.isValidIncrement(exercise, range?.min ?? 0), isTrue);
-            expect(AdaptiveIncrementConfig.isValidIncrement(exercise, range?.max ?? 0), isTrue);
+            expect(
+              AdaptiveIncrementConfig.isValidIncrement(
+                exercise,
+                range?.min ?? 0,
+              ),
+              isTrue,
+            );
+            expect(
+              AdaptiveIncrementConfig.isValidIncrement(
+                exercise,
+                range?.max ?? 0,
+              ),
+              isTrue,
+            );
           }
         }
       });
@@ -201,12 +344,18 @@ void main() {
       test('todas las combinaciones tienen descripciones', () {
         for (final exerciseType in ExerciseType.values) {
           for (final loadType in LoadType.values) {
-            final exercise = createTestExercise(exerciseType: exerciseType, loadType: loadType);
+            final exercise = createTestExercise(
+              exerciseType: exerciseType,
+              loadType: loadType,
+            );
 
-            final description = AdaptiveIncrementConfig.getIncrementDescription(exercise);
+            final description = AdaptiveIncrementConfig.getIncrementDescription(
+              exercise,
+            );
             expect(description, isNotEmpty);
 
-            final seriesDescription = AdaptiveIncrementConfig.getSeriesIncrementDescription(exercise);
+            final seriesDescription =
+                AdaptiveIncrementConfig.getSeriesIncrementDescription(exercise);
             expect(seriesDescription, isNotEmpty);
           }
         }
@@ -216,7 +365,8 @@ void main() {
     group('LoadType Filters', () {
       test('getLoadTypesWithIncrement devuelve loadTypes válidos', () {
         for (final _ in ExerciseType.values) {
-          final loadTypes = AdaptiveIncrementConfig.getLoadTypesWithWeightIncrement();
+          final loadTypes =
+              AdaptiveIncrementConfig.getLoadTypesWithWeightIncrement();
 
           expect(loadTypes, isNotEmpty);
           // Debería devolver 6 loadTypes (excluyendo bodyweight y resistanceBand)
@@ -233,7 +383,8 @@ void main() {
 
       test('getLoadTypesWithSeriesIncrement devuelve loadTypes válidos', () {
         for (final _ in ExerciseType.values) {
-          final loadTypes = AdaptiveIncrementConfig.getLoadTypesWithSeriesIncrement();
+          final loadTypes =
+              AdaptiveIncrementConfig.getLoadTypesWithSeriesIncrement();
 
           expect(loadTypes, isNotEmpty);
 

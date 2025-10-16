@@ -22,13 +22,15 @@ class PresetConfigSelector extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PresetConfigSelector> createState() => _PresetConfigSelectorState();
+  ConsumerState<PresetConfigSelector> createState() =>
+      _PresetConfigSelectorState();
 }
 
 class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
   String? selectedObjective;
   ProgressionConfig? selectedConfig;
-  final List<ProgressionConfig> _allPresets = PresetProgressionConfigs.getAllPresets();
+  final List<ProgressionConfig> _allPresets =
+      PresetProgressionConfigs.getAllPresets();
 
   @override
   void initState() {
@@ -70,7 +72,10 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
   }
 
   List<String> _getUniqueObjectives() {
-    return _allPresets.map((config) => _getObjectiveForConfig(config)).toSet().toList();
+    return _allPresets
+        .map((config) => _getObjectiveForConfig(config))
+        .toSet()
+        .toList();
   }
 
   @override
@@ -104,7 +109,9 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
       children: [
         Text(
           'Objetivo de Entrenamiento',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -123,7 +130,8 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
                     });
                   },
                   selectedColor: Theme.of(context).colorScheme.primaryContainer,
-                  checkmarkColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                  checkmarkColor:
+                      Theme.of(context).colorScheme.onPrimaryContainer,
                 );
               }).toList(),
         ),
@@ -132,14 +140,21 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
   }
 
   Widget _buildConfigSelector() {
-    final configs = _allPresets.where((config) => _getObjectiveForConfig(config) == selectedObjective).toList();
+    final configs =
+        _allPresets
+            .where(
+              (config) => _getObjectiveForConfig(config) == selectedObjective,
+            )
+            .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Configuración Específica',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         ...configs.map((config) => _buildConfigCard(config)),
@@ -154,14 +169,18 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
     final metadata = PresetProgressionConfigs.getPresetMetadata(config);
 
     final description =
-        metadata['description'] as String? ?? 'Configuración personalizada para ${config.type.displayName}';
+        metadata['description'] as String? ??
+        'Configuración personalizada para ${config.type.displayName}';
     final difficulty = metadata['difficulty'] as String? ?? '';
     final progressionRate = metadata['progression_rate'] as String? ?? '';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: isSelected ? 4 : 1,
-      color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+      color:
+          isSelected
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.surface,
       child: InkWell(
         onTap: () {
           setState(() {
@@ -182,11 +201,21 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
                       _getConfigDisplayName(config),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: isSelected ? Theme.of(context).colorScheme.onPrimaryContainer : null,
+                        color:
+                            isSelected
+                                ? Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer
+                                : null,
                       ),
                     ),
                   ),
-                  if (isSelected) Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary, size: 20),
+                  if (isSelected)
+                    Icon(
+                      Icons.check_circle,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -195,8 +224,11 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color:
                       isSelected
-                          ? Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8)
-                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                              .withValues(alpha: 0.8)
+                          : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 8),
@@ -220,7 +252,7 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
       decoration: BoxDecoration(
         color:
             isSelected
-                ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
@@ -256,20 +288,37 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
           children: [
             Text(
               '💡 Parámetros Detallados',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
 
             // Información básica
-            _buildParameterRow('Rango de repeticiones', '${config.minReps}–${config.maxReps} reps'),
+            _buildParameterRow(
+              'Rango de repeticiones',
+              '${config.minReps}–${config.maxReps} reps',
+            ),
             _buildParameterRow('Series por ejercicio', '${config.baseSets}'),
-            _buildParameterRow('Duración del ciclo', '${config.cycleLength} ${config.unit.name}'),
-            _buildParameterRow('Frecuencia de incremento', 'Cada ${config.incrementFrequency} ${config.unit.name}'),
-            _buildParameterRow('Valor de incremento', '${config.incrementValue}kg'),
+            _buildParameterRow(
+              'Duración del ciclo',
+              '${config.cycleLength} ${config.unit.name}',
+            ),
+            _buildParameterRow(
+              'Frecuencia de incremento',
+              'Cada ${config.incrementFrequency} ${config.unit.name}',
+            ),
+            _buildParameterRow(
+              'Valor de incremento',
+              '${config.incrementValue}kg',
+            ),
 
-            if (targetRpe != null) _buildParameterRow('RPE objetivo', targetRpe.toStringAsFixed(1)),
-            if (restTime != null) _buildParameterRow('Tiempo de descanso', '${restTime.toInt()}s'),
-            if (intensityRange != null) _buildParameterRow('Rango de intensidad', intensityRange),
+            if (targetRpe != null)
+              _buildParameterRow('RPE objetivo', targetRpe.toStringAsFixed(1)),
+            if (restTime != null)
+              _buildParameterRow('Tiempo de descanso', '${restTime.toInt()}s'),
+            if (intensityRange != null)
+              _buildParameterRow('Rango de intensidad', intensityRange),
 
             const SizedBox(height: 12),
 
@@ -277,7 +326,9 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
             if (bestFor != null && bestFor.isNotEmpty) ...[
               Text(
                 '🎯 Mejor para:',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Wrap(
@@ -288,10 +339,16 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
                         .map(
                           (use) => Chip(
                             label: Text(use.toString()),
-                            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primaryContainer,
                             labelStyle: Theme.of(
                               context,
-                            ).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                            ).textTheme.labelSmall?.copyWith(
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimaryContainer,
+                            ),
                           ),
                         )
                         .toList(),
@@ -311,9 +368,16 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
         children: [
           SizedBox(
             width: 120,
-            child: Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+            ),
           ),
-          Expanded(child: Text(value, style: Theme.of(context).textTheme.bodySmall)),
+          Expanded(
+            child: Text(value, style: Theme.of(context).textTheme.bodySmall),
+          ),
         ],
       ),
     );
@@ -334,8 +398,11 @@ class _PresetConfigSelectorState extends ConsumerState<PresetConfigSelector> {
       case ProgressionType.wave:
         return 'Progresión por Oleadas';
       case ProgressionType.overload:
-        final overloadType = config.customParameters['overload_type'] as String?;
-        return overloadType == 'volume' ? 'Sobrecarga por Volumen' : 'Sobrecarga por Intensidad';
+        final overloadType =
+            config.customParameters['overload_type'] as String?;
+        return overloadType == 'volume'
+            ? 'Sobrecarga por Volumen'
+            : 'Sobrecarga por Intensidad';
       case ProgressionType.static:
         return 'Progresión Estática';
       case ProgressionType.reverse:
@@ -360,7 +427,8 @@ class PresetConfigDescription extends StatelessWidget {
     final metadata = PresetProgressionConfigs.getPresetMetadata(config);
 
     final description =
-        metadata['description'] as String? ?? 'Configuración personalizada para ${config.type.displayName}';
+        metadata['description'] as String? ??
+        'Configuración personalizada para ${config.type.displayName}';
     final targetRpe = metadata['target_rpe'] as num?;
     final restTime = metadata['rest_time'] as num?;
     final intensityRange = metadata['intensity_range'] as String?;
@@ -376,7 +444,9 @@ class PresetConfigDescription extends StatelessWidget {
           children: [
             Text(
               'Configuración Seleccionada',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(description, style: Theme.of(context).textTheme.bodyMedium),
@@ -387,11 +457,16 @@ class PresetConfigDescription extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                if (difficulty != null) _buildInfoChip(context, 'Dificultad', difficulty),
-                if (progressionRate != null) _buildInfoChip(context, 'Progresión', progressionRate),
-                if (targetRpe != null) _buildInfoChip(context, 'RPE', targetRpe.toStringAsFixed(1)),
-                if (restTime != null) _buildInfoChip(context, 'Descanso', '${restTime.toInt()}s'),
-                if (intensityRange != null) _buildInfoChip(context, 'Intensidad', intensityRange),
+                if (difficulty != null)
+                  _buildInfoChip(context, 'Dificultad', difficulty),
+                if (progressionRate != null)
+                  _buildInfoChip(context, 'Progresión', progressionRate),
+                if (targetRpe != null)
+                  _buildInfoChip(context, 'RPE', targetRpe.toStringAsFixed(1)),
+                if (restTime != null)
+                  _buildInfoChip(context, 'Descanso', '${restTime.toInt()}s'),
+                if (intensityRange != null)
+                  _buildInfoChip(context, 'Intensidad', intensityRange),
               ],
             ),
           ],
@@ -409,9 +484,9 @@ class PresetConfigDescription extends StatelessWidget {
       ),
       child: Text(
         '$label: $value',
-        style: Theme.of(
-          context,
-        ).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
       ),
     );
   }

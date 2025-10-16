@@ -3,6 +3,7 @@ import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/configs/adaptive_increment_config.dart';
 import 'package:liftly/features/progression/configs/preset_progression_configs.dart';
+import 'package:liftly/features/progression/configs/training_objective.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
 import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
@@ -70,39 +71,56 @@ void main() {
     group('Linear Preset + Strategy Integration', () {
       final strategy = LinearProgressionStrategy();
 
-      test('hypertrophy preset aplica incrementos correctos para barbell multi-joint', () {
-        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
-        final state = createState(configId: preset.id);
+      test(
+        'hypertrophy preset aplica incrementos correctos para barbell multi-joint',
+        () {
+          final preset =
+              PresetProgressionConfigs.createLinearHypertrophyPreset();
+          final exercise = createTestExercise(
+            exerciseType: ExerciseType.multiJoint,
+            loadType: LoadType.barbell,
+          );
+          final state = createState(configId: preset.id);
 
-        // Calcular progresión
-        final result = strategy.calculate(
-          config: preset,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 100.0,
-          currentReps: 10,
-          currentSets: 3,
-          exerciseType: exercise.exerciseType,
-          exercise: exercise,
-        );
+          // Calcular progresión
+          final result = strategy.calculate(
+            config: preset,
+            state: state,
+            routineId: 'test-routine',
+            currentWeight: 100.0,
+            currentReps: 10,
+            currentSets: 3,
+            exerciseType: exercise.exerciseType,
+            exercise: exercise,
+          );
 
-        // Verificar que se aplicó incremento
-        expect(result.incrementApplied, isTrue);
-        expect(result.newWeight, greaterThan(100.0));
+          // Verificar que se aplicó incremento
+          expect(result.incrementApplied, isTrue);
+          expect(result.newWeight, greaterThan(100.0));
 
-        // Verificar que el incremento está dentro del rango adaptativo
-        final incrementRange = AdaptiveIncrementConfig.getIncrementRange(exercise);
+          // Verificar que el incremento está dentro del rango adaptativo
+          final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+            exercise,
+          );
 
-        final actualIncrement = result.newWeight - 100.0;
-        expect(actualIncrement, greaterThanOrEqualTo(incrementRange?.min ?? 0));
-        expect(actualIncrement, lessThanOrEqualTo(incrementRange?.max ?? 10));
-      });
+          final actualIncrement = result.newWeight - 100.0;
+          expect(
+            actualIncrement,
+            greaterThanOrEqualTo(incrementRange?.min ?? 0),
+          );
+          expect(actualIncrement, lessThanOrEqualTo(incrementRange?.max ?? 10));
+        },
+      );
 
       test('strength preset aplica incrementos mayores que hypertrophy', () {
-        final hypertrophyPreset = PresetProgressionConfigs.createLinearHypertrophyPreset();
-        final strengthPreset = PresetProgressionConfigs.createLinearStrengthPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final hypertrophyPreset =
+            PresetProgressionConfigs.createLinearHypertrophyPreset();
+        final strengthPreset =
+            PresetProgressionConfigs.createLinearStrengthPreset();
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
         final hypertrophyState = createState(configId: hypertrophyPreset.id);
         final strengthState = createState(configId: strengthPreset.id);
@@ -131,31 +149,43 @@ void main() {
         );
 
         // Strength debería tener incrementos mayores o iguales
-        expect(strengthResult.newWeight - 100.0, greaterThanOrEqualTo(hypertrophyResult.newWeight - 100.0));
-      });
-
-      test('endurance preset con dumbbell isolation usa incrementos pequeños', () {
-        final preset = PresetProgressionConfigs.createLinearEndurancePreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.isolation, loadType: LoadType.dumbbell);
-        // Usar sesión 2 para que coincida con incrementFrequency: 2
-        final state = createState(configId: preset.id, currentSession: 2);
-
-        final result = strategy.calculate(
-          config: preset,
-          state: state,
-          routineId: 'test-routine',
-          currentWeight: 10.0,
-          currentReps: 15,
-          currentSets: 3,
-          exerciseType: exercise.exerciseType,
-          exercise: exercise,
+        expect(
+          strengthResult.newWeight - 100.0,
+          greaterThanOrEqualTo(hypertrophyResult.newWeight - 100.0),
         );
-
-        // Verificar incremento pequeño para isolation + dumbbell
-        expect(result.incrementApplied, isTrue);
-        final increment = result.newWeight - 10.0;
-        expect(increment, lessThanOrEqualTo(2.5)); // Incrementos pequeños para endurance + isolation
       });
+
+      test(
+        'endurance preset con dumbbell isolation usa incrementos pequeños',
+        () {
+          final preset = PresetProgressionConfigs.createLinearEndurancePreset();
+          final exercise = createTestExercise(
+            exerciseType: ExerciseType.isolation,
+            loadType: LoadType.dumbbell,
+          );
+          // Usar sesión 2 para que coincida con incrementFrequency: 2
+          final state = createState(configId: preset.id, currentSession: 2);
+
+          final result = strategy.calculate(
+            config: preset,
+            state: state,
+            routineId: 'test-routine',
+            currentWeight: 10.0,
+            currentReps: 15,
+            currentSets: 3,
+            exerciseType: exercise.exerciseType,
+            exercise: exercise,
+          );
+
+          // Verificar incremento pequeño para isolation + dumbbell
+          expect(result.incrementApplied, isTrue);
+          final increment = result.newWeight - 10.0;
+          expect(
+            increment,
+            lessThanOrEqualTo(2.5),
+          ); // Incrementos pequeños para endurance + isolation
+        },
+      );
 
       test('preset respeta rangos de reps según objetivo', () {
         final presets = [
@@ -185,8 +215,12 @@ void main() {
       final strategy = UndulatingProgressionStrategy();
 
       test('hypertrophy preset alterna intensidad correctamente', () {
-        final preset = PresetProgressionConfigs.createUndulatingHypertrophyPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final preset =
+            PresetProgressionConfigs.createUndulatingHypertrophyPreset();
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
         // Día pesado (sesión impar)
         final heavyState = createState(configId: preset.id, currentSession: 1);
@@ -220,8 +254,12 @@ void main() {
       });
 
       test('strength preset usa incrementos adaptativos en ondulación', () {
-        final preset = PresetProgressionConfigs.createUndulatingStrengthPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final preset =
+            PresetProgressionConfigs.createUndulatingStrengthPreset();
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
         final state = createState(configId: preset.id);
 
         final result = strategy.calculate(
@@ -248,7 +286,10 @@ void main() {
 
       test('hypertrophy preset ondula a través de las semanas', () {
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
         final results = <dynamic>[];
 
@@ -277,7 +318,10 @@ void main() {
 
       test('strength preset mantiene progresión a través de ondas', () {
         final preset = PresetProgressionConfigs.createLinearStrengthPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
         // Primera onda
         final state1 = createState(configId: preset.id, currentWeek: 1);
@@ -315,29 +359,49 @@ void main() {
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
         // Ejercicio con barbell
-        final barbellExercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+        final barbellExercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.barbell,
+        );
 
         // Ejercicio con máquina
-        final machineExercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.machine);
+        final machineExercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.machine,
+        );
 
         // Obtener incrementos de series
-        final barbellSeriesIncrement = preset.getAdaptiveSeriesIncrement(barbellExercise);
-        final machineSeriesIncrement = preset.getAdaptiveSeriesIncrement(machineExercise);
+        final barbellSeriesIncrement = preset.getAdaptiveSeriesIncrement(
+          barbellExercise,
+        );
+        final machineSeriesIncrement = preset.getAdaptiveSeriesIncrement(
+          machineExercise,
+        );
 
         // Verificar que son válidos
         expect(barbellSeriesIncrement, greaterThan(0));
         expect(machineSeriesIncrement, greaterThan(0));
 
         // Máquinas deberían permitir más flexibilidad
-        expect(machineSeriesIncrement, greaterThanOrEqualTo(barbellSeriesIncrement));
+        expect(
+          machineSeriesIncrement,
+          greaterThanOrEqualTo(barbellSeriesIncrement),
+        );
       });
 
       test('preset con bodyweight usa incrementos de series mayores', () {
         final preset = PresetProgressionConfigs.createLinearEndurancePreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.bodyweight);
+        final exercise = createTestExercise(
+          exerciseType: ExerciseType.multiJoint,
+          loadType: LoadType.bodyweight,
+        );
 
         final seriesIncrement = preset.getAdaptiveSeriesIncrement(exercise);
-        final range = AdaptiveIncrementConfig.getSeriesIncrementRange(exercise);
+        final range =
+            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+              exercise,
+              objective: TrainingObjective.hypertrophy,
+            );
 
         expect(seriesIncrement, greaterThan(0));
         expect(seriesIncrement, lessThanOrEqualTo(range?.max ?? 5));
@@ -348,42 +412,58 @@ void main() {
     group('Deload with Presets', () {
       final strategy = LinearProgressionStrategy();
 
-      test('preset respeta deload y mantiene incrementos adaptativos después', () {
-        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
-        final exercise = createTestExercise(exerciseType: ExerciseType.multiJoint, loadType: LoadType.barbell);
+      test(
+        'preset respeta deload y mantiene incrementos adaptativos después',
+        () {
+          final preset =
+              PresetProgressionConfigs.createLinearHypertrophyPreset();
+          final exercise = createTestExercise(
+            exerciseType: ExerciseType.multiJoint,
+            loadType: LoadType.barbell,
+          );
 
-        // Semana de deload
-        final deloadState = createState(configId: preset.id, currentWeek: preset.deloadWeek);
+          // Semana de deload
+          final deloadState = createState(
+            configId: preset.id,
+            currentWeek: preset.deloadWeek,
+          );
 
-        final deloadResult = strategy.calculate(
-          config: preset,
-          state: deloadState,
-          routineId: 'test-routine',
-          currentWeight: 110.0,
-          currentReps: 8,
-          currentSets: 4,
-          exerciseType: exercise.exerciseType,
-          exercise: exercise,
-        );
+          final deloadResult = strategy.calculate(
+            config: preset,
+            state: deloadState,
+            routineId: 'test-routine',
+            currentWeight: 110.0,
+            currentReps: 8,
+            currentSets: 4,
+            exerciseType: exercise.exerciseType,
+            exercise: exercise,
+          );
 
-        // Después del deload, volver a progresión normal
-        final postDeloadState = createState(configId: preset.id, currentWeek: preset.deloadWeek + 1);
+          // Después del deload, volver a progresión normal
+          final postDeloadState = createState(
+            configId: preset.id,
+            currentWeek: preset.deloadWeek + 1,
+          );
 
-        final postDeloadResult = strategy.calculate(
-          config: preset,
-          state: postDeloadState,
-          routineId: 'test-routine',
-          currentWeight: deloadResult.newWeight,
-          currentReps: 8,
-          currentSets: 3,
-          exerciseType: exercise.exerciseType,
-          exercise: exercise,
-        );
+          final postDeloadResult = strategy.calculate(
+            config: preset,
+            state: postDeloadState,
+            routineId: 'test-routine',
+            currentWeight: deloadResult.newWeight,
+            currentReps: 8,
+            currentSets: 3,
+            exerciseType: exercise.exerciseType,
+            exercise: exercise,
+          );
 
-        // Verificar que se reanuda la progresión con incrementos adaptativos
-        expect(postDeloadResult.incrementApplied, isTrue);
-        expect(postDeloadResult.newWeight, greaterThan(deloadResult.newWeight));
-      });
+          // Verificar que se reanuda la progresión con incrementos adaptativos
+          expect(postDeloadResult.incrementApplied, isTrue);
+          expect(
+            postDeloadResult.newWeight,
+            greaterThan(deloadResult.newWeight),
+          );
+        },
+      );
     });
   });
 }

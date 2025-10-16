@@ -1,4 +1,6 @@
 import '../../../../features/exercise/models/exercise.dart';
+import '../../configs/adaptive_increment_config.dart';
+import '../../configs/training_objective.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
@@ -52,7 +54,8 @@ import '../progression_strategy.dart';
 /// - Puede llevar a sobreentrenamiento si no se maneja bien
 /// - Necesita deloads apropiados
 /// - Requiere monitoreo de fatiga
-class OverloadProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class OverloadProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -66,12 +69,18 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy implements Pro
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Overload progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Overload progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -111,8 +120,8 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy implements Pro
     }
 
     // Aplicar lógica específica de sobrecarga progresiva
-    final overloadType = (config.customParameters['overload_type'] as String?) ?? 'volume';
-    final overloadRate = (config.customParameters['overload_rate'] as num?)?.toDouble() ?? 0.1;
+    final overloadType = _getOverloadTypeByObjective(config);
+    final overloadRate = _getOverloadRateByObjective(config);
 
     if (overloadType == 'volume') {
       return createProgressionResult(
@@ -137,7 +146,63 @@ class OverloadProgressionStrategy extends BaseProgressionStrategy implements Pro
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Overload progression siempre aplica valores
+  }
+
+  /// Obtiene el tipo de overload basado en el objetivo de entrenamiento
+  String _getOverloadTypeByObjective(ProgressionConfig config) {
+    final customParams = config.customParameters;
+    final customType = customParams['overload_type'] as String?;
+
+    if (customType != null) {
+      return customType;
+    }
+
+    // Derivar tipo de overload por objetivo
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      config.getTrainingObjective(),
+    );
+
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 'intensity'; // Sobrecarga por intensidad para fuerza
+      case TrainingObjective.hypertrophy:
+        return 'volume'; // Sobrecarga por volumen para hipertrofia
+      case TrainingObjective.endurance:
+        return 'volume'; // Sobrecarga por volumen para resistencia
+      case TrainingObjective.power:
+        return 'intensity'; // Sobrecarga por intensidad para potencia
+    }
+  }
+
+  /// Obtiene la tasa de overload basada en el objetivo de entrenamiento
+  double _getOverloadRateByObjective(ProgressionConfig config) {
+    final customParams = config.customParameters;
+    final customRate = (customParams['overload_rate'] as num?)?.toDouble();
+
+    if (customRate != null) {
+      return customRate;
+    }
+
+    // Derivar tasa de overload por objetivo
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      config.getTrainingObjective(),
+    );
+
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 0.05; // Tasa conservadora para fuerza
+      case TrainingObjective.hypertrophy:
+        return 0.1; // Tasa moderada para hipertrofia
+      case TrainingObjective.endurance:
+        return 0.15; // Tasa más agresiva para resistencia
+      case TrainingObjective.power:
+        return 0.05; // Tasa conservadora para potencia
+    }
   }
 }

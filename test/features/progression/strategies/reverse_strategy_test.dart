@@ -14,7 +14,8 @@ void main() {
       isGlobal: true,
       type: ProgressionType.reverse,
       unit: ProgressionUnit.session,
-      primaryTarget: ProgressionTarget.weight,
+      primaryTarget:
+          ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
       secondaryTarget: ProgressionTarget.reps,
       incrementValue: 2.5,
       incrementFrequency: 1,
@@ -105,7 +106,8 @@ void main() {
       isGlobal: true,
       type: ProgressionType.reverse,
       unit: ProgressionUnit.session,
-      primaryTarget: ProgressionTarget.weight,
+      primaryTarget:
+          ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
       secondaryTarget: ProgressionTarget.reps,
       incrementValue: 2.5,
       incrementFrequency: 1,

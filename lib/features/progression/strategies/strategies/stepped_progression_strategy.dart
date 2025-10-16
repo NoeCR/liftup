@@ -1,4 +1,6 @@
 import '../../../../features/exercise/models/exercise.dart';
+import '../../configs/adaptive_increment_config.dart';
+import '../../configs/training_objective.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
@@ -49,7 +51,8 @@ import '../progression_strategy.dart';
 /// - Requiere planificación cuidadosa de fases
 /// - Puede ser menos efectiva para ganancias rápidas
 /// - Necesita deloads apropiados
-class SteppedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class SteppedProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -63,12 +66,18 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Stepped progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -113,25 +122,52 @@ class SteppedProgressionStrategy extends BaseProgressionStrategy implements Prog
     final baseSets = getBaseSetsSync(config, exercise);
 
     final totalIncrement =
-        currentInCycle <= accumulationWeeks ? incrementValue * currentInCycle : incrementValue * accumulationWeeks;
+        currentInCycle <= accumulationWeeks
+            ? incrementValue * currentInCycle
+            : incrementValue * accumulationWeeks;
 
     return createProgressionResult(
       newWeight: currentWeight + totalIncrement,
       newReps: currentReps,
       newSets: baseSets,
       incrementApplied: true,
-      reason: 'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
+      reason:
+          'Stepped progression: accumulation phase (week $currentInCycle of ${config.cycleLength})',
     );
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Stepped progression siempre aplica valores
   }
 
   /// Obtiene las semanas de acumulación desde parámetros personalizados
   int _getAccumulationWeeks(ProgressionConfig config) {
     final customParams = config.customParameters;
-    return customParams['accumulation_weeks'] ?? 3; // default
+    final customWeeks = customParams['accumulation_weeks'];
+
+    if (customWeeks != null) {
+      return customWeeks;
+    }
+
+    // Derivar semanas de acumulación por objetivo
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      config.getTrainingObjective(),
+    );
+
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 4; // Más semanas para fuerza (progresión más lenta)
+      case TrainingObjective.hypertrophy:
+        return 3; // Semanas moderadas para hipertrofia
+      case TrainingObjective.endurance:
+        return 2; // Menos semanas para resistencia (progresión más rápida)
+      case TrainingObjective.power:
+        return 3; // Semanas moderadas para potencia
+    }
   }
 }

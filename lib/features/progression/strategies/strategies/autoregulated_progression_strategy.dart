@@ -1,4 +1,6 @@
 import '../../../../features/exercise/models/exercise.dart';
+import '../../configs/adaptive_increment_config.dart';
+import '../../configs/training_objective.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';
@@ -56,7 +58,8 @@ import '../progression_strategy.dart';
 /// - Más compleja de implementar
 /// - Dependiente de la autoevaluación del atleta
 /// - Puede ser inconsistente entre sesiones
-class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class AutoregulatedProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -70,12 +73,18 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Autoregulated progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -122,8 +131,10 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     final minReps = getMinRepsSync(config, exercise);
     final incrementValue = getIncrementValueSync(config, exercise);
 
-    final lastSessionData = state.sessionHistory['session_${state.currentSession}'];
-    final performedReps = (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
+    final lastSessionData =
+        state.sessionHistory['session_${state.currentSession}'];
+    final performedReps =
+        (lastSessionData?['reps'] as num?)?.toInt() ?? currentReps;
 
     double estimatedRPE;
     if (performedReps >= targetReps) {
@@ -145,7 +156,10 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
     } else if (estimatedRPE > targetRPE + rpeThreshold) {
       final adjustedReps = currentReps < minReps ? minReps : currentReps;
       return createProgressionResult(
-        newWeight: (currentWeight - incrementValue * 0.5).clamp(0, currentWeight),
+        newWeight: (currentWeight - incrementValue * 0.5).clamp(
+          0,
+          currentWeight,
+        ),
         newReps: adjustedReps,
         newSets: state.baseSets,
         incrementApplied: true,
@@ -171,25 +185,89 @@ class AutoregulatedProgressionStrategy extends BaseProgressionStrategy implement
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Autoregulated progression siempre aplica valores
   }
 
   /// Obtiene el RPE objetivo desde parámetros personalizados
   double _getTargetRPE(ProgressionConfig config) {
     final customParams = config.customParameters;
-    return (customParams['target_rpe'] as num?)?.toDouble() ?? 8.0;
+    final customRPE = (customParams['target_rpe'] as num?)?.toDouble();
+
+    if (customRPE != null) {
+      return customRPE;
+    }
+
+    // Derivar RPE por objetivo desde AdaptiveIncrementConfig
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      config.getTrainingObjective(),
+    );
+
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 8.0; // RPE alto para fuerza máxima
+      case TrainingObjective.hypertrophy:
+        return 7.0; // RPE moderado-alto para hipertrofia
+      case TrainingObjective.endurance:
+        return 6.0; // RPE moderado para resistencia
+      case TrainingObjective.power:
+        return 8.0; // RPE alto para potencia máxima
+    }
   }
 
   /// Obtiene el umbral de RPE desde parámetros personalizados
   double _getRPEThreshold(ProgressionConfig config) {
     final customParams = config.customParameters;
-    return (customParams['rpe_threshold'] as num?)?.toDouble() ?? 0.5;
+    final customThreshold = (customParams['rpe_threshold'] as num?)?.toDouble();
+
+    if (customThreshold != null) {
+      return customThreshold;
+    }
+
+    // Derivar umbral por objetivo
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      config.getTrainingObjective(),
+    );
+
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 0.5; // Umbral estrecho para fuerza
+      case TrainingObjective.hypertrophy:
+        return 1.0; // Umbral moderado para hipertrofia
+      case TrainingObjective.endurance:
+        return 1.5; // Umbral amplio para resistencia
+      case TrainingObjective.power:
+        return 0.5; // Umbral estrecho para potencia
+    }
   }
 
   /// Obtiene las repeticiones objetivo desde parámetros personalizados
   int _getTargetReps(ProgressionConfig config) {
     final customParams = config.customParameters;
-    return (customParams['target_reps'] as num?)?.toInt() ?? 10;
+    final customReps = (customParams['target_reps'] as num?)?.toInt();
+
+    if (customReps != null) {
+      return customReps;
+    }
+
+    // Derivar reps objetivo por objetivo
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      config.getTrainingObjective(),
+    );
+
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 5; // Reps bajas para fuerza
+      case TrainingObjective.hypertrophy:
+        return 10; // Reps moderadas para hipertrofia
+      case TrainingObjective.endurance:
+        return 15; // Reps altas para resistencia
+      case TrainingObjective.power:
+        return 3; // Reps muy bajas para potencia
+    }
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import '../../../../features/exercise/models/exercise.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
@@ -50,7 +48,8 @@ import '../progression_strategy.dart';
 /// - Más compleja de programar
 /// - Puede ser abrumadora para principiantes
 /// - Requiere mayor capacidad de recuperación
-class UndulatingProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
+class UndulatingProgressionStrategy extends BaseProgressionStrategy
+    implements ProgressionStrategy {
   @override
   ProgressionCalculationResult calculate({
     required ProgressionConfig config,
@@ -64,12 +63,18 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
+    if (isProgressionBlocked(
+      state,
+      state.exerciseId,
+      routineId,
+      isExerciseLocked,
+    )) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason: 'Undulating progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason:
+            'Undulating progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -115,9 +120,12 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
 
     if (isHeavyDay) {
       // Día pesado: más peso, menos reps
+      final loweredReps = (currentReps * 0.85).round();
+      final lowerBound = minReps < currentReps ? minReps : currentReps;
+      final upperBound = minReps > currentReps ? minReps : currentReps;
       return createProgressionResult(
         newWeight: currentWeight + incrementValue,
-        newReps: (currentReps * 0.85).round().clamp(math.min(minReps, currentReps), currentReps),
+        newReps: loweredReps.clamp(lowerBound, upperBound),
         newSets: state.baseSets,
         incrementApplied: true,
         reason:
@@ -137,7 +145,11 @@ class UndulatingProgressionStrategy extends BaseProgressionStrategy implements P
   }
 
   @override
-  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
+  bool shouldApplyProgressionValues(
+    ProgressionState? progressionState,
+    String routineId,
+    bool isExerciseLocked,
+  ) {
     return true; // Undulating progression siempre aplica valores
   }
 }

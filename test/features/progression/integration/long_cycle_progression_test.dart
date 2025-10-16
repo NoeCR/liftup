@@ -3,6 +3,7 @@ import 'package:liftly/common/enums/muscle_group_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/configs/adaptive_increment_config.dart';
 import 'package:liftly/features/progression/configs/preset_progression_configs.dart';
+import 'package:liftly/features/progression/configs/training_objective.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/strategies/autoregulated_progression_strategy.dart';
@@ -54,10 +55,15 @@ void main() {
           strategy: testStrategies['linear']!,
           preset: PresetProgressionConfigs.createLinearHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedLinearProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedLinearProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -66,10 +72,15 @@ void main() {
           strategy: testStrategies['linear']!,
           preset: PresetProgressionConfigs.createLinearStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedLinearProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedLinearProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
 
@@ -78,10 +89,15 @@ void main() {
           strategy: testStrategies['linear']!,
           preset: PresetProgressionConfigs.createLinearEndurancePreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.machine,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.machine,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedLinearProgression(LoadType.machine, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedLinearProgression(
+            LoadType.machine,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -90,10 +106,15 @@ void main() {
           strategy: testStrategies['linear']!,
           preset: PresetProgressionConfigs.createLinearPowerPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.cable,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.cable,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedLinearProgression(LoadType.cable, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedLinearProgression(
+            LoadType.cable,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -104,10 +125,15 @@ void main() {
           strategy: testStrategies['stepped']!,
           preset: PresetProgressionConfigs.createSteppedHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedSteppedProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedSteppedProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -116,10 +142,15 @@ void main() {
           strategy: testStrategies['stepped']!,
           preset: PresetProgressionConfigs.createSteppedStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedSteppedProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedSteppedProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -130,10 +161,15 @@ void main() {
           strategy: testStrategies['double']!,
           preset: PresetProgressionConfigs.createDoubleHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedDoubleProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedDoubleProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -142,10 +178,15 @@ void main() {
           strategy: testStrategies['double']!,
           preset: PresetProgressionConfigs.createDoubleStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedDoubleProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedDoubleProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -156,10 +197,15 @@ void main() {
           strategy: testStrategies['undulating']!,
           preset: PresetProgressionConfigs.createUndulatingHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedUndulatingProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedUndulatingProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -168,10 +214,15 @@ void main() {
           strategy: testStrategies['undulating']!,
           preset: PresetProgressionConfigs.createUndulatingStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedUndulatingProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedUndulatingProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -180,12 +231,18 @@ void main() {
       test('Autoregulated Hypertrophy - Barbell Multi-joint (6 months)', () {
         _testLongCycleProgression(
           strategy: testStrategies['autoregulated']!,
-          preset: PresetProgressionConfigs.createAutoregulatedHypertrophyPreset(),
+          preset:
+              PresetProgressionConfigs.createAutoregulatedHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedAutoregulatedProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedAutoregulatedProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -194,10 +251,15 @@ void main() {
           strategy: testStrategies['autoregulated']!,
           preset: PresetProgressionConfigs.createAutoregulatedStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedAutoregulatedProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedAutoregulatedProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -206,12 +268,18 @@ void main() {
       test('Double Factor Hypertrophy - Barbell Multi-joint (6 months)', () {
         _testLongCycleProgression(
           strategy: testStrategies['doubleFactor']!,
-          preset: PresetProgressionConfigs.createDoubleFactorHypertrophyPreset(),
+          preset:
+              PresetProgressionConfigs.createDoubleFactorHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedDoubleFactorProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedDoubleFactorProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -220,10 +288,15 @@ void main() {
           strategy: testStrategies['doubleFactor']!,
           preset: PresetProgressionConfigs.createDoubleFactorStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedDoubleFactorProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedDoubleFactorProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -234,10 +307,15 @@ void main() {
           strategy: testStrategies['wave']!,
           preset: PresetProgressionConfigs.createWaveHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedWaveProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedWaveProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -246,10 +324,15 @@ void main() {
           strategy: testStrategies['wave']!,
           preset: PresetProgressionConfigs.createWaveStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedWaveProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedWaveProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -260,10 +343,15 @@ void main() {
           strategy: testStrategies['overload']!,
           preset: PresetProgressionConfigs.createOverloadHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedOverloadProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedOverloadProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -272,10 +360,15 @@ void main() {
           strategy: testStrategies['overload']!,
           preset: PresetProgressionConfigs.createOverloadStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedOverloadProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedOverloadProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -286,10 +379,15 @@ void main() {
           strategy: testStrategies['static']!,
           preset: PresetProgressionConfigs.createStaticHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedStaticProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedStaticProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -298,10 +396,15 @@ void main() {
           strategy: testStrategies['static']!,
           preset: PresetProgressionConfigs.createStaticStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedStaticProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedStaticProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
@@ -312,10 +415,15 @@ void main() {
           strategy: testStrategies['reverse']!,
           preset: PresetProgressionConfigs.createReverseHypertrophyPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.barbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedReverseProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedReverseProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
       });
 
@@ -324,22 +432,30 @@ void main() {
           strategy: testStrategies['reverse']!,
           preset: PresetProgressionConfigs.createReverseStrengthPreset(),
           exercise: testExercises.firstWhere(
-            (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+            (e) =>
+                e.exerciseType == ExerciseType.isolation &&
+                e.loadType == LoadType.dumbbell,
           ),
           months: 6,
-          expectedWeightProgression: _getExpectedReverseProgression(LoadType.dumbbell, ExerciseType.isolation),
+          expectedWeightProgression: _getExpectedReverseProgression(
+            LoadType.dumbbell,
+            ExerciseType.isolation,
+          ),
         );
       });
     });
 
     group('Edge Cases and Special Scenarios', () {
       test('Bodyweight exercises should not increment weight', () {
-        final bodyweightExercise = testExercises.firstWhere((e) => e.loadType == LoadType.bodyweight);
+        final bodyweightExercise = testExercises.firstWhere(
+          (e) => e.loadType == LoadType.bodyweight,
+        );
         final strategy = testStrategies['linear']!;
         // Crear preset sin deloads para bodyweight
-        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset().copyWith(
-          deloadWeek: 0, // Sin deloads para bodyweight
-        );
+        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset()
+            .copyWith(
+              deloadWeek: 0, // Sin deloads para bodyweight
+            );
 
         final result = _testLongCycleProgression(
           strategy: strategy,
@@ -354,12 +470,15 @@ void main() {
       });
 
       test('Resistance band exercises should not increment weight', () {
-        final resistanceBandExercise = testExercises.firstWhere((e) => e.loadType == LoadType.resistanceBand);
+        final resistanceBandExercise = testExercises.firstWhere(
+          (e) => e.loadType == LoadType.resistanceBand,
+        );
         final strategy = testStrategies['linear']!;
         // Crear preset sin deloads para resistance band
-        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset().copyWith(
-          deloadWeek: 0, // Sin deloads para resistance band
-        );
+        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset()
+            .copyWith(
+              deloadWeek: 0, // Sin deloads para resistance band
+            );
 
         final result = _testLongCycleProgression(
           strategy: strategy,
@@ -377,7 +496,9 @@ void main() {
         final strategy = testStrategies['linear']!;
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
 
         final result = _testLongCycleProgression(
@@ -385,7 +506,10 @@ void main() {
           preset: preset,
           exercise: exercise,
           months: 2, // Test más corto para validar deload
-          expectedWeightProgression: _getExpectedLinearProgression(LoadType.barbell, ExerciseType.multiJoint),
+          expectedWeightProgression: _getExpectedLinearProgression(
+            LoadType.barbell,
+            ExerciseType.multiJoint,
+          ),
         );
 
         // Verificar que se hayan aplicado deloads
@@ -394,26 +518,40 @@ void main() {
         // Verificar que los deloads redujeron el peso apropiadamente
         for (final deload in result.deloadSessions) {
           expect(deload.weight, lessThan(deload.previousWeight));
-          expect(deload.weight, greaterThanOrEqualTo(deload.previousWeight * preset.deloadPercentage));
+          expect(
+            deload.weight,
+            greaterThanOrEqualTo(
+              deload.previousWeight * preset.deloadPercentage,
+            ),
+          );
         }
       });
 
       test('Series increments should work correctly for different load types', () {
-        final strategy = testStrategies['wave']!; // Usar WaveProgressionStrategy que sí incrementa series
+        final strategy =
+            testStrategies['wave']!; // Usar WaveProgressionStrategy que sí incrementa series
         final preset = PresetProgressionConfigs.createWaveHypertrophyPreset();
 
         // Test con diferentes tipos de carga que soportan incrementos de series
-        final loadTypes = [LoadType.machine, LoadType.bodyweight, LoadType.resistanceBand];
+        final loadTypes = [
+          LoadType.machine,
+          LoadType.bodyweight,
+          LoadType.resistanceBand,
+        ];
 
         for (final loadType in loadTypes) {
-          final exercise = testExercises.firstWhere((e) => e.loadType == loadType);
+          final exercise = testExercises.firstWhere(
+            (e) => e.loadType == loadType,
+          );
 
           final result = _testLongCycleProgression(
             strategy: strategy,
             preset: preset,
             exercise: exercise,
             months: 2, // Test más corto
-            expectedWeightProgression: _getExpectedSeriesIncrementProgression(loadType),
+            expectedWeightProgression: _getExpectedSeriesIncrementProgression(
+              loadType,
+            ),
           );
 
           // Verificar que se hayan aplicado incrementos de series
@@ -436,13 +574,19 @@ List<Exercise> _createTestExercises() {
         Exercise(
           id: 'test-${exerciseType.name}-${loadType.name}',
           name: 'Test ${exerciseType.name} ${loadType.name}',
-          description: 'Test exercise for ${exerciseType.name} ${loadType.name}',
+          description:
+              'Test exercise for ${exerciseType.name} ${loadType.name}',
           imageUrl: '',
           muscleGroups:
-              exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
+              exerciseType == ExerciseType.multiJoint
+                  ? [MuscleGroup.pectoralMajor]
+                  : [MuscleGroup.bicepsLongHead],
           tips: [],
           commonMistakes: [],
-          category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
+          category:
+              exerciseType == ExerciseType.multiJoint
+                  ? ExerciseCategory.chest
+                  : ExerciseCategory.biceps,
           difficulty: ExerciseDifficulty.intermediate,
           createdAt: now,
           updatedAt: now,
@@ -457,11 +601,18 @@ List<Exercise> _createTestExercises() {
 }
 
 /// Helper function para obtener la progresión esperada de Linear Progression
-Map<String, dynamic> _getExpectedLinearProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
-  final seriesIncrementRange = AdaptiveIncrementConfig.getSeriesIncrementRange(
+Map<String, dynamic> _getExpectedLinearProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
     _createTempExercise(exerciseType, loadType),
   );
+  final seriesIncrementRange =
+      AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+        _createTempExercise(exerciseType, loadType),
+        objective: TrainingObjective.hypertrophy,
+      );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
@@ -472,19 +623,31 @@ Map<String, dynamic> _getExpectedLinearProgression(LoadType loadType, ExerciseTy
 }
 
 /// Helper function para obtener la progresión esperada de Stepped Progression
-Map<String, dynamic> _getExpectedSteppedProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedSteppedProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
-    'weightIncrement': (incrementRange?.defaultValue ?? 0.0) * 2, // Stepped doubles the increment
+    'weightIncrement':
+        (incrementRange?.defaultValue ?? 0.0) *
+        2, // Stepped doubles the increment
     'frequency': 2, // Stepped progression increments every 2 sessions
     'deloadFrequency': 6, // Every 6 sessions
   };
 }
 
 /// Helper function para obtener la progresión esperada de Double Progression
-Map<String, dynamic> _getExpectedDoubleProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedDoubleProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
@@ -495,8 +658,13 @@ Map<String, dynamic> _getExpectedDoubleProgression(LoadType loadType, ExerciseTy
 }
 
 /// Helper function para obtener la progresión esperada de Undulating Progression
-Map<String, dynamic> _getExpectedUndulatingProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedUndulatingProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
@@ -507,8 +675,13 @@ Map<String, dynamic> _getExpectedUndulatingProgression(LoadType loadType, Exerci
 }
 
 /// Helper function para obtener la progresión esperada de Autoregulated Progression
-Map<String, dynamic> _getExpectedAutoregulatedProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedAutoregulatedProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
@@ -519,20 +692,31 @@ Map<String, dynamic> _getExpectedAutoregulatedProgression(LoadType loadType, Exe
 }
 
 /// Helper function para obtener la progresión esperada de Double Factor Progression
-Map<String, dynamic> _getExpectedDoubleFactorProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedDoubleFactorProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
     'frequency': 1, // Double factor can increment every session
     'deloadFrequency': 6, // Every 6 sessions
-    'volumeIntensityAlternating': true, // Alternates between volume and intensity weeks
+    'volumeIntensityAlternating':
+        true, // Alternates between volume and intensity weeks
   };
 }
 
 /// Helper function para obtener la progresión esperada de Wave Progression
-Map<String, dynamic> _getExpectedWaveProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedWaveProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
@@ -543,11 +727,18 @@ Map<String, dynamic> _getExpectedWaveProgression(LoadType loadType, ExerciseType
 }
 
 /// Helper function para obtener la progresión esperada de Overload Progression
-Map<String, dynamic> _getExpectedOverloadProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedOverloadProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
-    'weightIncrement': (incrementRange?.defaultValue ?? 0.0) * 1.1, // Overload uses 110% factor
+    'weightIncrement':
+        (incrementRange?.defaultValue ?? 0.0) *
+        1.1, // Overload uses 110% factor
     'frequency': 1, // Overload can increment every session
     'deloadFrequency': 4, // Every 4 sessions
     'overloadFactor': 1.1, // Should apply overload factor
@@ -555,9 +746,13 @@ Map<String, dynamic> _getExpectedOverloadProgression(LoadType loadType, Exercise
 }
 
 /// Helper function para obtener la progresión esperada de Static Progression
-Map<String, dynamic> _getExpectedStaticProgression(LoadType loadType, ExerciseType exerciseType) {
+Map<String, dynamic> _getExpectedStaticProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
   return {
-    'weightIncrement': 0.0, // Static progression doesn't increment weight automatically
+    'weightIncrement':
+        0.0, // Static progression doesn't increment weight automatically
     'frequency': 0, // No automatic increments
     'deloadFrequency': 8, // Every 8 sessions
     'manualProgression': true, // Should require manual progression
@@ -565,8 +760,13 @@ Map<String, dynamic> _getExpectedStaticProgression(LoadType loadType, ExerciseTy
 }
 
 /// Helper function para obtener la progresión esperada de Reverse Progression
-Map<String, dynamic> _getExpectedReverseProgression(LoadType loadType, ExerciseType exerciseType) {
-  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(_createTempExercise(exerciseType, loadType));
+Map<String, dynamic> _getExpectedReverseProgression(
+  LoadType loadType,
+  ExerciseType exerciseType,
+) {
+  final incrementRange = AdaptiveIncrementConfig.getIncrementRange(
+    _createTempExercise(exerciseType, loadType),
+  );
 
   return {
     'weightIncrement': incrementRange?.defaultValue ?? 0.0,
@@ -598,9 +798,11 @@ Map<String, dynamic> _getExpectedResistanceBandProgression() {
 
 /// Helper function para obtener la progresión esperada de Series Increment
 Map<String, dynamic> _getExpectedSeriesIncrementProgression(LoadType loadType) {
-  final seriesIncrementRange = AdaptiveIncrementConfig.getSeriesIncrementRange(
-    _createTempExercise(ExerciseType.multiJoint, loadType),
-  );
+  final seriesIncrementRange =
+      AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+        _createTempExercise(ExerciseType.multiJoint, loadType),
+        objective: TrainingObjective.hypertrophy,
+      );
 
   return {
     'weightIncrement': 0.0, // Focus on series increments
@@ -618,10 +820,16 @@ Exercise _createTempExercise(ExerciseType exerciseType, LoadType loadType) {
     name: 'Temp ${exerciseType.name} ${loadType.name}',
     description: 'Temporary exercise for testing',
     imageUrl: '',
-    muscleGroups: exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
+    muscleGroups:
+        exerciseType == ExerciseType.multiJoint
+            ? [MuscleGroup.pectoralMajor]
+            : [MuscleGroup.bicepsLongHead],
     tips: [],
     commonMistakes: [],
-    category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
+    category:
+        exerciseType == ExerciseType.multiJoint
+            ? ExerciseCategory.chest
+            : ExerciseCategory.biceps,
     difficulty: ExerciseDifficulty.intermediate,
     createdAt: now,
     updatedAt: now,

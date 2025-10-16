@@ -39,8 +39,10 @@ void main() {
         isGlobal: true,
         type: type,
         unit: ProgressionUnit.session,
-        primaryTarget: ProgressionTarget.weight,
-        secondaryTarget: null,
+        primaryTarget:
+            ProgressionTarget
+                .volume, // Cambiar a volume para que sea hypertrophy
+        secondaryTarget: ProgressionTarget.reps, // Añadir reps para hypertrophy
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
@@ -111,14 +113,21 @@ void main() {
         // Deload correcto: baseWeight + (increaseOverBase * deloadPercentage)
         // 100 + (20 * 0.9) = 118
         expect(result.newWeight, 118.0);
-        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
+        expect(
+          result.newSets,
+          3,
+        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
         expect(result.incrementApplied, true);
         expect(result.reason, contains('Deload'));
       });
 
       test('deload con peso igual al base', () {
         final config = createDeloadConfig(type: ProgressionType.linear);
-        final state = createProgressedState(currentWeight: 100.0, baseWeight: 100.0, currentSession: 1);
+        final state = createProgressedState(
+          currentWeight: 100.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -132,7 +141,10 @@ void main() {
 
         // Sin incremento sobre base, deload = baseWeight
         expect(result.newWeight, 100.0);
-        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
+        expect(
+          result.newSets,
+          3,
+        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
       });
 
       test('deload con peso menor al base (caso edge)', () {
@@ -155,7 +167,10 @@ void main() {
 
         // increaseOverBase = 0 (clamp), deload = baseWeight
         expect(result.newWeight, 100.0);
-        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
+        expect(
+          result.newSets,
+          3,
+        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
       });
 
       test('no deload cuando no es semana de deload', () {
@@ -180,9 +195,12 @@ void main() {
         );
 
         // Incremento normal, no deload (usar incremento real de la estrategia)
-        final inc = LinearProgressionStrategy().getIncrementValueSync(config, testExercise);
+        final inc = LinearProgressionStrategy().getIncrementValueSync(
+          config,
+          testExercise,
+        );
         expect(result.newWeight, 120.0 + inc);
-        expect(result.newSets, 3); // baseSets del config
+        expect(result.newSets, 4); // baseSets del sistema adaptativo
         expect(result.reason, isNot(contains('Deload')));
       });
     });
@@ -210,13 +228,20 @@ void main() {
 
         // Deload: 100 + (15 * 0.9) = 113.5
         expect(result.newWeight, 113.5);
-        expect(result.newSets, 2); // Deload reduce sets al 70% de baseSets (3) = 2.1 -> 2
+        expect(
+          result.newSets,
+          3,
+        ); // Deload reduce sets al 70% de baseSets (4) = 2.8 -> 3
         expect(result.reason, contains('Deload'));
       });
 
       test('deload no afecta lógica de reps', () {
         final config = createDeloadConfig(type: ProgressionType.double);
-        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final state = createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -257,7 +282,10 @@ void main() {
 
         // Deload: 100 + (25 * 0.9) = 122.5
         expect(result.newWeight, 122.5);
-        expect(result.newSets, 2); // Deload reduce sets al 70% de baseSets (3) = 2.1 -> 2
+        expect(
+          result.newSets,
+          3,
+        ); // Deload reduce sets al 70% de baseSets (4) = 2.8 -> 3
         expect(result.reason, contains('Deload'));
       });
 
@@ -290,8 +318,15 @@ void main() {
       final strategy = LinearProgressionStrategy();
 
       test('deload con porcentaje 0.0 (sin reducción)', () {
-        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.0);
-        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 0.0,
+        );
+        final state = createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -306,7 +341,7 @@ void main() {
         // Deload 0%: si aplica deload vuelve al peso base; si no, debe mantener comportamiento normal
         if (result.isDeload) {
           expect(result.newWeight, 100.0);
-          expect(result.newSets, 2); // 70% de baseSets
+          expect(result.newSets, 3); // 70% de baseSets (4) = 2.8 -> 3
         } else {
           expect(result.newWeight, 120.0);
           // sin deload puede mantenerse en sets actuales o baseSets según estrategia
@@ -315,8 +350,15 @@ void main() {
       });
 
       test('deload con porcentaje 1.0 (sin reducción)', () {
-        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 1.0);
-        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final config = createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 1.0,
+        );
+        final state = createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         final result = strategy.calculate(
           config: config,
@@ -331,7 +373,7 @@ void main() {
         // Deload 100%: si aplica deload mantiene peso actual y reduce sets a 70%
         if (result.isDeload) {
           expect(result.newWeight, 120.0);
-          expect(result.newSets, 2);
+          expect(result.newSets, 3); // 70% de baseSets (4) = 2.8 -> 3
         } else {
           // sin deload, se espera sets base o sets actuales
           expect([3, 4], contains(result.newSets));
@@ -339,7 +381,10 @@ void main() {
       });
 
       test('deload con incremento muy pequeño', () {
-        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
+        final config = createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 0.9,
+        );
         final state = createProgressedState(
           currentWeight: 100.1, // Incremento muy pequeño
           baseWeight: 100.0,
@@ -358,11 +403,17 @@ void main() {
 
         // Deload: 100 + (0.1 * 0.9) = 100.09
         expect(result.newWeight, closeTo(100.09, 0.01));
-        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
+        expect(
+          result.newSets,
+          3,
+        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
       });
 
       test('deload con incremento muy grande', () {
-        final config = createDeloadConfig(type: ProgressionType.linear, deloadPercentage: 0.9);
+        final config = createDeloadConfig(
+          type: ProgressionType.linear,
+          deloadPercentage: 0.9,
+        );
         final state = createProgressedState(
           currentWeight: 200.0, // Incremento muy grande
           baseWeight: 100.0,
@@ -381,16 +432,27 @@ void main() {
 
         // Deload: 100 + (100 * 0.9) = 190
         expect(result.newWeight, 190.0);
-        expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
+        expect(
+          result.newSets,
+          3,
+        ); // 4 * 0.7 round (baseSets del sistema adaptativo)
       });
     });
 
     group('Deload Consistency Across Strategies', () {
       test('todas las estrategias usan la misma lógica de deload', () {
-        final strategies = [LinearProgressionStrategy(), DoubleProgressionStrategy(), UndulatingProgressionStrategy()];
+        final strategies = [
+          LinearProgressionStrategy(),
+          DoubleProgressionStrategy(),
+          UndulatingProgressionStrategy(),
+        ];
 
         final config = createDeloadConfig(type: ProgressionType.linear);
-        final state = createProgressedState(currentWeight: 120.0, baseWeight: 100.0, currentSession: 1);
+        final state = createProgressedState(
+          currentWeight: 120.0,
+          baseWeight: 100.0,
+          currentSession: 1,
+        );
 
         for (final strategy in strategies) {
           final result = (strategy as ProgressionStrategy).calculate(
@@ -406,7 +468,10 @@ void main() {
           // Todas deben aplicar deload en sesión 1 con deloadWeek=1
           if (result.isDeload) {
             expect(result.newWeight, 118.0);
-            expect(result.newSets, 2); // 3 * 0.7 round (baseSets del config)
+            expect(
+              result.newSets,
+              3,
+            ); // 4 * 0.7 round (baseSets del sistema adaptativo)
             expect(result.reason, contains('Deload'));
           } else {
             // Sin deload, no debe reducir sets

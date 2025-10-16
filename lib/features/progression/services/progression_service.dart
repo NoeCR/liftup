@@ -7,6 +7,7 @@ import '../../../core/database/database_service.dart';
 import '../../../core/database/i_database_service.dart';
 import '../../../core/logging/logging.dart';
 import '../../../features/exercise/models/exercise.dart';
+import '../configs/adaptive_increment_config.dart';
 import '../models/progression_calculation_result.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
@@ -25,7 +26,9 @@ class ProgressionService extends _$ProgressionService {
   ProgressionService() : _databaseService = DatabaseService.getInstance();
 
   // Constructor with dependency injection for testing
-  ProgressionService.withDependencies({required IDatabaseService databaseService}) : _databaseService = databaseService;
+  ProgressionService.withDependencies({
+    required IDatabaseService databaseService,
+  }) : _databaseService = databaseService;
 
   @override
   ProgressionService build() {
@@ -48,9 +51,16 @@ class ProgressionService extends _$ProgressionService {
 
       await _configsBox.put(config.id, config);
 
-      LoggingService.instance.info('Progression config saved successfully', {'configId': config.id});
+      LoggingService.instance.info('Progression config saved successfully', {
+        'configId': config.id,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error saving progression config', e, stackTrace, {'configId': config.id});
+      LoggingService.instance.error(
+        'Error saving progression config',
+        e,
+        stackTrace,
+        {'configId': config.id},
+      );
       rethrow;
     }
   }
@@ -59,7 +69,12 @@ class ProgressionService extends _$ProgressionService {
     try {
       return _configsBox.get(configId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting progression config', e, stackTrace, {'configId': configId});
+      LoggingService.instance.error(
+        'Error getting progression config',
+        e,
+        stackTrace,
+        {'configId': configId},
+      );
       return null;
     }
   }
@@ -69,10 +84,13 @@ class ProgressionService extends _$ProgressionService {
       final allConfigs = _configsBox.values.cast<ProgressionConfig>();
       return allConfigs.firstWhere(
         (config) => config.isGlobal && config.isActive,
-        orElse: () => throw StateError('No active global progression config found'),
+        orElse:
+            () => throw StateError('No active global progression config found'),
       );
     } catch (e) {
-      LoggingService.instance.debug('No active global progression config found');
+      LoggingService.instance.debug(
+        'No active global progression config found',
+      );
       return null;
     }
   }
@@ -83,7 +101,11 @@ class ProgressionService extends _$ProgressionService {
       allConfigs.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       return allConfigs;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting all progression configs', e, stackTrace);
+      LoggingService.instance.error(
+        'Error getting all progression configs',
+        e,
+        stackTrace,
+      );
       return [];
     }
   }
@@ -91,9 +113,16 @@ class ProgressionService extends _$ProgressionService {
   Future<void> deleteProgressionConfig(String configId) async {
     try {
       await _configsBox.delete(configId);
-      LoggingService.instance.info('Progression config deleted', {'configId': configId});
+      LoggingService.instance.info('Progression config deleted', {
+        'configId': configId,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error deleting progression config', e, stackTrace, {'configId': configId});
+      LoggingService.instance.error(
+        'Error deleting progression config',
+        e,
+        stackTrace,
+        {'configId': configId},
+      );
       rethrow;
     }
   }
@@ -130,7 +159,8 @@ class ProgressionService extends _$ProgressionService {
           state = raw as ProgressionState?;
         }
 
-        if (state != null && !activeConfigIds.contains(state.progressionConfigId)) {
+        if (state != null &&
+            !activeConfigIds.contains(state.progressionConfigId)) {
           statesToDelete.add(state);
         }
       }
@@ -140,10 +170,16 @@ class ProgressionService extends _$ProgressionService {
       }
 
       if (statesToDelete.isNotEmpty) {
-        LoggingService.instance.info('Cleaned up inactive progression states', {'deletedCount': statesToDelete.length});
+        LoggingService.instance.info('Cleaned up inactive progression states', {
+          'deletedCount': statesToDelete.length,
+        });
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error cleaning up inactive progression states', e, stackTrace);
+      LoggingService.instance.error(
+        'Error cleaning up inactive progression states',
+        e,
+        stackTrace,
+      );
     }
   }
 
@@ -160,9 +196,16 @@ class ProgressionService extends _$ProgressionService {
 
       await _statesBox.put(state.id, state);
 
-      LoggingService.instance.info('Progression state saved successfully', {'stateId': state.id});
+      LoggingService.instance.info('Progression state saved successfully', {
+        'stateId': state.id,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error saving progression state', e, stackTrace, {'stateId': state.id});
+      LoggingService.instance.error(
+        'Error saving progression state',
+        e,
+        stackTrace,
+        {'stateId': state.id},
+      );
       rethrow;
     }
   }
@@ -171,17 +214,28 @@ class ProgressionService extends _$ProgressionService {
     try {
       return _statesBox.get(stateId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting progression state', e, stackTrace, {'stateId': stateId});
+      LoggingService.instance.error(
+        'Error getting progression state',
+        e,
+        stackTrace,
+        {'stateId': stateId},
+      );
       return null;
     }
   }
 
-  Future<ProgressionState?> getProgressionStateByExercise(String configId, String exerciseId, String routineId) async {
+  Future<ProgressionState?> getProgressionStateByExercise(
+    String configId,
+    String exerciseId,
+    String routineId,
+  ) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
       return allStates.firstWhere(
         (state) =>
-            state.progressionConfigId == configId && state.exerciseId == exerciseId && state.routineId == routineId,
+            state.progressionConfigId == configId &&
+            state.exerciseId == exerciseId &&
+            state.routineId == routineId,
         orElse: () => throw StateError('No progression state found'),
       );
     } catch (e) {
@@ -194,14 +248,21 @@ class ProgressionService extends _$ProgressionService {
     }
   }
 
-  Future<List<ProgressionState>> getProgressionStatesByConfig(String configId) async {
+  Future<List<ProgressionState>> getProgressionStatesByConfig(
+    String configId,
+  ) async {
     try {
       final allStates = _statesBox.values.cast<ProgressionState>();
-      return allStates.where((state) => state.progressionConfigId == configId).toList();
+      return allStates
+          .where((state) => state.progressionConfigId == configId)
+          .toList();
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting progression states by config', e, stackTrace, {
-        'configId': configId,
-      });
+      LoggingService.instance.error(
+        'Error getting progression states by config',
+        e,
+        stackTrace,
+        {'configId': configId},
+      );
       return [];
     }
   }
@@ -211,20 +272,32 @@ class ProgressionService extends _$ProgressionService {
   Future<void> saveProgressionTemplate(ProgressionTemplate template) async {
     try {
       await _templatesBox.put(template.id, template);
-      LoggingService.instance.info('Progression template saved', {'templateId': template.id});
+      LoggingService.instance.info('Progression template saved', {
+        'templateId': template.id,
+      });
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error saving progression template', e, stackTrace, {'templateId': template.id});
+      LoggingService.instance.error(
+        'Error saving progression template',
+        e,
+        stackTrace,
+        {'templateId': template.id},
+      );
       rethrow;
     }
   }
 
   Future<List<ProgressionTemplate>> getAllProgressionTemplates() async {
     try {
-      final allTemplates = _templatesBox.values.cast<ProgressionTemplate>().toList();
+      final allTemplates =
+          _templatesBox.values.cast<ProgressionTemplate>().toList();
       allTemplates.sort((a, b) => a.name.compareTo(b.name));
       return allTemplates;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting all progression templates', e, stackTrace);
+      LoggingService.instance.error(
+        'Error getting all progression templates',
+        e,
+        stackTrace,
+      );
       return [];
     }
   }
@@ -233,7 +306,12 @@ class ProgressionService extends _$ProgressionService {
     try {
       return _templatesBox.get(templateId);
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error getting progression template', e, stackTrace, {'templateId': templateId});
+      LoggingService.instance.error(
+        'Error getting progression template',
+        e,
+        stackTrace,
+        {'templateId': templateId},
+      );
       return null;
     }
   }
@@ -257,7 +335,11 @@ class ProgressionService extends _$ProgressionService {
         throw Exception('Progression config not found');
       }
 
-      final state = await getProgressionStateByExercise(configId, exerciseId, routineId);
+      final state = await getProgressionStateByExercise(
+        configId,
+        exerciseId,
+        routineId,
+      );
       if (state == null) {
         throw Exception('Progression state not found');
       }
@@ -277,7 +359,10 @@ class ProgressionService extends _$ProgressionService {
 
       // Compute next session and week using centralized logic
       // Use the same strategy that was used for calculation to ensure consistency
-      final nextSessionAndWeek = strategy.calculateNextSessionAndWeek(config: config, state: state);
+      final nextSessionAndWeek = strategy.calculateNextSessionAndWeek(
+        config: config,
+        state: state,
+      );
       final newSession = nextSessionAndWeek.session;
       final newWeek = nextSessionAndWeek.week;
 
@@ -289,10 +374,12 @@ class ProgressionService extends _$ProgressionService {
       // - currentSets should reflect the deloaded value for this session
       // - baseSets should remain unchanged so we can recover in the next cycle
       final int nextCurrentSets = result.newSets;
-      final int nextBaseSets = result.isDeload ? state.baseSets : result.newSets;
+      final int nextBaseSets =
+          result.isDeload ? state.baseSets : result.newSets;
 
       // Handle cycle reset if strategy indicates it
-      final nextCycle = result.shouldResetCycle ? state.currentCycle + 1 : state.currentCycle;
+      final nextCycle =
+          result.shouldResetCycle ? state.currentCycle + 1 : state.currentCycle;
       final nextWeek = result.shouldResetCycle ? 1 : newWeek;
       final nextSession = result.shouldResetCycle ? 1 : newSession;
 
@@ -337,10 +424,12 @@ class ProgressionService extends _$ProgressionService {
 
       return result;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error calculating progression', e, stackTrace, {
-        'configId': configId,
-        'exerciseId': exerciseId,
-      });
+      LoggingService.instance.error(
+        'Error calculating progression',
+        e,
+        stackTrace,
+        {'configId': configId, 'exerciseId': exerciseId},
+      );
       rethrow;
     }
   }
@@ -363,6 +452,63 @@ class ProgressionService extends _$ProgressionService {
   }) async {
     try {
       final uuid = const Uuid();
+
+      // Crear configuración temporal para derivar objetivo
+      final tempConfig = ProgressionConfig(
+        id: 'temp',
+        isGlobal: true,
+        type: type,
+        unit: unit,
+        primaryTarget: primaryTarget,
+        secondaryTarget: secondaryTarget,
+        incrementValue: 0,
+        incrementFrequency: 1,
+        cycleLength: 4,
+        deloadWeek: 0,
+        deloadPercentage: 0.9,
+        customParameters: {},
+        startDate: DateTime.now(),
+        isActive: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
+      );
+
+      // Derivar objetivo de entrenamiento
+      final objective = AdaptiveIncrementConfig.parseObjective(
+        tempConfig.getTrainingObjective(),
+      );
+
+      // Crear un ejercicio temporal para obtener valores adaptativos
+      final tempExercise = Exercise(
+        id: 'temp',
+        name: 'Temporary Exercise',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+
+      // Obtener valores adaptativos por objetivo
+      final repsRange = AdaptiveIncrementConfig.getRepetitionsRange(
+        tempExercise,
+        objective: objective,
+      );
+      final seriesRange =
+          AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+            tempExercise,
+            objective: objective,
+          );
+
       final config = ProgressionConfig(
         id: uuid.v4(),
         isGlobal: isGlobal,
@@ -380,21 +526,26 @@ class ProgressionService extends _$ProgressionService {
         isActive: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-        minReps: 6, // Valor por defecto
-        maxReps: 12, // Valor por defecto
-        baseSets: 3, // Valor por defecto
+        minReps: repsRange.$1,
+        maxReps: repsRange.$2,
+        baseSets: seriesRange?.defaultValue ?? 3,
       );
 
       await saveProgressionConfig(config);
 
-      LoggingService.instance.info('Global progression initialized successfully', {
-        'configId': config.id,
-        'type': type.name,
-      });
+      LoggingService.instance.info(
+        'Global progression initialized successfully',
+        {'configId': config.id, 'type': type.name},
+      );
 
       return config;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing progression', e, stackTrace, {'type': type.name});
+      LoggingService.instance.error(
+        'Error initializing progression',
+        e,
+        stackTrace,
+        {'type': type.name},
+      );
       rethrow;
     }
   }
@@ -442,10 +593,12 @@ class ProgressionService extends _$ProgressionService {
 
       return state;
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing exercise progression state', e, stackTrace, {
-        'configId': configId,
-        'exerciseId': exerciseId,
-      });
+      LoggingService.instance.error(
+        'Error initializing exercise progression state',
+        e,
+        stackTrace,
+        {'configId': configId, 'exerciseId': exerciseId},
+      );
       rethrow;
     }
   }

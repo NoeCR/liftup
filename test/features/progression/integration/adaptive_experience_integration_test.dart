@@ -84,11 +84,28 @@ void main() {
         exercise: exercise,
       );
 
-      // Para barbell multi-joint, nivel intermedio ≈ 6.0 kg
-      expect(res.newWeight, closeTo(106.0, 0.001));
+      // Para barbell multi-joint, nivel intermedio ≈ 6.25 kg
+      expect(res.newWeight, closeTo(106.25, 0.001));
     });
 
-    test('incrementos con adaptive_experience activo (initiated en primer ciclo)', () {
+    test('incrementos con ejercicio beginner (deriva a initiated)', () {
+      // Cambiar ejercicio a beginner para derivar a initiated
+      exercise = Exercise(
+        id: 'ex',
+        name: 'Bench',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.beginner,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+
       final config = ProgressionConfig(
         id: 'cfg',
         isGlobal: true,
@@ -101,7 +118,7 @@ void main() {
         cycleLength: 4,
         deloadWeek: 0,
         deloadPercentage: 0.8,
-        customParameters: const {'adaptive_experience': true},
+        customParameters: const {},
         startDate: now,
         isActive: true,
         createdAt: now,
@@ -147,7 +164,24 @@ void main() {
       expect(res.newWeight, closeTo(105.0, 0.001));
     });
 
-    test('incrementos con adaptive_experience activo (advanced a partir de 4º ciclo)', () {
+    test('incrementos con ejercicio advanced (deriva a advanced)', () {
+      // Cambiar ejercicio a advanced para derivar a advanced
+      exercise = Exercise(
+        id: 'ex',
+        name: 'Bench',
+        description: '',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.advanced,
+        createdAt: now,
+        updatedAt: now,
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
+      );
+
       final config = ProgressionConfig(
         id: 'cfg',
         isGlobal: true,
@@ -160,7 +194,7 @@ void main() {
         cycleLength: 4,
         deloadWeek: 0,
         deloadPercentage: 0.8,
-        customParameters: const {'adaptive_experience': true},
+        customParameters: const {},
         startDate: now,
         isActive: true,
         createdAt: now,
@@ -175,7 +209,7 @@ void main() {
         progressionConfigId: 'cfg',
         exerciseId: 'ex',
         routineId: 'r',
-        currentCycle: 4, // 4º ciclo ⇒ advanced
+        currentCycle: 1, // Ciclo 1
         currentWeek: 1,
         currentSession: 1,
         currentWeight: 100.0,
@@ -202,8 +236,8 @@ void main() {
         exercise: exercise,
       );
 
-      // advanced: usa el máximo del rango (7.0kg) para barbell multi-joint
-      expect(res.newWeight, closeTo(107.0, 0.001));
+      // advanced: usa el máximo del rango (7.5kg) para barbell multi-joint
+      expect(res.newWeight, closeTo(107.5, 0.001));
     });
   });
 }

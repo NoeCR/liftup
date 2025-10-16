@@ -6,6 +6,9 @@ import 'package:liftly/features/progression/notifiers/progression_notifier.dart'
 
 import '../../../common/enums/progression_type_enum.dart';
 import '../../../core/logging/logging.dart';
+import '../../exercise/models/exercise.dart';
+import '../configs/adaptive_increment_config.dart';
+import '../configs/training_objective.dart';
 import '../models/progression_config.dart';
 import '../widgets/improved_preset_selector.dart';
 import 'advanced_progression_config_page.dart';
@@ -13,13 +16,18 @@ import 'advanced_progression_config_page.dart';
 class ProgressionConfigurationPage extends ConsumerStatefulWidget {
   final ProgressionType progressionType;
 
-  const ProgressionConfigurationPage({super.key, required this.progressionType});
+  const ProgressionConfigurationPage({
+    super.key,
+    required this.progressionType,
+  });
 
   @override
-  ConsumerState<ProgressionConfigurationPage> createState() => _ProgressionConfigurationPageState();
+  ConsumerState<ProgressionConfigurationPage> createState() =>
+      _ProgressionConfigurationPageState();
 }
 
-class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfigurationPage> {
+class _ProgressionConfigurationPageState
+    extends ConsumerState<ProgressionConfigurationPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Valores por defecto
@@ -83,8 +91,8 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         _deloadPercentage = 0.9;
         _primaryTarget = ProgressionTarget.reps;
         _secondaryTarget = ProgressionTarget.weight;
-        _customParameters['min_reps'] = 8;
-        _customParameters['max_reps'] = 12;
+        // Derivar valores por objetivo de entrenamiento
+        _deriveRepsByObjective();
         break;
       case ProgressionType.wave:
         _incrementValue = 5.0;
@@ -211,15 +219,25 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('${'progression.configureProgression'.tr()} ${context.tr(widget.progressionType.displayNameKey)}'),
+        title: Text(
+          '${'progression.configureProgression'.tr()} ${context.tr(widget.progressionType.displayNameKey)}',
+        ),
         backgroundColor: colorScheme.surface,
         actions: [
-          IconButton(icon: const Icon(Icons.restore), tooltip: 'Restaurar plantillas', onPressed: _restoreTemplates),
+          IconButton(
+            icon: const Icon(Icons.restore),
+            tooltip: 'Restaurar plantillas',
+            onPressed: _restoreTemplates,
+          ),
           TextButton(
             onPressed: _isLoading ? null : _saveProgression,
             child:
                 _isLoading
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                     : Text('common.save'.tr()),
           ),
         ],
@@ -254,9 +272,17 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
                   onPressed: _isLoading ? null : _saveProgression,
                   icon:
                       _isLoading
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                          ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                           : const Icon(Icons.save),
-                  label: Text(_isLoading ? 'progression.saving'.tr() : 'progression.saveProgression'.tr()),
+                  label: Text(
+                    _isLoading
+                        ? 'progression.saving'.tr()
+                        : 'progression.saveProgression'.tr(),
+                  ),
                 ),
               ),
             ],
@@ -282,12 +308,17 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
                 const SizedBox(width: 8),
                 Text(
                   'progression.progressionConfiguration'.tr(),
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text('progression.globalProgressionDescription'.tr(), style: theme.textTheme.bodyMedium),
+            Text(
+              'progression.globalProgressionDescription'.tr(),
+              style: theme.textTheme.bodyMedium,
+            ),
             const SizedBox(height: 4),
             Text(
               '${'progression.types.${widget.progressionType.name}'.tr()}: ${context.tr(widget.progressionType.displayNameKey)}',
@@ -295,8 +326,11 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             ),
             const SizedBox(height: 4),
             Text(
-              'progression.types.${widget.progressionType.name}Description'.tr(),
-              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+              'progression.types.${widget.progressionType.name}Description'
+                  .tr(),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -315,7 +349,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           children: [
             Text(
               'progression.basicConfiguration'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -328,7 +364,12 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
               ),
               items:
                   ProgressionUnit.values
-                      .map((unit) => DropdownMenuItem(value: unit, child: Text(context.tr(unit.displayNameKey))))
+                      .map(
+                        (unit) => DropdownMenuItem(
+                          value: unit,
+                          child: Text(context.tr(unit.displayNameKey)),
+                        ),
+                      )
                       .toList(),
               onChanged: (value) {
                 setState(() {
@@ -350,7 +391,10 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
                 items:
                     ProgressionTarget.values
                         .map(
-                          (target) => DropdownMenuItem(value: target, child: Text(context.tr(target.displayNameKey))),
+                          (target) => DropdownMenuItem(
+                            value: target,
+                            child: Text(context.tr(target.displayNameKey)),
+                          ),
                         )
                         .toList(),
                 onChanged: (value) {
@@ -369,9 +413,15 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
                   helperText: 'progression.secondaryTargetHelper'.tr(),
                 ),
                 items: [
-                  DropdownMenuItem<ProgressionTarget?>(value: null, child: Text('progression.none'.tr())),
+                  DropdownMenuItem<ProgressionTarget?>(
+                    value: null,
+                    child: Text('progression.none'.tr()),
+                  ),
                   ...ProgressionTarget.values.map(
-                    (target) => DropdownMenuItem(value: target, child: Text(context.tr(target.displayNameKey))),
+                    (target) => DropdownMenuItem(
+                      value: target,
+                      child: Text(context.tr(target.displayNameKey)),
+                    ),
                   ),
                 ],
                 onChanged: (value) {
@@ -385,15 +435,23 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2)),
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Column(
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.check_circle, color: theme.colorScheme.primary, size: 20),
+                        Icon(
+                          Icons.check_circle,
+                          color: theme.colorScheme.primary,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -401,11 +459,15 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
                             children: [
                               Text(
                                 'Preset seleccionado: ${_getObjectiveDisplayName(_selectedConfig!.getTrainingObjective())}',
-                                style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                               Text(
                                 'Objetivos: ${_getTargetDisplayName(_selectedConfig!.primaryTarget)} → ${_selectedConfig!.secondaryTarget != null ? _getTargetDisplayName(_selectedConfig!.secondaryTarget!) : 'Ninguno'}',
-                                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
@@ -434,8 +496,10 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
   Widget _buildAdvancedConfiguration() {
     return ImprovedPresetSelector(
       currentConfig: _selectedConfig,
-      title: 'Configuración de Progresión - ${_getProgressionTypeDisplayName(widget.progressionType)}',
-      filterByType: widget.progressionType, // Filtrar por el tipo de progresión actual
+      title:
+          'Configuración de Progresión - ${_getProgressionTypeDisplayName(widget.progressionType)}',
+      filterByType:
+          widget.progressionType, // Filtrar por el tipo de progresión actual
       onConfigSelected: (config) {
         setState(() {
           _selectedConfig = config;
@@ -467,12 +531,16 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           children: [
             Text(
               'progression.customParameters'.tr(),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'progression.customParameters'.tr(),
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -480,8 +548,12 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Experiencia adaptativa'),
-              subtitle: const Text('Ajusta los incrementos según ciclos/tiempo'),
-              value: (_customParameters['adaptive_experience'] as bool?) ?? false,
+              subtitle: const Text(
+                'Ajusta los incrementos según ciclos/tiempo',
+              ),
+              value:
+                  (_customParameters['adaptive_experience'] as bool?) ??
+                  false, // Experiencia derivada automáticamente del nivel del ejercicio
               onChanged: (v) {
                 setState(() {
                   _customParameters['adaptive_experience'] = v;
@@ -504,11 +576,19 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
 
   List<Widget> _buildPerTypeDefaults() {
     final theme = Theme.of(context);
-    InputDecoration deco(String label, [String? helper]) =>
-        InputDecoration(labelText: label, helperText: helper, border: const OutlineInputBorder());
+    InputDecoration deco(String label, [String? helper]) => InputDecoration(
+      labelText: label,
+      helperText: helper,
+      border: const OutlineInputBorder(),
+    );
 
     return [
-      Text('Valores por tipo de ejercicio', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+      Text(
+        'Valores por tipo de ejercicio',
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       const SizedBox(height: 8),
       // MULTI-JOINT
       Text('Multi-joint', style: theme.textTheme.bodyMedium),
@@ -517,19 +597,35 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         children: [
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['multi_increment_min'] ?? '2.5').toString(),
-              decoration: deco('multi_increment_min', 'kg mínimo por incremento'),
+              initialValue:
+                  (_customParameters['multi_increment_min'] ?? '2.5')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
+              decoration: deco(
+                'multi_increment_min',
+                'kg mínimo por incremento',
+              ),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['multi_increment_min'] = double.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['multi_increment_min'] =
+                          double.tryParse(v!.trim()),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['multi_increment_max'] ?? '5.0').toString(),
-              decoration: deco('multi_increment_max', 'kg máximo por incremento'),
+              initialValue:
+                  (_customParameters['multi_increment_max'] ?? '5.0')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
+              decoration: deco(
+                'multi_increment_max',
+                'kg máximo por incremento',
+              ),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['multi_increment_max'] = double.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['multi_increment_max'] =
+                          double.tryParse(v!.trim()),
             ),
           ),
         ],
@@ -539,19 +635,31 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         children: [
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['multi_reps_min'] ?? '15').toString(),
+              initialValue:
+                  (_customParameters['multi_reps_min'] ?? '15')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('multi_reps_min', 'reps mínimas'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['multi_reps_min'] = int.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['multi_reps_min'] = int.tryParse(
+                        v!.trim(),
+                      ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['multi_reps_max'] ?? '20').toString(),
+              initialValue:
+                  (_customParameters['multi_reps_max'] ?? '20')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('multi_reps_max', 'reps máximas'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['multi_reps_max'] = int.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['multi_reps_max'] = int.tryParse(
+                        v!.trim(),
+                      ),
             ),
           ),
         ],
@@ -564,19 +672,31 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         children: [
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['iso_increment_min'] ?? '1.25').toString(),
+              initialValue:
+                  (_customParameters['iso_increment_min'] ?? '1.25')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('iso_increment_min', 'kg mínimo por incremento'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['iso_increment_min'] = double.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['iso_increment_min'] = double.tryParse(
+                        v!.trim(),
+                      ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['iso_increment_max'] ?? '2.5').toString(),
+              initialValue:
+                  (_customParameters['iso_increment_max'] ?? '2.5')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('iso_increment_max', 'kg máximo por incremento'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['iso_increment_max'] = double.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['iso_increment_max'] = double.tryParse(
+                        v!.trim(),
+                      ),
             ),
           ),
         ],
@@ -586,19 +706,31 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         children: [
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['iso_reps_min'] ?? '8').toString(),
+              initialValue:
+                  (_customParameters['iso_reps_min'] ?? '8')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('iso_reps_min', 'reps mínimas'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['iso_reps_min'] = int.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['iso_reps_min'] = int.tryParse(
+                        v!.trim(),
+                      ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['iso_reps_max'] ?? '12').toString(),
+              initialValue:
+                  (_customParameters['iso_reps_max'] ?? '12')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('iso_reps_max', 'reps máximas'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['iso_reps_max'] = int.tryParse(v!.trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['iso_reps_max'] = int.tryParse(
+                        v!.trim(),
+                      ),
             ),
           ),
         ],
@@ -609,19 +741,31 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         children: [
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['sets_min'] ?? '').toString(),
+              initialValue:
+                  (_customParameters['sets_min'] ?? '')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('sets_min', 'series mínimas por ejercicio'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['sets_min'] = int.tryParse((v ?? '').trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['sets_min'] = int.tryParse(
+                        (v ?? '').trim(),
+                      ),
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: TextFormField(
-              initialValue: (_customParameters['sets_max'] ?? '').toString(),
+              initialValue:
+                  (_customParameters['sets_max'] ?? '')
+                      .toString(), // Campo oculto: valores derivados de tablas por objetivo
               decoration: deco('sets_max', 'series máximas por ejercicio'),
               keyboardType: TextInputType.number,
-              onSaved: (v) => _customParameters['sets_max'] = int.tryParse((v ?? '').trim()),
+              onSaved:
+                  (v) =>
+                      _customParameters['sets_max'] = int.tryParse(
+                        (v ?? '').trim(),
+                      ),
             ),
           ),
         ],
@@ -637,7 +781,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
       case ProgressionType.double:
         widgets.addAll([
           TextFormField(
-            initialValue: _customParameters['min_reps']?.toString() ?? '8',
+            initialValue:
+                _customParameters['min_reps']?.toString() ??
+                '8', // Valores derivados automáticamente por objetivo
             decoration: InputDecoration(
               labelText: 'progression.minReps'.tr(),
               helperText: 'progression.minRepsHelper'.tr(),
@@ -649,7 +795,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           ),
           const SizedBox(height: 16),
           TextFormField(
-            initialValue: _customParameters['max_reps']?.toString() ?? '12',
+            initialValue:
+                _customParameters['max_reps']?.toString() ??
+                '12', // Valores derivados automáticamente por objetivo
             decoration: InputDecoration(
               labelText: 'progression.maxReps'.tr(),
               helperText: 'progression.maxRepsHelper'.tr(),
@@ -664,7 +812,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
       case ProgressionType.autoregulated:
         widgets.addAll([
           TextFormField(
-            initialValue: _customParameters['target_rpe']?.toString() ?? '8',
+            initialValue:
+                _customParameters['target_rpe']?.toString() ??
+                _getTargetRPEByObjective().toString(),
             decoration: const InputDecoration(
               labelText: 'RPE objetivo',
               helperText: 'Percepción de esfuerzo objetivo (1-10)',
@@ -676,8 +826,13 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           ),
           const SizedBox(height: 16),
           TextFormField(
-            initialValue: _customParameters['rpe_range']?.toString() ?? '2',
-            decoration: const InputDecoration(labelText: 'Rango de RPE', helperText: 'Variación permitida en el RPE'),
+            initialValue:
+                _customParameters['rpe_range']?.toString() ??
+                _getRPERangeByObjective().toString(),
+            decoration: const InputDecoration(
+              labelText: 'Rango de RPE',
+              helperText: 'Variación permitida en el RPE',
+            ),
             keyboardType: TextInputType.number,
             onSaved: (value) {
               _customParameters['rpe_range'] = int.parse(value!);
@@ -702,7 +857,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
 
   Future<void> _restoreTemplates() async {
     try {
-      final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
+      final progressionNotifier = ref.read(
+        progressionNotifierProvider.notifier,
+      );
       await progressionNotifier.restoreTemplates();
 
       if (mounted) {
@@ -715,9 +872,12 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error restaurando plantillas: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error restaurando plantillas: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -733,7 +893,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
     });
 
     try {
-      final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
+      final progressionNotifier = ref.read(
+        progressionNotifierProvider.notifier,
+      );
 
       // Si hay un preset seleccionado, usar sus valores; si no, usar los valores manuales
       final configToSave =
@@ -762,16 +924,19 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
 
       await progressionNotifier.setProgressionConfig(configToSave);
 
-      LoggingService.instance.info('Global progression configuration saved successfully', {
-        'type': widget.progressionType.name,
-      });
+      LoggingService.instance.info(
+        'Global progression configuration saved successfully',
+        {'type': widget.progressionType.name},
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               'progression.progressionConfiguredSuccessfully'.tr(
-                namedArgs: {'type': context.tr(widget.progressionType.displayNameKey)},
+                namedArgs: {
+                  'type': context.tr(widget.progressionType.displayNameKey),
+                },
               ),
             ),
             backgroundColor: Colors.green,
@@ -781,14 +946,20 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         context.pop();
       }
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error saving progression configuration', e, stackTrace, {
-        'type': widget.progressionType.name,
-      });
+      LoggingService.instance.error(
+        'Error saving progression configuration',
+        e,
+        stackTrace,
+        {'type': widget.progressionType.name},
+      );
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error al guardar la progresión: $e'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar la progresión: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -796,6 +967,144 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// Deriva los valores de reps basado en el objetivo de entrenamiento
+  void _deriveRepsByObjective() {
+    // Crear configuración temporal para derivar objetivo
+    final tempConfig = ProgressionConfig(
+      id: 'temp',
+      isGlobal: true,
+      type: widget.progressionType,
+      unit: _unit,
+      primaryTarget: _primaryTarget,
+      secondaryTarget: _secondaryTarget,
+      incrementValue: 0,
+      incrementFrequency: 1,
+      cycleLength: 4,
+      deloadWeek: 0,
+      deloadPercentage: 0.9,
+      customParameters: {},
+      startDate: DateTime.now(),
+      isActive: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      minReps: 8,
+      maxReps: 12,
+      baseSets: 3,
+    );
+
+    // Crear ejercicio temporal para obtener valores adaptativos
+    final tempExercise = Exercise(
+      id: 'temp',
+      name: 'Temporary Exercise',
+      description: '',
+      imageUrl: '',
+      muscleGroups: const [],
+      tips: const [],
+      commonMistakes: const [],
+      category: ExerciseCategory.chest,
+      difficulty: ExerciseDifficulty.intermediate,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      exerciseType: ExerciseType.multiJoint,
+      loadType: LoadType.barbell,
+    );
+
+    // Obtener rango de reps por objetivo
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      tempConfig.getTrainingObjective(),
+    );
+    // Los valores se derivan automáticamente del objetivo
+    // No es necesario almacenarlos en customParameters
+    AdaptiveIncrementConfig.getRepetitionsRange(
+      tempExercise,
+      objective: objective,
+    );
+  }
+
+  /// Obtiene el RPE objetivo basado en el objetivo de entrenamiento
+  int _getTargetRPEByObjective() {
+    // Crear configuración temporal para derivar objetivo
+    final tempConfig = ProgressionConfig(
+      id: 'temp',
+      isGlobal: true,
+      type: widget.progressionType,
+      unit: _unit,
+      primaryTarget: _primaryTarget,
+      secondaryTarget: _secondaryTarget,
+      incrementValue: 0,
+      incrementFrequency: 1,
+      cycleLength: 4,
+      deloadWeek: 0,
+      deloadPercentage: 0.9,
+      customParameters: {},
+      startDate: DateTime.now(),
+      isActive: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      minReps: 8,
+      maxReps: 12,
+      baseSets: 3,
+    );
+
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      tempConfig.getTrainingObjective(),
+    );
+
+    // RPE objetivo basado en investigación científica
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 8; // RPE alto para fuerza máxima
+      case TrainingObjective.hypertrophy:
+        return 7; // RPE moderado-alto para hipertrofia
+      case TrainingObjective.endurance:
+        return 6; // RPE moderado para resistencia
+      case TrainingObjective.power:
+        return 8; // RPE alto para potencia máxima
+    }
+  }
+
+  /// Obtiene el rango de RPE basado en el objetivo de entrenamiento
+  int _getRPERangeByObjective() {
+    // Crear configuración temporal para derivar objetivo
+    final tempConfig = ProgressionConfig(
+      id: 'temp',
+      isGlobal: true,
+      type: widget.progressionType,
+      unit: _unit,
+      primaryTarget: _primaryTarget,
+      secondaryTarget: _secondaryTarget,
+      incrementValue: 0,
+      incrementFrequency: 1,
+      cycleLength: 4,
+      deloadWeek: 0,
+      deloadPercentage: 0.9,
+      customParameters: {},
+      startDate: DateTime.now(),
+      isActive: true,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      minReps: 8,
+      maxReps: 12,
+      baseSets: 3,
+    );
+
+    final objective = AdaptiveIncrementConfig.parseObjective(
+      tempConfig.getTrainingObjective(),
+    );
+
+    // Rango de RPE basado en objetivo
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 1; // Rango estrecho para fuerza
+      case TrainingObjective.hypertrophy:
+        return 2; // Rango moderado para hipertrofia
+      case TrainingObjective.endurance:
+        return 3; // Rango amplio para resistencia
+      case TrainingObjective.power:
+        return 1; // Rango estrecho para potencia
     }
   }
 }

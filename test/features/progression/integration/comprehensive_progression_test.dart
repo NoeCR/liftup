@@ -4,9 +4,9 @@ import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/configs/preset_progression_configs.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
+import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
 import 'package:liftly/features/progression/strategies/strategies/linear_progression_strategy.dart';
 import 'package:liftly/features/progression/strategies/strategies/stepped_progression_strategy.dart';
-import 'package:liftly/features/progression/strategies/strategies/double_progression_strategy.dart';
 import 'package:liftly/features/progression/strategies/strategies/undulating_progression_strategy.dart';
 
 /// Tests comprehensivos para validar estrategias de progresión en ciclos largos
@@ -32,12 +32,19 @@ void main() {
     group('Linear Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
         final strategy = strategies['linear']!;
 
-        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+        final result = _simulateLongTermProgression(
+          strategy: strategy,
+          preset: preset,
+          exercise: exercise,
+          months: 6,
+        );
 
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
@@ -46,7 +53,10 @@ void main() {
         expect(result.deloadCount, greaterThan(0));
 
         // Validar incrementos consistentes
-        expect(result.averageWeightIncrement, closeTo(6.0, 0.1)); // 6kg promedio por sesión de incremento
+        expect(
+          result.averageWeightIncrement,
+          closeTo(3.75, 0.1),
+        ); // 3.75kg promedio por sesión de incremento
 
         // Validar que se aplicaron deloads
         expect(result.deloadCount, greaterThan(0));
@@ -54,64 +64,101 @@ void main() {
         print('\n📊 Linear Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
-        print('  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg');
+        print(
+          '  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg',
+        );
         print('  Total Sessions: ${result.totalSessions}');
         print('  Deloads Applied: ${result.deloadCount}');
-        print('  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg');
+        print(
+          '  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg',
+        );
       });
 
       test('6-month simulation with dumbbell isolation', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+          (e) =>
+              e.exerciseType == ExerciseType.isolation &&
+              e.loadType == LoadType.dumbbell,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
         final strategy = strategies['linear']!;
 
-        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+        final result = _simulateLongTermProgression(
+          strategy: strategy,
+          preset: preset,
+          exercise: exercise,
+          months: 6,
+        );
 
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
         expect(result.finalWeight, greaterThan(result.initialWeight));
 
         // Validar incrementos más pequeños para isolation
-        expect(result.averageWeightIncrement, closeTo(1.875, 0.1)); // 1.875kg promedio
+        expect(
+          result.averageWeightIncrement,
+          closeTo(1.625, 0.1),
+        ); // 1.625kg promedio
 
         print('\n📊 Linear Progression (Dumbbell Isolation) - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
-        print('  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg');
-        print('  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg');
-      });
-
-      test('Bodyweight exercises should not increment weight over 6 months', () {
-        final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.bodyweight,
+        print(
+          '  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg',
         );
-        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
-        final strategy = strategies['linear']!;
-
-        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
-
-        // Validar que no hay incremento de peso
-        expect(result.success, isTrue);
-        expect(result.finalWeight, equals(result.initialWeight));
-        expect(result.averageWeightIncrement, equals(0.0));
-
-        print('\n📊 Linear Progression (Bodyweight) - 6 months:');
-        print('  Weight: ${result.finalWeight}kg (no change)');
-        print('  Total Sessions: ${result.totalSessions}');
+        print(
+          '  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg',
+        );
       });
+
+      test(
+        'Bodyweight exercises should not increment weight over 6 months',
+        () {
+          final exercise = testExercises.firstWhere(
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.bodyweight,
+          );
+          final preset =
+              PresetProgressionConfigs.createLinearHypertrophyPreset();
+          final strategy = strategies['linear']!;
+
+          final result = _simulateLongTermProgression(
+            strategy: strategy,
+            preset: preset,
+            exercise: exercise,
+            months: 6,
+          );
+
+          // Validar que no hay incremento de peso
+          expect(result.success, isTrue);
+          expect(result.finalWeight, equals(result.initialWeight));
+          expect(result.averageWeightIncrement, equals(0.0));
+
+          print('\n📊 Linear Progression (Bodyweight) - 6 months:');
+          print('  Weight: ${result.finalWeight}kg (no change)');
+          print('  Total Sessions: ${result.totalSessions}');
+        },
+      );
     });
 
     group('Stepped Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
-        final preset = PresetProgressionConfigs.createSteppedHypertrophyPreset();
+        final preset =
+            PresetProgressionConfigs.createSteppedHypertrophyPreset();
         final strategy = strategies['stepped']!;
 
-        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+        final result = _simulateLongTermProgression(
+          strategy: strategy,
+          preset: preset,
+          exercise: exercise,
+          months: 6,
+        );
 
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
@@ -119,25 +166,39 @@ void main() {
 
         // Stepped progression should have larger total gains due to accumulation
         final totalGain = result.finalWeight - result.initialWeight;
-        expect(totalGain, greaterThan(50.0)); // Should gain more than linear over 6 months
+        expect(
+          totalGain,
+          greaterThan(50.0),
+        ); // Should gain more than linear over 6 months
 
         print('\n📊 Stepped Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
-        print('  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg');
-        print('  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg');
+        print(
+          '  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg',
+        );
+        print(
+          '  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg',
+        );
       });
     });
 
     group('Double Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
         final preset = PresetProgressionConfigs.createDoubleHypertrophyPreset();
         final strategy = strategies['double']!;
 
-        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+        final result = _simulateLongTermProgression(
+          strategy: strategy,
+          preset: preset,
+          exercise: exercise,
+          months: 6,
+        );
 
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
@@ -146,20 +207,32 @@ void main() {
         print('\n📊 Double Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
-        print('  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg');
-        print('  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg');
+        print(
+          '  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg',
+        );
+        print(
+          '  Average Increment: ${result.averageWeightIncrement.toStringAsFixed(1)}kg',
+        );
       });
     });
 
     group('Undulating Progression Strategy', () {
       test('6-month simulation with barbell multi-joint', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
-        final preset = PresetProgressionConfigs.createUndulatingHypertrophyPreset();
+        final preset =
+            PresetProgressionConfigs.createUndulatingHypertrophyPreset();
         final strategy = strategies['undulating']!;
 
-        final result = _simulateLongTermProgression(strategy: strategy, preset: preset, exercise: exercise, months: 6);
+        final result = _simulateLongTermProgression(
+          strategy: strategy,
+          preset: preset,
+          exercise: exercise,
+          months: 6,
+        );
 
         // Validar que la progresión fue exitosa
         expect(result.success, isTrue);
@@ -171,7 +244,9 @@ void main() {
         print('\n📊 Undulating Progression - 6 months:');
         print('  Initial Weight: ${result.initialWeight}kg');
         print('  Final Weight: ${result.finalWeight}kg');
-        print('  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg');
+        print(
+          '  Total Gain: ${(result.finalWeight - result.initialWeight).toStringAsFixed(1)}kg',
+        );
         print('  Weight Variance: ${result.weightVariance.toStringAsFixed(2)}');
       });
     });
@@ -179,7 +254,9 @@ void main() {
     group('Cross-Strategy Comparison', () {
       test('Compare all strategies over 3 months', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
 
         final results = <String, LongTermResult>{};
@@ -194,13 +271,15 @@ void main() {
               preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
               break;
             case 'stepped':
-              preset = PresetProgressionConfigs.createSteppedHypertrophyPreset();
+              preset =
+                  PresetProgressionConfigs.createSteppedHypertrophyPreset();
               break;
             case 'double':
               preset = PresetProgressionConfigs.createDoubleHypertrophyPreset();
               break;
             case 'undulating':
-              preset = PresetProgressionConfigs.createUndulatingHypertrophyPreset();
+              preset =
+                  PresetProgressionConfigs.createUndulatingHypertrophyPreset();
               break;
             default:
               continue;
@@ -218,7 +297,11 @@ void main() {
 
         // Validar que todas las estrategias funcionaron
         for (final entry in results.entries) {
-          expect(entry.value.success, isTrue, reason: '${entry.key} strategy failed');
+          expect(
+            entry.value.success,
+            isTrue,
+            reason: '${entry.key} strategy failed',
+          );
           expect(
             entry.value.finalWeight,
             greaterThan(entry.value.initialWeight),
@@ -230,7 +313,9 @@ void main() {
         for (final entry in results.entries) {
           final result = entry.value;
           final gain = result.finalWeight - result.initialWeight;
-          print('  ${entry.key.toUpperCase()}: ${gain.toStringAsFixed(1)}kg gain, ${result.deloadCount} deloads');
+          print(
+            '  ${entry.key.toUpperCase()}: ${gain.toStringAsFixed(1)}kg gain, ${result.deloadCount} deloads',
+          );
         }
       });
     });
@@ -263,10 +348,15 @@ List<Exercise> _createTestExercises() {
         description: 'Test exercise for ${exerciseType.name} ${loadType.name}',
         imageUrl: '',
         muscleGroups:
-            exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
+            exerciseType == ExerciseType.multiJoint
+                ? [MuscleGroup.pectoralMajor]
+                : [MuscleGroup.bicepsLongHead],
         tips: [],
         commonMistakes: [],
-        category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
+        category:
+            exerciseType == ExerciseType.multiJoint
+                ? ExerciseCategory.chest
+                : ExerciseCategory.biceps,
         difficulty: ExerciseDifficulty.intermediate,
         createdAt: now,
         updatedAt: now,
@@ -288,7 +378,8 @@ LongTermResult _simulateLongTermProgression({
 }) {
   try {
     // Calcular número de sesiones (asumiendo 3 sesiones por semana)
-    final sessionsPerWeek = (preset.customParameters['sessions_per_week'] ?? 3) as int;
+    final sessionsPerWeek =
+        (preset.customParameters['sessions_per_week'] ?? 3) as int;
     final totalSessions = months * 4 * sessionsPerWeek; // 4 semanas por mes
 
     // Estado inicial
@@ -365,7 +456,10 @@ LongTermResult _simulateLongTermProgression({
     }
 
     // Calcular estadísticas
-    final averageWeightIncrement = incrementSessionCount > 0 ? totalWeightIncrements / incrementSessionCount : 0.0;
+    final averageWeightIncrement =
+        incrementSessionCount > 0
+            ? totalWeightIncrements / incrementSessionCount
+            : 0.0;
 
     final weightVariance = _calculateWeightVariance(progressionHistory);
 
@@ -400,7 +494,9 @@ double _calculateWeightVariance(List<SessionData> history) {
 
   final weights = history.map((s) => s.weight).toList();
   final mean = weights.reduce((a, b) => a + b) / weights.length;
-  final variance = weights.map((w) => (w - mean) * (w - mean)).reduce((a, b) => a + b) / weights.length;
+  final variance =
+      weights.map((w) => (w - mean) * (w - mean)).reduce((a, b) => a + b) /
+      weights.length;
 
   return variance;
 }

@@ -94,7 +94,8 @@ class ProgressionConfig extends Equatable {
     required this.baseSets,
   });
 
-  factory ProgressionConfig.fromJson(Map<String, dynamic> json) => _$ProgressionConfigFromJson(json);
+  factory ProgressionConfig.fromJson(Map<String, dynamic> json) =>
+      _$ProgressionConfigFromJson(json);
   Map<String, dynamic> toJson() => _$ProgressionConfigToJson(this);
 
   ProgressionConfig copyWith({
@@ -181,21 +182,22 @@ class ProgressionConfig extends Equatable {
       // Verificar si el ejercicio soporta incrementos de peso
       if (exercise != null && exercise.loadType != null) {
         final loadType = exercise.loadType.toString();
-        if (loadType.contains('bodyweight') || loadType.contains('resistanceBand')) {
+        if (loadType.contains('bodyweight') ||
+            loadType.contains('resistanceBand')) {
           return 0.0; // Sin incremento de peso
         }
       }
 
-      // 1. Intentar obtener incremento desde customParameters (prioridad más alta)
-      final customIncrement = _getIncrementFromCustomParameters(exercise);
-      if (customIncrement != null) {
-        return customIncrement;
-      }
-
-      // 2. Intentar usar AdaptiveIncrementConfig (si está disponible)
-      final adaptiveIncrement = _getIncrementFromAdaptiveConfig(exercise);
-      if (adaptiveIncrement != null) {
-        return adaptiveIncrement;
+      // Usar tablas por objetivo (sistema adaptativo)
+      if (exercise is Exercise) {
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          getTrainingObjective(),
+        );
+        return AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+          exercise,
+          ExperienceLevel.intermediate,
+          objective: objective,
+        );
       }
     } catch (e) {
       // Si hay error, usar el incremento por defecto
@@ -205,66 +207,23 @@ class ProgressionConfig extends Equatable {
     return incrementValue;
   }
 
-  /// Obtiene incremento desde customParameters
-  double? _getIncrementFromCustomParameters(dynamic exercise) {
-    try {
-      final customParams = customParameters;
-
-      // Buscar en per_exercise primero
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final increment = exerciseParams['increment_value'];
-          if (increment != null && increment is num) {
-            return increment.toDouble();
-          }
-        }
-      }
-
-      // Fallback a global
-      final globalIncrement = customParams['increment_value'];
-      if (globalIncrement != null && globalIncrement is num) {
-        return globalIncrement.toDouble();
-      }
-    } catch (e) {
-      // Si hay error, retornar null para continuar con otros métodos
-    }
-
-    return null;
-  }
-
-  /// Obtiene incremento desde AdaptiveIncrementConfig
-  double? _getIncrementFromAdaptiveConfig(dynamic exercise) {
-    try {
-      // Verificar que el ejercicio tenga los campos necesarios
-      if (exercise == null) return null;
-
-      // Verificar que sea un objeto Exercise válido
-      if (exercise is! Exercise) return null;
-
-      // Usar AdaptiveIncrementConfig para obtener el incremento recomendado
-      return AdaptiveIncrementConfig.getRecommendedIncrement(
-        exercise,
-        ExperienceLevel.intermediate, // Por defecto intermedio
-      );
-    } catch (e) {
-      return null;
-    }
-  }
+  // _getIncrementFromAdaptiveConfig eliminado; la ruta principal usa tablas por objetivo
 
   /// Obtiene las repeticiones mínimas adaptativas basadas en el ejercicio
   int getAdaptiveMinReps(dynamic exercise) {
     try {
-      // 1. Intentar obtener desde customParameters
-      final customMinReps = _getMinRepsFromCustomParameters(exercise);
-      if (customMinReps != null) {
-        return customMinReps;
+      if (exercise is Exercise) {
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          getTrainingObjective(),
+        );
+        final (min, _) = AdaptiveIncrementConfig.getRepetitionsRange(
+          exercise,
+          objective: objective,
+        );
+        return min;
       }
-
-      // 2. Usar el campo minReps de la configuración
       return minReps;
-    } catch (e) {
+    } catch (_) {
       return minReps;
     }
   }
@@ -272,15 +231,18 @@ class ProgressionConfig extends Equatable {
   /// Obtiene las repeticiones máximas adaptativas basadas en el ejercicio
   int getAdaptiveMaxReps(dynamic exercise) {
     try {
-      // 1. Intentar obtener desde customParameters
-      final customMaxReps = _getMaxRepsFromCustomParameters(exercise);
-      if (customMaxReps != null) {
-        return customMaxReps;
+      if (exercise is Exercise) {
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          getTrainingObjective(),
+        );
+        final (_, max) = AdaptiveIncrementConfig.getRepetitionsRange(
+          exercise,
+          objective: objective,
+        );
+        return max;
       }
-
-      // 2. Usar el campo maxReps de la configuración
       return maxReps;
-    } catch (e) {
+    } catch (_) {
       return maxReps;
     }
   }
@@ -288,15 +250,18 @@ class ProgressionConfig extends Equatable {
   /// Obtiene las series base adaptativas basadas en el ejercicio
   int getAdaptiveBaseSets(dynamic exercise) {
     try {
-      // 1. Intentar obtener desde customParameters
-      final customBaseSets = _getBaseSetsFromCustomParameters(exercise);
-      if (customBaseSets != null) {
-        return customBaseSets;
+      if (exercise is Exercise) {
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          getTrainingObjective(),
+        );
+        final range = AdaptiveIncrementConfig.getSeriesRangeByObjective(
+          exercise,
+          objective: objective,
+        );
+        return range.defaultValue;
       }
-
-      // 2. Usar el campo baseSets de la configuración
       return baseSets;
-    } catch (e) {
+    } catch (_) {
       return baseSets;
     }
   }
@@ -309,7 +274,9 @@ class ProgressionConfig extends Equatable {
     try {
       // Usar AdaptiveIncrementConfig como única fuente de verdad
       // Considera tanto exerciseType como loadType del ejercicio
-      final adaptiveSeriesIncrement = _getSeriesIncrementFromAdaptiveConfig(exercise);
+      final adaptiveSeriesIncrement = _getSeriesIncrementFromAdaptiveConfig(
+        exercise,
+      );
       if (adaptiveSeriesIncrement != null) {
         return adaptiveSeriesIncrement;
       }
@@ -321,116 +288,40 @@ class ProgressionConfig extends Equatable {
     return 1;
   }
 
-  /// Obtiene minReps desde customParameters
-  int? _getMinRepsFromCustomParameters(dynamic exercise) {
-    try {
-      final customParams = customParameters;
+  // Overrides por customParameters eliminados: reps mínimas derivadas por objetivo
 
-      // Buscar en per_exercise primero
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final minReps = exerciseParams['min_reps'];
-          if (minReps != null && minReps is num) {
-            return minReps.toInt();
-          }
-        }
-      }
+  // Overrides por customParameters eliminados: reps máximas derivadas por objetivo
 
-      // Fallback a global
-      final globalMinReps = customParams['min_reps'];
-      if (globalMinReps != null && globalMinReps is num) {
-        return globalMinReps.toInt();
-      }
-    } catch (e) {
-      // Si hay error, retornar null
-    }
-
-    return null;
-  }
-
-  /// Obtiene maxReps desde customParameters
-  int? _getMaxRepsFromCustomParameters(dynamic exercise) {
-    try {
-      final customParams = customParameters;
-
-      // Buscar en per_exercise primero
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final maxReps = exerciseParams['max_reps'];
-          if (maxReps != null && maxReps is num) {
-            return maxReps.toInt();
-          }
-        }
-      }
-
-      // Fallback a global
-      final globalMaxReps = customParams['max_reps'];
-      if (globalMaxReps != null && globalMaxReps is num) {
-        return globalMaxReps.toInt();
-      }
-    } catch (e) {
-      // Si hay error, retornar null
-    }
-
-    return null;
-  }
-
-  /// Obtiene baseSets desde customParameters
-  int? _getBaseSetsFromCustomParameters(dynamic exercise) {
-    try {
-      final customParams = customParameters;
-
-      // Buscar en per_exercise primero
-      final perExercise = customParams['per_exercise'] as Map<String, dynamic>?;
-      if (perExercise != null) {
-        final exerciseParams = perExercise.values.first as Map<String, dynamic>?;
-        if (exerciseParams != null) {
-          final baseSets = exerciseParams['base_sets'];
-          if (baseSets != null && baseSets is num) {
-            return baseSets.toInt();
-          }
-        }
-      }
-
-      // Fallback a global
-      final globalBaseSets = customParams['base_sets'];
-      if (globalBaseSets != null && globalBaseSets is num) {
-        return globalBaseSets.toInt();
-      }
-    } catch (e) {
-      // Si hay error, retornar null
-    }
-
-    return null;
-  }
+  // Overrides por customParameters eliminados: base sets derivados por objetivo
 
   /// Determina si la progresión debe enfocarse en peso basado en los targets
   bool shouldFocusOnWeight() {
-    return primaryTarget == ProgressionTarget.weight || secondaryTarget == ProgressionTarget.weight;
+    return primaryTarget == ProgressionTarget.weight ||
+        secondaryTarget == ProgressionTarget.weight;
   }
 
   /// Determina si la progresión debe enfocarse en repeticiones basado en los targets
   bool shouldFocusOnReps() {
-    return primaryTarget == ProgressionTarget.reps || secondaryTarget == ProgressionTarget.reps;
+    return primaryTarget == ProgressionTarget.reps ||
+        secondaryTarget == ProgressionTarget.reps;
   }
 
   /// Determina si la progresión debe enfocarse en series basado en los targets
   bool shouldFocusOnSets() {
-    return primaryTarget == ProgressionTarget.sets || secondaryTarget == ProgressionTarget.sets;
+    return primaryTarget == ProgressionTarget.sets ||
+        secondaryTarget == ProgressionTarget.sets;
   }
 
   /// Determina si la progresión debe enfocarse en volumen basado en los targets
   bool shouldFocusOnVolume() {
-    return primaryTarget == ProgressionTarget.volume || secondaryTarget == ProgressionTarget.volume;
+    return primaryTarget == ProgressionTarget.volume ||
+        secondaryTarget == ProgressionTarget.volume;
   }
 
   /// Determina si la progresión debe enfocarse en intensidad basado en los targets
   bool shouldFocusOnIntensity() {
-    return primaryTarget == ProgressionTarget.intensity || secondaryTarget == ProgressionTarget.intensity;
+    return primaryTarget == ProgressionTarget.intensity ||
+        secondaryTarget == ProgressionTarget.intensity;
   }
 
   /// Obtiene el target principal como string para logging/debugging
@@ -446,7 +337,8 @@ class ProgressionConfig extends Equatable {
   /// Determina si los targets están configurados para hipertrofia
   bool isConfiguredForHypertrophy() {
     // Hipertrofia típicamente se enfoca en volumen y repeticiones
-    return (primaryTarget == ProgressionTarget.volume || primaryTarget == ProgressionTarget.reps) &&
+    return (primaryTarget == ProgressionTarget.volume ||
+            primaryTarget == ProgressionTarget.reps) &&
         (secondaryTarget == ProgressionTarget.weight ||
             secondaryTarget == ProgressionTarget.sets ||
             secondaryTarget == ProgressionTarget.reps);
@@ -456,10 +348,12 @@ class ProgressionConfig extends Equatable {
   bool isConfiguredForStrength() {
     // Fuerza típicamente se enfoca en peso e intensidad
     // Excluir casos que son específicamente para power
-    if (primaryTarget == ProgressionTarget.intensity && secondaryTarget == ProgressionTarget.intensity) {
+    if (primaryTarget == ProgressionTarget.intensity &&
+        secondaryTarget == ProgressionTarget.intensity) {
       return false; // Este caso es para power
     }
-    return (primaryTarget == ProgressionTarget.weight || primaryTarget == ProgressionTarget.intensity) &&
+    return (primaryTarget == ProgressionTarget.weight ||
+            primaryTarget == ProgressionTarget.intensity) &&
         (secondaryTarget == ProgressionTarget.reps ||
             secondaryTarget == ProgressionTarget.intensity ||
             secondaryTarget == ProgressionTarget.weight ||
@@ -469,7 +363,8 @@ class ProgressionConfig extends Equatable {
   /// Determina si los targets están configurados para resistencia
   bool isConfiguredForEndurance() {
     // Resistencia típicamente se enfoca en repeticiones y volumen
-    return (primaryTarget == ProgressionTarget.reps || primaryTarget == ProgressionTarget.volume) &&
+    return (primaryTarget == ProgressionTarget.reps ||
+            primaryTarget == ProgressionTarget.volume) &&
         (secondaryTarget == ProgressionTarget.sets ||
             secondaryTarget == ProgressionTarget.volume ||
             secondaryTarget == null);
@@ -479,8 +374,10 @@ class ProgressionConfig extends Equatable {
   bool isConfiguredForPower() {
     // Potencia típicamente se enfoca en intensidad y peso
     // Para power, ambos targets deben ser intensity o weight
-    return (primaryTarget == ProgressionTarget.intensity && secondaryTarget == ProgressionTarget.intensity) ||
-        (primaryTarget == ProgressionTarget.weight && secondaryTarget == ProgressionTarget.reps);
+    return (primaryTarget == ProgressionTarget.intensity &&
+            secondaryTarget == ProgressionTarget.intensity) ||
+        (primaryTarget == ProgressionTarget.weight &&
+            secondaryTarget == ProgressionTarget.reps);
   }
 
   /// Obtiene el objetivo de entrenamiento basado en los targets configurados
@@ -508,9 +405,14 @@ class ProgressionConfig extends Equatable {
       if (exercise is! Exercise) return null;
 
       // Usar AdaptiveIncrementConfig para obtener el incremento de series recomendado
+      final objective = AdaptiveIncrementConfig.parseObjective(
+        getTrainingObjective(),
+      );
       return AdaptiveIncrementConfig.getRecommendedSeriesIncrement(
         exercise,
         ExperienceLevel.intermediate, // Por defecto intermedio
+        objective: objective,
+        customParameters: customParameters,
       );
     } catch (e) {
       return null;

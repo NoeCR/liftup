@@ -18,26 +18,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 4,
       deloadWeek: 4,
       deloadPercentage: 0.8,
       customParameters: {
-        // Configuración global para hipertrofia
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
-
-        // Los incrementos y rangos de reps por exerciseType/loadType
-        // se manejan automáticamente por AdaptiveIncrementConfig
-
-        // Los incrementos de series por loadType se manejan automáticamente
-        // a través de AdaptiveIncrementConfig
-
         // Metadatos para internacionalización
         'title_key': 'presets.hypertrophy.title',
         'description_key': 'presets.hypertrophy.description',
@@ -62,26 +49,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        // Configuración global para fuerza
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
-
-        // Los incrementos y rangos de reps por exerciseType/loadType
-        // se manejan automáticamente por AdaptiveIncrementConfig
-
-        // Los incrementos de series por loadType se manejan automáticamente
-        // a través de AdaptiveIncrementConfig
-
         // Metadatos para internacionalización
         'title_key': 'presets.strength.title',
         'description_key': 'presets.strength.description',
@@ -106,26 +80,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.reps,
       secondaryTarget: ProgressionTarget.volume,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 3,
       deloadWeek: 3,
       deloadPercentage: 0.7,
       customParameters: {
-        // Configuración global para resistencia
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
-
-        // Los incrementos y rangos de reps por exerciseType/loadType
-        // se manejan automáticamente por AdaptiveIncrementConfig
-
-        // Los incrementos de series por loadType se manejan automáticamente
-        // a través de AdaptiveIncrementConfig
-
         // Metadatos para internacionalización
         'title_key': 'presets.endurance.title',
         'description_key': 'presets.endurance.description',
@@ -150,26 +111,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 3,
       deloadWeek: 3,
       deloadPercentage: 0.7,
       customParameters: {
-        // Configuración global para potencia
-        'sessions_per_week': 2,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
-
-        // Los incrementos y rangos de reps por exerciseType/loadType
-        // se manejan automáticamente por AdaptiveIncrementConfig
-
-        // Los incrementos de series por loadType se manejan automáticamente
-        // a través de AdaptiveIncrementConfig
-
         // Metadatos para internacionalización
         'title_key': 'presets.power.title',
         'description_key': 'presets.power.description',
@@ -200,28 +148,19 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.8,
       customParameters: {
-        // Configuración global para hipertrofia con progresión doble
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
-
         // Parámetros específicos de progresión doble
-        'weight_increment': 2.5, // Valor base, será adaptado por AdaptiveIncrementConfig
+        'weight_increment':
+            2.5, // Valor base, será adaptado por AdaptiveIncrementConfig
         'rep_increment': 1,
         'max_reps_before_weight_increase': 12,
         'min_reps_after_weight_increase': 8,
-
-        // Los incrementos y rangos de reps por exerciseType/loadType
-        // se manejan automáticamente por AdaptiveIncrementConfig
       },
       startDate: DateTime.now(),
       isActive: true,
@@ -242,28 +181,18 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 0, // Autoregulada no tiene ciclo fijo
       deloadWeek: 0,
       deloadPercentage: 0.8,
       customParameters: {
-        // Configuración global para hipertrofia autoregulada
-        'sessions_per_week': 3,
-        'min_reps': 6,
-        'max_reps': 15,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
-
         // Parámetros específicos de progresión autoregulada
         'rpe_threshold': 0.5,
         'target_reps': 10,
         'weight_increment_on_target_rpe': 2.5,
         'rep_increment_on_low_rpe': 1,
-
-        // Los incrementos y rangos de reps por exerciseType/loadType
-        // se manejan automáticamente por AdaptiveIncrementConfig
       },
       startDate: DateTime.now(),
       isActive: true,
@@ -286,18 +215,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'step_duration_weeks': 2,
         'step_increment_percentage': 0.05,
         'progression_logic': 'stepped_hypertrophy',
@@ -330,12 +254,6 @@ class PresetProgressionConfigs {
       deloadWeek: 8,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'step_duration_weeks': 2,
         'step_increment_percentage': 0.075,
         'progression_logic': 'stepped_strength',
@@ -368,12 +286,6 @@ class PresetProgressionConfigs {
       deloadWeek: 4,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'step_duration_weeks': 2,
         'step_increment_percentage': 0.03,
         'progression_logic': 'stepped_endurance',
@@ -406,12 +318,6 @@ class PresetProgressionConfigs {
       deloadWeek: 6,
       deloadPercentage: 0.7,
       customParameters: {
-        'sessions_per_week': 2,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'step_duration_weeks': 3,
         'step_increment_percentage': 0.08,
         'progression_logic': 'stepped_power',
@@ -446,12 +352,6 @@ class PresetProgressionConfigs {
       deloadWeek: 6,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'rep_target': 6,
         'weight_increment_on_target_reps': 5.0,
         'rep_increment_on_low_reps': 1,
@@ -485,12 +385,6 @@ class PresetProgressionConfigs {
       deloadWeek: 4,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'rep_target': 15,
         'weight_increment_on_target_reps': 1.25,
         'rep_increment_on_low_reps': 2,
@@ -524,12 +418,6 @@ class PresetProgressionConfigs {
       deloadWeek: 4,
       deloadPercentage: 0.7,
       customParameters: {
-        'sessions_per_week': 2,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'rep_target': 5,
         'weight_increment_on_target_reps': 5.0,
         'rep_increment_on_low_reps': 1,
@@ -559,18 +447,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 3,
       deloadWeek: 3,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 6,
-        'max_reps': 15,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'undulation_pattern': 'daily',
         'intensity_variation': 0.15,
         'volume_variation': 0.2,
@@ -604,12 +487,6 @@ class PresetProgressionConfigs {
       deloadWeek: 4,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 2,
-        'max_reps': 8,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'undulation_pattern': 'daily',
         'intensity_variation': 0.2,
         'volume_variation': 0.15,
@@ -643,12 +520,6 @@ class PresetProgressionConfigs {
       deloadWeek: 2,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 5,
-        'min_reps': 10,
-        'max_reps': 25,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'undulation_pattern': 'daily',
         'intensity_variation': 0.1,
         'volume_variation': 0.25,
@@ -682,12 +553,6 @@ class PresetProgressionConfigs {
       deloadWeek: 3,
       deloadPercentage: 0.7,
       customParameters: {
-        'sessions_per_week': 2,
-        'min_reps': 2,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'undulation_pattern': 'daily',
         'intensity_variation': 0.25,
         'volume_variation': 0.1,
@@ -820,18 +685,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'rpe_threshold_low': 7.0,
         'rpe_threshold_high': 9.0,
         'title_key': 'presets.strength.title',
@@ -857,18 +717,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'rpe_threshold_low': 6.0,
         'rpe_threshold_high': 8.0,
         'title_key': 'presets.endurance.title',
@@ -894,18 +749,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 1,
-        'max_reps': 5,
-        'base_sets': 5,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 240,
         'rpe_threshold_low': 7.0,
         'rpe_threshold_high': 9.0,
         'title_key': 'presets.power.title',
@@ -933,18 +783,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'volume_week_factor': 1.2,
         'intensity_week_factor': 0.8,
         'title_key': 'presets.hypertrophy.title',
@@ -970,18 +815,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'volume_week_factor': 1.1,
         'intensity_week_factor': 0.9,
         'title_key': 'presets.strength.title',
@@ -1007,18 +847,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'volume_week_factor': 1.3,
         'intensity_week_factor': 0.7,
         'title_key': 'presets.endurance.title',
@@ -1044,18 +879,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 1,
-        'max_reps': 5,
-        'base_sets': 5,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 240,
         'volume_week_factor': 1.1,
         'intensity_week_factor': 0.9,
         'title_key': 'presets.power.title',
@@ -1083,18 +913,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'high_intensity_factor': 1.1,
         'high_volume_factor': 0.7,
         'title_key': 'presets.hypertrophy.title',
@@ -1120,18 +945,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'high_intensity_factor': 1.15,
         'high_volume_factor': 0.75,
         'title_key': 'presets.strength.title',
@@ -1157,18 +977,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'high_intensity_factor': 1.05,
         'high_volume_factor': 0.6,
         'title_key': 'presets.endurance.title',
@@ -1194,18 +1009,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.week,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 1,
-        'max_reps': 5,
-        'base_sets': 5,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 240,
         'high_intensity_factor': 1.2,
         'high_volume_factor': 0.8,
         'title_key': 'presets.power.title',
@@ -1233,18 +1043,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 4,
       deloadWeek: 4,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'overload_factor': 1.1,
         'overload_duration_sessions': 2,
         'title_key': 'presets.hypertrophy.title',
@@ -1270,18 +1075,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'overload_factor': 1.15,
         'overload_duration_sessions': 3,
         'title_key': 'presets.strength.title',
@@ -1307,18 +1107,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'overload_factor': 1.05,
         'overload_duration_sessions': 2,
         'title_key': 'presets.endurance.title',
@@ -1344,18 +1139,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 1,
-        'max_reps': 5,
-        'base_sets': 5,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 240,
         'overload_factor': 1.2,
         'overload_duration_sessions': 2,
         'title_key': 'presets.power.title',
@@ -1383,18 +1173,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'manual_progression': true,
         'title_key': 'presets.hypertrophy.title',
         'description_key': 'presets.hypertrophy.description',
@@ -1419,18 +1204,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'manual_progression': true,
         'title_key': 'presets.strength.title',
         'description_key': 'presets.strength.description',
@@ -1455,18 +1235,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'manual_progression': true,
         'title_key': 'presets.endurance.title',
         'description_key': 'presets.endurance.description',
@@ -1491,18 +1266,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 0, // Sin incrementos automáticos
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 1,
-        'max_reps': 5,
-        'base_sets': 5,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 240,
         'manual_progression': true,
         'title_key': 'presets.power.title',
         'description_key': 'presets.power.description',
@@ -1529,18 +1299,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.8,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 8,
-        'max_reps': 12,
-        'base_sets': 3,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 90,
         'reverse_factor': 0.9,
         'title_key': 'presets.hypertrophy.title',
         'description_key': 'presets.hypertrophy.description',
@@ -1565,18 +1330,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.weight,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 8,
       deloadWeek: 8,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 3,
-        'max_reps': 6,
-        'base_sets': 4,
-        'target_rpe': 8.5,
-        'rest_time_seconds': 180,
         'reverse_factor': 0.85,
         'title_key': 'presets.strength.title',
         'description_key': 'presets.strength.description',
@@ -1601,18 +1361,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.volume,
       secondaryTarget: ProgressionTarget.reps,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 2,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.75,
       customParameters: {
-        'sessions_per_week': 4,
-        'min_reps': 12,
-        'max_reps': 20,
-        'base_sets': 3,
-        'target_rpe': 7.0,
-        'rest_time_seconds': 60,
         'reverse_factor': 0.8,
         'title_key': 'presets.endurance.title',
         'description_key': 'presets.endurance.description',
@@ -1637,18 +1392,13 @@ class PresetProgressionConfigs {
       unit: ProgressionUnit.session,
       primaryTarget: ProgressionTarget.intensity,
       secondaryTarget: ProgressionTarget.intensity,
-      incrementValue: 0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
+      incrementValue:
+          0, // Usar AdaptiveIncrementConfig para incrementos adaptativos
       incrementFrequency: 1,
       cycleLength: 6,
       deloadWeek: 6,
       deloadPercentage: 0.85,
       customParameters: {
-        'sessions_per_week': 3,
-        'min_reps': 1,
-        'max_reps': 5,
-        'base_sets': 5,
-        'target_rpe': 8.0,
-        'rest_time_seconds': 240,
         'reverse_factor': 0.8,
         'title_key': 'presets.power.title',
         'description_key': 'presets.power.description',
@@ -1667,13 +1417,17 @@ class PresetProgressionConfigs {
   /// Obtiene metadatos de un preset para mostrar en la UI usando easy_localization
   static Map<String, dynamic> getPresetMetadata(ProgressionConfig config) {
     final customParams = config.customParameters;
-    final targetRpe = customParams['target_rpe'] ?? 8.0;
-    final restTime = customParams['rest_time_seconds'] ?? 90;
+
+    // Valores por defecto - en el futuro se derivarán desde AdaptiveIncrementConfig por objetivo
+    final targetRpe = 8.0; // Valor por defecto para RPE objetivo
+    final restTime = 90; // Valor por defecto para tiempo de descanso (segundos)
 
     // Usar las claves de internacionalización definidas en customParameters
     final titleKey = customParams['title_key'] ?? 'presets.general.title';
-    final descriptionKey = customParams['description_key'] ?? 'presets.general.description';
-    final keyPointsKey = customParams['key_points_key'] ?? 'presets.general.key_points';
+    final descriptionKey =
+        customParams['description_key'] ?? 'presets.general.description';
+    final keyPointsKey =
+        customParams['key_points_key'] ?? 'presets.general.key_points';
 
     // Función helper para manejar la internacionalización de forma segura
     String translate(String key, {Map<String, String>? namedArgs}) {
@@ -1695,11 +1449,23 @@ class PresetProgressionConfigs {
       'key_points': [
         translate(
           '$keyPointsKey.repRange',
-          namedArgs: {'minReps': config.minReps.toString(), 'maxReps': config.maxReps.toString()},
+          namedArgs: {
+            'minReps': config.minReps.toString(),
+            'maxReps': config.maxReps.toString(),
+          },
         ),
-        translate('$keyPointsKey.baseSets', namedArgs: {'baseSets': config.baseSets.toString()}),
-        translate('$keyPointsKey.targetRpe', namedArgs: {'targetRpe': targetRpe.toString()}),
-        translate('$keyPointsKey.restTime', namedArgs: {'restTime': restTime.toString()}),
+        translate(
+          '$keyPointsKey.baseSets',
+          namedArgs: {'baseSets': config.baseSets.toString()},
+        ),
+        translate(
+          '$keyPointsKey.targetRpe',
+          namedArgs: {'targetRpe': targetRpe.toString()},
+        ),
+        translate(
+          '$keyPointsKey.restTime',
+          namedArgs: {'restTime': restTime.toString()},
+        ),
       ],
     };
   }

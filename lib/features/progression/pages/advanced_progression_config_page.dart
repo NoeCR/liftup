@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/enums/progression_type_enum.dart';
 import '../../exercise/models/exercise.dart';
 import '../configs/adaptive_increment_config.dart';
+import '../configs/training_objective.dart';
 import '../models/progression_config.dart';
 import '../widgets/adaptive_increment_config_editor.dart';
 
@@ -13,13 +14,19 @@ class AdvancedProgressionConfigPage extends ConsumerStatefulWidget {
   final ProgressionConfig preset;
   final Function(ProgressionConfig) onConfigSaved;
 
-  const AdvancedProgressionConfigPage({super.key, required this.preset, required this.onConfigSaved});
+  const AdvancedProgressionConfigPage({
+    super.key,
+    required this.preset,
+    required this.onConfigSaved,
+  });
 
   @override
-  ConsumerState<AdvancedProgressionConfigPage> createState() => _AdvancedProgressionConfigPageState();
+  ConsumerState<AdvancedProgressionConfigPage> createState() =>
+      _AdvancedProgressionConfigPageState();
 }
 
-class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgressionConfigPage> {
+class _AdvancedProgressionConfigPageState
+    extends ConsumerState<AdvancedProgressionConfigPage> {
   late ProgressionConfig _modifiedConfig;
 
   // Parámetros configurables
@@ -32,7 +39,8 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
 
   // Configuración de incrementos personalizados
   Map<ExerciseType, Map<LoadType, IncrementRange>>? _customWeightIncrements;
-  Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>? _customSeriesIncrements;
+  Map<ExerciseType, Map<LoadType, SeriesIncrementRange>>?
+  _customSeriesIncrements;
 
   @override
   void initState() {
@@ -45,23 +53,81 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
 
     // Inicializar parámetros configurables
     _baseSets = widget.preset.baseSets;
-    _sessionsPerWeek = widget.preset.customParameters['sessions_per_week'] ?? 3;
-    _restTimeSeconds = widget.preset.customParameters['rest_time_seconds'] ?? 90;
+
+    // Derivar valores por objetivo de entrenamiento
+    _deriveValuesByObjective();
+
     _cycleLength = widget.preset.cycleLength;
     _deloadWeek = widget.preset.deloadWeek;
     _deloadPercentage = widget.preset.deloadPercentage;
   }
 
+  /// Deriva valores de sesiones por semana y tiempo de descanso basados en el objetivo
+  void _deriveValuesByObjective() {
+    try {
+      // Derivar objetivo de entrenamiento desde el preset
+      final objective = AdaptiveIncrementConfig.parseObjective(
+        widget.preset.getTrainingObjective(),
+      );
+
+      // Los valores de series se obtienen del preset directamente
+
+      // Derivar sesiones por semana basado en el objetivo
+      _sessionsPerWeek = _getSessionsPerWeekByObjective(objective);
+
+      // Derivar tiempo de descanso basado en el objetivo
+      _restTimeSeconds = _getRestTimeByObjective(objective);
+    } catch (e) {
+      // Si hay error, usar valores por defecto
+      _sessionsPerWeek = 3;
+      _restTimeSeconds = 90;
+    }
+  }
+
+  /// Obtiene sesiones por semana basado en el objetivo de entrenamiento
+  int _getSessionsPerWeekByObjective(TrainingObjective objective) {
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 3; // Frecuencia moderada para fuerza
+      case TrainingObjective.hypertrophy:
+        return 4; // Frecuencia alta para hipertrofia
+      case TrainingObjective.endurance:
+        return 5; // Frecuencia muy alta para resistencia
+      case TrainingObjective.power:
+        return 3; // Frecuencia moderada para potencia
+    }
+  }
+
+  /// Obtiene tiempo de descanso basado en el objetivo de entrenamiento
+  int _getRestTimeByObjective(TrainingObjective objective) {
+    switch (objective) {
+      case TrainingObjective.strength:
+        return 180; // 3 minutos para fuerza
+      case TrainingObjective.hypertrophy:
+        return 90; // 1.5 minutos para hipertrofia
+      case TrainingObjective.endurance:
+        return 60; // 1 minuto para resistencia
+      case TrainingObjective.power:
+        return 240; // 4 minutos para potencia
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final objective = _getObjectiveDisplayName(widget.preset.getTrainingObjective());
+    final objective = _getObjectiveDisplayName(
+      widget.preset.getTrainingObjective(),
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Configuración Avanzada - $objective'),
         actions: [
-          IconButton(onPressed: _saveConfiguration, icon: const Icon(Icons.save), tooltip: 'Guardar configuración'),
+          IconButton(
+            onPressed: _saveConfiguration,
+            icon: const Icon(Icons.save),
+            tooltip: 'Guardar configuración',
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -100,18 +166,27 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
               children: [
                 Icon(Icons.info_outline, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
-                Text('Preset Base', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text(
+                  'Preset Base',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
             Text(
               '${_getObjectiveDisplayName(widget.preset.getTrainingObjective())} - ${_getStrategyDisplayName(widget.preset.type)}',
-              style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Rango de reps: ${widget.preset.minReps}-${widget.preset.maxReps} | RPE objetivo: ${widget.preset.customParameters['target_rpe'] ?? 8.0}',
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -126,11 +201,18 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Parámetros Configurables', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(
+              'Parámetros Configurables',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               'Estos parámetros pueden ajustarse sin afectar el objetivo fundamental del preset.',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -243,12 +325,16 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
           children: [
             Text(
               'Incrementos Personalizados',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Personaliza los incrementos de peso y series para cada tipo de ejercicio y carga.',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
 
@@ -270,7 +356,8 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
 
   Widget _buildWarnings(ThemeData theme) {
     return Card(
-      color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      // withOpacity deprecated: approximate alpha 0.3 -> 0.3*255 ≈ 77
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -278,9 +365,17 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
           children: [
             Row(
               children: [
-                Icon(Icons.warning_amber_outlined, color: theme.colorScheme.primary),
+                Icon(
+                  Icons.warning_amber_outlined,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 8),
-                Text('Limitaciones', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  'Limitaciones',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -288,7 +383,9 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
               '• Los rangos de repeticiones (${widget.preset.minReps}-${widget.preset.maxReps}) no pueden modificarse para mantener el objetivo del preset.\n'
               '• El RPE objetivo (${widget.preset.customParameters['target_rpe'] ?? 8.0}) no puede modificarse para mantener la intensidad adecuada.\n'
               '• Los objetivos primario y secundario no pueden modificarse para preservar la estrategia de entrenamiento.',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -315,9 +412,12 @@ class _AdvancedProgressionConfigPageState extends ConsumerState<AdvancedProgress
   void _saveConfiguration() {
     widget.onConfigSaved(_modifiedConfig);
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Configuración avanzada guardada'), backgroundColor: Colors.green));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Configuración avanzada guardada'),
+        backgroundColor: Colors.green,
+      ),
+    );
 
     Navigator.of(context).pop();
   }
