@@ -396,7 +396,7 @@ void main() {
                 'target_rpe': 7.5, // Solo RPE personalizado
               },
             },
-            'target_reps': 10, // Global
+            'target_reps': 12, // Global - igual a las reps realizadas para RPE óptimo
             'max_reps': 12, // Global
             'min_reps': 5, // Global
             'increment_value': 2.5, // Global
@@ -419,7 +419,7 @@ void main() {
           baseSets: state.baseSets,
           sessionHistory: {
             'session_1': {
-              'reps': 10, // Reps exactas = RPE óptimo
+              'reps': 12, // Reps exactas = RPE óptimo
             },
           },
           lastUpdated: state.lastUpdated,
@@ -433,13 +433,13 @@ void main() {
           state: stateWithHistory,
           routineId: 'test-routine',
           currentWeight: 100.0,
-          currentReps: 10,
+          currentReps: 12, // Establecer en max_reps para probar "max reps reached"
           currentSets: 4,
           exercise: ex(),
         );
 
         expect(result.newWeight, 100.0);
-        expect(result.newReps, 11); // Incrementa reps según nuevo rango (10 -> 11)
+        expect(result.newReps, 12); // Se mantiene en max_reps
         expect(result.reason, contains('max reps reached'));
       });
     });
