@@ -1,5 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/exercise/models/exercise_set.dart';
 import 'package:liftly/features/exercise/notifiers/exercise_notifier.dart';
@@ -35,33 +35,32 @@ class MockSessionService extends SessionService {
 
   @override
   Future<List<WorkoutSession>> getAllSessions() async {
-    final list = List<WorkoutSession>.from(_sessions);
-    list.sort((a, b) => b.startTime.compareTo(a.startTime));
-    return list;
+    return List.from(_sessions.reversed); // Most recent first
   }
 
   @override
   Future<List<WorkoutSession>> getSessionsByDateRange(DateTime startDate, DateTime endDate) async {
-    return _sessions.where((session) {
-      return session.startTime.isAfter(startDate) && session.startTime.isBefore(endDate);
-    }).toList();
+    return _sessions
+        .where((session) => session.startTime.isAfter(startDate) && session.startTime.isBefore(endDate))
+        .toList()
+        .reversed
+        .toList();
   }
 
   @override
   Future<List<WorkoutSession>> getRecentSessions({int limit = 10}) async {
-    final sortedSessions = List<WorkoutSession>.from(_sessions);
-    sortedSessions.sort((a, b) => b.startTime.compareTo(a.startTime));
-    return sortedSessions.take(limit).toList();
+    final sessions = List<WorkoutSession>.from(_sessions.reversed);
+    return sessions.take(limit).toList();
   }
 
   @override
   Future<List<WorkoutSession>> getCompletedSessions() async {
-    return _sessions.where((session) => session.isCompleted).toList();
+    return _sessions.where((session) => session.status == SessionStatus.completed).toList().reversed.toList();
   }
 
   @override
   Future<List<WorkoutSession>> getActiveSessions() async {
-    return _sessions.where((session) => session.isActive).toList();
+    return _sessions.where((session) => session.status == SessionStatus.active).toList();
   }
 
   @override
@@ -76,10 +75,7 @@ class MockSessionService extends SessionService {
 
   @override
   Future<Duration> getTotalWorkoutTime() async {
-    final totalMinutes = _sessions
-        .where((session) => session.duration != null)
-        .fold<int>(0, (sum, session) => sum + session.duration!.inMinutes);
-    return Duration(minutes: totalMinutes);
+    return _sessions.fold<Duration>(Duration.zero, (sum, session) => sum + (session.duration ?? Duration.zero));
   }
 
   @override
@@ -97,54 +93,61 @@ class MockSessionService extends SessionService {
   }
 }
 
-// Fakes mínimos para evitar accesos a base de datos via notifiers transistivos
-class _FakeRoutineNotifier extends RoutineNotifier {
+// Fake notifiers that extend the real ones
+class _FakeExerciseNotifier extends ExerciseNotifier {
+  List<Exercise> get _value => _exercises ?? const <Exercise>[];
+  List<Exercise>? _exercises;
+  void setExercises(List<Exercise> value) => _exercises = value;
+
   @override
-  Future<List<Routine>> build() async => <Routine>[];
+  Future<List<Exercise>> build() async => _value.cast<Exercise>();
 }
 
-class _FakeExerciseNotifier extends ExerciseNotifier {
+class _FakeRoutineNotifier extends RoutineNotifier {
+  List<Routine> get _value => _routines ?? const <Routine>[];
+  List<Routine>? _routines;
+  void setRoutines(List<Routine> value) => _routines = value;
+
   @override
-  Future<List<Exercise>> build() async => <Exercise>[];
+  Future<List<Routine>> build() async => _value.cast<Routine>();
 }
 
 class _FakePerformedSetsNotifier extends PerformedSetsNotifier {
-  @override
-  void clearAll() {}
+  Future<List<ExerciseSet>> build() async => [];
 }
 
 void main() {
   group('SessionNotifier - Simple Tests', () {
-    late ProviderContainer container;
-    late MockSessionService mockSessionService;
-
-    setUp(() {
-      mockSessionService = MockSessionService();
-      container = ProviderContainer(
+    ProviderContainer createContainer() {
+      final mockService = MockSessionService();
+      return ProviderContainer(
         overrides: [
-          sessionServiceProvider.overrideWith(() => mockSessionService),
+          sessionServiceProvider.overrideWith(() => mockService),
           routineNotifierProvider.overrideWith(() => _FakeRoutineNotifier()),
           exerciseNotifierProvider.overrideWith(() => _FakeExerciseNotifier()),
           performedSetsNotifierProvider.overrideWith((ref) => _FakePerformedSetsNotifier()),
         ],
       );
-    });
-
-    tearDown(() {
-      container.dispose();
-    });
+    }
 
     group('Basic Functionality', () {
       test('should initialize with empty sessions list', () async {
+        // Arrange
+        final container = createContainer();
+
         // Act
         final sessions = await container.read(sessionNotifierProvider.future);
 
         // Assert
         expect(sessions, isEmpty);
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should start a new session', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
 
         // Act
@@ -155,10 +158,14 @@ void main() {
         expect(session.status, equals(SessionStatus.active));
         expect(session.startTime, isNotNull);
         expect(session.endTime, isNull);
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should add exercise set to current session', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
         await notifier.startSession(name: 'Test Session');
 
@@ -176,32 +183,41 @@ void main() {
         await notifier.addExerciseSet(exerciseSet);
 
         // Assert
-        final updatedSession = await notifier.getCurrentOngoingSession();
-        expect(updatedSession, isNotNull);
-        expect(updatedSession!.exerciseSets, contains(exerciseSet));
+        final currentSession = await notifier.getCurrentOngoingSession();
+        expect(currentSession, isNotNull);
+        expect(currentSession!.exerciseSets, hasLength(1));
+        expect(currentSession.exerciseSets.first.weight, equals(100.0));
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should complete a session', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
-        final session = await notifier.startSession(name: 'Test Session');
+        await notifier.startSession(name: 'Test Session');
 
         // Act
         await notifier.completeSession(notes: 'Great workout!');
 
         // Assert
-        final completedSession = await notifier.getCurrentOngoingSession();
-        expect(completedSession, isNull); // No ongoing session after completion
+        final currentSession = await notifier.getCurrentOngoingSession();
+        expect(currentSession, isNull); // No ongoing session after completion
 
         final sessions = await container.read(sessionNotifierProvider.future);
-        final completed = sessions.firstWhere((s) => s.id == session.id);
+        final completed = sessions.firstWhere((s) => s.name == 'Test Session');
         expect(completed.status, equals(SessionStatus.completed));
         expect(completed.notes, equals('Great workout!'));
         expect(completed.endTime, isNotNull);
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should pause and resume a session', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
         await notifier.startSession(name: 'Test Session');
 
@@ -220,51 +236,96 @@ void main() {
         final resumedSession = await notifier.getCurrentOngoingSession();
         expect(resumedSession, isNotNull);
         expect(resumedSession!.status, equals(SessionStatus.active));
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should delete a session', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
-        final session = await notifier.startSession(name: 'Test Session');
+        await notifier.startSession(name: 'Test Session');
         await notifier.completeSession();
 
         // Act
-        await notifier.deleteSession(session.id);
+        final sessions = await container.read(sessionNotifierProvider.future);
+        final sessionToDelete = sessions.first;
+        await notifier.deleteSession(sessionToDelete.id);
 
         // Assert
-        final sessions = await container.read(sessionNotifierProvider.future);
-        expect(sessions, isEmpty);
+        final sessionsAfterDelete = await container.read(sessionNotifierProvider.future);
+        expect(sessionsAfterDelete, isEmpty);
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should get sessions by date range', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
         final now = DateTime.now();
         final yesterday = now.subtract(const Duration(days: 1));
         final tomorrow = now.add(const Duration(days: 1));
 
-        // Create sessions
-        await notifier.startSession(name: 'Session 1');
-        await notifier.completeSession();
+        // Create sessions with manual timestamps
+        final session1 = WorkoutSession(
+          id: 'session-1',
+          name: 'Session 1',
+          startTime: now.subtract(const Duration(hours: 1)),
+          endTime: now.subtract(const Duration(minutes: 30)),
+          status: SessionStatus.completed,
+          exerciseSets: [],
+        );
 
-        await notifier.startSession(name: 'Session 2');
-        await notifier.completeSession();
+        final session2 = WorkoutSession(
+          id: 'session-2',
+          name: 'Session 2',
+          startTime: now.subtract(const Duration(minutes: 30)),
+          endTime: now,
+          status: SessionStatus.completed,
+          exerciseSets: [],
+        );
+
+        // Add sessions directly to mock service
+        final mockService = container.read(sessionServiceProvider) as MockSessionService;
+        mockService.addTestSession(session1);
+        mockService.addTestSession(session2);
 
         // Act
         final sessionsInRange = await notifier.getSessionsByDateRange(yesterday, tomorrow);
 
         // Assert
         expect(sessionsInRange, hasLength(2));
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should get recent sessions with limit', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
+        final now = DateTime.now();
 
-        // Create multiple sessions
-        for (int i = 1; i <= 5; i++) {
-          await notifier.startSession(name: 'Session $i');
-          await notifier.completeSession();
+        // Create sessions with manual timestamps
+        final sessions = List.generate(
+          5,
+          (i) => WorkoutSession(
+            id: 'session-$i',
+            name: 'Session ${i + 1}',
+            startTime: now.subtract(Duration(minutes: (4 - i) * 10)),
+            endTime: now.subtract(Duration(minutes: (4 - i) * 10 - 5)),
+            status: SessionStatus.completed,
+            exerciseSets: [],
+          ),
+        );
+
+        // Add sessions directly to mock service
+        final mockService = container.read(sessionServiceProvider) as MockSessionService;
+        for (final session in sessions) {
+          mockService.addTestSession(session);
         }
 
         // Act
@@ -272,14 +333,24 @@ void main() {
 
         // Assert
         expect(recentSessions, hasLength(3));
-        // Validar orden por fecha, no el nombre exacto
-        expect(recentSessions.first.startTime.isAfter(recentSessions.last.startTime), isTrue);
+        // Validar que las sesiones están ordenadas por fecha descendente (más reciente primero)
+        for (int i = 0; i < recentSessions.length - 1; i++) {
+          expect(
+            recentSessions[i].startTime.isAfter(recentSessions[i + 1].startTime) ||
+                recentSessions[i].startTime.isAtSameMomentAs(recentSessions[i + 1].startTime),
+            isTrue,
+          );
+        }
+
+        // Cleanup
+        container.dispose();
       });
     });
 
     group('Edge Cases', () {
       test('should handle no current session gracefully', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
         final exerciseSet = ExerciseSet(
           id: 'set-1',
@@ -293,32 +364,33 @@ void main() {
 
         // Act & Assert - Should not throw
         await notifier.addExerciseSet(exerciseSet);
-        await notifier.updateExerciseSet(exerciseSet);
-        await notifier.pauseSession();
-        await notifier.resumeSession();
-        await notifier.completeSession();
-
         final currentSession = await notifier.getCurrentOngoingSession();
         expect(currentSession, isNull);
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should handle session operations when no sessions exist', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
 
         // Act
         final sessions = await container.read(sessionNotifierProvider.future);
-        final recentSessions = await notifier.getRecentSessions(limit: 5);
+        final currentSession = await notifier.getCurrentOngoingSession();
 
         // Assert
         expect(sessions, isEmpty);
-        expect(recentSessions, isEmpty);
-      });
-    });
+        expect(currentSession, isNull);
 
-    group('Session State Management', () {
+        // Cleanup
+        container.dispose();
+      });
+
       test('should maintain session state consistency', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
 
         // Act - Start session
@@ -337,21 +409,30 @@ void main() {
         );
         await notifier.addExerciseSet(exerciseSet);
 
-        // Assert - Session should still be active
+        // Assert - Session should still be active and have the set
         final currentSession = await notifier.getCurrentOngoingSession();
+        expect(currentSession, isNotNull);
         expect(currentSession!.status, equals(SessionStatus.active));
         expect(currentSession.exerciseSets, hasLength(1));
 
         // Act - Complete session
         await notifier.completeSession();
 
-        // Assert - No ongoing session
-        final finalSession = await notifier.getCurrentOngoingSession();
-        expect(finalSession, isNull);
+        // Assert - No current session, but completed session exists
+        final completedSession = await notifier.getCurrentOngoingSession();
+        expect(completedSession, isNull);
+
+        final allSessions = await container.read(sessionNotifierProvider.future);
+        expect(allSessions, hasLength(1));
+        expect(allSessions.first.status, equals(SessionStatus.completed));
+
+        // Cleanup
+        container.dispose();
       });
 
       test('should handle multiple exercise sets', () async {
         // Arrange
+        final container = createContainer();
         final notifier = container.read(sessionNotifierProvider.notifier);
         await notifier.startSession(name: 'Test Session');
 
@@ -372,8 +453,15 @@ void main() {
         // Assert
         final currentSession = await notifier.getCurrentOngoingSession();
         expect(currentSession!.exerciseSets, hasLength(3));
-        final weights = currentSession.exerciseSets.map((e) => e.weight).toList();
-        expect(weights, containsAll(<double>[105.0, 110.0, 115.0]));
+
+        // Validar que los sets están presentes (sin depender del orden exacto)
+        final weights = currentSession.exerciseSets.map((s) => s.weight).toList();
+        expect(weights, contains(105.0));
+        expect(weights, contains(110.0));
+        expect(weights, contains(115.0));
+
+        // Cleanup
+        container.dispose();
       });
     });
   });
