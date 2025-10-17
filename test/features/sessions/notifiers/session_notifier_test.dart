@@ -36,27 +36,20 @@ class FakeSessionService extends SessionService {
   SessionService build() => this;
 
   @override
-  Future<void> saveSession(WorkoutSession session) =>
-      delegate.saveSession(session);
+  Future<void> saveSession(WorkoutSession session) => delegate.saveSession(session);
   @override
-  Future<WorkoutSession?> getSessionById(String id) =>
-      delegate.getSessionById(id);
+  Future<WorkoutSession?> getSessionById(String id) => delegate.getSessionById(id);
   @override
   Future<List<WorkoutSession>> getAllSessions() => delegate.getAllSessions();
   @override
-  Future<List<WorkoutSession>> getSessionsByDateRange(
-    DateTime startDate,
-    DateTime endDate,
-  ) => delegate.getSessionsByDateRange(startDate, endDate);
+  Future<List<WorkoutSession>> getSessionsByDateRange(DateTime startDate, DateTime endDate) =>
+      delegate.getSessionsByDateRange(startDate, endDate);
   @override
-  Future<List<WorkoutSession>> getRecentSessions({int limit = 10}) =>
-      delegate.getRecentSessions(limit: limit);
+  Future<List<WorkoutSession>> getRecentSessions({int limit = 10}) => delegate.getRecentSessions(limit: limit);
   @override
-  Future<List<WorkoutSession>> getCompletedSessions() =>
-      delegate.getCompletedSessions();
+  Future<List<WorkoutSession>> getCompletedSessions() => delegate.getCompletedSessions();
   @override
-  Future<List<WorkoutSession>> getActiveSessions() =>
-      delegate.getActiveSessions();
+  Future<List<WorkoutSession>> getActiveSessions() => delegate.getActiveSessions();
   @override
   Future<void> deleteSession(String id) => delegate.deleteSession(id);
   @override
@@ -116,18 +109,12 @@ void main() {
       container = ProviderContainer(
         overrides: [
           // Notifiers: usar fakes que extienden los notifiers reales
-          sessionServiceProvider.overrideWith(
-            () => FakeSessionService(mockSessionService),
-          ),
+          sessionServiceProvider.overrideWith(() => FakeSessionService(mockSessionService)),
           exerciseNotifierProvider.overrideWith(() => FakeExerciseNotifier()),
           routineNotifierProvider.overrideWith(() => FakeRoutineNotifier()),
-          progressionNotifierProvider.overrideWith(
-            () => FakeProgressionNotifier(),
-          ),
+          progressionNotifierProvider.overrideWith(() => FakeProgressionNotifier()),
           progressionServiceProvider.overrideWith(() => mockProgressionService),
-          performedSetsNotifierProvider.overrideWith(
-            (ref) => FakePerformedSetsNotifier(mockPerformedSetsNotifier),
-          ),
+          performedSetsNotifierProvider.overrideWith((ref) => FakePerformedSetsNotifier(mockPerformedSetsNotifier)),
         ],
       );
     });
@@ -140,9 +127,7 @@ void main() {
       test('should create and save new session', () async {
         // Arrange
         final sessions = <WorkoutSession>[];
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         // Act
@@ -160,17 +145,12 @@ void main() {
       test('should create session with routineId when provided', () async {
         // Arrange
         final sessions = <WorkoutSession>[];
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
-        final session = await notifier.startSession(
-          routineId: 'routine-1',
-          name: 'Test Session',
-        );
+        final session = await notifier.startSession(routineId: 'routine-1', name: 'Test Session');
 
         // Assert
         expect(session.routineId, equals('routine-1'));
@@ -180,9 +160,7 @@ void main() {
       test('should clear performed sets when starting new session', () async {
         // Arrange
         final sessions = <WorkoutSession>[];
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         // Act
@@ -206,9 +184,7 @@ void main() {
         );
         final sessions = [currentSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         final exerciseSet = ExerciseSet(
@@ -225,9 +201,7 @@ void main() {
         await notifier.addExerciseSet(exerciseSet);
 
         // Assert
-        final savedSession =
-            verify(mockSessionService.saveSession(captureAny)).captured.single
-                as WorkoutSession;
+        final savedSession = verify(mockSessionService.saveSession(captureAny)).captured.single as WorkoutSession;
         expect(savedSession.exerciseSets.length, equals(1));
         expect(savedSession.exerciseSets.first, equals(exerciseSet));
       });
@@ -274,9 +248,7 @@ void main() {
         );
         final sessions = [currentSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         final updatedSet = existingSet.copyWith(weight: 65.0, reps: 8);
@@ -286,9 +258,7 @@ void main() {
         await notifier.updateExerciseSet(updatedSet);
 
         // Assert
-        final savedSession =
-            verify(mockSessionService.saveSession(captureAny)).captured.single
-                as WorkoutSession;
+        final savedSession = verify(mockSessionService.saveSession(captureAny)).captured.single as WorkoutSession;
         expect(savedSession.exerciseSets.length, equals(1));
         expect(savedSession.exerciseSets.first.weight, equals(65.0));
         expect(savedSession.exerciseSets.first.reps, equals(8));
@@ -328,9 +298,7 @@ void main() {
         );
         final sessions = [currentSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         // Act
@@ -338,9 +306,7 @@ void main() {
         await notifier.pauseSession();
 
         // Assert
-        final savedSession =
-            verify(mockSessionService.saveSession(captureAny)).captured.single
-                as WorkoutSession;
+        final savedSession = verify(mockSessionService.saveSession(captureAny)).captured.single as WorkoutSession;
         expect(savedSession.status, equals(SessionStatus.paused));
         expect(savedSession.notes, isNotNull);
         expect(savedSession.notes!.contains('pausedElapsed='), isTrue);
@@ -357,9 +323,7 @@ void main() {
         );
         final sessions = [currentSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
@@ -394,9 +358,7 @@ void main() {
         );
         final sessions = [currentSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
         when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
         // Act
@@ -404,9 +366,7 @@ void main() {
         await notifier.resumeSession();
 
         // Assert
-        final savedSession =
-            verify(mockSessionService.saveSession(captureAny)).captured.single
-                as WorkoutSession;
+        final savedSession = verify(mockSessionService.saveSession(captureAny)).captured.single as WorkoutSession;
         expect(savedSession.status, equals(SessionStatus.active));
         expect(savedSession.notes, isNotNull);
         expect(savedSession.notes!.contains('lastResumeAt='), isTrue);
@@ -445,9 +405,7 @@ void main() {
         );
         final sessions = [activeSession, completedSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
@@ -468,9 +426,7 @@ void main() {
         );
         final sessions = [pausedSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
@@ -492,9 +448,7 @@ void main() {
         );
         final sessions = [completedSession];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
@@ -524,12 +478,8 @@ void main() {
         );
         final sessions = [session1, session2];
 
-        when(
-          mockSessionService.getAllSessions(),
-        ).thenAnswer((_) async => sessions);
-        when(
-          mockSessionService.deleteSession('session-1'),
-        ).thenAnswer((_) async {});
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
+        when(mockSessionService.deleteSession('session-1')).thenAnswer((_) async {});
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
@@ -537,9 +487,7 @@ void main() {
 
         // Assert
         verify(mockSessionService.deleteSession('session-1')).called(1);
-        verify(
-          mockSessionService.getAllSessions(),
-        ).called(2); // Once in build, once after delete
+        verify(mockSessionService.getAllSessions()).called(2); // Once in build, once after delete
       });
     });
 
@@ -558,22 +506,15 @@ void main() {
           ),
         ];
 
-        when(
-          mockSessionService.getSessionsByDateRange(startDate, endDate),
-        ).thenAnswer((_) async => sessionsInRange);
+        when(mockSessionService.getSessionsByDateRange(startDate, endDate)).thenAnswer((_) async => sessionsInRange);
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
-        final result = await notifier.getSessionsByDateRange(
-          startDate,
-          endDate,
-        );
+        final result = await notifier.getSessionsByDateRange(startDate, endDate);
 
         // Assert
         expect(result, equals(sessionsInRange));
-        verify(
-          mockSessionService.getSessionsByDateRange(startDate, endDate),
-        ).called(1);
+        verify(mockSessionService.getSessionsByDateRange(startDate, endDate)).called(1);
       });
     });
 
@@ -590,9 +531,7 @@ void main() {
           ),
         ];
 
-        when(
-          mockSessionService.getRecentSessions(limit: 5),
-        ).thenAnswer((_) async => recentSessions);
+        when(mockSessionService.getRecentSessions(limit: 5)).thenAnswer((_) async => recentSessions);
 
         // Act
         final notifier = container.read(sessionNotifierProvider.notifier);
@@ -641,8 +580,7 @@ void main() {
       test('readResumeAtFromNotes should parse resume time correctly', () {
         // Arrange
         final now = DateTime.now();
-        final notes =
-            'Some notes\nlastResumeAt=${now.toIso8601String()}\nMore notes';
+        final notes = 'Some notes\nlastResumeAt=${now.toIso8601String()}\nMore notes';
 
         // Act
         final result = SessionNotifier.readResumeAtFromNotes(notes);
@@ -730,118 +668,90 @@ void main() {
         );
       }
 
-      test(
-        'should use config customParameters rest_time_seconds when available',
-        () async {
-          // Arrange
-          final config = createConfig({
-            'rest_time_seconds': 180, // 3 minutes
-            'rest_time': 120, // 2 minutes (should be ignored)
-          });
-          final fakeProgressionNotifier =
-              container.read(progressionNotifierProvider.notifier)
-                  as FakeProgressionNotifier;
-          fakeProgressionNotifier.setConfig(config);
+      test('should use config customParameters rest_time_seconds when available', () async {
+        // Arrange
+        final config = createConfig({
+          'rest_time_seconds': 180, // 3 minutes
+          'rest_time': 120, // 2 minutes (should be ignored)
+        });
+        final fakeProgressionNotifier = container.read(progressionNotifierProvider.notifier) as FakeProgressionNotifier;
+        fakeProgressionNotifier.setConfig(config);
 
-          final sessions = <WorkoutSession>[];
-          when(
-            mockSessionService.getAllSessions(),
-          ).thenAnswer((_) async => sessions);
-          when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
+        final sessions = <WorkoutSession>[];
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
+        when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
-          // Act
-          final notifier = container.read(sessionNotifierProvider.notifier);
-          final session = await notifier.startSession(name: 'Test Session');
+        // Act
+        final notifier = container.read(sessionNotifierProvider.notifier);
+        final session = await notifier.startSession(name: 'Test Session');
 
-          // Assert
-          // The rest_time_seconds should be stored in _sessionProgressionValues
-          // We can verify this by checking the session was created successfully
-          expect(session.name, equals('Test Session'));
-          verify(mockSessionService.saveSession(any)).called(1);
-        },
-      );
+        // Assert
+        // The rest_time_seconds should be stored in _sessionProgressionValues
+        // We can verify this by checking the session was created successfully
+        expect(session.name, equals('Test Session'));
+        verify(mockSessionService.saveSession(any)).called(1);
+      });
 
-      test(
-        'should use config customParameters rest_time when rest_time_seconds not available',
-        () async {
-          // Arrange
-          final config = createConfig({
-            'rest_time': 150, // 2.5 minutes
-          });
-          final fakeProgressionNotifier =
-              container.read(progressionNotifierProvider.notifier)
-                  as FakeProgressionNotifier;
-          fakeProgressionNotifier.setConfig(config);
+      test('should use config customParameters rest_time when rest_time_seconds not available', () async {
+        // Arrange
+        final config = createConfig({
+          'rest_time': 150, // 2.5 minutes
+        });
+        final fakeProgressionNotifier = container.read(progressionNotifierProvider.notifier) as FakeProgressionNotifier;
+        fakeProgressionNotifier.setConfig(config);
 
-          final sessions = <WorkoutSession>[];
-          when(
-            mockSessionService.getAllSessions(),
-          ).thenAnswer((_) async => sessions);
-          when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
+        final sessions = <WorkoutSession>[];
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
+        when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
-          // Act
-          final notifier = container.read(sessionNotifierProvider.notifier);
-          final session = await notifier.startSession(name: 'Test Session');
+        // Act
+        final notifier = container.read(sessionNotifierProvider.notifier);
+        final session = await notifier.startSession(name: 'Test Session');
 
-          // Assert
-          expect(session.name, equals('Test Session'));
-          verify(mockSessionService.saveSession(any)).called(1);
-        },
-      );
+        // Assert
+        expect(session.name, equals('Test Session'));
+        verify(mockSessionService.saveSession(any)).called(1);
+      });
 
-      test(
-        'should use default rest time by objective when no custom parameters',
-        () async {
-          // Arrange
-          final config = createConfig({}); // No rest time parameters
-          final fakeProgressionNotifier =
-              container.read(progressionNotifierProvider.notifier)
-                  as FakeProgressionNotifier;
-          fakeProgressionNotifier.setConfig(config);
+      test('should use default rest time by objective when no custom parameters', () async {
+        // Arrange
+        final config = createConfig({}); // No rest time parameters
+        final fakeProgressionNotifier = container.read(progressionNotifierProvider.notifier) as FakeProgressionNotifier;
+        fakeProgressionNotifier.setConfig(config);
 
-          final sessions = <WorkoutSession>[];
-          when(
-            mockSessionService.getAllSessions(),
-          ).thenAnswer((_) async => sessions);
-          when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
+        final sessions = <WorkoutSession>[];
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
+        when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
-          // Act
-          final notifier = container.read(sessionNotifierProvider.notifier);
-          final session = await notifier.startSession(name: 'Test Session');
+        // Act
+        final notifier = container.read(sessionNotifierProvider.notifier);
+        final session = await notifier.startSession(name: 'Test Session');
 
-          // Assert
-          expect(session.name, equals('Test Session'));
-          verify(mockSessionService.saveSession(any)).called(1);
-        },
-      );
+        // Assert
+        expect(session.name, equals('Test Session'));
+        verify(mockSessionService.saveSession(any)).called(1);
+      });
 
-      test(
-        'should use default rest time by objective when no custom parameters',
-        () async {
-          // Arrange
-          final config = createConfig({}); // No rest time parameters
-          final fakeProgressionNotifier =
-              container.read(progressionNotifierProvider.notifier)
-                  as FakeProgressionNotifier;
-          fakeProgressionNotifier.setConfig(config);
+      test('should use default rest time by objective when no custom parameters', () async {
+        // Arrange
+        final config = createConfig({}); // No rest time parameters
+        final fakeProgressionNotifier = container.read(progressionNotifierProvider.notifier) as FakeProgressionNotifier;
+        fakeProgressionNotifier.setConfig(config);
 
-          final sessions = <WorkoutSession>[];
-          when(
-            mockSessionService.getAllSessions(),
-          ).thenAnswer((_) async => sessions);
-          when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
+        final sessions = <WorkoutSession>[];
+        when(mockSessionService.getAllSessions()).thenAnswer((_) async => sessions);
+        when(mockSessionService.saveSession(any)).thenAnswer((_) async {});
 
-          // Act
-          final notifier = container.read(sessionNotifierProvider.notifier);
-          final session = await notifier.startSession(name: 'Test Session');
+        // Act
+        final notifier = container.read(sessionNotifierProvider.notifier);
+        final session = await notifier.startSession(name: 'Test Session');
 
-          // Assert
-          expect(session.name, equals('Test Session'));
-          verify(mockSessionService.saveSession(any)).called(1);
-          // Note: The actual rest time value depends on the objective returned by getTrainingObjective()
-          // which is determined by the ProgressionConfig's target configuration
-        },
-      );
+        // Assert
+        expect(session.name, equals('Test Session'));
+        verify(mockSessionService.saveSession(any)).called(1);
+        // Note: The actual rest time value depends on the objective returned by getTrainingObjective()
+        // which is determined by the ProgressionConfig's target configuration
+      });
     });
   });
 }
