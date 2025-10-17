@@ -174,21 +174,46 @@ class SessionNotifier extends _$SessionNotifier {
                             // 3) Prefer objective-based default over exercise default
                             _defaultRestByObjective(config?.getTrainingObjective());
 
+                        // Calculate planned progression values for THIS session (what the UI should display)
+                        // Use the current progression state as inputs to the strategy
+                        final planned = await _getProgressionStrategy().then((s) async {
+                          final cfg = await _getProgressionConfig();
+                          if (s == null || cfg == null) return null;
+                          return s.calculate(
+                            config: cfg,
+                            state: progressionState,
+                            routineId: routineId,
+                            currentWeight: progressionState.currentWeight,
+                            currentReps: progressionState.currentReps,
+                            currentSets: progressionState.currentSets,
+                            exercise: exercise,
+                            isExerciseLocked: exercise.isProgressionLocked,
+                          );
+                        });
+
+                        final plannedWeight = planned?.newWeight ?? progressionState.currentWeight;
+                        final plannedReps = planned?.newReps ?? progressionState.currentReps;
+                        final plannedSets = planned?.newSets ?? baseSets;
+
                         // Store progression values for this session without modifying Exercise defaults
                         _sessionProgressionValues[exercise.id] = {
-                          'weight': progressionState.currentWeight,
-                          'reps': progressionState.currentReps,
-                          'sets': baseSets,
+                          'weight': plannedWeight, // planned for this session
+                          'reps': plannedReps, // planned for this session
+                          'sets': plannedSets, // planned for this session
                           'rest_time_seconds': restTimeSeconds,
+                          'base_weight': progressionState.baseWeight,
+                          'is_locked': exercise.isProgressionLocked,
                         };
 
                         LoggingService.instance.info('Using progression values for session', {
                           'exerciseId': exercise.id,
                           'exerciseName': exercise.name,
-                          'progressionWeight': progressionState.currentWeight,
-                          'progressionReps': progressionState.currentReps,
-                          'progressionSets': baseSets,
+                          'progressionWeight': plannedWeight,
+                          'progressionReps': plannedReps,
+                          'progressionSets': plannedSets,
                           'restTimeSeconds': restTimeSeconds,
+                          'baseWeight': progressionState.baseWeight,
+                          'locked': exercise.isProgressionLocked,
                           'originalWeight': exercise.defaultWeight,
                           'originalReps': exercise.defaultReps,
                           'originalSets': exercise.defaultSets,
