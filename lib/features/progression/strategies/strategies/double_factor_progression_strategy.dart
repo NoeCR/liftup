@@ -65,8 +65,7 @@ import '../progression_strategy.dart';
 /// - Requiere experiencia en autoregulación (RPE/RIR)
 /// - Necesita deloads más frecuentes
 /// - Puede ser abrumadora para principiantes
-class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
-    implements ProgressionStrategy {
+class DoubleFactorProgressionStrategy extends BaseProgressionStrategy implements ProgressionStrategy {
   @override
   bool isDeloadPeriod(ProgressionConfig config, int currentInCycle) {
     // En Double Factor, aplicar deload cuando se alcance la semana configurada
@@ -87,18 +86,12 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
     bool isExerciseLocked = false,
   }) {
     // Verificar si la progresión está bloqueada
-    if (isProgressionBlocked(
-      state,
-      state.exerciseId,
-      routineId,
-      isExerciseLocked,
-    )) {
+    if (isProgressionBlocked(state, state.exerciseId, routineId, isExerciseLocked)) {
       return createBlockedResult(
         currentWeight: currentWeight,
         currentReps: currentReps,
         currentSets: state.baseSets,
-        reason:
-            'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
+        reason: 'Double factor progression: blocked for exercise ${state.exerciseId} in routine $routineId',
       );
     }
 
@@ -142,8 +135,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
     final minReps = getMinRepsSync(config, exercise);
 
     // Determinar el modo de progresión desde customParameters
-    final modeString =
-        config.customParameters['double_factor_mode'] as String? ?? 'alternate';
+    final modeString = config.customParameters['double_factor_mode'] as String? ?? 'alternate';
     final mode = _parseDoubleFactorMode(modeString);
 
     // Aplicar progresión según el modo seleccionado
@@ -161,11 +153,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
   }
 
   @override
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true; // Double factor progression siempre aplica valores
   }
 
@@ -308,8 +296,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
   }) {
     // Calcular incrementos con prioridad en peso
     final weightIncrement = getIncrementValueSync(config, exercise, state);
-    final repsIncrement =
-        (weightIncrement * 0.3).round(); // 30% del incremento de peso para reps
+    final repsIncrement = (weightIncrement * 0.3).round(); // 30% del incremento de peso para reps
 
     final newWeight = currentWeight + weightIncrement;
     final newReps = (currentReps + repsIncrement).clamp(minReps, maxReps);
@@ -335,21 +322,12 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
     required Exercise exercise,
   }) {
     // Calcular peso de deload manteniendo incremento sobre base
-    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(
-      0,
-      double.infinity,
-    );
-    final double deloadWeight =
-        state.baseWeight + (increaseOverBase * config.deloadPercentage);
+    final double increaseOverBase = (currentWeight - state.baseWeight).clamp(0, double.infinity);
+    final double deloadWeight = state.baseWeight + (increaseOverBase * config.deloadPercentage);
 
     // Calcular reps de deload manteniendo incremento sobre base
-    final int increaseOverBaseReps = (currentReps - state.baseReps).clamp(
-      0,
-      100,
-    );
-    final int deloadReps =
-        state.baseReps +
-        (increaseOverBaseReps * config.deloadPercentage).round();
+    final int increaseOverBaseReps = (currentReps - state.baseReps).clamp(0, 100);
+    final int deloadReps = state.baseReps + (increaseOverBaseReps * config.deloadPercentage).round();
 
     // Calcular series de deload (70% de las series base)
     final int baseSets = getBaseSetsSync(config, exercise);
@@ -361,8 +339,7 @@ class DoubleFactorProgressionStrategy extends BaseProgressionStrategy
       newSets: deloadSets,
       incrementApplied: true,
       isDeload: true,
-      shouldResetCycle:
-          true, // Double Factor resetea el ciclo después del deload
+      shouldResetCycle: true, // Double Factor resetea el ciclo después del deload
       reason:
           'Deload session (week $currentInCycle of ${config.cycleLength}). Next cycle starts as week 1 (odd) for weight increment.',
     );

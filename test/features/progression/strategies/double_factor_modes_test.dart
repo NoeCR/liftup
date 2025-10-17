@@ -32,11 +32,7 @@ void main() {
         cycleLength: 6,
         deloadWeek: 6,
         deloadPercentage: 0.8,
-        customParameters: {
-          'double_factor_mode': mode,
-          'min_reps': 6,
-          'max_reps': 10,
-        },
+        customParameters: {'double_factor_mode': mode, 'min_reps': 6, 'max_reps': 10},
         startDate: DateTime.now(),
         isActive: true,
         createdAt: DateTime.now(),
@@ -48,11 +44,7 @@ void main() {
     }
 
     /// Helper para crear estado de progresión
-    ProgressionState createState({
-      required int currentInCycle,
-      required double baseWeight,
-      required int baseReps,
-    }) {
+    ProgressionState createState({required int currentInCycle, required double baseWeight, required int baseReps}) {
       return ProgressionState(
         id: 'test-state',
         progressionConfigId: 'test-config',
@@ -99,10 +91,7 @@ void main() {
         ); // 80.0 + 5.0 (incremento adaptativo para strength + multiJoint + barbell + initiated)
         expect(result.newReps, 6); // Mantiene reps
         expect(result.incrementApplied, true);
-        expect(
-          result.reason,
-          contains('Double factor (alternate): increasing weight'),
-        );
+        expect(result.reason, contains('Double factor (alternate): increasing weight'));
         expect(result.reason, contains('week 1'));
       });
 
@@ -127,10 +116,7 @@ void main() {
         expect(result.newWeight, 85.0); // Mantiene peso
         expect(result.newReps, 7); // 6 + 1
         expect(result.incrementApplied, true);
-        expect(
-          result.reason,
-          contains('Double factor (alternate): increasing reps'),
-        );
+        expect(result.reason, contains('Double factor (alternate): increasing reps'));
         expect(result.reason, contains('week 2'));
       });
 
@@ -155,21 +141,14 @@ void main() {
         expect(result.newWeight, 85.0); // Mantiene peso
         expect(result.newReps, 10); // Se mantiene en el máximo
         expect(result.incrementApplied, true);
-        expect(
-          result.reason,
-          contains('Double factor (alternate): increasing reps'),
-        );
+        expect(result.reason, contains('Double factor (alternate): increasing reps'));
       });
     });
 
     group('Modo Simultáneo (both)', () {
       test('incrementa peso y reps simultáneamente', () {
         final config = createConfigWithMode('both');
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 6,
-        );
+        final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: 6);
 
         final result = strategy.calculate(
           config: config,
@@ -187,20 +166,13 @@ void main() {
         ); // 80.0 + 5.0 (incremento adaptativo para strength + multiJoint + barbell + initiated)
         expect(result.newReps, 7); // 6 + 1
         expect(result.incrementApplied, true);
-        expect(
-          result.reason,
-          contains('Double factor (both): increasing weight'),
-        );
+        expect(result.reason, contains('Double factor (both): increasing weight'));
         expect(result.reason, contains('and reps'));
       });
 
       test('respeta límites de reps en modo simultáneo', () {
         final config = createConfigWithMode('both');
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 6,
-        );
+        final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: 6);
 
         final result = strategy.calculate(
           config: config,
@@ -215,21 +187,14 @@ void main() {
         expect(result.newWeight, 85.0); // Incrementa peso (80.0 + 5.0)
         expect(result.newReps, 10); // Se mantiene en el máximo
         expect(result.incrementApplied, true);
-        expect(
-          result.reason,
-          contains('Double factor (both): increasing weight'),
-        );
+        expect(result.reason, contains('Double factor (both): increasing weight'));
       });
     });
 
     group('Modo Compuesto (composite)', () {
       test('incrementa peso y reps con prioridad en peso', () {
         final config = createConfigWithMode('composite');
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 6,
-        );
+        final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: 6);
 
         final result = strategy.calculate(
           config: config,
@@ -247,10 +212,7 @@ void main() {
         ); // 80.0 + 5.0 (incremento adaptativo para strength + multiJoint + barbell + initiated)
         expect(result.newReps, 8); // 6 + 2 (5.0 * 0.3 = 1.5, redondeado a 2)
         expect(result.incrementApplied, true);
-        expect(
-          result.reason,
-          contains('Double factor (composite): increasing weight'),
-        );
+        expect(result.reason, contains('Double factor (composite): increasing weight'));
         expect(result.reason, contains('and reps +2'));
       });
 
@@ -260,11 +222,7 @@ void main() {
         final configWithBigIncrement = config.copyWith(
           incrementValue: 5.0, // Incremento más grande
         );
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 6,
-        );
+        final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: 6);
 
         final result = strategy.calculate(
           config: configWithBigIncrement,
@@ -284,11 +242,7 @@ void main() {
 
       test('respeta límites de reps en modo compuesto', () {
         final config = createConfigWithMode('composite');
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 6,
-        );
+        final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: 6);
 
         final result = strategy.calculate(
           config: config,
@@ -301,10 +255,7 @@ void main() {
         );
 
         expect(result.newWeight, 85.0); // Incrementa peso (80.0 + 5.0)
-        expect(
-          result.newReps,
-          10,
-        ); // Se mantiene en el máximo (9 + 1 = 10, pero se clampa a 10)
+        expect(result.newReps, 10); // Se mantiene en el máximo (9 + 1 = 10, pero se clampa a 10)
         expect(result.incrementApplied, true);
       });
     });
@@ -328,10 +279,7 @@ void main() {
           exercise: exercise,
         );
 
-        expect(
-          result.newWeight,
-          85.0,
-        ); // Incrementa peso (80.0 + 5.0) (modo alternado, semana impar)
+        expect(result.newWeight, 85.0); // Incrementa peso (80.0 + 5.0) (modo alternado, semana impar)
         expect(result.newReps, 6); // Mantiene reps
         expect(result.reason, contains('Double factor (alternate)'));
       });
@@ -354,10 +302,7 @@ void main() {
           exercise: exercise,
         );
 
-        expect(
-          result.newWeight,
-          85.0,
-        ); // Incrementa peso (80.0 + 5.0) (modo alternado por defecto)
+        expect(result.newWeight, 85.0); // Incrementa peso (80.0 + 5.0) (modo alternado por defecto)
         expect(result.newReps, 6); // Mantiene reps
         expect(result.reason, contains('Double factor (alternate)'));
       });
@@ -402,48 +347,21 @@ void main() {
     });
 
     test('description devuelve descripciones correctas', () {
-      expect(
-        DoubleFactorMode.alternate.description,
-        contains('Alterna entre incrementar peso'),
-      );
-      expect(
-        DoubleFactorMode.both.description,
-        contains('Incrementa peso y reps simultáneamente'),
-      );
-      expect(
-        DoubleFactorMode.composite.description,
-        contains('Usa un índice compuesto'),
-      );
+      expect(DoubleFactorMode.alternate.description, contains('Alterna entre incrementar peso'));
+      expect(DoubleFactorMode.both.description, contains('Incrementa peso y reps simultáneamente'));
+      expect(DoubleFactorMode.composite.description, contains('Usa un índice compuesto'));
     });
 
     test('recommendedObjectives devuelve objetivos correctos', () {
-      expect(
-        DoubleFactorMode.alternate.recommendedObjectives,
-        containsAll(['strength', 'endurance', 'general']),
-      );
-      expect(
-        DoubleFactorMode.both.recommendedObjectives,
-        containsAll(['hypertrophy']),
-      );
-      expect(
-        DoubleFactorMode.composite.recommendedObjectives,
-        containsAll(['power']),
-      );
+      expect(DoubleFactorMode.alternate.recommendedObjectives, containsAll(['strength', 'endurance', 'general']));
+      expect(DoubleFactorMode.both.recommendedObjectives, containsAll(['hypertrophy']));
+      expect(DoubleFactorMode.composite.recommendedObjectives, containsAll(['power']));
     });
 
     test('recommendedExperienceLevel devuelve niveles correctos', () {
-      expect(
-        DoubleFactorMode.alternate.recommendedExperienceLevel,
-        'beginner-intermediate',
-      );
-      expect(
-        DoubleFactorMode.both.recommendedExperienceLevel,
-        'intermediate-advanced',
-      );
-      expect(
-        DoubleFactorMode.composite.recommendedExperienceLevel,
-        'intermediate-advanced',
-      );
+      expect(DoubleFactorMode.alternate.recommendedExperienceLevel, 'beginner-intermediate');
+      expect(DoubleFactorMode.both.recommendedExperienceLevel, 'intermediate-advanced');
+      expect(DoubleFactorMode.composite.recommendedExperienceLevel, 'intermediate-advanced');
     });
   });
 }
