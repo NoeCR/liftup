@@ -47,13 +47,8 @@ void main() {
 
     group('Preset de Hipertrofia', () {
       test('usa modo both y progresa peso y reps simultáneamente', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 8,
-        );
+        final config = PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
+        final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: 8);
 
         final result = strategy.calculate(
           config: config,
@@ -76,24 +71,14 @@ void main() {
       });
 
       test('respeta rangos de reps del preset (8-12)', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 8,
-        );
+        final config = PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
 
         // Simular progresión hasta alcanzar el máximo de reps
         double currentWeight = 80.0;
         int currentReps = 8;
 
         for (int week = 1; week <= 5; week++) {
-          final weekState = createState(
-            currentInCycle: week,
-            baseWeight: 80.0,
-            baseReps: 8,
-          );
+          final weekState = createState(currentInCycle: week, baseWeight: 80.0, baseReps: 8);
 
           final result = strategy.calculate(
             config: config,
@@ -101,7 +86,7 @@ void main() {
             routineId: 'test-routine',
             currentWeight: currentWeight,
             currentReps: currentReps,
-            currentSets: 3,
+            currentSets: weekState.baseSets,
             exercise: exercise,
           );
 
@@ -115,8 +100,7 @@ void main() {
       });
 
       test('aplica deload en la semana 6', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
+        final config = PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
         final state = createState(
           currentInCycle: 6, // Semana de deload
           baseWeight: 80.0,
@@ -142,8 +126,7 @@ void main() {
 
     group('Preset de Fuerza', () {
       test('usa modo alternate y alterna entre peso y reps', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorStrengthPreset();
+        final config = PresetProgressionConfigs.createDoubleFactorStrengthPreset();
         final state = createState(
           currentInCycle: 1, // Semana impar
           baseWeight: 80.0,
@@ -167,8 +150,7 @@ void main() {
       });
 
       test('alterna correctamente en semanas pares', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorStrengthPreset();
+        final config = PresetProgressionConfigs.createDoubleFactorStrengthPreset();
         final state = createState(
           currentInCycle: 2, // Semana par
           baseWeight: 80.0,
@@ -188,31 +170,18 @@ void main() {
         expect(result.reason, contains('Double factor (alternate)'));
         expect(result.reason, contains('increasing reps'));
         expect(result.newWeight, 82.5); // Mantiene peso en semana par
-        expect(
-          result.newReps,
-          6,
-        ); // Incrementa reps pero se mantiene en el máximo del rango (3-6)
+        expect(result.newReps, 6); // Incrementa reps pero se mantiene en el máximo del rango (3-6)
       });
 
       test('respeta rangos de reps del preset (3-6)', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorStrengthPreset();
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 80.0,
-          baseReps: 3,
-        );
+        final config = PresetProgressionConfigs.createDoubleFactorStrengthPreset();
 
         // Simular progresión
         double currentWeight = 80.0;
         int currentReps = 3;
 
         for (int week = 1; week <= 4; week++) {
-          final weekState = createState(
-            currentInCycle: week,
-            baseWeight: 80.0,
-            baseReps: 3,
-          );
+          final weekState = createState(currentInCycle: week, baseWeight: 80.0, baseReps: 3);
 
           final result = strategy.calculate(
             config: config,
@@ -220,7 +189,7 @@ void main() {
             routineId: 'test-routine',
             currentWeight: currentWeight,
             currentReps: currentReps,
-            currentSets: 3,
+            currentSets: weekState.baseSets,
             exercise: exercise,
           );
 
@@ -236,8 +205,7 @@ void main() {
 
     group('Preset de Resistencia', () {
       test('usa modo alternate para progresión controlada', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorEndurancePreset();
+        final config = PresetProgressionConfigs.createDoubleFactorEndurancePreset();
         final state = createState(
           currentInCycle: 1, // Semana impar
           baseWeight: 60.0,
@@ -261,24 +229,14 @@ void main() {
       });
 
       test('respeta rangos de reps del preset (12-20)', () {
-        final config =
-            PresetProgressionConfigs.createDoubleFactorEndurancePreset();
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 60.0,
-          baseReps: 12,
-        );
+        final config = PresetProgressionConfigs.createDoubleFactorEndurancePreset();
 
         // Simular progresión
         double currentWeight = 60.0;
         int currentReps = 12;
 
         for (int week = 1; week <= 4; week++) {
-          final weekState = createState(
-            currentInCycle: week,
-            baseWeight: 60.0,
-            baseReps: 12,
-          );
+          final weekState = createState(currentInCycle: week, baseWeight: 60.0, baseReps: 12);
 
           final result = strategy.calculate(
             config: config,
@@ -286,7 +244,7 @@ void main() {
             routineId: 'test-routine',
             currentWeight: currentWeight,
             currentReps: currentReps,
-            currentSets: 3,
+            currentSets: weekState.baseSets,
             exercise: exercise,
           );
 
@@ -303,11 +261,7 @@ void main() {
     group('Preset de Potencia', () {
       test('usa modo composite para priorizar peso', () {
         final config = PresetProgressionConfigs.createDoubleFactorPowerPreset();
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 100.0,
-          baseReps: 1,
-        );
+        final state = createState(currentInCycle: 1, baseWeight: 100.0, baseReps: 1);
 
         final result = strategy.calculate(
           config: config,
@@ -331,22 +285,13 @@ void main() {
 
       test('respeta rangos de reps del preset (1-5)', () {
         final config = PresetProgressionConfigs.createDoubleFactorPowerPreset();
-        final state = createState(
-          currentInCycle: 1,
-          baseWeight: 100.0,
-          baseReps: 1,
-        );
 
         // Simular progresión
         double currentWeight = 100.0;
         int currentReps = 1;
 
         for (int week = 1; week <= 4; week++) {
-          final weekState = createState(
-            currentInCycle: week,
-            baseWeight: 100.0,
-            baseReps: 1,
-          );
+          final weekState = createState(currentInCycle: week, baseWeight: 100.0, baseReps: 1, baseSets: 5);
 
           final result = strategy.calculate(
             config: config,
@@ -354,7 +299,7 @@ void main() {
             routineId: 'test-routine',
             currentWeight: currentWeight,
             currentReps: currentReps,
-            currentSets: 5,
+            currentSets: weekState.baseSets,
             exercise: exercise,
           );
 
@@ -393,29 +338,16 @@ void main() {
     group('Comparación entre Presets', () {
       test('compara velocidad de progresión entre presets', () {
         final presets = [
-          (
-            'hypertrophy',
-            PresetProgressionConfigs.createDoubleFactorHypertrophyPreset(),
-          ),
-          (
-            'strength',
-            PresetProgressionConfigs.createDoubleFactorStrengthPreset(),
-          ),
-          (
-            'endurance',
-            PresetProgressionConfigs.createDoubleFactorEndurancePreset(),
-          ),
+          ('hypertrophy', PresetProgressionConfigs.createDoubleFactorHypertrophyPreset()),
+          ('strength', PresetProgressionConfigs.createDoubleFactorStrengthPreset()),
+          ('endurance', PresetProgressionConfigs.createDoubleFactorEndurancePreset()),
           ('power', PresetProgressionConfigs.createDoubleFactorPowerPreset()),
         ];
 
         final results = <String, ProgressionCalculationResult>{};
 
         for (final (name, config) in presets) {
-          final state = createState(
-            currentInCycle: 1,
-            baseWeight: 80.0,
-            baseReps: config.minReps,
-          );
+          final state = createState(currentInCycle: 1, baseWeight: 80.0, baseReps: config.minReps);
 
           final result = strategy.calculate(
             config: config,
@@ -431,18 +363,9 @@ void main() {
         }
 
         // Verificar que cada preset usa el modo correcto
-        expect(
-          results['hypertrophy']!.reason,
-          contains('Double factor (both)'),
-        );
-        expect(
-          results['strength']!.reason,
-          contains('Double factor (alternate)'),
-        );
-        expect(
-          results['endurance']!.reason,
-          contains('Double factor (alternate)'),
-        );
+        expect(results['hypertrophy']!.reason, contains('Double factor (both)'));
+        expect(results['strength']!.reason, contains('Double factor (alternate)'));
+        expect(results['endurance']!.reason, contains('Double factor (alternate)'));
         expect(results['power']!.reason, contains('Double factor (composite)'));
 
         // Verificar que todos incrementan peso
@@ -453,28 +376,15 @@ void main() {
       });
 
       test('verifica que los presets tienen configuraciones apropiadas', () {
-        final hypertrophyConfig =
-            PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
-        final strengthConfig =
-            PresetProgressionConfigs.createDoubleFactorStrengthPreset();
-        final enduranceConfig =
-            PresetProgressionConfigs.createDoubleFactorEndurancePreset();
-        final powerConfig =
-            PresetProgressionConfigs.createDoubleFactorPowerPreset();
+        final hypertrophyConfig = PresetProgressionConfigs.createDoubleFactorHypertrophyPreset();
+        final strengthConfig = PresetProgressionConfigs.createDoubleFactorStrengthPreset();
+        final enduranceConfig = PresetProgressionConfigs.createDoubleFactorEndurancePreset();
+        final powerConfig = PresetProgressionConfigs.createDoubleFactorPowerPreset();
 
         // Verificar modos
-        expect(
-          hypertrophyConfig.customParameters['double_factor_mode'],
-          'both',
-        );
-        expect(
-          strengthConfig.customParameters['double_factor_mode'],
-          'alternate',
-        );
-        expect(
-          enduranceConfig.customParameters['double_factor_mode'],
-          'alternate',
-        );
+        expect(hypertrophyConfig.customParameters['double_factor_mode'], 'both');
+        expect(strengthConfig.customParameters['double_factor_mode'], 'alternate');
+        expect(enduranceConfig.customParameters['double_factor_mode'], 'alternate');
         expect(powerConfig.customParameters['double_factor_mode'], 'composite');
 
         // Verificar rangos de reps apropiados para cada objetivo
