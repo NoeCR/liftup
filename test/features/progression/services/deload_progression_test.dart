@@ -588,7 +588,7 @@ void main() {
           );
 
           expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('Double factor progression'));
+          expect(result.reason, contains('Double factor (alternate)'));
         }
 
         // Semana 4: DELOAD
