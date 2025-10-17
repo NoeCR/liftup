@@ -6,10 +6,8 @@ import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/strategies/base_progression_strategy.dart';
 
 class TestProgressionStrategy extends BaseProgressionStrategy {
-  @override
   String get strategyName => 'Test Strategy';
 
-  @override
   bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true;
   }

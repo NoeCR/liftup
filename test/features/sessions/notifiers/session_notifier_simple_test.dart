@@ -13,7 +13,6 @@ import 'package:liftly/features/sessions/services/session_service.dart';
 // Mock implementations that extend the real classes
 class MockSessionService extends SessionService {
   final List<WorkoutSession> _sessions = [];
-  WorkoutSession? _currentSession;
 
   @override
   Future<void> saveSession(WorkoutSession session) async {
@@ -23,7 +22,6 @@ class MockSessionService extends SessionService {
     } else {
       _sessions.add(session);
     }
-    _currentSession = session;
   }
 
   @override
@@ -92,7 +90,6 @@ class MockSessionService extends SessionService {
   // Helper methods for testing
   void clearSessions() {
     _sessions.clear();
-    _currentSession = null;
   }
 
   void addTestSession(WorkoutSession session) {
@@ -140,7 +137,6 @@ void main() {
     group('Basic Functionality', () {
       test('should initialize with empty sessions list', () async {
         // Act
-        final notifier = container.read(sessionNotifierProvider.notifier);
         final sessions = await container.read(sessionNotifierProvider.future);
 
         // Assert
@@ -164,7 +160,7 @@ void main() {
       test('should add exercise set to current session', () async {
         // Arrange
         final notifier = container.read(sessionNotifierProvider.notifier);
-        final session = await notifier.startSession(name: 'Test Session');
+        await notifier.startSession(name: 'Test Session');
 
         final exerciseSet = ExerciseSet(
           id: 'set-1',
@@ -207,7 +203,7 @@ void main() {
       test('should pause and resume a session', () async {
         // Arrange
         final notifier = container.read(sessionNotifierProvider.notifier);
-        final session = await notifier.startSession(name: 'Test Session');
+        await notifier.startSession(name: 'Test Session');
 
         // Act - Pause
         await notifier.pauseSession();

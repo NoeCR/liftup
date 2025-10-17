@@ -14,7 +14,7 @@ import 'package:liftly/features/sessions/notifiers/session_notifier.dart';
 import 'package:liftly/features/sessions/services/session_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:riverpod/riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'session_notifier_test.mocks.dart';
 
@@ -98,17 +98,11 @@ void main() {
   group('SessionNotifier', () {
     late ProviderContainer container;
     late MockSessionService mockSessionService;
-    late MockExerciseNotifier mockExerciseNotifier;
-    late MockRoutineNotifier mockRoutineNotifier;
-    late MockProgressionNotifier mockProgressionNotifier;
     late MockProgressionService mockProgressionService;
     late MockPerformedSetsNotifier mockPerformedSetsNotifier;
 
     setUp(() {
       mockSessionService = MockSessionService();
-      mockExerciseNotifier = MockExerciseNotifier();
-      mockRoutineNotifier = MockRoutineNotifier();
-      mockProgressionNotifier = MockProgressionNotifier();
       mockProgressionService = MockProgressionService();
       mockPerformedSetsNotifier = MockPerformedSetsNotifier();
 
