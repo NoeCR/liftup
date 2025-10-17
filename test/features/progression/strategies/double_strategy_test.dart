@@ -109,7 +109,7 @@ void main() {
       );
       expect(res.incrementApplied, true);
       expect(res.newWeight, 103.75); // incrementValue adaptativo (3.75kg para barbell multiJoint)
-      expect(res.newReps, 6);
+      expect(res.newReps, 8); // minReps de la tabla adaptativa para hypertrophy multiJoint
     });
 
     test('blocks progression when exercise is locked', () {

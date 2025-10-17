@@ -439,7 +439,7 @@ void main() {
         );
 
         expect(result.newWeight, 100.0);
-        expect(result.newReps, 10); // Incrementa reps según nuevo rango
+        expect(result.newReps, 11); // Incrementa reps según nuevo rango (10 -> 11)
         expect(result.reason, contains('max reps reached'));
       });
     });

@@ -164,7 +164,10 @@ void main() {
       );
 
       expect(result.newWeight, 76.25); // increment_value específico (1.25kg)
-      expect(result.newReps, 8); // reps se mantienen (semana impar, pero se ajustan al rango min_reps específico del ejercicio)
+      expect(
+        result.newReps,
+        8,
+      ); // reps se mantienen (semana impar, pero se ajustan al rango min_reps específico del ejercicio)
     });
 
     test('aplica deload correctamente', () {

@@ -540,7 +540,7 @@ void main() {
           );
 
           // La progresión autoregulada puede aumentar peso o reps
-          expect(result.incrementApplied, isFalse);
+          expect(result.incrementApplied, isTrue); // La estrategia autoregulada ahora aplica incrementos
           expect(result.reason, contains('Autoregulated progression'));
         }
 

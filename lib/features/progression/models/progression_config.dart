@@ -214,7 +214,7 @@ class ProgressionConfig extends Equatable {
         if (customMinReps is int) return customMinReps;
         if (customMinReps is String) return int.tryParse(customMinReps) ?? minReps;
       }
-      
+
       if (exercise is Exercise) {
         final objective = AdaptiveIncrementConfig.parseObjective(getTrainingObjective());
         final (min, _) = AdaptiveIncrementConfig.getRepetitionsRange(exercise, objective: objective);
@@ -235,7 +235,7 @@ class ProgressionConfig extends Equatable {
         if (customMaxReps is int) return customMaxReps;
         if (customMaxReps is String) return int.tryParse(customMaxReps) ?? maxReps;
       }
-      
+
       if (exercise is Exercise) {
         final objective = AdaptiveIncrementConfig.parseObjective(getTrainingObjective());
         final (_, max) = AdaptiveIncrementConfig.getRepetitionsRange(exercise, objective: objective);

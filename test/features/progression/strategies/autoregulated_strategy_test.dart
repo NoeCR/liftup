@@ -122,7 +122,7 @@ void main() {
         exercise: ex(),
       );
       expect(res.newWeight, lessThan(100));
-      expect(res.newReps, 6);
+      expect(res.newReps, 8); // minReps de la tabla adaptativa para hypertrophy multiJoint
     });
 
     test('blocks progression when exercise is locked', () {

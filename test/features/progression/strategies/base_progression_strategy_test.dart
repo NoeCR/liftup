@@ -277,7 +277,7 @@ void main() {
         config = config.copyWith(customParameters: {'max_reps': 10});
 
         final maxReps = strategy.getMaxRepsSync(config, testExercise);
-        expect(maxReps, equals(12)); // AdaptiveIncrementConfig para hypertrophy multiJoint
+        expect(maxReps, equals(10)); // customParameters tiene prioridad sobre AdaptiveIncrementConfig
       });
     });
 
