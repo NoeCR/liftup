@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/configs/adaptive_increment_config.dart';
-import 'package:liftly/features/progression/configs/training_objective.dart';
+import 'package:liftly/features/progression/enums/training_objective.dart';
 
 void main() {
   group('AdaptiveIncrementConfig - Valores Optimizados', () {

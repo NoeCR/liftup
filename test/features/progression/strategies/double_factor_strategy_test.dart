@@ -112,7 +112,7 @@ void main() {
 
       expect(result.incrementApplied, true);
       expect(result.newWeight, 70.0); // Peso se mantiene (semana par)
-      expect(result.newReps, 6); // Reps incrementan en 1
+      expect(result.newReps, 7); // Reps incrementan en 1 (6 -> 7)
       expect(result.newSets, 3); // Sets se mantienen
       expect(result.reason, contains('increasing reps'));
     });
@@ -164,7 +164,7 @@ void main() {
       );
 
       expect(result.newWeight, 76.25); // increment_value específico (1.25kg)
-      expect(result.newReps, 6); // reps se mantienen (semana impar)
+      expect(result.newReps, 8); // reps se mantienen (semana impar, pero se ajustan al rango min_reps específico del ejercicio)
     });
 
     test('aplica deload correctamente', () {
@@ -504,11 +504,11 @@ void main() {
       // 8. Verificar progresión específica del primer ciclo como ejemplo (Double Factor)
       final firstCycle = progressionHistory.take(6).toList();
       expect(firstCycle[0]['newReps'], 6); // Semana 1 (impar): 6 -> 6 reps (mantiene, incrementa peso)
-      expect(firstCycle[1]['newReps'], 6); // Semana 2 (par): 6 -> 6 reps (incrementa reps)
-      expect(firstCycle[2]['newReps'], 6); // Semana 3 (impar): 6 -> 6 reps (mantiene, incrementa peso)
-      expect(firstCycle[3]['newReps'], 6); // Semana 4 (par): 6 -> 6 reps (incrementa reps)
-      expect(firstCycle[4]['newReps'], 6); // Semana 5 (impar): 6 -> 6 reps (mantiene, incrementa peso)
-      expect(firstCycle[5]['newReps'], 6); // Semana 6: deload, reps se mantienen
+      expect(firstCycle[1]['newReps'], 7); // Semana 2 (par): 6 -> 7 reps (incrementa reps)
+      expect(firstCycle[2]['newReps'], 7); // Semana 3 (impar): 7 -> 7 reps (mantiene, incrementa peso)
+      expect(firstCycle[3]['newReps'], 8); // Semana 4 (par): 7 -> 8 reps (incrementa reps)
+      expect(firstCycle[4]['newReps'], 8); // Semana 5 (impar): 8 -> 8 reps (mantiene, incrementa peso)
+      expect(firstCycle[5]['newReps'], 8); // Semana 6: deload, reps se mantienen
 
       // 9. Verificar que el peso progresa después del primer ciclo completo
       final startOfSecondCycle =

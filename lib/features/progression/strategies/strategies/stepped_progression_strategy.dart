@@ -1,6 +1,6 @@
 import '../../../../features/exercise/models/exercise.dart';
 import '../../configs/adaptive_increment_config.dart';
-import '../../configs/training_objective.dart';
+import '../../enums/training_objective.dart';
 import '../../models/progression_calculation_result.dart';
 import '../../models/progression_config.dart';
 import '../../models/progression_state.dart';

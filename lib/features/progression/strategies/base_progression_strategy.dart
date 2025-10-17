@@ -3,7 +3,7 @@ import 'package:liftly/features/progression/models/progression_calculation_resul
 import '../../../../common/enums/progression_type_enum.dart';
 import '../../../features/exercise/models/exercise.dart';
 import '../configs/adaptive_increment_config.dart';
-import '../configs/training_objective.dart';
+import '../enums/training_objective.dart';
 import '../models/progression_config.dart';
 import '../models/progression_state.dart';
 import '../services/exercise_progression_config_service.dart';

@@ -208,6 +208,13 @@ class ProgressionConfig extends Equatable {
   /// Obtiene las repeticiones mínimas adaptativas basadas en el ejercicio
   int getAdaptiveMinReps(dynamic exercise) {
     try {
+      // Primero verificar si hay customParameters que sobrescriban
+      if (customParameters.containsKey('min_reps')) {
+        final customMinReps = customParameters['min_reps'];
+        if (customMinReps is int) return customMinReps;
+        if (customMinReps is String) return int.tryParse(customMinReps) ?? minReps;
+      }
+      
       if (exercise is Exercise) {
         final objective = AdaptiveIncrementConfig.parseObjective(getTrainingObjective());
         final (min, _) = AdaptiveIncrementConfig.getRepetitionsRange(exercise, objective: objective);
@@ -222,6 +229,13 @@ class ProgressionConfig extends Equatable {
   /// Obtiene las repeticiones máximas adaptativas basadas en el ejercicio
   int getAdaptiveMaxReps(dynamic exercise) {
     try {
+      // Primero verificar si hay customParameters que sobrescriban
+      if (customParameters.containsKey('max_reps')) {
+        final customMaxReps = customParameters['max_reps'];
+        if (customMaxReps is int) return customMaxReps;
+        if (customMaxReps is String) return int.tryParse(customMaxReps) ?? maxReps;
+      }
+      
       if (exercise is Exercise) {
         final objective = AdaptiveIncrementConfig.parseObjective(getTrainingObjective());
         final (_, max) = AdaptiveIncrementConfig.getRepetitionsRange(exercise, objective: objective);

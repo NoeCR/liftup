@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../common/enums/muscle_group_enum.dart';
 import '../../exercise/models/exercise.dart';
 import '../configs/adaptive_increment_config.dart';
-import '../configs/training_objective.dart';
+import '../enums/training_objective.dart';
 
 /// Widget para configurar incrementos personalizados de AdaptiveIncrementConfig
 class AdaptiveIncrementConfigEditor extends ConsumerStatefulWidget {

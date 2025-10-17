@@ -5,7 +5,7 @@ import '../../../common/enums/progression_type_enum.dart';
 import '../../exercise/models/exercise.dart';
 import '../configs/adaptive_increment_config.dart';
 import '../configs/preset_progression_configs.dart';
-import '../configs/training_objective.dart';
+import '../enums/training_objective.dart';
 import '../models/progression_config.dart';
 
 /// Widget mejorado para seleccionar presets de progresión

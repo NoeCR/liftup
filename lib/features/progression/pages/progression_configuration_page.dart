@@ -8,7 +8,7 @@ import '../../../common/enums/progression_type_enum.dart';
 import '../../../core/logging/logging.dart';
 import '../../exercise/models/exercise.dart';
 import '../configs/adaptive_increment_config.dart';
-import '../configs/training_objective.dart';
+import '../enums/training_objective.dart';
 import '../models/progression_config.dart';
 import '../widgets/improved_preset_selector.dart';
 import 'advanced_progression_config_page.dart';

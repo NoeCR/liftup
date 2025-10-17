@@ -884,7 +884,7 @@ class AdaptiveIncrementConfig {
   /// Configuración de rangos de repeticiones por OBJETIVO y tipo de ejercicio
   /// Basada en investigación científica para maximizar adaptaciones específicas
   static const Map<TrainingObjective, Map<ExerciseType, RepsRange>>
-      _objectiveRepetitionsConfig = {
+  _objectiveRepetitionsConfig = {
     TrainingObjective.strength: {
       ExerciseType.multiJoint: RepsRange(
         min: 3,
@@ -1189,19 +1189,22 @@ class AdaptiveIncrementConfig {
   }) {
     // Usar hipertrofia como fallback si no se especifica objetivo
     final targetObjective = objective ?? TrainingObjective.hypertrophy;
-    
-    final range = _objectiveRepetitionsConfig[targetObjective]?[exercise.exerciseType];
-    
+
+    final range =
+        _objectiveRepetitionsConfig[targetObjective]?[exercise.exerciseType];
+
     if (range != null) {
       return (range.min, range.max);
     }
-    
+
     // Fallback a hipertrofia si no se encuentra la configuración
-    final fallbackRange = _objectiveRepetitionsConfig[TrainingObjective.hypertrophy]?[exercise.exerciseType];
+    final fallbackRange =
+        _objectiveRepetitionsConfig[TrainingObjective.hypertrophy]?[exercise
+            .exerciseType];
     if (fallbackRange != null) {
       return (fallbackRange.min, fallbackRange.max);
     }
-    
+
     // Último fallback hardcodeado
     return exercise.exerciseType == ExerciseType.multiJoint ? (6, 12) : (8, 15);
   }
@@ -1272,22 +1275,33 @@ class AdaptiveIncrementConfig {
   }) => getSeriesRangeByObjective(exercise, objective: objective).max;
 
   /// Obtiene las repeticiones mínimas recomendadas por objetivo
-  static int getMinRepetitions(Exercise exercise, {TrainingObjective? objective}) {
+  static int getMinRepetitions(
+    Exercise exercise, {
+    TrainingObjective? objective,
+  }) {
     final (min, _) = getRepetitionsRange(exercise, objective: objective);
     return min;
   }
 
   /// Obtiene las repeticiones máximas recomendadas por objetivo
-  static int getMaxRepetitions(Exercise exercise, {TrainingObjective? objective}) {
+  static int getMaxRepetitions(
+    Exercise exercise, {
+    TrainingObjective? objective,
+  }) {
     final (_, max) = getRepetitionsRange(exercise, objective: objective);
     return max;
   }
 
   /// Obtiene las repeticiones por defecto recomendadas por objetivo
-  static int getDefaultRepetitions(Exercise exercise, {TrainingObjective? objective}) {
+  static int getDefaultRepetitions(
+    Exercise exercise, {
+    TrainingObjective? objective,
+  }) {
     final targetObjective = objective ?? TrainingObjective.hypertrophy;
-    final range = _objectiveRepetitionsConfig[targetObjective]?[exercise.exerciseType];
-    return range?.defaultMin ?? getMinRepetitions(exercise, objective: objective);
+    final range =
+        _objectiveRepetitionsConfig[targetObjective]?[exercise.exerciseType];
+    return range?.defaultMin ??
+        getMinRepetitions(exercise, objective: objective);
   }
 
   /// Obtiene el rango completo de repeticiones por objetivo
@@ -1299,13 +1313,20 @@ class AdaptiveIncrementConfig {
   }
 
   /// Verifica si un número de repeticiones es válido para un ejercicio y objetivo
-  static bool isValidRepetitions(Exercise exercise, int repetitions, {TrainingObjective? objective}) {
+  static bool isValidRepetitions(
+    Exercise exercise,
+    int repetitions, {
+    TrainingObjective? objective,
+  }) {
     final (min, max) = getRepetitionsRange(exercise, objective: objective);
     return repetitions >= min && repetitions <= max;
   }
 
   /// Obtiene una descripción del rango de repeticiones para un ejercicio y objetivo
-  static String getRepetitionsDescription(Exercise exercise, {TrainingObjective? objective}) {
+  static String getRepetitionsDescription(
+    Exercise exercise, {
+    TrainingObjective? objective,
+  }) {
     final (min, max) = getRepetitionsRange(exercise, objective: objective);
     final defaultReps = getDefaultRepetitions(exercise, objective: objective);
     return 'Rango recomendado: $min-$max reps (por defecto: $defaultReps reps)';
