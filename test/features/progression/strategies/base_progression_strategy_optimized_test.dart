@@ -8,11 +8,7 @@ import 'package:liftly/features/progression/strategies/base_progression_strategy
 class TestProgressionStrategy extends BaseProgressionStrategy {
   String get strategyName => 'Test Strategy';
 
-  bool shouldApplyProgressionValues(
-    ProgressionState? progressionState,
-    String routineId,
-    bool isExerciseLocked,
-  ) {
+  bool shouldApplyProgressionValues(ProgressionState? progressionState, String routineId, bool isExerciseLocked) {
     return true;
   }
 }
@@ -86,10 +82,7 @@ void main() {
           customData: const {},
         );
 
-        final result = strategy.calculateNextSessionAndWeek(
-          config: config,
-          state: state,
-        );
+        final result = strategy.calculateNextSessionAndWeek(config: config, state: state);
 
         // Con 3 sesiones por semana, la sesión 4 debería ser semana 2
         expect(result.session, 2);
@@ -140,10 +133,7 @@ void main() {
           customData: const {},
         );
 
-        final result = strategy.calculateNextSessionAndWeek(
-          config: config,
-          state: state,
-        );
+        final result = strategy.calculateNextSessionAndWeek(config: config, state: state);
 
         // Con 4 sesiones por semana, la sesión 5 debería ser semana 2
         expect(result.session, 2);
@@ -194,10 +184,7 @@ void main() {
           customData: const {},
         );
 
-        final result = strategy.calculateNextSessionAndWeek(
-          config: config,
-          state: state,
-        );
+        final result = strategy.calculateNextSessionAndWeek(config: config, state: state);
 
         // Con 5 sesiones por semana, la sesión 6 debería ser semana 2
         expect(result.session, 2);
@@ -248,10 +235,7 @@ void main() {
           customData: const {},
         );
 
-        final result = strategy.calculateNextSessionAndWeek(
-          config: config,
-          state: state,
-        );
+        final result = strategy.calculateNextSessionAndWeek(config: config, state: state);
 
         // Con 3 sesiones por semana, la sesión 4 debería ser semana 2
         expect(result.session, 2);
@@ -316,17 +300,11 @@ void main() {
         );
 
         // Beginner -> Initiated
-        final incrementBeginner = strategy.getIncrementValueSync(
-          config,
-          beginnerExercise,
-        );
+        final incrementBeginner = strategy.getIncrementValueSync(config, beginnerExercise);
         expect(incrementBeginner, 0.0); // Bodyweight no incrementa peso
 
         // Advanced -> Advanced
-        final incrementAdvanced = strategy.getIncrementValueSync(
-          config,
-          advancedExercise,
-        );
+        final incrementAdvanced = strategy.getIncrementValueSync(config, advancedExercise);
         expect(incrementAdvanced, 0.0); // Bodyweight no incrementa peso
       });
     });
@@ -356,10 +334,7 @@ void main() {
         );
 
         final increment = strategy.getIncrementValueSync(config, testExercise);
-        expect(
-          increment,
-          3.75,
-        ); // Valor optimizado para fuerza + multi-joint + barbell + intermediate (2.5 + 5.0) / 2
+        expect(increment, 3.75); // Valor optimizado para fuerza + multi-joint + barbell + intermediate (2.5 + 5.0) / 2
       });
 
       test('debería usar valores adaptativos para HIPERTROFIA', () {
@@ -386,10 +361,7 @@ void main() {
         );
 
         final increment = strategy.getIncrementValueSync(config, testExercise);
-        expect(
-          increment,
-          3.75,
-        ); // Valor optimizado para hipertrofia + multi-joint + barbell + intermediate
+        expect(increment, 3.75); // Valor optimizado para hipertrofia + multi-joint + barbell + intermediate
       });
 
       test('debería usar valores adaptativos para RESISTENCIA', () {
@@ -446,10 +418,7 @@ void main() {
         );
 
         final increment = strategy.getIncrementValueSync(config, testExercise);
-        expect(
-          increment,
-          3.75,
-        ); // Valor optimizado para potencia + multi-joint + barbell + initiated (usa min)
+        expect(increment, 3.75); // Valor optimizado para potencia + multi-joint + barbell + initiated (usa min)
       });
     });
 

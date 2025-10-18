@@ -11,10 +11,7 @@ void main() {
   group('Estrategias con Nueva Lógica por Objetivo', () {
     late Exercise testExercise;
 
-    ProgressionState createTestState({
-      int session = 1,
-      Map<String, dynamic>? history,
-    }) {
+    ProgressionState createTestState({int session = 1, Map<String, dynamic>? history}) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'test-state',
@@ -235,91 +232,85 @@ void main() {
         expect(result.reason, contains('Stepped progression'));
       });
 
-      test(
-        'debería derivar semanas de acumulación correctas para HIPERTROFIA',
-        () {
-          final config = ProgressionConfig(
-            id: 'test',
-            isGlobal: true,
-            type: ProgressionType.stepped,
-            unit: ProgressionUnit.week,
-            primaryTarget: ProgressionTarget.volume,
-            secondaryTarget: ProgressionTarget.reps,
-            incrementValue: 2.5,
-            incrementFrequency: 1,
-            cycleLength: 4,
-            deloadWeek: 0,
-            deloadPercentage: 0.9,
-            customParameters: {},
-            startDate: DateTime.now(),
-            isActive: true,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-            minReps: 6,
-            maxReps: 12,
-            baseSets: 4,
-          );
+      test('debería derivar semanas de acumulación correctas para HIPERTROFIA', () {
+        final config = ProgressionConfig(
+          id: 'test',
+          isGlobal: true,
+          type: ProgressionType.stepped,
+          unit: ProgressionUnit.week,
+          primaryTarget: ProgressionTarget.volume,
+          secondaryTarget: ProgressionTarget.reps,
+          incrementValue: 2.5,
+          incrementFrequency: 1,
+          cycleLength: 4,
+          deloadWeek: 0,
+          deloadPercentage: 0.9,
+          customParameters: {},
+          startDate: DateTime.now(),
+          isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          minReps: 6,
+          maxReps: 12,
+          baseSets: 4,
+        );
 
-          final result = strategy.calculate(
-            config: config,
-            exercise: testExercise,
-            currentWeight: 100.0,
-            currentReps: 8,
-            currentSets: 4,
-            state: createTestState(),
-            routineId: 'routine1',
-            isExerciseLocked: false,
-          );
+        final result = strategy.calculate(
+          config: config,
+          exercise: testExercise,
+          currentWeight: 100.0,
+          currentReps: 8,
+          currentSets: 4,
+          state: createTestState(),
+          routineId: 'routine1',
+          isExerciseLocked: false,
+        );
 
-          expect(result.newWeight, 103.75);
-          expect(result.newReps, 8);
-          expect(result.newSets, 4);
-          expect(result.reason, contains('Stepped progression'));
-        },
-      );
+        expect(result.newWeight, 103.75);
+        expect(result.newReps, 8);
+        expect(result.newSets, 4);
+        expect(result.reason, contains('Stepped progression'));
+      });
 
-      test(
-        'debería derivar semanas de acumulación correctas para RESISTENCIA',
-        () {
-          final config = ProgressionConfig(
-            id: 'test',
-            isGlobal: true,
-            type: ProgressionType.stepped,
-            unit: ProgressionUnit.week,
-            primaryTarget: ProgressionTarget.reps,
-            secondaryTarget: ProgressionTarget.volume,
-            incrementValue: 1.25,
-            incrementFrequency: 1,
-            cycleLength: 4,
-            deloadWeek: 0,
-            deloadPercentage: 0.9,
-            customParameters: {},
-            startDate: DateTime.now(),
-            isActive: true,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-            minReps: 15,
-            maxReps: 25,
-            baseSets: 2,
-          );
+      test('debería derivar semanas de acumulación correctas para RESISTENCIA', () {
+        final config = ProgressionConfig(
+          id: 'test',
+          isGlobal: true,
+          type: ProgressionType.stepped,
+          unit: ProgressionUnit.week,
+          primaryTarget: ProgressionTarget.reps,
+          secondaryTarget: ProgressionTarget.volume,
+          incrementValue: 1.25,
+          incrementFrequency: 1,
+          cycleLength: 4,
+          deloadWeek: 0,
+          deloadPercentage: 0.9,
+          customParameters: {},
+          startDate: DateTime.now(),
+          isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          minReps: 15,
+          maxReps: 25,
+          baseSets: 2,
+        );
 
-          final result = strategy.calculate(
-            config: config,
-            exercise: testExercise,
-            currentWeight: 50.0,
-            currentReps: 20,
-            currentSets: 2,
-            state: createTestState(),
-            routineId: 'routine1',
-            isExerciseLocked: false,
-          );
+        final result = strategy.calculate(
+          config: config,
+          exercise: testExercise,
+          currentWeight: 50.0,
+          currentReps: 20,
+          currentSets: 2,
+          state: createTestState(),
+          routineId: 'routine1',
+          isExerciseLocked: false,
+        );
 
-          expect(result.newWeight, 51.0);
-          expect(result.newReps, 20);
-          expect(result.newSets, 2);
-          expect(result.reason, contains('Stepped progression'));
-        },
-      );
+        expect(result.newWeight, 51.0);
+        expect(result.newReps, 20);
+        expect(result.newSets, 2);
+        expect(result.reason, contains('Stepped progression'));
+      });
 
       test('debería mantener compatibilidad con customParameters', () {
         final config = ProgressionConfig(

@@ -1,10 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
-import 'package:liftly/features/progression/configs/adaptive_increment_config.dart'
-    as aic;
-import 'package:liftly/features/progression/models/exercise_progression_config.dart'
-    as epc;
+import 'package:liftly/features/progression/configs/adaptive_increment_config.dart' as aic;
+import 'package:liftly/features/progression/models/exercise_progression_config.dart' as epc;
 import 'package:liftly/features/progression/models/progression_calculation_result.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
@@ -87,10 +85,7 @@ void main() {
 
     group('AdaptiveIncrementConfig Integration', () {
       test('getIncrementValueSync uses AdaptiveIncrementConfig correctly', () {
-        final increment = baseStrategy.getIncrementValueSync(
-          testConfig,
-          testExercise,
-        );
+        final increment = baseStrategy.getIncrementValueSync(testConfig, testExercise);
 
         // Para barbell multi-joint (intermediate), el recomendado es 2.5
         expect(increment, equals(2.5));
@@ -119,68 +114,55 @@ void main() {
     });
 
     group('ExerciseProgressionConfig Integration', () {
-      test(
-        'getIncrementValue prioritizes ExerciseProgressionConfig over AdaptiveIncrementConfig',
-        () async {
-          // Crear configuración específica del ejercicio
-          final _ = epc.ExerciseProgressionConfig(
-            id: 'exercise-config-1',
-            exerciseId: testExercise.id,
-            progressionConfigId: testConfig.id,
-            customIncrement: 7.5, // Valor personalizado
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
+      test('getIncrementValue prioritizes ExerciseProgressionConfig over AdaptiveIncrementConfig', () async {
+        // Crear configuración específica del ejercicio
+        final _ = epc.ExerciseProgressionConfig(
+          id: 'exercise-config-1',
+          exerciseId: testExercise.id,
+          progressionConfigId: testConfig.id,
+          customIncrement: 7.5, // Valor personalizado
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
 
-          // Simular que el servicio devuelve esta configuración
-          // (En un test real, usaríamos un mock)
-          final increment = await baseStrategy.getIncrementValue(
-            testConfig,
-            testExercise,
-            null, // Sin servicio por ahora
-          );
+        // Simular que el servicio devuelve esta configuración
+        // (En un test real, usaríamos un mock)
+        final increment = await baseStrategy.getIncrementValue(
+          testConfig,
+          testExercise,
+          null, // Sin servicio por ahora
+        );
 
-          // Debería usar AdaptiveIncrementConfig (3.75) ya que no hay servicio
-          expect(increment, equals(3.75));
-        },
-      );
+        // Debería usar AdaptiveIncrementConfig (3.75) ya que no hay servicio
+        expect(increment, equals(3.75));
+      });
 
-      test(
-        'migration from per_exercise to ExerciseProgressionConfig works correctly',
-        () {
-          final perExerciseData = {
-            testExercise.id: {
-              'increment_value': 7.5,
-              'min_reps': 8,
-              'max_reps': 15,
-              'base_sets': 5,
-            },
-          };
+      test('migration from per_exercise to ExerciseProgressionConfig works correctly', () {
+        final perExerciseData = {
+          testExercise.id: {'increment_value': 7.5, 'min_reps': 8, 'max_reps': 15, 'base_sets': 5},
+        };
 
-          // Simular migración
-          final now = DateTime.now();
-          final migratedConfig = epc.ExerciseProgressionConfig(
-            id: '${testExercise.id}_${testConfig.id}',
-            exerciseId: testExercise.id,
-            progressionConfigId: testConfig.id,
-            customIncrement:
-                perExerciseData[testExercise.id]!['increment_value'] as double,
-            customMinReps: perExerciseData[testExercise.id]!['min_reps'] as int,
-            customMaxReps: perExerciseData[testExercise.id]!['max_reps'] as int,
-            customBaseSets:
-                perExerciseData[testExercise.id]!['base_sets'] as int,
-            createdAt: now,
-            updatedAt: now,
-          );
+        // Simular migración
+        final now = DateTime.now();
+        final migratedConfig = epc.ExerciseProgressionConfig(
+          id: '${testExercise.id}_${testConfig.id}',
+          exerciseId: testExercise.id,
+          progressionConfigId: testConfig.id,
+          customIncrement: perExerciseData[testExercise.id]!['increment_value'] as double,
+          customMinReps: perExerciseData[testExercise.id]!['min_reps'] as int,
+          customMaxReps: perExerciseData[testExercise.id]!['max_reps'] as int,
+          customBaseSets: perExerciseData[testExercise.id]!['base_sets'] as int,
+          createdAt: now,
+          updatedAt: now,
+        );
 
-          // Verificar que la migración fue correcta
-          expect(migratedConfig.customIncrement, equals(7.5));
-          expect(migratedConfig.customMinReps, equals(8));
-          expect(migratedConfig.customMaxReps, equals(15));
-          expect(migratedConfig.customBaseSets, equals(5));
-          expect(migratedConfig.hasCustomConfig, isTrue);
-        },
-      );
+        // Verificar que la migración fue correcta
+        expect(migratedConfig.customIncrement, equals(7.5));
+        expect(migratedConfig.customMinReps, equals(8));
+        expect(migratedConfig.customMaxReps, equals(15));
+        expect(migratedConfig.customBaseSets, equals(5));
+        expect(migratedConfig.hasCustomConfig, isTrue);
+      });
     });
 
     group('LinearProgressionStrategy Integration', () {
@@ -201,10 +183,7 @@ void main() {
         // Verificar que el resultado es válido
         expect(result, isA<ProgressionCalculationResult>());
         expect(result.newWeight, greaterThanOrEqualTo(testState.currentWeight));
-        expect(
-          result.newReps,
-          inInclusiveRange(testConfig.minReps, testConfig.maxReps),
-        );
+        expect(result.newReps, inInclusiveRange(testConfig.minReps, testConfig.maxReps));
         expect(result.newSets, greaterThan(0));
         expect(result.incrementApplied, isTrue);
         expect(result.isDeload, isFalse);
@@ -268,13 +247,11 @@ void main() {
         );
 
         // Verificar que los incrementos son diferentes según el tipo
-        final barbellIncrement = aic
-            .AdaptiveIncrementConfig.getRecommendedIncrement(
+        final barbellIncrement = aic.AdaptiveIncrementConfig.getRecommendedIncrement(
           barbellExercise,
           aic.ExperienceLevel.intermediate,
         );
-        final dumbbellIncrement = aic
-            .AdaptiveIncrementConfig.getRecommendedIncrement(
+        final dumbbellIncrement = aic.AdaptiveIncrementConfig.getRecommendedIncrement(
           dumbbellExercise,
           aic.ExperienceLevel.intermediate,
         );
@@ -289,10 +266,7 @@ void main() {
     group('Error Handling', () {
       test('handles null exercise gracefully', () {
         // Esto debería lanzar una excepción o manejar el caso null
-        expect(
-          () => baseStrategy.getIncrementValueSync(testConfig, testExercise),
-          returnsNormally,
-        );
+        expect(() => baseStrategy.getIncrementValueSync(testConfig, testExercise), returnsNormally);
       });
 
       test('handles invalid config gracefully', () {

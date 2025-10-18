@@ -21,11 +21,8 @@ void main() {
         isGlobal: true,
         type: ProgressionType.linear,
         unit: ProgressionUnit.session,
-        primaryTarget:
-            ProgressionTarget
-                .volume, // Cambiar a volume para que sea hypertrophy
-        secondaryTarget:
-            ProgressionTarget.reps, // Añadir secondaryTarget para hypertrophy
+        primaryTarget: ProgressionTarget.volume, // Cambiar a volume para que sea hypertrophy
+        secondaryTarget: ProgressionTarget.reps, // Añadir secondaryTarget para hypertrophy
         incrementValue: 2.5,
         incrementFrequency: 1,
         cycleLength: 4,
@@ -151,14 +148,8 @@ void main() {
       test('usa valor base cuando no hay parámetros personalizados', () {
         // Configurar para usar sistema adaptativo (incrementValue = 0)
         final adaptiveConfig = config.copyWith(incrementValue: 0);
-        final increment = strategy.getIncrementValueSync(
-          adaptiveConfig,
-          testExercise,
-        );
-        expect(
-          increment,
-          equals(2.5),
-        ); // AdaptiveIncrementConfig para barbell multiJoint hypertrophy (intermediate)
+        final increment = strategy.getIncrementValueSync(adaptiveConfig, testExercise);
+        expect(increment, equals(2.5)); // AdaptiveIncrementConfig para barbell multiJoint hypertrophy (intermediate)
       });
 
       test('usa incremento específico por tipo de ejercicio multi-joint', () {
@@ -218,28 +209,16 @@ void main() {
         // Configurar para usar sistema adaptativo (incrementValue = 0)
         final adaptiveConfig = config.copyWith(incrementValue: 0);
 
-        final increment = strategy.getIncrementValueSync(
-          adaptiveConfig,
-          testExercise,
-        );
-        expect(
-          increment,
-          equals(2.5),
-        ); // AdaptiveIncrementConfig para barbell multiJoint hypertrophy (intermediate)
+        final increment = strategy.getIncrementValueSync(adaptiveConfig, testExercise);
+        expect(increment, equals(2.5)); // AdaptiveIncrementConfig para barbell multiJoint hypertrophy (intermediate)
       });
 
       test('usa incremento por ejercicio específico con prioridad', () {
         // Configurar para usar sistema adaptativo (incrementValue = 0)
         final adaptiveConfig = config.copyWith(incrementValue: 0);
 
-        final increment = strategy.getIncrementValueSync(
-          adaptiveConfig,
-          testExercise,
-        );
-        expect(
-          increment,
-          equals(2.5),
-        ); // AdaptiveIncrementConfig para barbell multiJoint hypertrophy (intermediate)
+        final increment = strategy.getIncrementValueSync(adaptiveConfig, testExercise);
+        expect(increment, equals(2.5)); // AdaptiveIncrementConfig para barbell multiJoint hypertrophy (intermediate)
       });
 
       test('maneja errores en parámetros personalizados graciosamente', () {
@@ -251,26 +230,18 @@ void main() {
         );
 
         final increment = strategy.getIncrementValueSync(config, testExercise);
-        expect(
-          increment,
-          equals(2.5),
-        ); // AdaptiveIncrementConfig para hypertrophy multiJoint (intermediate)
+        expect(increment, equals(2.5)); // AdaptiveIncrementConfig para hypertrophy multiJoint (intermediate)
       });
     });
 
     group('getMaxReps', () {
       test('usa valor por defecto cuando no hay parámetros personalizados', () {
         final maxReps = strategy.getMaxRepsSync(config, testExercise);
-        expect(
-          maxReps,
-          equals(12),
-        ); // AdaptiveIncrementConfig para hypertrophy multiJoint // Valor por defecto
+        expect(maxReps, equals(12)); // AdaptiveIncrementConfig para hypertrophy multiJoint // Valor por defecto
       });
 
       test('usa max_reps específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15});
 
         final maxReps = strategy.getMaxRepsSync(config, testExercise);
         expect(
@@ -280,9 +251,7 @@ void main() {
       });
 
       test('usa max_reps específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_max': 8, 'iso_reps_max': 15});
 
         // Crear ejercicio de tipo isolation para este test
         final isolationExercise = Exercise(
@@ -302,20 +271,14 @@ void main() {
         );
 
         final maxReps = strategy.getMaxRepsSync(config, isolationExercise);
-        expect(
-          maxReps,
-          equals(15),
-        ); // AdaptiveIncrementConfig para hypertrophy isolation
+        expect(maxReps, equals(15)); // AdaptiveIncrementConfig para hypertrophy isolation
       });
 
       test('usa max_reps global como fallback', () {
         config = config.copyWith(customParameters: {'max_reps': 10});
 
         final maxReps = strategy.getMaxRepsSync(config, testExercise);
-        expect(
-          maxReps,
-          equals(10),
-        ); // customParameters tiene prioridad sobre AdaptiveIncrementConfig
+        expect(maxReps, equals(10)); // customParameters tiene prioridad sobre AdaptiveIncrementConfig
       });
     });
 
@@ -329,9 +292,7 @@ void main() {
       });
 
       test('usa min_reps específico por tipo de ejercicio multi-joint', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8});
 
         final minReps = strategy.getMinRepsSync(config, testExercise);
         expect(
@@ -341,9 +302,7 @@ void main() {
       });
 
       test('usa min_reps específico por tipo de ejercicio isolation', () {
-        config = config.copyWith(
-          customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8},
-        );
+        config = config.copyWith(customParameters: {'multi_reps_min': 3, 'iso_reps_min': 8});
 
         // Crear ejercicio de tipo isolation para este test
         final isolationExercise = Exercise(
@@ -363,20 +322,14 @@ void main() {
         );
 
         final minReps = strategy.getMinRepsSync(config, isolationExercise);
-        expect(
-          minReps,
-          equals(8),
-        ); // AdaptiveIncrementConfig para hypertrophy isolation
+        expect(minReps, equals(8)); // AdaptiveIncrementConfig para hypertrophy isolation
       });
 
       test('usa min_reps global como fallback', () {
         config = config.copyWith(customParameters: {'min_reps': 6});
 
         final minReps = strategy.getMinRepsSync(config, testExercise);
-        expect(
-          minReps,
-          equals(6),
-        ); // AdaptiveIncrementConfig para hypertrophy multiJoint
+        expect(minReps, equals(6)); // AdaptiveIncrementConfig para hypertrophy multiJoint
       });
     });
 
@@ -386,61 +339,37 @@ void main() {
         final maxReps = strategy.getMaxRepsSync(config, testExercise);
         final minReps = strategy.getMinRepsSync(config, testExercise);
 
-        expect(
-          increment,
-          equals(2.5),
-        ); // AdaptiveIncrementConfig para hypertrophy multiJoint (intermediate)
-        expect(
-          maxReps,
-          equals(12),
-        ); // AdaptiveIncrementConfig para hypertrophy multiJoint // Default del config
-        expect(
-          minReps,
-          equals(6),
-        ); // AdaptiveIncrementConfig para hypertrophy multiJoint // Default del config
+        expect(increment, equals(2.5)); // AdaptiveIncrementConfig para hypertrophy multiJoint (intermediate)
+        expect(maxReps, equals(12)); // AdaptiveIncrementConfig para hypertrophy multiJoint // Default del config
+        expect(minReps, equals(6)); // AdaptiveIncrementConfig para hypertrophy multiJoint // Default del config
       });
 
-      test(
-        'usa fallbacks por defecto para isolation cuando no hay parámetros',
-        () {
-          // Crear ejercicio de tipo isolation para este test
-          final isolationExercise = Exercise(
-            id: 'test-isolation-exercise',
-            name: 'Test Isolation Exercise',
-            description: 'Test isolation exercise for testing',
-            imageUrl: 'test-image.jpg',
-            muscleGroups: [MuscleGroup.bicepsLongHead],
-            tips: ['Test tip'],
-            commonMistakes: ['Test mistake'],
-            category: ExerciseCategory.biceps,
-            difficulty: ExerciseDifficulty.beginner,
-            exerciseType: ExerciseType.isolation,
-            loadType: LoadType.barbell,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          );
+      test('usa fallbacks por defecto para isolation cuando no hay parámetros', () {
+        // Crear ejercicio de tipo isolation para este test
+        final isolationExercise = Exercise(
+          id: 'test-isolation-exercise',
+          name: 'Test Isolation Exercise',
+          description: 'Test isolation exercise for testing',
+          imageUrl: 'test-image.jpg',
+          muscleGroups: [MuscleGroup.bicepsLongHead],
+          tips: ['Test tip'],
+          commonMistakes: ['Test mistake'],
+          category: ExerciseCategory.biceps,
+          difficulty: ExerciseDifficulty.beginner,
+          exerciseType: ExerciseType.isolation,
+          loadType: LoadType.barbell,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
 
-          final increment = strategy.getIncrementValueSync(
-            config,
-            isolationExercise,
-          );
-          final maxReps = strategy.getMaxRepsSync(config, isolationExercise);
-          final minReps = strategy.getMinRepsSync(config, isolationExercise);
+        final increment = strategy.getIncrementValueSync(config, isolationExercise);
+        final maxReps = strategy.getMaxRepsSync(config, isolationExercise);
+        final minReps = strategy.getMinRepsSync(config, isolationExercise);
 
-          expect(
-            increment,
-            equals(1.25),
-          ); // AdaptiveIncrementConfig para hypertrophy isolation (intermediate)
-          expect(
-            maxReps,
-            equals(15),
-          ); // AdaptiveIncrementConfig para hypertrophy isolation
-          expect(
-            minReps,
-            equals(8),
-          ); // AdaptiveIncrementConfig para hypertrophy isolation
-        },
-      );
+        expect(increment, equals(1.25)); // AdaptiveIncrementConfig para hypertrophy isolation (intermediate)
+        expect(maxReps, equals(15)); // AdaptiveIncrementConfig para hypertrophy isolation
+        expect(minReps, equals(8)); // AdaptiveIncrementConfig para hypertrophy isolation
+      });
     });
   });
 }
