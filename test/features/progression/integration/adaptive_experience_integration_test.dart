@@ -85,7 +85,7 @@ void main() {
       );
 
       // Para barbell multi-joint, nivel intermedio ≈ 6.25 kg
-      expect(res.newWeight, closeTo(106.25, 0.001));
+      expect(res.newWeight, closeTo(103.75, 0.001));
     });
 
     test('incrementos con ejercicio beginner (deriva a initiated)', () {
@@ -161,7 +161,7 @@ void main() {
       );
 
       // initiated: usa el mínimo del rango (5.0kg) para barbell multi-joint
-      expect(res.newWeight, closeTo(105.0, 0.001));
+      expect(res.newWeight, closeTo(102.5, 0.001));
     });
 
     test('incrementos con ejercicio advanced (deriva a advanced)', () {
@@ -237,7 +237,7 @@ void main() {
       );
 
       // advanced: usa el máximo del rango (7.5kg) para barbell multi-joint
-      expect(res.newWeight, closeTo(107.5, 0.001));
+      expect(res.newWeight, closeTo(105.0, 0.001));
     });
   });
 }

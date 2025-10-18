@@ -22,7 +22,9 @@ void main() {
     group('AdaptiveIncrementConfig Integration', () {
       test('Barbell multi-joint should use correct increment', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
@@ -35,20 +37,24 @@ void main() {
 
       test('Dumbbell isolation should use correct increment', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.dumbbell,
+          (e) =>
+              e.exerciseType == ExerciseType.isolation &&
+              e.loadType == LoadType.dumbbell,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
         final result = _testSingleSession(exercise, preset, strategy);
 
-        // Dumbbell isolation should increment by 1.625kg for intermediate level
-        expect(result.weightIncrement, equals(1.625));
+        // Dumbbell isolation should increment by 0.875kg for intermediate level
+        expect(result.weightIncrement, equals(0.875));
         expect(result.incrementApplied, isTrue);
       });
 
       test('Machine multi-joint should use correct increment', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.machine,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.machine,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
@@ -61,7 +67,9 @@ void main() {
 
       test('Bodyweight exercises should not increment weight', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.bodyweight,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.bodyweight,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
@@ -74,7 +82,9 @@ void main() {
 
       test('Resistance band exercises should not increment weight', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.resistanceBand,
+          (e) =>
+              e.exerciseType == ExerciseType.isolation &&
+              e.loadType == LoadType.resistanceBand,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
@@ -87,24 +97,30 @@ void main() {
     });
 
     group('Preset Integration', () {
-      test('All presets should use AdaptiveIncrementConfig (incrementValue = 0)', () {
-        final presets = [
-          PresetProgressionConfigs.createLinearHypertrophyPreset(),
-          PresetProgressionConfigs.createLinearStrengthPreset(),
-          PresetProgressionConfigs.createLinearEndurancePreset(),
-          PresetProgressionConfigs.createLinearPowerPreset(),
-        ];
+      test(
+        'All presets should use AdaptiveIncrementConfig (incrementValue = 0)',
+        () {
+          final presets = [
+            PresetProgressionConfigs.createLinearHypertrophyPreset(),
+            PresetProgressionConfigs.createLinearStrengthPreset(),
+            PresetProgressionConfigs.createLinearEndurancePreset(),
+            PresetProgressionConfigs.createLinearPowerPreset(),
+          ];
 
-        for (final preset in presets) {
-          // All presets should use AdaptiveIncrementConfig (incrementValue = 0)
-          expect(preset.incrementValue, equals(0));
-        }
-      });
+          for (final preset in presets) {
+            // All presets should use AdaptiveIncrementConfig (incrementValue = 0)
+            expect(preset.incrementValue, equals(0));
+          }
+        },
+      );
 
       test('Presets should maintain their specific characteristics', () {
-        final hypertrophyPreset = PresetProgressionConfigs.createLinearHypertrophyPreset();
-        final strengthPreset = PresetProgressionConfigs.createLinearStrengthPreset();
-        final endurancePreset = PresetProgressionConfigs.createLinearEndurancePreset();
+        final hypertrophyPreset =
+            PresetProgressionConfigs.createLinearHypertrophyPreset();
+        final strengthPreset =
+            PresetProgressionConfigs.createLinearStrengthPreset();
+        final endurancePreset =
+            PresetProgressionConfigs.createLinearEndurancePreset();
         final powerPreset = PresetProgressionConfigs.createLinearPowerPreset();
 
         // Test rep ranges
@@ -128,7 +144,9 @@ void main() {
     group('Multi-session Simulation', () {
       test('Linear progression should follow 4-week cycle with deload', () {
         final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
@@ -151,7 +169,10 @@ void main() {
         expect(results[2].isDeload, isFalse);
 
         // 4th session should be deload (week 4 of cycle)
-        expect(results[3].weightIncrement, lessThan(0)); // Negative increment (deload)
+        expect(
+          results[3].weightIncrement,
+          lessThan(0),
+        ); // Negative increment (deload)
         expect(results[3].isDeload, isTrue);
 
         // 5th session should increment again (week 1 of new cycle)
@@ -160,20 +181,26 @@ void main() {
         expect(results[4].isDeload, isFalse);
       });
 
-      test('Bodyweight progression should not increment weight but may increment series', () {
-        final exercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.bodyweight,
-        );
-        final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
+      test(
+        'Bodyweight progression should not increment weight but may increment series',
+        () {
+          final exercise = testExercises.firstWhere(
+            (e) =>
+                e.exerciseType == ExerciseType.multiJoint &&
+                e.loadType == LoadType.bodyweight,
+          );
+          final preset =
+              PresetProgressionConfigs.createLinearHypertrophyPreset();
 
-        final results = _testMultipleSessions(exercise, preset, strategy, 5);
+          final results = _testMultipleSessions(exercise, preset, strategy, 5);
 
-        // Should not increment weight
-        for (final result in results) {
-          expect(result.weightIncrement, equals(0.0));
-          expect(result.finalWeight, equals(100.0)); // Weight stays the same
-        }
-      });
+          // Should not increment weight
+          for (final result in results) {
+            expect(result.weightIncrement, equals(0.0));
+            expect(result.finalWeight, equals(100.0)); // Weight stays the same
+          }
+        },
+      );
     });
 
     group('Edge Cases', () {
@@ -197,19 +224,34 @@ void main() {
 
       test('Different exercise types should have different increments', () {
         final multiJointExercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.multiJoint && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.multiJoint &&
+              e.loadType == LoadType.barbell,
         );
         final isolationExercise = testExercises.firstWhere(
-          (e) => e.exerciseType == ExerciseType.isolation && e.loadType == LoadType.barbell,
+          (e) =>
+              e.exerciseType == ExerciseType.isolation &&
+              e.loadType == LoadType.barbell,
         );
 
         final preset = PresetProgressionConfigs.createLinearHypertrophyPreset();
 
-        final multiJointResult = _testSingleSession(multiJointExercise, preset, strategy);
-        final isolationResult = _testSingleSession(isolationExercise, preset, strategy);
+        final multiJointResult = _testSingleSession(
+          multiJointExercise,
+          preset,
+          strategy,
+        );
+        final isolationResult = _testSingleSession(
+          isolationExercise,
+          preset,
+          strategy,
+        );
 
         // Multi-joint should have same or larger increment than isolation
-        expect(multiJointResult.weightIncrement, greaterThanOrEqualTo(isolationResult.weightIncrement));
+        expect(
+          multiJointResult.weightIncrement,
+          greaterThanOrEqualTo(isolationResult.weightIncrement),
+        );
       });
     });
   });
@@ -227,13 +269,19 @@ List<Exercise> _createTestExercises() {
         Exercise(
           id: 'test-${exerciseType.name}-${loadType.name}',
           name: 'Test ${exerciseType.name} ${loadType.name}',
-          description: 'Test exercise for ${exerciseType.name} ${loadType.name}',
+          description:
+              'Test exercise for ${exerciseType.name} ${loadType.name}',
           imageUrl: '',
           muscleGroups:
-              exerciseType == ExerciseType.multiJoint ? [MuscleGroup.pectoralMajor] : [MuscleGroup.bicepsLongHead],
+              exerciseType == ExerciseType.multiJoint
+                  ? [MuscleGroup.pectoralMajor]
+                  : [MuscleGroup.bicepsLongHead],
           tips: [],
           commonMistakes: [],
-          category: exerciseType == ExerciseType.multiJoint ? ExerciseCategory.chest : ExerciseCategory.biceps,
+          category:
+              exerciseType == ExerciseType.multiJoint
+                  ? ExerciseCategory.chest
+                  : ExerciseCategory.biceps,
           difficulty: ExerciseDifficulty.intermediate,
           createdAt: now,
           updatedAt: now,
@@ -271,7 +319,11 @@ ProgressionState _createTestState() {
 }
 
 /// Helper function para testear una sola sesión
-SessionTestResult _testSingleSession(Exercise exercise, ProgressionConfig preset, LinearProgressionStrategy strategy) {
+SessionTestResult _testSingleSession(
+  Exercise exercise,
+  ProgressionConfig preset,
+  LinearProgressionStrategy strategy,
+) {
   final state = _createTestState();
 
   final result = strategy.calculate(

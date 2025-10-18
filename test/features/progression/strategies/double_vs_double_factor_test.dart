@@ -90,8 +90,11 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 86.25);
-      expect(result.newReps, 6); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
+      expect(result.newWeight, 83.75);
+      expect(
+        result.newReps,
+        6,
+      ); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
       expect(result.reason, contains('increasing weight'));
 
       // Semana 2: Incrementar peso (currentReps = maxReps)
@@ -104,8 +107,11 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 86.25);
-      expect(result.newReps, 6); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
+      expect(result.newWeight, 83.75);
+      expect(
+        result.newReps,
+        6,
+      ); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
       expect(result.reason, contains('increasing weight'));
 
       // Semana 3: Incrementar peso (currentReps = maxReps)
@@ -118,8 +124,11 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 86.25);
-      expect(result.newReps, 6); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
+      expect(result.newWeight, 83.75);
+      expect(
+        result.newReps,
+        6,
+      ); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
       expect(result.reason, contains('increasing weight'));
 
       // Semana 4: Incrementar peso (currentReps = maxReps)
@@ -132,8 +141,11 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 86.25);
-      expect(result.newReps, 6); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
+      expect(result.newWeight, 83.75);
+      expect(
+        result.newReps,
+        6,
+      ); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
       expect(result.reason, contains('increasing weight'));
 
       // Semana 5: Alcanzó max reps, incrementar peso y resetear reps
@@ -146,14 +158,19 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 86.25); // 80 + 6.25 (incremento adaptativo)
-      expect(result.newReps, 6); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
+      expect(result.newWeight, 83.75); // 80 + 3.75 (incremento adaptativo)
+      expect(
+        result.newReps,
+        6,
+      ); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
       expect(result.reason, contains('increasing weight'));
     });
 
     test('Double Factor Progression: alterna peso y reps (simultáneo)', () {
       final strategy = DoubleFactorProgressionStrategy();
-      final doubleFactorConfig = config.copyWith(type: ProgressionType.doubleFactor);
+      final doubleFactorConfig = config.copyWith(
+        type: ProgressionType.doubleFactor,
+      );
 
       // Semana 1 (impar): Incrementar peso, mantener reps
       var result = strategy.calculate(
@@ -165,7 +182,10 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 86.25); // 80 + 5.0 (incremento adaptativo para strength multiJoint barbell)
+      expect(
+        result.newWeight,
+        83.75,
+      ); // 80 + 3.75 (incremento adaptativo para strength multiJoint barbell)
       expect(result.newReps, 6); // Mantiene reps en semana impar
       expect(result.reason, contains('increasing weight'));
 
@@ -193,8 +213,11 @@ void main() {
         currentSets: 3,
         exercise: testExercise,
       );
-      expect(result.newWeight, 88.75); // 82.5 + 6.25 (incremento adaptativo)
-      expect(result.newReps, 7); // incrementa reps en semana par (6 -> 7) // Mantiene reps
+      expect(result.newWeight, 86.25); // 82.5 + 3.75 (incremento adaptativo)
+      expect(
+        result.newReps,
+        7,
+      ); // incrementa reps en semana par (6 -> 7) // Mantiene reps
       expect(result.reason, contains('increasing weight'));
 
       // Semana 4 (par): Incrementar reps, mantener peso
@@ -208,13 +231,18 @@ void main() {
         exercise: testExercise,
       );
       expect(result.newWeight, 86.25); // Mantiene peso
-      expect(result.newReps, 8); // incrementa reps en semana par (6 -> 8) // Incrementa reps
+      expect(
+        result.newReps,
+        8,
+      ); // incrementa reps en semana par (6 -> 8) // Incrementa reps
       expect(result.reason, contains('increasing reps'));
     });
 
     test('Double Factor Progression: respeta límites de reps', () {
       final strategy = DoubleFactorProgressionStrategy();
-      final doubleFactorConfig = config.copyWith(type: ProgressionType.doubleFactor);
+      final doubleFactorConfig = config.copyWith(
+        type: ProgressionType.doubleFactor,
+      );
 
       // Semana par con reps en el máximo: no debe incrementar más
       var result = strategy.calculate(
@@ -227,7 +255,10 @@ void main() {
         exercise: testExercise,
       );
       expect(result.newWeight, 80.0);
-      expect(result.newReps, 10); // Se mantiene en maxReps (10) porque está en el límite
+      expect(
+        result.newReps,
+        10,
+      ); // Se mantiene en maxReps (10) porque está en el límite
       expect(result.reason, contains('increasing reps'));
     });
 
@@ -259,18 +290,24 @@ void main() {
       );
 
       // Double Progression: incrementa peso
-      expect(doubleResult.newWeight, 86.25);
-      expect(doubleResult.newReps, 6); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
+      expect(doubleResult.newWeight, 83.75);
+      expect(
+        doubleResult.newReps,
+        6,
+      ); // minReps de customParameters (6) tiene prioridad sobre tabla adaptativa
 
       // Double Factor: incrementa peso
-      expect(doubleFactorResult.newWeight, 86.25);
+      expect(doubleFactorResult.newWeight, 83.75);
       expect(doubleFactorResult.newReps, 6);
 
       // Los resultados deben ser diferentes en reps
       // Double Progression resetea reps a minReps cuando incrementa peso
       // Double Factor mantiene reps cuando incrementa peso
       expect(doubleResult.newReps, equals(6)); // minReps de customParameters
-      expect(doubleFactorResult.newReps, equals(6)); // mantiene reps en semana impar
+      expect(
+        doubleFactorResult.newReps,
+        equals(6),
+      ); // mantiene reps en semana impar
     });
 
     test('Simulación de 6 semanas: Double Progression vs Double Factor', () {

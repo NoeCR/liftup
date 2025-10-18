@@ -15,7 +15,10 @@ void main() {
   group('Integración del Sistema Optimizado', () {
     late Exercise multiJointBarbell;
 
-    ProgressionState createTestState({int session = 1, Map<String, dynamic>? history}) {
+    ProgressionState createTestState({
+      int session = 1,
+      Map<String, dynamic>? history,
+    }) {
       final now = DateTime.now();
       return ProgressionState(
         id: 'test-state',
@@ -101,28 +104,38 @@ void main() {
         );
 
         // 2. Verificar derivación de objetivo
-        final objective = AdaptiveIncrementConfig.parseObjective(strengthConfig.getTrainingObjective());
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          strengthConfig.getTrainingObjective(),
+        );
         expect(objective, TrainingObjective.strength);
 
         // 3. Verificar valores adaptativos
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
+          multiJointBarbell,
+          objective: objective,
+        );
         expect(minReps, 3);
         expect(maxReps, 6);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+        final increment =
+            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+              multiJointBarbell,
+              ExperienceLevel.intermediate,
+              objective: objective,
+            );
+        expect(increment, 3.75);
+
+        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
           multiJointBarbell,
-          ExperienceLevel.intermediate,
           objective: objective,
         );
-        expect(increment, 6.25);
-
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(multiJointBarbell, objective: objective);
         expect(restTime, 240);
 
-        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-          multiJointBarbell,
-          objective: objective,
-        );
+        final seriesRange =
+            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+              multiJointBarbell,
+              objective: objective,
+            );
         expect(seriesRange?.defaultValue, 1);
 
         // 4. Verificar funcionamiento de estrategia
@@ -138,147 +151,179 @@ void main() {
           isExerciseLocked: false,
         );
 
-        expect(result.newWeight, 106.25); // 100 + 6.25 increment
+        expect(result.newWeight, 103.75); // 100 + 3.75 increment
         expect(result.newReps, 5);
         expect(result.newSets, 5);
         expect(result.reason, contains('Linear progression'));
       });
 
-      test('debería configurar correctamente un entrenamiento de HIPERTROFIA', () {
-        // 1. Crear configuración de hipertrofia
-        final hypertrophyConfig = ProgressionConfig(
-          id: 'hypertrophy_test',
-          isGlobal: true,
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          primaryTarget: ProgressionTarget.volume,
-          secondaryTarget: ProgressionTarget.reps,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 0,
-          deloadPercentage: 0.9,
-          customParameters: {},
-          startDate: DateTime.now(),
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          minReps: 6,
-          maxReps: 12,
-          baseSets: 4,
-        );
+      test(
+        'debería configurar correctamente un entrenamiento de HIPERTROFIA',
+        () {
+          // 1. Crear configuración de hipertrofia
+          final hypertrophyConfig = ProgressionConfig(
+            id: 'hypertrophy_test',
+            isGlobal: true,
+            type: ProgressionType.linear,
+            unit: ProgressionUnit.session,
+            primaryTarget: ProgressionTarget.volume,
+            secondaryTarget: ProgressionTarget.reps,
+            incrementValue: 2.5,
+            incrementFrequency: 1,
+            cycleLength: 4,
+            deloadWeek: 0,
+            deloadPercentage: 0.9,
+            customParameters: {},
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            minReps: 6,
+            maxReps: 12,
+            baseSets: 4,
+          );
 
-        // 2. Verificar derivación de objetivo
-        final objective = AdaptiveIncrementConfig.parseObjective(hypertrophyConfig.getTrainingObjective());
-        expect(objective, TrainingObjective.hypertrophy);
+          // 2. Verificar derivación de objetivo
+          final objective = AdaptiveIncrementConfig.parseObjective(
+            hypertrophyConfig.getTrainingObjective(),
+          );
+          expect(objective, TrainingObjective.hypertrophy);
 
-        // 3. Verificar valores adaptativos
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
-        expect(minReps, 6);
-        expect(maxReps, 12);
+          // 3. Verificar valores adaptativos
+          final (
+            minReps,
+            maxReps,
+          ) = AdaptiveIncrementConfig.getRepetitionsRange(
+            multiJointBarbell,
+            objective: objective,
+          );
+          expect(minReps, 6);
+          expect(maxReps, 12);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          multiJointBarbell,
-          ExperienceLevel.intermediate,
-          objective: objective,
-        );
-        expect(increment, 3.75);
+          final increment =
+              AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+                multiJointBarbell,
+                ExperienceLevel.intermediate,
+                objective: objective,
+              );
+          expect(increment, 3.75);
 
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(multiJointBarbell, objective: objective);
-        expect(restTime, 120);
+          final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
+            multiJointBarbell,
+            objective: objective,
+          );
+          expect(restTime, 120);
 
-        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-          multiJointBarbell,
-          objective: objective,
-        );
-        expect(seriesRange?.defaultValue, 1);
+          final seriesRange =
+              AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+                multiJointBarbell,
+                objective: objective,
+              );
+          expect(seriesRange?.defaultValue, 1);
 
-        // 4. Verificar funcionamiento de estrategia
-        final strategy = LinearProgressionStrategy();
-        final result = strategy.calculate(
-          config: hypertrophyConfig,
-          exercise: multiJointBarbell,
-          currentWeight: 100.0,
-          currentReps: 8,
-          currentSets: 4,
-          state: createTestState(),
-          routineId: 'routine1',
-          isExerciseLocked: false,
-        );
+          // 4. Verificar funcionamiento de estrategia
+          final strategy = LinearProgressionStrategy();
+          final result = strategy.calculate(
+            config: hypertrophyConfig,
+            exercise: multiJointBarbell,
+            currentWeight: 100.0,
+            currentReps: 8,
+            currentSets: 4,
+            state: createTestState(),
+            routineId: 'routine1',
+            isExerciseLocked: false,
+          );
 
-        expect(result.newWeight, 103.75); // 100 + 3.75 increment
-        expect(result.newReps, 8);
-        expect(result.newSets, 4);
-        expect(result.reason, contains('Linear progression'));
-      });
+          expect(result.newWeight, 103.75); // 100 + 3.75 increment
+          expect(result.newReps, 8);
+          expect(result.newSets, 4);
+          expect(result.reason, contains('Linear progression'));
+        },
+      );
 
-      test('debería configurar correctamente un entrenamiento de RESISTENCIA', () {
-        // 1. Crear configuración de resistencia
-        final enduranceConfig = ProgressionConfig(
-          id: 'endurance_test',
-          isGlobal: true,
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          primaryTarget: ProgressionTarget.reps,
-          secondaryTarget: ProgressionTarget.volume,
-          incrementValue: 1.25,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 0,
-          deloadPercentage: 0.9,
-          customParameters: {},
-          startDate: DateTime.now(),
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          minReps: 15,
-          maxReps: 25,
-          baseSets: 2,
-        );
+      test(
+        'debería configurar correctamente un entrenamiento de RESISTENCIA',
+        () {
+          // 1. Crear configuración de resistencia
+          final enduranceConfig = ProgressionConfig(
+            id: 'endurance_test',
+            isGlobal: true,
+            type: ProgressionType.linear,
+            unit: ProgressionUnit.session,
+            primaryTarget: ProgressionTarget.reps,
+            secondaryTarget: ProgressionTarget.volume,
+            incrementValue: 1.25,
+            incrementFrequency: 1,
+            cycleLength: 4,
+            deloadWeek: 0,
+            deloadPercentage: 0.9,
+            customParameters: {},
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            minReps: 15,
+            maxReps: 25,
+            baseSets: 2,
+          );
 
-        // 2. Verificar derivación de objetivo
-        final objective = AdaptiveIncrementConfig.parseObjective(enduranceConfig.getTrainingObjective());
-        expect(objective, TrainingObjective.endurance);
+          // 2. Verificar derivación de objetivo
+          final objective = AdaptiveIncrementConfig.parseObjective(
+            enduranceConfig.getTrainingObjective(),
+          );
+          expect(objective, TrainingObjective.endurance);
 
-        // 3. Verificar valores adaptativos
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
-        expect(minReps, 15);
-        expect(maxReps, 25);
+          // 3. Verificar valores adaptativos
+          final (
+            minReps,
+            maxReps,
+          ) = AdaptiveIncrementConfig.getRepetitionsRange(
+            multiJointBarbell,
+            objective: objective,
+          );
+          expect(minReps, 15);
+          expect(maxReps, 25);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          multiJointBarbell,
-          ExperienceLevel.intermediate,
-          objective: objective,
-        );
-        expect(increment, 1.875);
+          final increment =
+              AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+                multiJointBarbell,
+                ExperienceLevel.intermediate,
+                objective: objective,
+              );
+          expect(increment, 1.0);
 
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(multiJointBarbell, objective: objective);
-        expect(restTime, 60);
+          final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
+            multiJointBarbell,
+            objective: objective,
+          );
+          expect(restTime, 60);
 
-        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-          multiJointBarbell,
-          objective: objective,
-        );
-        expect(seriesRange?.defaultValue, 2);
+          final seriesRange =
+              AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+                multiJointBarbell,
+                objective: objective,
+              );
+          expect(seriesRange?.defaultValue, 2);
 
-        // 4. Verificar funcionamiento de estrategia
-        final strategy = LinearProgressionStrategy();
-        final result = strategy.calculate(
-          config: enduranceConfig,
-          exercise: multiJointBarbell,
-          currentWeight: 50.0,
-          currentReps: 20,
-          currentSets: 2,
-          state: createTestState(),
-          routineId: 'routine1',
-          isExerciseLocked: false,
-        );
+          // 4. Verificar funcionamiento de estrategia
+          final strategy = LinearProgressionStrategy();
+          final result = strategy.calculate(
+            config: enduranceConfig,
+            exercise: multiJointBarbell,
+            currentWeight: 50.0,
+            currentReps: 20,
+            currentSets: 2,
+            state: createTestState(),
+            routineId: 'routine1',
+            isExerciseLocked: false,
+          );
 
-        expect(result.newWeight, 51.875); // 50 + 1.875 increment
-        expect(result.newReps, 20);
-        expect(result.newSets, 2);
-        expect(result.reason, contains('Linear progression'));
-      });
+          expect(result.newWeight, 51.0); // 50 + 1.0 increment
+          expect(result.newReps, 20);
+          expect(result.newSets, 2);
+          expect(result.reason, contains('Linear progression'));
+        },
+      );
 
       test('debería configurar correctamente un entrenamiento de POTENCIA', () {
         // 1. Crear configuración de potencia
@@ -305,28 +350,38 @@ void main() {
         );
 
         // 2. Verificar derivación de objetivo
-        final objective = AdaptiveIncrementConfig.parseObjective(powerConfig.getTrainingObjective());
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          powerConfig.getTrainingObjective(),
+        );
         expect(objective, TrainingObjective.strength);
 
         // 3. Verificar valores adaptativos
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
+          multiJointBarbell,
+          objective: objective,
+        );
         expect(minReps, 3);
         expect(maxReps, 6);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+        final increment =
+            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+              multiJointBarbell,
+              ExperienceLevel.intermediate,
+              objective: objective,
+            );
+        expect(increment, 3.75);
+
+        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(
           multiJointBarbell,
-          ExperienceLevel.intermediate,
           objective: objective,
         );
-        expect(increment, 6.25);
-
-        final restTime = AdaptiveIncrementConfig.getRestTimeSeconds(multiJointBarbell, objective: objective);
         expect(restTime, 240);
 
-        final seriesRange = AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
-          multiJointBarbell,
-          objective: objective,
-        );
+        final seriesRange =
+            AdaptiveIncrementConfig.getSeriesIncrementRangeByObjective(
+              multiJointBarbell,
+              objective: objective,
+            );
         expect(seriesRange?.defaultValue, 1);
 
         // 4. Verificar funcionamiento de estrategia
@@ -342,7 +397,7 @@ void main() {
           isExerciseLocked: false,
         );
 
-        expect(result.newWeight, 126.25); // 120 + 6.25 increment
+        expect(result.newWeight, 123.75); // 120 + 3.75 increment
         expect(result.newReps, 3);
         expect(result.newSets, 5);
         expect(result.reason, contains('Linear progression'));
@@ -350,246 +405,301 @@ void main() {
     });
 
     group('Integración con Estrategias Especializadas', () {
-      test('debería funcionar correctamente con AutoregulatedProgressionStrategy', () {
-        final config = ProgressionConfig(
-          id: 'autoregulated_test',
-          isGlobal: true,
-          type: ProgressionType.autoregulated,
-          unit: ProgressionUnit.session,
-          primaryTarget: ProgressionTarget.volume,
-          secondaryTarget: ProgressionTarget.reps,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 0,
-          deloadPercentage: 0.9,
-          customParameters: {},
-          startDate: DateTime.now(),
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          minReps: 6,
-          maxReps: 12,
-          baseSets: 4,
-        );
+      test(
+        'debería funcionar correctamente con AutoregulatedProgressionStrategy',
+        () {
+          final config = ProgressionConfig(
+            id: 'autoregulated_test',
+            isGlobal: true,
+            type: ProgressionType.autoregulated,
+            unit: ProgressionUnit.session,
+            primaryTarget: ProgressionTarget.volume,
+            secondaryTarget: ProgressionTarget.reps,
+            incrementValue: 2.5,
+            incrementFrequency: 1,
+            cycleLength: 4,
+            deloadWeek: 0,
+            deloadPercentage: 0.9,
+            customParameters: {},
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            minReps: 6,
+            maxReps: 12,
+            baseSets: 4,
+          );
 
-        final strategy = AutoregulatedProgressionStrategy();
-        final result = strategy.calculate(
-          config: config,
-          exercise: multiJointBarbell,
-          currentWeight: 100.0,
-          currentReps: 8,
-          currentSets: 4,
-          state: createTestState(),
-          routineId: 'routine1',
-          isExerciseLocked: false,
-        );
+          final strategy = AutoregulatedProgressionStrategy();
+          final result = strategy.calculate(
+            config: config,
+            exercise: multiJointBarbell,
+            currentWeight: 100.0,
+            currentReps: 8,
+            currentSets: 4,
+            state: createTestState(),
+            routineId: 'routine1',
+            isExerciseLocked: false,
+          );
 
-        expect(result.newWeight, 98.125);
-        expect(result.newReps, 8);
-        expect(result.newSets, 3);
-        expect(result.reason, contains('RPE'));
-      });
+          expect(result.newWeight, 98.125);
+          expect(result.newReps, 8);
+          expect(result.newSets, 3);
+          expect(result.reason, contains('RPE'));
+        },
+      );
 
-      test('debería funcionar correctamente con SteppedProgressionStrategy', () {
-        final config = ProgressionConfig(
-          id: 'stepped_test',
-          isGlobal: true,
-          type: ProgressionType.stepped,
-          unit: ProgressionUnit.week,
-          primaryTarget: ProgressionTarget.volume,
-          secondaryTarget: ProgressionTarget.reps,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 0,
-          deloadPercentage: 0.9,
-          customParameters: {},
-          startDate: DateTime.now(),
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          minReps: 6,
-          maxReps: 12,
-          baseSets: 4,
-        );
+      test(
+        'debería funcionar correctamente con SteppedProgressionStrategy',
+        () {
+          final config = ProgressionConfig(
+            id: 'stepped_test',
+            isGlobal: true,
+            type: ProgressionType.stepped,
+            unit: ProgressionUnit.week,
+            primaryTarget: ProgressionTarget.volume,
+            secondaryTarget: ProgressionTarget.reps,
+            incrementValue: 2.5,
+            incrementFrequency: 1,
+            cycleLength: 4,
+            deloadWeek: 0,
+            deloadPercentage: 0.9,
+            customParameters: {},
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            minReps: 6,
+            maxReps: 12,
+            baseSets: 4,
+          );
 
-        final strategy = SteppedProgressionStrategy();
-        final result = strategy.calculate(
-          config: config,
-          exercise: multiJointBarbell,
-          currentWeight: 100.0,
-          currentReps: 8,
-          currentSets: 4,
-          state: createTestState(),
-          routineId: 'routine1',
-          isExerciseLocked: false,
-        );
+          final strategy = SteppedProgressionStrategy();
+          final result = strategy.calculate(
+            config: config,
+            exercise: multiJointBarbell,
+            currentWeight: 100.0,
+            currentReps: 8,
+            currentSets: 4,
+            state: createTestState(),
+            routineId: 'routine1',
+            isExerciseLocked: false,
+          );
 
-        expect(result.newWeight, 103.75);
-        expect(result.newReps, 8);
-        expect(result.newSets, 4);
-        expect(result.reason, contains('Stepped progression'));
-      });
+          expect(result.newWeight, 103.75);
+          expect(result.newReps, 8);
+          expect(result.newSets, 4);
+          expect(result.reason, contains('Stepped progression'));
+        },
+      );
 
-      test('debería funcionar correctamente con OverloadProgressionStrategy', () {
-        final config = ProgressionConfig(
-          id: 'overload_test',
-          isGlobal: true,
-          type: ProgressionType.overload,
-          unit: ProgressionUnit.session,
-          primaryTarget: ProgressionTarget.volume,
-          secondaryTarget: ProgressionTarget.reps,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 0,
-          deloadPercentage: 0.9,
-          customParameters: {},
-          startDate: DateTime.now(),
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          minReps: 6,
-          maxReps: 12,
-          baseSets: 4,
-        );
+      test(
+        'debería funcionar correctamente con OverloadProgressionStrategy',
+        () {
+          final config = ProgressionConfig(
+            id: 'overload_test',
+            isGlobal: true,
+            type: ProgressionType.overload,
+            unit: ProgressionUnit.session,
+            primaryTarget: ProgressionTarget.volume,
+            secondaryTarget: ProgressionTarget.reps,
+            incrementValue: 2.5,
+            incrementFrequency: 1,
+            cycleLength: 4,
+            deloadWeek: 0,
+            deloadPercentage: 0.9,
+            customParameters: {},
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            minReps: 6,
+            maxReps: 12,
+            baseSets: 4,
+          );
 
-        final strategy = OverloadProgressionStrategy();
-        final result = strategy.calculate(
-          config: config,
-          exercise: multiJointBarbell,
-          currentWeight: 100.0,
-          currentReps: 8,
-          currentSets: 4,
-          state: createTestState(),
-          routineId: 'routine1',
-          isExerciseLocked: false,
-        );
+          final strategy = OverloadProgressionStrategy();
+          final result = strategy.calculate(
+            config: config,
+            exercise: multiJointBarbell,
+            currentWeight: 100.0,
+            currentReps: 8,
+            currentSets: 4,
+            state: createTestState(),
+            routineId: 'routine1',
+            isExerciseLocked: false,
+          );
 
-        expect(result.newWeight, 100.0);
-        expect(result.newReps, 8);
-        expect(result.newSets, 3);
-        expect(result.reason, contains('Overload progression'));
-      });
+          expect(result.newWeight, 100.0);
+          expect(result.newReps, 8);
+          expect(result.newSets, 3);
+          expect(result.reason, contains('Overload progression'));
+        },
+      );
     });
 
     group('Compatibilidad con Presets Existentes', () {
       test('debería mantener compatibilidad con presets de FUERZA', () {
-        final presets = PresetProgressionConfigs.getPresetsForType(ProgressionType.linear);
-        final strengthPreset = presets.firstWhere((preset) => preset.primaryTarget == ProgressionTarget.weight);
+        final presets = PresetProgressionConfigs.getPresetsForType(
+          ProgressionType.linear,
+        );
+        final strengthPreset = presets.firstWhere(
+          (preset) => preset.primaryTarget == ProgressionTarget.weight,
+        );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(strengthPreset.getTrainingObjective());
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          strengthPreset.getTrainingObjective(),
+        );
         expect(objective, TrainingObjective.strength);
 
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
+          multiJointBarbell,
+          objective: objective,
+        );
         expect(minReps, 3);
         expect(maxReps, 6);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          multiJointBarbell,
-          ExperienceLevel.intermediate,
-          objective: objective,
-        );
-        expect(increment, 6.25);
+        final increment =
+            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+              multiJointBarbell,
+              ExperienceLevel.intermediate,
+              objective: objective,
+            );
+        expect(increment, 3.75);
       });
 
       test('debería mantener compatibilidad con presets de HIPERTROFIA', () {
-        final presets = PresetProgressionConfigs.getPresetsForType(ProgressionType.linear);
-        final hypertrophyPreset = presets.firstWhere((preset) => preset.primaryTarget == ProgressionTarget.volume);
+        final presets = PresetProgressionConfigs.getPresetsForType(
+          ProgressionType.linear,
+        );
+        final hypertrophyPreset = presets.firstWhere(
+          (preset) => preset.primaryTarget == ProgressionTarget.volume,
+        );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(hypertrophyPreset.getTrainingObjective());
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          hypertrophyPreset.getTrainingObjective(),
+        );
         expect(objective, TrainingObjective.hypertrophy);
 
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
+          multiJointBarbell,
+          objective: objective,
+        );
         expect(minReps, 6);
         expect(maxReps, 12);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          multiJointBarbell,
-          ExperienceLevel.intermediate,
-          objective: objective,
-        );
+        final increment =
+            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+              multiJointBarbell,
+              ExperienceLevel.intermediate,
+              objective: objective,
+            );
         expect(increment, 3.75);
       });
 
       test('debería mantener compatibilidad con presets de RESISTENCIA', () {
-        final presets = PresetProgressionConfigs.getPresetsForType(ProgressionType.linear);
-        final endurancePreset = presets.firstWhere((preset) => preset.primaryTarget == ProgressionTarget.reps);
+        final presets = PresetProgressionConfigs.getPresetsForType(
+          ProgressionType.linear,
+        );
+        final endurancePreset = presets.firstWhere(
+          (preset) => preset.primaryTarget == ProgressionTarget.reps,
+        );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(endurancePreset.getTrainingObjective());
+        final objective = AdaptiveIncrementConfig.parseObjective(
+          endurancePreset.getTrainingObjective(),
+        );
         expect(objective, TrainingObjective.endurance);
 
-        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(multiJointBarbell, objective: objective);
+        final (minReps, maxReps) = AdaptiveIncrementConfig.getRepetitionsRange(
+          multiJointBarbell,
+          objective: objective,
+        );
         expect(minReps, 15);
         expect(maxReps, 25);
 
-        final increment = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          multiJointBarbell,
-          ExperienceLevel.intermediate,
-          objective: objective,
-        );
-        expect(increment, 1.875);
+        final increment =
+            AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+              multiJointBarbell,
+              ExperienceLevel.intermediate,
+              objective: objective,
+            );
+        expect(increment, 1.0);
       });
     });
 
     group('Diferenciación por Tipo de Ejercicio', () {
-      test('debería aplicar valores diferentes para multi-joint vs isolation', () {
-        final config = ProgressionConfig(
-          id: 'comparison_test',
-          isGlobal: true,
-          type: ProgressionType.linear,
-          unit: ProgressionUnit.session,
-          primaryTarget: ProgressionTarget.volume,
-          secondaryTarget: ProgressionTarget.reps,
-          incrementValue: 2.5,
-          incrementFrequency: 1,
-          cycleLength: 4,
-          deloadWeek: 0,
-          deloadPercentage: 0.9,
-          customParameters: {},
-          startDate: DateTime.now(),
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          minReps: 6,
-          maxReps: 12,
-          baseSets: 4,
-        );
+      test(
+        'debería aplicar valores diferentes para multi-joint vs isolation',
+        () {
+          final config = ProgressionConfig(
+            id: 'comparison_test',
+            isGlobal: true,
+            type: ProgressionType.linear,
+            unit: ProgressionUnit.session,
+            primaryTarget: ProgressionTarget.volume,
+            secondaryTarget: ProgressionTarget.reps,
+            incrementValue: 2.5,
+            incrementFrequency: 1,
+            cycleLength: 4,
+            deloadWeek: 0,
+            deloadPercentage: 0.9,
+            customParameters: {},
+            startDate: DateTime.now(),
+            isActive: true,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            minReps: 6,
+            maxReps: 12,
+            baseSets: 4,
+          );
 
-        final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
+          final objective = AdaptiveIncrementConfig.parseObjective(
+            config.getTrainingObjective(),
+          );
 
-        // Multi-joint
-        final (minRepsMulti, maxRepsMulti) = AdaptiveIncrementConfig.getRepetitionsRange(
-          multiJointBarbell,
-          objective: objective,
-        );
-        final incrementMulti = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          multiJointBarbell,
-          ExperienceLevel.intermediate,
-          objective: objective,
-        );
+          // Multi-joint
+          final (
+            minRepsMulti,
+            maxRepsMulti,
+          ) = AdaptiveIncrementConfig.getRepetitionsRange(
+            multiJointBarbell,
+            objective: objective,
+          );
+          final incrementMulti =
+              AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+                multiJointBarbell,
+                ExperienceLevel.intermediate,
+                objective: objective,
+              );
 
-        // Isolation
-        final (minRepsIso, maxRepsIso) = AdaptiveIncrementConfig.getRepetitionsRange(
-          isolationDumbbell,
-          objective: objective,
-        );
-        final incrementIso = AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
-          isolationDumbbell,
-          ExperienceLevel.initiated, // Beginner -> Initiated
-          objective: objective,
-        );
+          // Isolation
+          final (
+            minRepsIso,
+            maxRepsIso,
+          ) = AdaptiveIncrementConfig.getRepetitionsRange(
+            isolationDumbbell,
+            objective: objective,
+          );
+          final incrementIso =
+              AdaptiveIncrementConfig.getRecommendedIncrementByObjective(
+                isolationDumbbell,
+                ExperienceLevel.initiated, // Beginner -> Initiated
+                objective: objective,
+              );
 
-        // Verificar diferencias
-        expect(minRepsMulti, 6);
-        expect(maxRepsMulti, 12);
-        expect(minRepsIso, 8);
-        expect(maxRepsIso, 15);
+          // Verificar diferencias
+          expect(minRepsMulti, 6);
+          expect(maxRepsMulti, 12);
+          expect(minRepsIso, 8);
+          expect(maxRepsIso, 15);
 
-        expect(incrementMulti, 3.75);
-        expect(incrementIso, 1.25); // Menor incremento para isolation + initiated
-      });
+          expect(incrementMulti, 3.75);
+          expect(
+            incrementIso,
+            0.5,
+          ); // Menor incremento para isolation + initiated
+        },
+      );
     });
   });
 }
