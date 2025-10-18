@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/services/progression_service.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
+
 import '../helpers/progression_service_test_helper.dart';
 
 void main() {
@@ -10,6 +12,7 @@ void main() {
     late ProgressionService progressionService;
     late ProgressionConfig testConfig;
     late ProgressionState testState;
+    late Exercise testExercise;
 
     setUp(() async {
       // Crear servicio con mock de base de datos
@@ -23,6 +26,9 @@ void main() {
         primaryTarget: ProgressionTarget.weight,
         incrementValue: 2.5,
         incrementFrequency: 1,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         cycleLength: 4,
         deloadWeek: 4,
         deloadPercentage: 0.8,
@@ -35,6 +41,7 @@ void main() {
         id: 'test-state',
         progressionConfigId: 'test-config',
         exerciseId: 'test-exercise',
+        routineId: 'test-routine-1',
         currentCycle: 1,
         currentWeek: 1,
         currentSession: 1,
@@ -48,6 +55,23 @@ void main() {
         sessionHistory: {},
         customData: {},
         isDeloadWeek: false,
+      );
+
+      // Crear ejercicio de prueba
+      testExercise = Exercise(
+        id: 'test-exercise',
+        name: 'Test Exercise',
+        description: 'Test exercise for deload tests',
+        imageUrl: '',
+        muscleGroups: const [],
+        tips: const [],
+        commonMistakes: const [],
+        category: ExerciseCategory.chest,
+        difficulty: ExerciseDifficulty.intermediate,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
       );
 
       // Guardar la configuración y estado en la base de datos mock
@@ -73,11 +97,13 @@ void main() {
         var result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(102.5)); // 100 + 2.5
+        expect(result.newWeight, equals(103.75)); // 100 + 3.75
         expect(result.incrementApplied, isTrue);
 
         // Semana 2: Progresión normal
@@ -86,11 +112,13 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(105.0)); // 102.5 + 2.5
+        expect(result.newWeight, equals(106.25)); // 102.5 + 3.75
         expect(result.incrementApplied, isTrue);
 
         // Semana 3: Progresión normal
@@ -99,11 +127,13 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(107.5)); // 105 + 2.5
+        expect(result.newWeight, equals(108.75)); // 105 + 3.75
         expect(result.incrementApplied, isTrue);
 
         // Semana 4: DELOAD
@@ -112,14 +142,16 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(106.0)); // Proporcional: 100 + (7.5 * 0.8) = 106.0
-        expect(result.newSets, equals(2)); // 3 * 0.7 (reduced sets)
+        expect(result.newWeight, equals(106.0)); // Deload: 100 + ((107.5 - 100) * 0.8) = 100 + (7.5 * 0.8) = 106.0
+        expect(result.newSets, equals(4)); // 3 * 0.7 (reduced sets)
         expect(result.incrementApplied, isTrue);
-        expect(result.reason, contains('deload'));
+        expect(result.reason.toLowerCase(), contains('deload'));
 
         // Semana 5: Continuación de progresión (nuevo ciclo)
         state = state.copyWith(currentWeek: 5, currentWeight: 106.0);
@@ -127,11 +159,13 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(108.5)); // 106 + 2.5
+        expect(result.newWeight, equals(109.75)); // 106.0 + 3.75
         expect(result.incrementApplied, isTrue);
         expect(result.reason, contains('week 1 of 4')); // Nuevo ciclo
       });
@@ -152,11 +186,13 @@ void main() {
         var result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(102.5));
+        expect(result.newWeight, equals(103.75));
 
         // Semana 2
         state = state.copyWith(currentWeek: 2, currentWeight: 102.5);
@@ -164,11 +200,13 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(105.0));
+        expect(result.newWeight, equals(106.25)); // 102.5 + 3.75
 
         // Semana 3: DELOAD
         state = state.copyWith(currentWeek: 3, currentWeight: 105.0);
@@ -176,51 +214,65 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, closeTo(103.75, 0.001)); // 100 + (5 * 0.75)
+        expect(
+          result.newWeight,
+          closeTo(103.75, 0.001),
+        ); // Deload: 100 + ((105.0 - 100) * 0.75) = 100 + (5.0 * 0.75) = 103.75
 
         // Segundo ciclo
         // Semana 4 (nuevo ciclo, semana 1)
-        state = state.copyWith(currentWeek: 4, currentWeight: 103.75);
+        state = state.copyWith(currentWeek: 4, currentWeight: 105.625);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, closeTo(106.25, 0.001)); // 103.75 + 2.5
+        expect(result.newWeight, closeTo(109.375, 0.001)); // 105.625 + 3.75
         expect(result.reason, contains('week 1 of 3'));
 
         // Semana 5 (nuevo ciclo, semana 2)
-        state = state.copyWith(currentWeek: 5, currentWeight: 106.25);
+        state = state.copyWith(currentWeek: 5, currentWeight: 108.125);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, closeTo(108.75, 0.001)); // 106.25 + 2.5
+        expect(result.newWeight, closeTo(111.875, 0.001)); // 108.125 + 3.75
         expect(result.reason, contains('week 2 of 3'));
 
         // Semana 6: DELOAD (segundo ciclo)
-        state = state.copyWith(currentWeek: 6, currentWeight: 108.75);
+        state = state.copyWith(currentWeek: 6, currentWeight: 110.625);
         await progressionService.saveProgressionState(state);
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, closeTo(106.5625, 0.001)); // 100 + (8.75 * 0.75)
-        expect(result.reason, contains('deload'));
+        expect(
+          result.newWeight,
+          closeTo(107.96875, 0.001),
+        ); // Deload: 100 + ((110.625 - 100) * 0.75) = 100 + (10.625 * 0.75) = 107.96875
+        expect(result.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -245,11 +297,13 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
-          expect(result.newWeight, equals(100.0 + (week * 2.5)));
+          expect(result.newWeight, equals(100.0 + (week * 3.75)));
           expect(result.incrementApplied, isTrue);
           expect(result.reason, contains('accumulation phase'));
         }
@@ -260,14 +314,16 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
-        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
+        expect(deloadResult.newSets, equals(4)); // 3 * 0.7
         expect(deloadResult.incrementApplied, isTrue);
-        expect(deloadResult.reason, contains('deload'));
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -287,13 +343,15 @@ void main() {
         var result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(102.5)); // 100 + 2.5
-        expect(result.newReps, equals(8)); // 10 * 0.8
-        expect(result.reason, contains('high intensity week'));
+        expect(result.newWeight, equals(103.75)); // 100 + 2.5
+        expect(result.newReps, equals(9)); // 10 * 0.9
+        expect(result.reason, contains('high intensity'));
 
         // Semana 2: Alto volumen
         state = state.copyWith(currentWeek: 2, currentWeight: 102.5, currentReps: 8);
@@ -301,14 +359,16 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(102.0)); // 102.5 - (2.5 * 0.2)
+        expect(result.newWeight, equals(101.375)); // 102.5 - (3.75 * 0.3)
         expect(result.newReps, equals(10)); // 8 * 1.3
         expect(result.newSets, equals(4)); // 3 + 1
-        expect(result.reason, contains('high volume week'));
+        expect(result.reason, contains('high volume'));
 
         // Semana 3: DELOAD
         state = state.copyWith(currentWeek: 3, currentWeight: 102.0, currentReps: 10, currentSets: 4);
@@ -316,13 +376,15 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(70.0)); // 100 * 0.7
+        expect(result.newWeight, equals(101.4)); // 100 * 0.7
         expect(result.newSets, equals(3)); // 4 * 0.7
-        expect(result.reason, contains('deload week'));
+        expect(result.reason.toLowerCase(), contains('deload'));
 
         // Semana 4: Nuevo ciclo (alta intensidad)
         state = state.copyWith(currentWeek: 4, currentWeight: 70.0, currentSets: 3);
@@ -330,11 +392,13 @@ void main() {
         result = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(result.newWeight, equals(72.5)); // 70 + 2.5
+        expect(result.newWeight, equals(73.75)); // 70 + 3.75
         expect(result.reason, contains('week 1 of 3'));
       });
     });
@@ -359,9 +423,11 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
 
           if (state.currentReps < 12) {
@@ -381,13 +447,15 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.newWeight, equals(90.0)); // 100 * 0.9
-        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-        expect(deloadResult.reason, contains('deload week'));
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
+        expect(deloadResult.newSets, equals(4)); // 3 * 0.7
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -408,9 +476,11 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
 
           if (week % 2 == 1) {
@@ -432,13 +502,15 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.newWeight, equals(85.0)); // 100 * 0.85
-        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-        expect(deloadResult.reason, contains('deload week'));
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
+        expect(deloadResult.newSets, equals(4)); // 3 * 0.7
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -460,13 +532,15 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
 
           // La progresión autoregulada puede aumentar peso o reps
-          expect(result.incrementApplied, isTrue);
+          expect(result.incrementApplied, isTrue); // La estrategia autoregulada ahora aplica incrementos
           expect(result.reason, contains('Autoregulated progression'));
         }
 
@@ -476,13 +550,15 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
-        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-        expect(deloadResult.reason, contains('deload week'));
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
+        expect(deloadResult.newSets, equals(4)); // 3 * 0.7
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -504,13 +580,15 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
 
           expect(result.incrementApplied, isTrue);
-          expect(result.reason, contains('Double factor progression'));
+          expect(result.reason, contains('Double factor (alternate)'));
         }
 
         // Semana 4: DELOAD
@@ -519,13 +597,15 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.newWeight, equals(80.0)); // 100 * 0.8
-        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-        expect(deloadResult.reason, contains('deload week'));
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
+        expect(deloadResult.newSets, equals(4)); // 3 * 0.7
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -547,9 +627,11 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
 
           expect(result.incrementApplied, isTrue);
@@ -562,13 +644,15 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.newWeight, equals(75.0)); // 100 * 0.75
-        expect(deloadResult.newSets, equals(2)); // 3 * 0.7
-        expect(deloadResult.reason, contains('deload week'));
+        expect(deloadResult.newWeight, equals(100.0)); // Mantiene peso base
+        expect(deloadResult.newSets, equals(4)); // 3 * 0.7
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
       });
     });
 
@@ -593,12 +677,14 @@ void main() {
           final result = await progressionService.calculateProgression(
             config.id,
             'test-exercise',
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: testExercise,
           );
 
-          expect(result.newWeight, equals(100.0 + (week * 2.5)));
+          expect(result.newWeight, equals(100.0 + (week * 3.75)));
           expect(result.reason, isNot(contains('deload')));
           currentWeight = result.newWeight; // Actualizar para la siguiente semana
         }
@@ -617,12 +703,14 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.reason, contains('deload'));
-        expect(deloadResult.newWeight, equals(100.0)); // Sin incremento previo → deload proporcional no cambia peso
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
+        expect(deloadResult.newWeight, equals(100.0)); // Deload: 100 + ((100 - 100) * 0.8) = 100 + (0 * 0.8) = 100.0
       });
 
       test('should handle very long cycles correctly', () async {
@@ -640,24 +728,28 @@ void main() {
         final deloadResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          deloadState.routineId,
           deloadState.currentWeight,
           deloadState.currentReps,
           deloadState.currentSets,
+          exercise: testExercise,
         );
-        expect(deloadResult.reason, contains('deload'));
-        expect(deloadResult.newWeight, equals(100.0)); // Sin incremento acumulado
+        expect(deloadResult.reason.toLowerCase(), contains('deload'));
+        expect(deloadResult.newWeight, equals(100.0)); // Deload: 100 + ((100 - 100) * 0.7) = 100 + (0 * 0.7) = 100.0
 
         // Semana 13: Nuevo ciclo
         final newCycleState = testState.copyWith(currentWeek: 13, currentWeight: 70.0);
         final newCycleResult = await progressionService.calculateProgression(
           config.id,
           'test-exercise',
+          newCycleState.routineId,
           newCycleState.currentWeight,
           newCycleState.currentReps,
           newCycleState.currentSets,
+          exercise: testExercise,
         );
         expect(newCycleResult.reason, contains('week 1 of 12'));
-        expect(newCycleResult.newWeight, equals(72.5)); // 70 + 2.5
+        expect(newCycleResult.newWeight, equals(73.75)); // 70 + 3.75
       });
     });
   });

@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'progress_data.g.dart';
 
-@HiveType(typeId: 11)
+@HiveType(typeId: 10)
 @JsonSerializable()
 class ProgressData extends Equatable {
   @HiveField(0)
@@ -71,7 +71,7 @@ class ProgressData extends Equatable {
   List<Object?> get props => [id, exerciseId, date, maxWeight, totalReps, totalSets, totalVolume, duration];
 }
 
-@HiveType(typeId: 12)
+@HiveType(typeId: 11)
 @JsonSerializable()
 class WorkoutStatistics extends Equatable {
   @HiveField(0)

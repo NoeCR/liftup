@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/common/enums/week_day_enum.dart';
-import 'package:liftly/features/progression/models/progression_config.dart';
-import 'package:liftly/features/home/models/routine.dart';
-import 'package:liftly/features/exercise/models/exercise.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
 import 'package:liftly/common/enums/muscle_group_enum.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/common/enums/week_day_enum.dart';
+import 'package:liftly/features/exercise/models/exercise.dart';
+import 'package:liftly/features/home/models/routine.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
 
 void main() {
   group('Session Frequency Progression Tests', () {
@@ -26,6 +26,9 @@ void main() {
         cycleLength: 4,
         deloadWeek: 4,
         deloadPercentage: 0.8,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         isActive: true,
         startDate: DateTime.now(),
         createdAt: DateTime.now(),
@@ -45,6 +48,9 @@ void main() {
         cycleLength: 4,
         deloadWeek: 4,
         deloadPercentage: 0.8,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         isActive: true,
         startDate: DateTime.now(),
         createdAt: DateTime.now(),
@@ -275,6 +281,9 @@ void main() {
           cycleLength: 4,
           deloadWeek: 4,
           deloadPercentage: 0.8,
+          minReps: 8,
+          maxReps: 12,
+          baseSets: 3,
           isActive: true,
           startDate: DateTime.now(),
           createdAt: DateTime.now(),
@@ -301,6 +310,9 @@ void main() {
             cycleLength: 4,
             deloadWeek: 4,
             deloadPercentage: 0.8,
+            minReps: 8,
+            maxReps: 12,
+            baseSets: 3,
             isActive: true,
             startDate: DateTime.now(),
             createdAt: DateTime.now(),
@@ -319,6 +331,9 @@ void main() {
             cycleLength: 4,
             deloadWeek: 4,
             deloadPercentage: 0.8,
+            minReps: 8,
+            maxReps: 12,
+            baseSets: 3,
             isActive: true,
             startDate: DateTime.now(),
             createdAt: DateTime.now(),
@@ -337,6 +352,9 @@ void main() {
             cycleLength: 4,
             deloadWeek: 4,
             deloadPercentage: 0.8,
+            minReps: 8,
+            maxReps: 12,
+            baseSets: 3,
             isActive: true,
             startDate: DateTime.now(),
             createdAt: DateTime.now(),

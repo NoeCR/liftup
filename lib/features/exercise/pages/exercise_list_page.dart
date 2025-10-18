@@ -490,6 +490,8 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
         difficulty: difficulty,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint, // Valor por defecto
+        loadType: LoadType.barbell, // Valor por defecto
       );
 
       await ref.read(exerciseNotifierProvider.notifier).addExercise(exercise);

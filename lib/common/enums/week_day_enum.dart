@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'week_day_enum.g.dart';
 
-@HiveType(typeId: 10)
+@HiveType(typeId: 9)
 enum WeekDay {
   @HiveField(0)
   monday,

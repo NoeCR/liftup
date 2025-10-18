@@ -1,19 +1,25 @@
+import 'dart:async';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../notifiers/session_notifier.dart';
-import '../../../common/widgets/custom_bottom_navigation.dart';
-import '../../sessions/models/workout_session.dart';
-import 'dart:async';
-import '../../home/notifiers/selected_routine_provider.dart';
-import '../../home/notifiers/routine_notifier.dart';
-import '../../home/models/routine.dart';
-import '../../exercise/notifiers/exercise_notifier.dart';
-import '../../exercise/models/exercise.dart';
-import '../../home/widgets/exercise_card_wrapper.dart';
-import '../../progression/widgets/progression_status_widget.dart';
-import '../../../common/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
+
+import '../../../common/enums/progression_type_enum.dart';
+import '../../../common/themes/app_theme.dart';
+import '../../../common/widgets/custom_bottom_navigation.dart';
+import '../../../common/widgets/section_header.dart';
+import '../../exercise/models/exercise.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../home/models/routine.dart';
+import '../../home/notifiers/routine_notifier.dart';
+import '../../home/notifiers/selected_routine_provider.dart';
+import '../../home/widgets/exercise_card_wrapper.dart';
+import '../../progression/notifiers/progression_notifier.dart';
+import '../../progression/widgets/progression_status_widget.dart';
+import '../../sessions/models/workout_session.dart';
+import '../notifiers/session_notifier.dart';
+import '../utils/exercise_search_helper.dart';
 
 class SessionPage extends ConsumerStatefulWidget {
   const SessionPage({super.key});
@@ -24,22 +30,35 @@ class SessionPage extends ConsumerStatefulWidget {
 
 class _SessionPageState extends ConsumerState<SessionPage> {
   Timer? _ticker;
-  int _elapsedSeconds = 0;
+  final ValueNotifier<int> _elapsedSecondsVN = ValueNotifier(0);
   bool _isManuallyPaused = false;
   bool _sessionJustCompleted = false;
+
+  /// Creates a sorted list of routine exercises with their corresponding Exercise objects
+  List<({RoutineExercise routineExercise, Exercise exercise})> _createSortedExerciseList(
+    List<RoutineExercise> routineExercises,
+    List<Exercise> exercises,
+    BuildContext context,
+  ) {
+    return ExerciseSearchHelper.createSortedExerciseList(
+      routineExercises,
+      exercises,
+      defaultName: context.tr('exercises.title'),
+      sortType: ExerciseSortType.lastPerformed,
+    );
+  }
 
   @override
   void dispose() {
     _ticker?.cancel();
+    _elapsedSecondsVN.dispose();
     super.dispose();
   }
 
   void _startTicker() {
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        _elapsedSeconds += 1;
-      });
+      _elapsedSecondsVN.value += 1;
     });
   }
 
@@ -80,7 +99,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               if (_sessionJustCompleted) {
                 // Show no-session state immediately after finishing
                 _stopTicker();
-                _elapsedSeconds = 0;
+                _elapsedSecondsVN.value = 0;
                 _isManuallyPaused = false;
                 // Limpiar bandera una vez renderizado
                 WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -99,7 +118,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
               if (activeSession == null) {
                 _stopTicker();
-                _elapsedSeconds = 0;
+                _elapsedSecondsVN.value = 0;
                 _isManuallyPaused = false;
                 return _buildNoActiveSession();
               }
@@ -107,14 +126,14 @@ class _SessionPageState extends ConsumerState<SessionPage> {
               // If active and no ticker, compute clean base and start
               if (_ticker == null && activeSession.status == SessionStatus.active && !_isManuallyPaused) {
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                _elapsedSeconds = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
+                _elapsedSecondsVN.value = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
                 _startTicker();
               }
               // If paused, stop ticker and keep displayed _elapsedSeconds
               if (activeSession.status == SessionStatus.paused) {
                 _stopTicker();
                 final notifier = ref.read(sessionNotifierProvider.notifier);
-                _elapsedSeconds = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
+                _elapsedSecondsVN.value = notifier.calculateElapsedForUI(activeSession, now: DateTime.now());
               }
 
               return _buildActiveSession(activeSession);
@@ -178,13 +197,18 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             ),
           ),
           const SizedBox(height: AppTheme.spacingS),
-          Text(
-            _formatHms(_elapsedSeconds),
-            style: theme.textTheme.headlineLarge?.copyWith(
-              color: colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
+          ValueListenableBuilder<int>(
+            valueListenable: _elapsedSecondsVN,
+            builder: (context, elapsedSeconds, child) {
+              return Text(
+                _formatHms(elapsedSeconds),
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -223,68 +247,61 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                   itemBuilder: (context, index) {
                     final section = routine!.sections[index];
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: AppTheme.spacingS),
-                          child: Text(
-                            section.name,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-                          ),
+                        SectionHeader(
+                          title: section.name,
+                          isCollapsed: section.isCollapsed,
+                          iconName: section.iconName,
+                          muscleGroup: section.muscleGroup,
+                          onToggleCollapsed: () {
+                            ref.read(routineNotifierProvider.notifier).toggleSectionCollapsed(section.id);
+                          },
                         ),
-                        if (section.exercises.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
-                            child: Text(
-                              context.tr('session.noExercises'),
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontStyle: FontStyle.italic,
+                        if (!section.isCollapsed) ...[
+                          if (section.exercises.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: AppTheme.spacingM),
+                              child: Text(
+                                context.tr('session.noExercises'),
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            )
+                          else
+                            SizedBox(
+                              height: 360,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
+                                itemCount: _createSortedExerciseList(section.exercises, exercises, context).length,
+                                itemBuilder: (context, idx) {
+                                  final sortedExerciseList = _createSortedExerciseList(
+                                    section.exercises,
+                                    exercises,
+                                    context,
+                                  );
+                                  final exerciseData = sortedExerciseList[idx];
+                                  final re = exerciseData.routineExercise;
+                                  final ex = exerciseData.exercise;
+
+                                  return SizedBox(
+                                    width: 320,
+                                    child: ExerciseCardWrapper(
+                                      routineExercise: re,
+                                      exercise: ex,
+                                      showSetsControls: true,
+                                      routineId: session.routineId,
+                                      onTap: () {
+                                        // Long press functionality for exercise details
+                                      },
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                          )
-                        else
-                          SizedBox(
-                            height: 360,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
-                              itemCount: section.exercises.length,
-                              itemBuilder: (context, idx) {
-                                final re = section.exercises[idx];
-                                final ex = exercises.firstWhere(
-                                  (e) => e.id == re.exerciseId,
-                                  orElse:
-                                      () => Exercise(
-                                        id: '',
-                                        name: context.tr('exercises.title'),
-                                        description: '',
-                                        imageUrl: '',
-                                        muscleGroups: const [],
-                                        tips: const [],
-                                        commonMistakes: const [],
-                                        category: ExerciseCategory.fullBody,
-                                        difficulty: ExerciseDifficulty.beginner,
-                                        createdAt: DateTime.now(),
-                                        updatedAt: DateTime.now(),
-                                      ),
-                                );
-
-                                return SizedBox(
-                                  width: 320,
-                                  child: ExerciseCardWrapper(
-                                    routineExercise: re,
-                                    exercise: ex,
-                                    showSetsControls: true,
-                                    onTap: () {
-                                      // Long press functionality for exercise details
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        const SizedBox(height: AppTheme.spacingL),
+                        ],
                       ],
                     );
                   },
@@ -321,7 +338,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                   _isManuallyPaused = false;
                   await ref.read(sessionNotifierProvider.notifier).resumeSession();
                   final notifier = ref.read(sessionNotifierProvider.notifier);
-                  _elapsedSeconds = notifier.calculateElapsedForUI(session, now: DateTime.now());
+                  _elapsedSecondsVN.value = notifier.calculateElapsedForUI(session, now: DateTime.now());
                   _startTicker();
                   ref.invalidate(sessionNotifierProvider);
                 }
@@ -341,13 +358,64 @@ class _SessionPageState extends ConsumerState<SessionPage> {
             child: FilledButton.icon(
               onPressed: () async {
                 _stopTicker();
+                final progressionConfig = await ref.read(progressionNotifierProvider.future);
+                bool applyNext = true;
+                if (progressionConfig != null) {
+                  final isWeekly = progressionConfig.unit == ProgressionUnit.week;
+                  final isEndOfWeek = DateTime.now().weekday == DateTime.sunday;
+                  final shouldAsk = !isWeekly || (isWeekly && isEndOfWeek);
+                  if (shouldAsk && mounted) {
+                    applyNext =
+                        await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) {
+                            return AlertDialog(
+                              title: Text(ctx.tr('progression.confirmApplyTitle')),
+                              content: Text(ctx.tr('progression.confirmApplyMessage')),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  child: Text(ctx.tr('common.keepValues')),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  child: Text(ctx.tr('progression.applyNextSession')),
+                                ),
+                              ],
+                            );
+                          },
+                        ) ??
+                        true;
+                  }
+                }
+
+                // Persist skip flag per routine if user decides to keep values
+                try {
+                  final activeSession = await ref.read(sessionNotifierProvider.notifier).getCurrentOngoingSession();
+                  final routineId = activeSession?.routineId;
+                  if (routineId != null) {
+                    final routine = (await ref.read(
+                      routineNotifierProvider.future,
+                    )).firstWhere((r) => r.id == routineId);
+                    final exerciseIds =
+                        routine.sections.expand((s) => s.exercises.map((e) => e.exerciseId)).toSet().toList();
+                    await ref
+                        .read(progressionNotifierProvider.notifier)
+                        .setSkipNextProgressionForRoutine(
+                          routineId: routineId,
+                          exerciseIds: exerciseIds,
+                          skip: !applyNext,
+                        );
+                  }
+                } catch (_) {}
+
                 await ref.read(sessionNotifierProvider.notifier).completeSession();
                 if (!mounted) return;
                 setState(() {
                   _isManuallyPaused = false;
-                  _elapsedSeconds = 0;
                   _sessionJustCompleted = true;
                 });
+                _elapsedSecondsVN.value = 0;
                 // Forzar recarga de sesiones para ocultar controles
                 ref.invalidate(sessionNotifierProvider);
                 ScaffoldMessenger.of(

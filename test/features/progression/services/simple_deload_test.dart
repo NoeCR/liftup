@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/progression/services/progression_service.dart';
-import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/models/progression_config.dart';
+import 'package:liftly/features/progression/services/progression_service.dart';
 
 void main() {
   group('Simple Deload Tests', () {
@@ -111,6 +111,9 @@ void main() {
         cycleLength: 4,
         deloadWeek: 4,
         deloadPercentage: 0.8,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         isActive: true,
         startDate: DateTime.now(),
         createdAt: DateTime.now(),
@@ -176,6 +179,9 @@ void main() {
           cycleLength: 4,
           deloadWeek: 4,
           deloadPercentage: 0.8,
+          minReps: 8,
+          maxReps: 12,
+          baseSets: 3,
           isActive: true,
           startDate: DateTime.now(),
           createdAt: DateTime.now(),
@@ -200,6 +206,9 @@ void main() {
         cycleLength: 4,
         deloadWeek: 0, // No deload
         deloadPercentage: 0.8,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         isActive: true,
         startDate: DateTime.now(),
         createdAt: DateTime.now(),
@@ -221,6 +230,9 @@ void main() {
         cycleLength: 12,
         deloadWeek: 12,
         deloadPercentage: 0.7,
+        minReps: 8,
+        maxReps: 12,
+        baseSets: 3,
         isActive: true,
         startDate: DateTime.now(),
         createdAt: DateTime.now(),

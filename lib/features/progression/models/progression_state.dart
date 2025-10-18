@@ -1,10 +1,10 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'progression_state.g.dart';
 
-@HiveType(typeId: 24)
+@HiveType(typeId: 19)
 @JsonSerializable()
 class ProgressionState extends Equatable {
   @HiveField(0)
@@ -17,51 +17,55 @@ class ProgressionState extends Equatable {
   final String exerciseId;
 
   @HiveField(3)
-  final int currentCycle;
+  final String routineId;
 
   @HiveField(4)
-  final int currentWeek;
+  final int currentCycle;
 
   @HiveField(5)
-  final int currentSession;
+  final int currentWeek;
 
   @HiveField(6)
-  final double currentWeight;
+  final int currentSession;
 
   @HiveField(7)
-  final int currentReps;
+  final double currentWeight;
 
   @HiveField(8)
-  final int currentSets;
+  final int currentReps;
 
   @HiveField(9)
-  final double baseWeight;
+  final int currentSets;
 
   @HiveField(10)
-  final int baseReps;
+  final double baseWeight;
 
   @HiveField(11)
-  final int baseSets;
+  final int baseReps;
 
   @HiveField(12)
-  final Map<String, dynamic> sessionHistory;
+  final int baseSets;
 
   @HiveField(13)
-  final DateTime lastUpdated;
+  final Map<String, dynamic> sessionHistory;
 
   @HiveField(14)
-  final bool isDeloadWeek;
+  final DateTime lastUpdated;
 
   @HiveField(15)
-  final double? oneRepMax;
+  final bool isDeloadWeek;
 
   @HiveField(16)
+  final double? oneRepMax;
+
+  @HiveField(17)
   final Map<String, dynamic> customData;
 
   const ProgressionState({
     required this.id,
     required this.progressionConfigId,
     required this.exerciseId,
+    required this.routineId,
     required this.currentCycle,
     required this.currentWeek,
     required this.currentSession,
@@ -85,6 +89,7 @@ class ProgressionState extends Equatable {
     String? id,
     String? progressionConfigId,
     String? exerciseId,
+    String? routineId,
     int? currentCycle,
     int? currentWeek,
     int? currentSession,
@@ -104,6 +109,7 @@ class ProgressionState extends Equatable {
       id: id ?? this.id,
       progressionConfigId: progressionConfigId ?? this.progressionConfigId,
       exerciseId: exerciseId ?? this.exerciseId,
+      routineId: routineId ?? this.routineId,
       currentCycle: currentCycle ?? this.currentCycle,
       currentWeek: currentWeek ?? this.currentWeek,
       currentSession: currentSession ?? this.currentSession,
@@ -126,6 +132,7 @@ class ProgressionState extends Equatable {
     id,
     progressionConfigId,
     exerciseId,
+    routineId,
     currentCycle,
     currentWeek,
     currentSession,

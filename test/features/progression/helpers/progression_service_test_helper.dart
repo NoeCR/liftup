@@ -6,10 +6,10 @@ import '../../../mocks/mock_database_service.dart';
 class ProgressionServiceTestHelper {
   static ProgressionService createWithMockDatabase() {
     final mockDatabase = MockDatabaseService();
-    return ProgressionService(databaseService: mockDatabase);
+    return ProgressionService.withDependencies(databaseService: mockDatabase);
   }
 
   static ProgressionService createWithCustomDatabase(IDatabaseService databaseService) {
-    return ProgressionService(databaseService: databaseService);
+    return ProgressionService.withDependencies(databaseService: databaseService);
   }
 }

@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'section_muscle_group_enum.g.dart';
 
-@HiveType(typeId: 15)
+@HiveType(typeId: 14)
 enum SectionMuscleGroup {
   @HiveField(0)
   chest,

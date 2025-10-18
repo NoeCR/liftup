@@ -1,12 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
+import 'package:liftly/common/enums/progression_type_enum.dart';
+import 'package:liftly/features/progression/models/progression_calculation_result.dart';
 import 'package:liftly/features/progression/models/progression_config.dart';
 import 'package:liftly/features/progression/models/progression_state.dart';
 import 'package:liftly/features/progression/services/progression_service.dart';
-import 'package:liftly/common/enums/progression_type_enum.dart';
-import '../mocks/progression_mock_factory.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
+import '../helpers/exercise_mock_factory.dart';
+import '../mocks/progression_mock_factory.dart';
 // Generate mocks
 @GenerateMocks([ProgressionService])
 import 'session_progression_integration_test.mocks.dart';
@@ -14,13 +16,15 @@ import 'session_progression_integration_test.mocks.dart';
 // Helper functions for setting up specific progression mocks
 void _setupLinearProgressionMock(MockProgressionService mockService, ProgressionConfig config, ProgressionState state) {
   when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(mockService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise'))).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
+    final currentWeight = args[3] as double;
+    final currentReps = args[4] as int;
+    final currentSets = args[5] as int;
 
     // Linear progression: add increment value to weight
     final newWeight = currentWeight + config.incrementValue;
@@ -42,13 +46,15 @@ void _setupUndulatingProgressionMock(
   required bool isHeavyDay,
 }) {
   when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(mockService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise'))).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
+    final currentWeight = args[3] as double;
+    final currentReps = args[4] as int;
+    final currentSets = args[5] as int;
 
     // Undulating progression: heavy day = +10%, light day = -10%
     final multiplier = isHeavyDay ? 1.1 : 0.9;
@@ -71,13 +77,15 @@ void _setupSteppedProgressionMock(
   required bool isDeloadWeek,
 }) {
   when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(mockService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise'))).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
+    final currentWeight = args[3] as double;
+    final currentReps = args[4] as int;
+    final currentSets = args[5] as int;
 
     // Stepped progression: normal week = +2.5kg, deload week = -15%
     final newWeight =
@@ -103,13 +111,15 @@ void _setupDoubleProgressionMock(
   required bool isAtMaxReps,
 }) {
   when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(mockService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise'))).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
+    final currentWeight = args[3] as double;
+    final currentReps = args[4] as int;
+    final currentSets = args[5] as int;
 
     // Double progression: increase reps until max, then increase weight and reset reps
     if (isAtMaxReps) {
@@ -139,13 +149,15 @@ void _setupWaveProgressionMock(
   required int weekNumber,
 }) {
   when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(mockService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise'))).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
+    final currentWeight = args[3] as double;
+    final currentReps = args[4] as int;
+    final currentSets = args[5] as int;
 
     // Wave progression: week 1 = base, week 2 = +5%, week 3 = +10%
     final multipliers = [1.0, 1.05, 1.1];
@@ -168,13 +180,15 @@ void _setupReverseProgressionMock(
   ProgressionState state,
 ) {
   when(mockService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-  when(mockService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
+  when(mockService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
 
-  when(mockService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+  when(mockService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise'))).thenAnswer((
+    invocation,
+  ) async {
     final args = invocation.positionalArguments;
-    final currentWeight = args[2] as double;
-    final currentReps = args[3] as int;
-    final currentSets = args[4] as int;
+    final currentWeight = args[3] as double;
+    final currentReps = args[4] as int;
+    final currentSets = args[5] as int;
 
     // Reverse progression: decrease weight
     final newWeight = currentWeight - 2.5;
@@ -222,12 +236,15 @@ void main() {
         _setupLinearProgressionMock(mockProgressionService, config, state);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation
@@ -244,9 +261,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -267,12 +286,14 @@ void main() {
 
         // Setup specific mock for frequency not met scenario
         when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
-        when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+        when(mockProgressionService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
+        when(
+          mockProgressionService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise')),
+        ).thenAnswer((invocation) async {
           final args = invocation.positionalArguments;
-          final currentWeight = args[2] as double;
-          final currentReps = args[3] as int;
-          final currentSets = args[4] as int;
+          final currentWeight = args[3] as double;
+          final currentReps = args[4] as int;
+          final currentSets = args[5] as int;
 
           // Frequency not met - no progression applied
           return ProgressionCalculationResult(
@@ -285,12 +306,15 @@ void main() {
         });
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert
@@ -322,12 +346,15 @@ void main() {
         _setupUndulatingProgressionMock(mockProgressionService, config, state, isHeavyDay: true);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for heavy day
@@ -349,9 +376,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -373,12 +402,15 @@ void main() {
         _setupUndulatingProgressionMock(mockProgressionService, config, state, isHeavyDay: false);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for light day
@@ -400,9 +432,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -427,12 +461,15 @@ void main() {
         _setupSteppedProgressionMock(mockProgressionService, config, state, isDeloadWeek: false);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for normal week
@@ -454,9 +491,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -480,12 +519,15 @@ void main() {
         _setupSteppedProgressionMock(mockProgressionService, config, state, isDeloadWeek: true);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for deload week
@@ -503,9 +545,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -530,12 +574,15 @@ void main() {
         _setupDoubleProgressionMock(mockProgressionService, config, state, isAtMaxReps: false);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for reps increase
@@ -552,9 +599,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -577,12 +626,15 @@ void main() {
         _setupDoubleProgressionMock(mockProgressionService, config, state, isAtMaxReps: true);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for weight increase and reps reset
@@ -600,9 +652,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -625,12 +679,14 @@ void main() {
 
         // Setup specific mock for frequency not met scenario
         when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
-        when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+        when(mockProgressionService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
+        when(
+          mockProgressionService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise')),
+        ).thenAnswer((invocation) async {
           final args = invocation.positionalArguments;
-          final currentWeight = args[2] as double;
-          final currentReps = args[3] as int;
-          final currentSets = args[4] as int;
+          final currentWeight = args[3] as double;
+          final currentReps = args[4] as int;
+          final currentSets = args[5] as int;
 
           // Frequency not met - no progression applied
           return ProgressionCalculationResult(
@@ -643,12 +699,15 @@ void main() {
         });
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert
@@ -680,12 +739,15 @@ void main() {
         _setupWaveProgressionMock(mockProgressionService, config, state, weekNumber: 2);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for week 2
@@ -703,9 +765,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -728,12 +792,15 @@ void main() {
         _setupWaveProgressionMock(mockProgressionService, config, state, weekNumber: 3);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for week 3
@@ -751,9 +818,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -774,12 +843,14 @@ void main() {
 
         // Setup specific mock for frequency not met scenario
         when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => state);
-        when(mockProgressionService.calculateProgression(any, any, any, any, any)).thenAnswer((invocation) async {
+        when(mockProgressionService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => state);
+        when(
+          mockProgressionService.calculateProgression(any, any, any, any, any, any, exercise: anyNamed('exercise')),
+        ).thenAnswer((invocation) async {
           final args = invocation.positionalArguments;
-          final currentWeight = args[2] as double;
-          final currentReps = args[3] as int;
-          final currentSets = args[4] as int;
+          final currentWeight = args[3] as double;
+          final currentReps = args[4] as int;
+          final currentSets = args[5] as int;
 
           // Frequency not met - no progression applied
           return ProgressionCalculationResult(
@@ -792,12 +863,15 @@ void main() {
         });
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert
@@ -829,12 +903,15 @@ void main() {
         _setupReverseProgressionMock(mockProgressionService, config, state);
 
         // Act - Test progression calculation directly
+        final exercise = ExerciseMockFactory.createSimpleExercise();
         final result = await mockProgressionService.calculateProgression(
           config.id,
           state.exerciseId,
+          state.routineId,
           state.currentWeight,
           state.currentReps,
           state.currentSets,
+          exercise: exercise,
         );
 
         // Assert - Comprehensive validation for reverse progression
@@ -855,9 +932,11 @@ void main() {
           mockProgressionService.calculateProgression(
             config.id,
             state.exerciseId,
+            state.routineId,
             state.currentWeight,
             state.currentReps,
             state.currentSets,
+            exercise: anyNamed('exercise'),
           ),
         ).called(1);
       });
@@ -879,10 +958,14 @@ void main() {
         // Arrange
         final config = ProgressionMockFactory.createProgressionConfig();
         when(mockProgressionService.getActiveProgressionConfig()).thenAnswer((_) async => config);
-        when(mockProgressionService.getProgressionStateByExercise(any, any)).thenAnswer((_) async => null);
+        when(mockProgressionService.getProgressionStateByExercise(any, any, any)).thenAnswer((_) async => null);
 
         // Act - Test that service handles missing state gracefully
-        final state = await mockProgressionService.getProgressionStateByExercise(config.id, 'test-exercise-id');
+        final state = await mockProgressionService.getProgressionStateByExercise(
+          config.id,
+          'test-exercise-id',
+          'test-routine-id',
+        );
 
         // Assert
         expect(state, isNull);

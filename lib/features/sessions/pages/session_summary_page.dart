@@ -1,13 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
-import '../notifiers/session_notifier.dart';
-import '../../sessions/models/workout_session.dart';
-import '../../home/notifiers/routine_notifier.dart';
-import '../../home/models/routine.dart';
-import '../../exercise/notifiers/exercise_notifier.dart';
+
 import '../../exercise/models/exercise.dart';
 import '../../exercise/models/exercise_set.dart';
+import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../home/models/routine.dart';
+import '../../home/notifiers/routine_notifier.dart';
+import '../../sessions/models/workout_session.dart';
+import '../notifiers/session_notifier.dart';
+import '../utils/session_calculations.dart';
 
 class SessionSummaryPage extends ConsumerWidget {
   final String? sessionId;
@@ -196,8 +198,8 @@ class _ExerciseSummaryRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final completed = sets.length;
-    final totalReps = sets.fold<int>(0, (sum, s) => sum + s.reps);
-    final totalWeight = sets.fold<double>(0, (sum, s) => sum + s.weight * s.reps);
+    final totalReps = SessionCalculations.calculateTotalReps(sets);
+    final totalWeight = SessionCalculations.calculateTotalWeight(sets);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),

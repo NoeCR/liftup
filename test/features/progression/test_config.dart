@@ -1,9 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 /// Configuración para las pruebas de progresión
 class ProgressionTestConfig {
@@ -12,9 +12,12 @@ class ProgressionTestConfig {
 
   /// Inicializa el entorno de pruebas
   static Future<void> setUp() async {
-    // Crear directorio temporal para las pruebas
-    final tempDir = await getTemporaryDirectory();
-    testDir = '${tempDir.path}/progression_tests';
+    // Inicializar el binding de Flutter para tests
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Crear directorio temporal para las pruebas usando el directorio temporal del sistema
+    final tempDir = Directory.systemTemp;
+    testDir = '${tempDir.path}/progression_tests_${DateTime.now().millisecondsSinceEpoch}';
 
     // Crear directorio si no existe
     final dir = Directory(testDir);
@@ -31,13 +34,20 @@ class ProgressionTestConfig {
 
   /// Limpia el entorno de pruebas
   static Future<void> tearDown() async {
-    // Cerrar todas las cajas
-    await Hive.close();
+    try {
+      // Cerrar todas las cajas
+      await Hive.close();
 
-    // Eliminar directorio temporal
-    final dir = Directory(testDir);
-    if (await dir.exists()) {
-      await dir.delete(recursive: true);
+      // Eliminar directorio temporal solo si se inicializó
+      if (testDir.isNotEmpty) {
+        final dir = Directory(testDir);
+        if (await dir.exists()) {
+          await dir.delete(recursive: true);
+        }
+      }
+    } catch (e) {
+      // Ignorar errores durante la limpieza
+      print('Warning: Error during test cleanup: $e');
     }
   }
 

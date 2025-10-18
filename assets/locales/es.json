@@ -71,6 +71,20 @@
         "addExerciseAndReturn": "Añade un ejercicio y vuelve a esta selección",
         "quickAdd": "Agregar Rápido",
         "quickAddExercise": "Agregar Ejercicio Rápido",
+        "exerciseType": {
+            "multiJoint": "Multiarticular",
+            "isolation": "Aislamiento"
+        },
+        "loadType": {
+            "barbell": "Barra",
+            "dumbbell": "Mancuernas",
+            "machine": "Máquina",
+            "bodyweight": "Peso Corporal",
+            "cable": "Cable",
+            "kettlebell": "Kettlebell",
+            "resistanceBand": "Banda Elástica",
+            "plate": "Disco"
+        },
         "category": "Categoría",
         "maintainFormTip": "Mantén la forma correcta durante todo el ejercicio",
         "basicInformation": "Información Básica",
@@ -419,7 +433,8 @@
         "share": "Compartir",
         "close": "Cerrar",
         "retry": "Reintentar",
-        "confirm": "Confirmar"
+        "confirm": "Confirmar",
+        "keepValues": "Mantener Valores"
     },
     "progression": {
         "title": "Progresión",
@@ -516,7 +531,10 @@
             "beginner": "Principiante",
             "intermediate": "Intermedio",
             "advanced": "Avanzado"
-        }
+        },
+        "confirmApplyTitle": "Confirmar Aplicación de Progresión",
+        "confirmApplyMessage": "¿Quieres aplicar la progresión automática a este ejercicio? Esto modificará el peso y/o repeticiones según tu configuración.",
+        "applyNextSession": "Aplicar en Próxima Sesión"
     },
     "errors": {
         "pageNotFound": "Página no encontrada",
@@ -525,5 +543,85 @@
         "errorLoadingData": "Error al cargar los datos",
         "errorLoadingExercise": "Error al cargar el ejercicio",
         "exerciseNotFound": "Ejercicio no encontrado"
+    },
+    "presets": {
+        "hypertrophy": {
+            "title": "Hipertrofia",
+            "description": "Enfocado en aumentar masa muscular mediante volumen y repeticiones moderadas",
+            "keyPoints": {
+                "repRange": "Rango de repeticiones: {minReps}-{maxReps}",
+                "baseSets": "Series base: {baseSets}",
+                "targetRpe": "RPE objetivo: {targetRpe}",
+                "restTime": "Descanso: {restTime} segundos"
+            }
+        },
+        "strength": {
+            "title": "Fuerza",
+            "description": "Enfocado en aumentar la capacidad de levantar cargas máximas",
+            "keyPoints": {
+                "repRange": "Rango de repeticiones: {minReps}-{maxReps}",
+                "baseSets": "Series base: {baseSets}",
+                "targetRpe": "RPE objetivo: {targetRpe}",
+                "restTime": "Descanso: {restTime} segundos"
+            }
+        },
+        "endurance": {
+            "title": "Resistencia",
+            "description": "Enfocado en mejorar la capacidad de repetir contracciones sin fatiga",
+            "keyPoints": {
+                "repRange": "Rango de repeticiones: {minReps}-{maxReps}",
+                "baseSets": "Series base: {baseSets}",
+                "targetRpe": "RPE objetivo: {targetRpe}",
+                "restTime": "Descanso: {restTime} segundos"
+            }
+        },
+        "power": {
+            "title": "Potencia",
+            "description": "Enfocado en desarrollar velocidad y explosividad",
+            "keyPoints": {
+                "repRange": "Rango de repeticiones: {minReps}-{maxReps}",
+                "baseSets": "Series base: {baseSets}",
+                "targetRpe": "RPE objetivo: {targetRpe}",
+                "restTime": "Descanso: {restTime} segundos"
+            }
+        },
+        "general": {
+            "title": "General",
+            "description": "Configuración general de progresión",
+            "keyPoints": {
+                "repRange": "Rango de repeticiones: {minReps}-{maxReps}",
+                "baseSets": "Series base: {baseSets}"
+            }
+        }
+    },
+    "advancedConfig": {
+        "title": "Configuración Avanzada",
+        "modeSelector": {
+            "title": "Modo de Configuración",
+            "preset": "Configuración Predefinida",
+            "manual": "Configuración Manual",
+            "hint": "Selecciona el modo de configuración"
+        },
+        "presetSelector": {
+            "title": "Seleccionar Preset"
+        },
+        "presetDescription": {
+            "title": "Configuración del Preset"
+        },
+        "noPresets": {
+            "title": "No hay presets disponibles",
+            "message": "No se encontraron configuraciones predefinidas para {progressionType}. Usa la configuración manual."
+        },
+        "manualConfig": {
+            "title": "Configuración Manual",
+            "incrementValue": "Valor de Incremento (kg)",
+            "incrementFrequency": "Frecuencia de Incremento",
+            "cycleLength": "Longitud del Ciclo (semanas)",
+            "deloadWeek": "Semana de Deload",
+            "deloadPercentage": "Porcentaje de Deload",
+            "minReps": "Repeticiones Mínimas",
+            "maxReps": "Repeticiones Máximas",
+            "baseSets": "Series Base"
+        }
     }
 }

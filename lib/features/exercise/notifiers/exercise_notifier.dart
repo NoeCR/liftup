@@ -97,6 +97,8 @@ class ExerciseNotifier extends _$ExerciseNotifier {
         difficulty: ExerciseDifficulty.intermediate,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.barbell,
       ),
       Exercise(
         id: uuid.v4(),
@@ -119,6 +121,8 @@ class ExerciseNotifier extends _$ExerciseNotifier {
         difficulty: ExerciseDifficulty.beginner,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.bodyweight,
       ),
       Exercise(
         id: uuid.v4(),
@@ -137,6 +141,8 @@ class ExerciseNotifier extends _$ExerciseNotifier {
         difficulty: ExerciseDifficulty.advanced,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        exerciseType: ExerciseType.multiJoint,
+        loadType: LoadType.bodyweight,
       ),
     ];
 

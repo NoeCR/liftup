@@ -121,3 +121,18 @@ Thumbs.db
 
 # Sentry native files
 .sentry-native/
+
+# Test reports and temporary files
+test_reports/
+test_hive/
+*.tmp
+*.temp
+
+# Documentation files that shouldn't be in production
+**/README_DEV.md
+**/IMPLEMENTATION_SUMMARY.md
+**/DEVELOPMENT_*.md
+**/PROJECT_SUMMARY.md
+**/PRESET_COVERAGE_SUMMARY.md
+**/PROGRESSION_SYSTEM.md
+**/FLUJO_APLICACION.md

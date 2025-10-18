@@ -1,20 +1,24 @@
-import 'package:flutter/material.dart';
-import 'dart:typed_data';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:extended_image/extended_image.dart' as ext_img;
-import 'package:image/image.dart' as image;
 // import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'dart:typed_data';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:extended_image/extended_image.dart' as ext_img;
 import 'package:file_picker/file_picker.dart';
-import '../notifiers/exercise_notifier.dart';
-import '../models/exercise.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as image;
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+
 import '../../../common/enums/muscle_group_enum.dart';
+import '../../../common/enums/progression_type_enum.dart';
+import '../../progression/notifiers/progression_notifier.dart';
+import '../models/exercise.dart';
+import '../notifiers/exercise_notifier.dart';
 
 class ExerciseFormPage extends ConsumerStatefulWidget {
   final Exercise? exerciseToEdit;
@@ -41,6 +45,14 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   final _weightController = TextEditingController();
   final _restTimeController = TextEditingController();
 
+  // Progression settings controllers
+  // Los incrementos de peso y rangos de reps se manejan automáticamente
+  // por AdaptiveIncrementConfig y ProgressionConfig
+  final _setsMinController = TextEditingController();
+  final _setsMaxController = TextEditingController();
+  final _targetRpeController = TextEditingController();
+  final _incFreqController = TextEditingController();
+
   ExerciseCategory _selectedCategory = ExerciseCategory.chest;
   ExerciseDifficulty _selectedDifficulty = ExerciseDifficulty.beginner;
   List<MuscleGroup> _selectedMuscleGroups = [];
@@ -50,6 +62,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
   int _formReps = 10;
   double _formWeight = 0.0;
   int? _formRestTimeSeconds;
+  ExerciseType _exerciseType = ExerciseType.multiJoint;
+  LoadType _loadType = LoadType.barbell;
 
   @override
   void initState() {
@@ -63,6 +77,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
 
     if (widget.exerciseToEdit != null) {
       _populateForm();
+      // Prefill progression settings from active config if available
+      _prefillProgressionFromConfig();
     }
   }
 
@@ -83,12 +99,34 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     _formReps = exercise.defaultReps ?? 10;
     _formWeight = exercise.defaultWeight ?? 0.0;
     _formRestTimeSeconds = exercise.restTimeSeconds;
+    _exerciseType = exercise.exerciseType;
+    _loadType = exercise.loadType;
 
     // Update controllers with exercise default values
     _setsController.text = _formSets.toString();
     _repsController.text = _formReps.toString();
     _weightController.text = _formWeight.toStringAsFixed(1);
     _restTimeController.text = _formRestTimeSeconds?.toString() ?? '';
+  }
+
+  Future<void> _prefillProgressionFromConfig() async {
+    try {
+      final config = await ref.read(progressionNotifierProvider.future);
+      final exercise = widget.exerciseToEdit;
+      if (config == null || exercise == null) return;
+
+      final perExercise = (config.customParameters['per_exercise'] as Map?)?.cast<String, dynamic>();
+      final current = perExercise != null ? (perExercise[exercise.id] as Map?)?.cast<String, dynamic>() : null;
+      if (current == null) return;
+
+      // Los incrementos de peso y rangos de reps se manejan automáticamente
+      // por AdaptiveIncrementConfig y ProgressionConfig
+      _setsMinController.text = (current['sets_min'] ?? '').toString();
+      _setsMaxController.text = (current['sets_max'] ?? '').toString();
+      _targetRpeController.text = (current['target_rpe'] ?? '').toString();
+      _incFreqController.text = (current['increment_frequency'] ?? '').toString();
+      if (mounted) setState(() {});
+    } catch (_) {}
   }
 
   @override
@@ -167,12 +205,85 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               _buildVideoUrlSection(),
               const SizedBox(height: 32),
 
+              // Progression settings
+              _buildProgressionSettingsSection(),
+              const SizedBox(height: 32),
+
               // Save Button
               _buildSaveButton(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProgressionSettingsSection() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Configuración de Progresión', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            border: Border.all(color: colorScheme.outline),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.info_outline, color: colorScheme.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Incrementos Automáticos',
+                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Los incrementos de peso se calcularán automáticamente basándose en:',
+                style: theme.textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.fitness_center, color: colorScheme.secondary, size: 16),
+                  const SizedBox(width: 8),
+                  Text('Tipo de ejercicio: ${_exerciseType.displayNameKey.tr()}', style: theme.textTheme.bodySmall),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.sports_gymnastics, color: colorScheme.secondary, size: 16),
+                  const SizedBox(width: 8),
+                  Text('Tipo de carga: ${_loadType.displayNameKey.tr()}', style: theme.textTheme.bodySmall),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  '💡 Los incrementos se ajustarán automáticamente según las mejores prácticas para cada combinación de tipo de ejercicio y carga.',
+                  style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -386,6 +497,35 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 12),
+        // Tipo de ejercicio (multi/isolation) con autodetección básica
+        DropdownButtonFormField<ExerciseType>(
+          value: _exerciseType,
+          decoration: InputDecoration(
+            labelText: 'Tipo de ejercicio',
+            border: OutlineInputBorder(),
+            helperText: 'Usado para ajustar incrementos y rangos de reps',
+          ),
+          items:
+              ExerciseType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayNameKey.tr()))).toList(),
+          onChanged: (value) {
+            if (value != null) setState(() => _exerciseType = value);
+          },
+        ),
+        const SizedBox(height: 12),
+        // Tipo de carga (barbell, dumbbell, etc.)
+        DropdownButtonFormField<LoadType>(
+          value: _loadType,
+          decoration: InputDecoration(
+            labelText: 'Tipo de carga',
+            border: OutlineInputBorder(),
+            helperText: 'Usado para calcular incrementos adaptativos',
+          ),
+          items: LoadType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.displayNameKey.tr()))).toList(),
+          onChanged: (value) {
+            if (value != null) setState(() => _loadType = value);
+          },
         ),
       ],
     );
@@ -866,6 +1006,8 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
         defaultSets: _formSets > 0 ? _formSets : null,
         defaultReps: _formReps > 0 ? _formReps : null,
         restTimeSeconds: _formRestTimeSeconds,
+        exerciseType: _exerciseType,
+        loadType: _loadType,
       );
 
       // Debug: saving exercise with default values
@@ -959,4 +1101,28 @@ class _ExerciseFormPageState extends ConsumerState<ExerciseFormPage> {
     } catch (_) {}
     return 'assets/images/default_exercise.png';
   }
+}
+
+// Visible for tests: construye el mapa per_exercise a partir de entradas del formulario
+// Los incrementos de peso y rangos de reps se manejan automáticamente
+// por AdaptiveIncrementConfig y ProgressionConfig
+@visibleForTesting
+Map<String, dynamic> buildPerExerciseOverrideMap({
+  int? setsMin,
+  int? setsMax,
+  num? targetRpe,
+  int? incrementFrequency,
+  ProgressionUnit? unit,
+}) {
+  final map = <String, dynamic>{
+    'sets_min': setsMin,
+    'sets_max': setsMax,
+    'target_rpe': targetRpe,
+    'increment_frequency': incrementFrequency,
+  };
+  if (unit != null) {
+    map['unit'] = unit.name;
+  }
+  map.removeWhere((k, v) => v == null);
+  return map;
 }

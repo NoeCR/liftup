@@ -56,6 +56,18 @@ class Exercise extends Equatable {
   @HiveField(15)
   final int? restTimeSeconds;
 
+  @HiveField(16)
+  final DateTime? lastPerformedAt;
+
+  @HiveField(17)
+  final bool isProgressionLocked;
+
+  @HiveField(18)
+  final ExerciseType exerciseType;
+
+  @HiveField(19)
+  final LoadType loadType;
+
   const Exercise({
     required this.id,
     required this.name,
@@ -73,6 +85,10 @@ class Exercise extends Equatable {
     this.defaultSets,
     this.defaultReps,
     this.restTimeSeconds,
+    this.lastPerformedAt,
+    this.isProgressionLocked = false,
+    this.exerciseType = ExerciseType.multiJoint,
+    this.loadType = LoadType.barbell,
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
@@ -95,6 +111,10 @@ class Exercise extends Equatable {
     int? defaultSets,
     int? defaultReps,
     int? restTimeSeconds,
+    DateTime? lastPerformedAt,
+    bool? isProgressionLocked,
+    ExerciseType? exerciseType,
+    LoadType? loadType,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -113,6 +133,10 @@ class Exercise extends Equatable {
       defaultSets: defaultSets ?? this.defaultSets,
       defaultReps: defaultReps ?? this.defaultReps,
       restTimeSeconds: restTimeSeconds ?? this.restTimeSeconds,
+      lastPerformedAt: lastPerformedAt ?? this.lastPerformedAt,
+      isProgressionLocked: isProgressionLocked ?? this.isProgressionLocked,
+      exerciseType: exerciseType ?? this.exerciseType,
+      loadType: loadType ?? this.loadType,
     );
   }
 
@@ -134,6 +158,10 @@ class Exercise extends Equatable {
     defaultSets,
     defaultReps,
     restTimeSeconds,
+    lastPerformedAt,
+    isProgressionLocked,
+    exerciseType,
+    loadType,
   ];
 }
 
@@ -208,4 +236,52 @@ enum ExerciseDifficulty {
   intermediate,
   @HiveField(2)
   advanced,
+}
+
+@HiveType(typeId: 20)
+enum ExerciseType {
+  @HiveField(0)
+  multiJoint('Multi-joint', 'Exercises involving multiple joints', 'exerciseType.multiJoint'),
+
+  @HiveField(1)
+  isolation('Isolation', 'Exercises focusing on a specific muscle group', 'exerciseType.isolation');
+
+  const ExerciseType(this.displayName, this.description, this.displayNameKey);
+
+  final String displayName;
+  final String description;
+  final String displayNameKey;
+}
+
+@HiveType(typeId: 21)
+enum LoadType {
+  @HiveField(0)
+  barbell('Barra', 'Barbell exercises', 'loadType.barbell'),
+
+  @HiveField(1)
+  dumbbell('Mancuernas', 'Dumbbell exercises', 'loadType.dumbbell'),
+
+  @HiveField(2)
+  machine('Máquina', 'Machine exercises', 'loadType.machine'),
+
+  @HiveField(3)
+  bodyweight('Peso Corporal', 'Bodyweight exercises', 'loadType.bodyweight'),
+
+  @HiveField(4)
+  cable('Cable', 'Cable machine exercises', 'loadType.cable'),
+
+  @HiveField(5)
+  kettlebell('Kettlebell', 'Kettlebell exercises', 'loadType.kettlebell'),
+
+  @HiveField(6)
+  resistanceBand('Banda Elástica', 'Resistance band exercises', 'loadType.resistanceBand'),
+
+  @HiveField(7)
+  plate('Disco', 'Plate-loaded exercises', 'loadType.plate');
+
+  const LoadType(this.displayName, this.description, this.displayNameKey);
+
+  final String displayName;
+  final String description;
+  final String displayNameKey;
 }

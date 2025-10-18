@@ -1,7 +1,10 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+
 import '../../features/exercise/models/exercise.dart';
 import '../../features/home/models/routine.dart';
+import '../../features/progression/providers/exercise_values_provider.dart';
 import '../themes/app_theme.dart';
 
 class ExerciseCard extends StatelessWidget {
@@ -17,6 +20,9 @@ class ExerciseCard extends StatelessWidget {
   final int performedSets;
   final bool showSetsControls;
   final bool isResting;
+  final bool isLocked;
+  final VoidCallback? onToggleLock;
+  final ExerciseDisplayValues? displayValues;
 
   const ExerciseCard({
     super.key,
@@ -32,12 +38,22 @@ class ExerciseCard extends StatelessWidget {
     this.performedSets = 0,
     this.showSetsControls = false,
     this.isResting = false,
+    this.isLocked = false,
+    this.onToggleLock,
+    this.displayValues,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // Determinar qué valores mostrar
+    final weight = displayValues?.weight ?? exercise?.defaultWeight ?? 0.0;
+    final reps = displayValues?.reps ?? exercise?.defaultReps ?? 10;
+    final sets = displayValues?.sets ?? exercise?.defaultSets ?? 4;
+    final isFromProgression = displayValues?.isFromProgression ?? false;
+    final isDeloadWeek = displayValues?.isDeloadWeek ?? false;
 
     return Card(
       child: InkWell(
@@ -54,14 +70,41 @@ class ExerciseCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Exercise Image
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
-                child: Container(
-                  height: 120,
-                  width: double.infinity,
-                  color: Colors.transparent,
-                  child: _buildAdaptiveImage(exercise?.imageUrl ?? '', colorScheme),
-                ),
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
+                    child: Container(
+                      height: 120,
+                      width: double.infinity,
+                      color: Colors.transparent,
+                      child: _buildAdaptiveImage(exercise?.imageUrl ?? '', colorScheme),
+                    ),
+                  ),
+                  Positioned(
+                    top: AppTheme.spacingS,
+                    right: AppTheme.spacingS,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkResponse(
+                        onTap: onToggleLock,
+                        radius: 24,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surface.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            isLocked ? Icons.lock : Icons.lock_open,
+                            size: 20,
+                            color: isLocked ? colorScheme.error : colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
 
               // Exercise Info + Controls unified
@@ -86,14 +129,25 @@ class ExerciseCard extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildInfoChip(context, '${exercise?.defaultSets ?? 4} series', Icons.repeat),
-                              const SizedBox(height: AppTheme.spacingXS),
-                              _buildInfoChip(context, '${exercise?.defaultReps ?? 10} reps', Icons.fitness_center),
+                              _buildInfoChip(
+                                context,
+                                '$sets series${isDeloadWeek ? ' (deload)' : ''}',
+                                Icons.repeat,
+                                isFromProgression: isFromProgression,
+                              ),
                               const SizedBox(height: AppTheme.spacingXS),
                               _buildInfoChip(
                                 context,
-                                '${(exercise?.defaultWeight ?? 0.0).toStringAsFixed(1)} kg',
+                                '$reps reps${isDeloadWeek ? ' (deload)' : ''}',
+                                Icons.fitness_center,
+                                isFromProgression: isFromProgression,
+                              ),
+                              const SizedBox(height: AppTheme.spacingXS),
+                              _buildInfoChip(
+                                context,
+                                '${weight.toStringAsFixed(1)} kg${isDeloadWeek ? ' (deload)' : ''}',
                                 Icons.scale,
+                                isFromProgression: isFromProgression,
                               ),
                               const SizedBox(height: AppTheme.spacingXS),
                               if (exercise != null)
@@ -116,28 +170,29 @@ class ExerciseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip(BuildContext context, String text, IconData icon) {
+  Widget _buildInfoChip(BuildContext context, String text, IconData icon, {bool isFromProgression = false}) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
+    // Cambiar color si viene de progresión
+    final chipColor =
+        isFromProgression ? colorScheme.primaryContainer.withValues(alpha: 0.3) : colorScheme.surfaceContainerHighest;
+
+    final textColor = isFromProgression ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: AppTheme.spacingXS),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: chipColor,
         borderRadius: BorderRadius.circular(AppTheme.radiusS),
+        border: isFromProgression ? Border.all(color: colorScheme.primary.withValues(alpha: 0.3), width: 1) : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
+          Icon(icon, size: 16, color: textColor),
           const SizedBox(width: AppTheme.spacingXS),
-          Text(
-            text,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(text, style: theme.textTheme.bodySmall?.copyWith(color: textColor, fontWeight: FontWeight.w500)),
         ],
       ),
     );
@@ -145,7 +200,7 @@ class ExerciseCard extends StatelessWidget {
 
   Widget _buildSeriesControlColumn(BuildContext context, ColorScheme colorScheme) {
     final theme = Theme.of(context);
-    final totalSets = exercise?.defaultSets ?? 4;
+    final totalSets = displayValues?.sets ?? exercise?.defaultSets ?? 4;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -238,8 +293,8 @@ class ExerciseCard extends StatelessWidget {
       // Ejercicio completado en la sesión actual
       return colorScheme.primaryContainer.withValues(alpha: 0.3);
     } else if (wasPerformedThisWeek) {
-      // Ejercicio realizado esta semana (fondo ámbar)
-      return Colors.amber.withValues(alpha: 0.15);
+      // Ejercicio realizado esta semana (fondo sutil con color coherente)
+      return colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
     }
     // Sin estado especial
     return null;

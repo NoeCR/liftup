@@ -3,15 +3,17 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
+import 'dart:async' as _i7;
 
-import 'package:flutter_riverpod/flutter_riverpod.dart' as _i2;
-import 'package:liftly/common/enums/progression_type_enum.dart' as _i8;
-import 'package:liftly/features/progression/models/progression_config.dart' as _i4;
-import 'package:liftly/features/progression/models/progression_state.dart' as _i5;
-import 'package:liftly/features/progression/models/progression_template.dart' as _i7;
+import 'package:liftly/common/enums/progression_type_enum.dart' as _i10;
+import 'package:liftly/features/exercise/models/exercise.dart' as _i9;
+import 'package:liftly/features/progression/models/progression_calculation_result.dart' as _i4;
+import 'package:liftly/features/progression/models/progression_config.dart' as _i5;
+import 'package:liftly/features/progression/models/progression_state.dart' as _i6;
+import 'package:liftly/features/progression/models/progression_template.dart' as _i8;
 import 'package:liftly/features/progression/services/progression_service.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:riverpod_annotation/riverpod_annotation.dart' as _i2;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,15 +37,15 @@ class _FakeProgressionService_1 extends _i1.SmartFake implements _i3.Progression
   _FakeProgressionService_1(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionCalculationResult_2 extends _i1.SmartFake implements _i3.ProgressionCalculationResult {
+class _FakeProgressionCalculationResult_2 extends _i1.SmartFake implements _i4.ProgressionCalculationResult {
   _FakeProgressionCalculationResult_2(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionConfig_3 extends _i1.SmartFake implements _i4.ProgressionConfig {
+class _FakeProgressionConfig_3 extends _i1.SmartFake implements _i5.ProgressionConfig {
   _FakeProgressionConfig_3(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
-class _FakeProgressionState_4 extends _i1.SmartFake implements _i5.ProgressionState {
+class _FakeProgressionState_4 extends _i1.SmartFake implements _i6.ProgressionState {
   _FakeProgressionState_4(Object parent, Invocation parentInvocation) : super(parent, parentInvocation);
 }
 
@@ -84,145 +86,154 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
           as _i3.ProgressionService);
 
   @override
-  _i6.Future<void> saveProgressionConfig(_i4.ProgressionConfig? config) =>
+  _i7.Future<void> saveProgressionConfig(_i5.ProgressionConfig? config) =>
       (super.noSuchMethod(
             Invocation.method(#saveProgressionConfig, [config]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<_i4.ProgressionConfig?> getProgressionConfig(String? configId) =>
+  _i7.Future<_i5.ProgressionConfig?> getProgressionConfig(String? configId) =>
       (super.noSuchMethod(
             Invocation.method(#getProgressionConfig, [configId]),
-            returnValue: _i6.Future<_i4.ProgressionConfig?>.value(),
+            returnValue: _i7.Future<_i5.ProgressionConfig?>.value(),
           )
-          as _i6.Future<_i4.ProgressionConfig?>);
+          as _i7.Future<_i5.ProgressionConfig?>);
 
   @override
-  _i6.Future<_i4.ProgressionConfig?> getActiveProgressionConfig() =>
+  _i7.Future<_i5.ProgressionConfig?> getActiveProgressionConfig() =>
       (super.noSuchMethod(
             Invocation.method(#getActiveProgressionConfig, []),
-            returnValue: _i6.Future<_i4.ProgressionConfig?>.value(),
+            returnValue: _i7.Future<_i5.ProgressionConfig?>.value(),
           )
-          as _i6.Future<_i4.ProgressionConfig?>);
+          as _i7.Future<_i5.ProgressionConfig?>);
 
   @override
-  _i6.Future<List<_i4.ProgressionConfig>> getAllProgressionConfigs() =>
+  _i7.Future<List<_i5.ProgressionConfig>> getAllProgressionConfigs() =>
       (super.noSuchMethod(
             Invocation.method(#getAllProgressionConfigs, []),
-            returnValue: _i6.Future<List<_i4.ProgressionConfig>>.value(<_i4.ProgressionConfig>[]),
+            returnValue: _i7.Future<List<_i5.ProgressionConfig>>.value(<_i5.ProgressionConfig>[]),
           )
-          as _i6.Future<List<_i4.ProgressionConfig>>);
+          as _i7.Future<List<_i5.ProgressionConfig>>);
 
   @override
-  _i6.Future<void> deleteProgressionConfig(String? configId) =>
+  _i7.Future<void> deleteProgressionConfig(String? configId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteProgressionConfig, [configId]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> cleanupInactiveProgressionStates() =>
+  _i7.Future<void> cleanupInactiveProgressionStates() =>
       (super.noSuchMethod(
             Invocation.method(#cleanupInactiveProgressionStates, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> saveProgressionState(_i5.ProgressionState? state) =>
+  _i7.Future<void> saveProgressionState(_i6.ProgressionState? state) =>
       (super.noSuchMethod(
             Invocation.method(#saveProgressionState, [state]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<_i5.ProgressionState?> getProgressionState(String? stateId) =>
+  _i7.Future<_i6.ProgressionState?> getProgressionState(String? stateId) =>
       (super.noSuchMethod(
             Invocation.method(#getProgressionState, [stateId]),
-            returnValue: _i6.Future<_i5.ProgressionState?>.value(),
+            returnValue: _i7.Future<_i6.ProgressionState?>.value(),
           )
-          as _i6.Future<_i5.ProgressionState?>);
+          as _i7.Future<_i6.ProgressionState?>);
 
   @override
-  _i6.Future<_i5.ProgressionState?> getProgressionStateByExercise(String? configId, String? exerciseId) =>
-      (super.noSuchMethod(
-            Invocation.method(#getProgressionStateByExercise, [configId, exerciseId]),
-            returnValue: _i6.Future<_i5.ProgressionState?>.value(),
-          )
-          as _i6.Future<_i5.ProgressionState?>);
-
-  @override
-  _i6.Future<List<_i5.ProgressionState>> getProgressionStatesByConfig(String? configId) =>
-      (super.noSuchMethod(
-            Invocation.method(#getProgressionStatesByConfig, [configId]),
-            returnValue: _i6.Future<List<_i5.ProgressionState>>.value(<_i5.ProgressionState>[]),
-          )
-          as _i6.Future<List<_i5.ProgressionState>>);
-
-  @override
-  _i6.Future<void> saveProgressionTemplate(_i7.ProgressionTemplate? template) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveProgressionTemplate, [template]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
-
-  @override
-  _i6.Future<List<_i7.ProgressionTemplate>> getAllProgressionTemplates() =>
-      (super.noSuchMethod(
-            Invocation.method(#getAllProgressionTemplates, []),
-            returnValue: _i6.Future<List<_i7.ProgressionTemplate>>.value(<_i7.ProgressionTemplate>[]),
-          )
-          as _i6.Future<List<_i7.ProgressionTemplate>>);
-
-  @override
-  _i6.Future<_i7.ProgressionTemplate?> getProgressionTemplate(String? templateId) =>
-      (super.noSuchMethod(
-            Invocation.method(#getProgressionTemplate, [templateId]),
-            returnValue: _i6.Future<_i7.ProgressionTemplate?>.value(),
-          )
-          as _i6.Future<_i7.ProgressionTemplate?>);
-
-  @override
-  _i6.Future<_i3.ProgressionCalculationResult> calculateProgression(
+  _i7.Future<_i6.ProgressionState?> getProgressionStateByExercise(
     String? configId,
     String? exerciseId,
-    double? currentWeight,
-    int? currentReps,
-    int? currentSets,
+    String? routineId,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#calculateProgression, [configId, exerciseId, currentWeight, currentReps, currentSets]),
-            returnValue: _i6.Future<_i3.ProgressionCalculationResult>.value(
+            Invocation.method(#getProgressionStateByExercise, [configId, exerciseId, routineId]),
+            returnValue: _i7.Future<_i6.ProgressionState?>.value(),
+          )
+          as _i7.Future<_i6.ProgressionState?>);
+
+  @override
+  _i7.Future<List<_i6.ProgressionState>> getProgressionStatesByConfig(String? configId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProgressionStatesByConfig, [configId]),
+            returnValue: _i7.Future<List<_i6.ProgressionState>>.value(<_i6.ProgressionState>[]),
+          )
+          as _i7.Future<List<_i6.ProgressionState>>);
+
+  @override
+  _i7.Future<void> saveProgressionTemplate(_i8.ProgressionTemplate? template) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveProgressionTemplate, [template]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<List<_i8.ProgressionTemplate>> getAllProgressionTemplates() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllProgressionTemplates, []),
+            returnValue: _i7.Future<List<_i8.ProgressionTemplate>>.value(<_i8.ProgressionTemplate>[]),
+          )
+          as _i7.Future<List<_i8.ProgressionTemplate>>);
+
+  @override
+  _i7.Future<_i8.ProgressionTemplate?> getProgressionTemplate(String? templateId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProgressionTemplate, [templateId]),
+            returnValue: _i7.Future<_i8.ProgressionTemplate?>.value(),
+          )
+          as _i7.Future<_i8.ProgressionTemplate?>);
+
+  @override
+  _i7.Future<_i4.ProgressionCalculationResult> calculateProgression(
+    String? configId,
+    String? exerciseId,
+    String? routineId,
+    double? currentWeight,
+    int? currentReps,
+    int? currentSets, {
+    required _i9.Exercise? exercise,
+    bool? isExerciseLocked = false,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #calculateProgression,
+              [configId, exerciseId, routineId, currentWeight, currentReps, currentSets],
+              {#exercise: exercise, #isExerciseLocked: isExerciseLocked},
+            ),
+            returnValue: _i7.Future<_i4.ProgressionCalculationResult>.value(
               _FakeProgressionCalculationResult_2(
                 this,
-                Invocation.method(#calculateProgression, [
-                  configId,
-                  exerciseId,
-                  currentWeight,
-                  currentReps,
-                  currentSets,
-                ]),
+                Invocation.method(
+                  #calculateProgression,
+                  [configId, exerciseId, routineId, currentWeight, currentReps, currentSets],
+                  {#exercise: exercise, #isExerciseLocked: isExerciseLocked},
+                ),
               ),
             ),
           )
-          as _i6.Future<_i3.ProgressionCalculationResult>);
+          as _i7.Future<_i4.ProgressionCalculationResult>);
 
   @override
-  _i6.Future<_i4.ProgressionConfig> initializeProgression({
-    required _i8.ProgressionType? type,
-    required _i8.ProgressionUnit? unit,
-    required _i8.ProgressionTarget? primaryTarget,
-    _i8.ProgressionTarget? secondaryTarget,
+  _i7.Future<_i5.ProgressionConfig> initializeProgression({
+    required _i10.ProgressionType? type,
+    required _i10.ProgressionUnit? unit,
+    required _i10.ProgressionTarget? primaryTarget,
+    _i10.ProgressionTarget? secondaryTarget,
     required double? incrementValue,
     required int? incrementFrequency,
     required int? cycleLength,
@@ -245,7 +256,7 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
               #customParameters: customParameters,
               #isGlobal: isGlobal,
             }),
-            returnValue: _i6.Future<_i4.ProgressionConfig>.value(
+            returnValue: _i7.Future<_i5.ProgressionConfig>.value(
               _FakeProgressionConfig_3(
                 this,
                 Invocation.method(#initializeProgression, [], {
@@ -264,12 +275,13 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
               ),
             ),
           )
-          as _i6.Future<_i4.ProgressionConfig>);
+          as _i7.Future<_i5.ProgressionConfig>);
 
   @override
-  _i6.Future<_i5.ProgressionState> initializeExerciseProgression({
+  _i7.Future<_i6.ProgressionState> initializeExerciseProgression({
     required String? configId,
     required String? exerciseId,
+    required String? routineId,
     required double? baseWeight,
     required int? baseReps,
     required int? baseSets,
@@ -279,17 +291,19 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
             Invocation.method(#initializeExerciseProgression, [], {
               #configId: configId,
               #exerciseId: exerciseId,
+              #routineId: routineId,
               #baseWeight: baseWeight,
               #baseReps: baseReps,
               #baseSets: baseSets,
               #oneRepMax: oneRepMax,
             }),
-            returnValue: _i6.Future<_i5.ProgressionState>.value(
+            returnValue: _i7.Future<_i6.ProgressionState>.value(
               _FakeProgressionState_4(
                 this,
                 Invocation.method(#initializeExerciseProgression, [], {
                   #configId: configId,
                   #exerciseId: exerciseId,
+                  #routineId: routineId,
                   #baseWeight: baseWeight,
                   #baseReps: baseReps,
                   #baseSets: baseSets,
@@ -298,7 +312,7 @@ class MockProgressionService extends _i1.Mock implements _i3.ProgressionService 
               ),
             ),
           )
-          as _i6.Future<_i5.ProgressionState>);
+          as _i7.Future<_i6.ProgressionState>);
 
   @override
   void listenSelf(
