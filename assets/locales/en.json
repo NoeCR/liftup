@@ -39,7 +39,19 @@
         "editingBlockedDuringSession": "Editing blocked during session",
         "addExercisesToSection": "Add exercises to {sectionName}",
         "tapToAddExercises": "Tap to add exercises to this section",
-        "autoRoutineForDay": "Auto routine for {day}: {routine}"
+        "autoRoutineForDay": "Auto routine for {day}: {routine}",
+        "sections": "sections",
+        "noRoutines": "No routines",
+        "errorLoadingRoutines": "Error loading routines",
+        "selectBackgroundImage": "Select Background Image",
+        "fromGallery": "From Gallery",
+        "fromCamera": "From Camera",
+        "currentSelection": "Current Selection",
+        "availableImages": "Available Images",
+        "noImagesAvailable": "No images available",
+        "removeImage": "Remove Image",
+        "errorPickingImage": "Error picking image",
+        "errorRemovingImage": "Error removing image"
     },
     "exercises": {
         "title": "Exercises",
