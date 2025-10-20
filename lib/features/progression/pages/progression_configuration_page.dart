@@ -414,6 +414,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
                     _secondaryTarget = value;
                   });
                 },
+                onSaved: (value) {
+                  _secondaryTarget = value;
+                },
               ),
             ] else ...[
               // Mostrar información del preset seleccionado
@@ -533,6 +536,20 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
 
             // Parámetros específicos por tipo de progresión
             ..._buildTypeSpecificParameters(),
+            const SizedBox(height: 16),
+
+            // Opción para usar parámetros manuales en lugar de objetivo adaptativo
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Usar parámetros manuales'),
+              subtitle: const Text('Ignorar objetivo y usar incrementos/reps/series del formulario'),
+              value: (_customParameters['use_manual_params'] as bool?) ?? false,
+              onChanged: (v) {
+                setState(() {
+                  _customParameters['use_manual_params'] = v;
+                });
+              },
+            ),
           ],
         ),
       ),

@@ -98,6 +98,12 @@ abstract class BaseProgressionStrategy {
 
   /// Versión síncrona, con soporte opcional para experiencia dinámica basada en estado
   double getIncrementValueSync(ProgressionConfig config, Exercise exercise, [ProgressionState? state]) {
+    // Permitir usar parámetros manuales cuando no se desea objetivo
+    final useManualParams = (config.customParameters['use_manual_params'] as bool?) == true;
+    if (useManualParams) {
+      return config.incrementValue;
+    }
+
     // Derivar objetivo y nivel
     final objective = AdaptiveIncrementConfig.parseObjective(config.getTrainingObjective());
     final level = _deriveExperienceLevel(config, exercise, state);
@@ -146,6 +152,10 @@ abstract class BaseProgressionStrategy {
 
   /// Versión síncrona para compatibilidad
   int getMaxRepsSync(ProgressionConfig config, Exercise exercise) {
+    final useManualParams = (config.customParameters['use_manual_params'] as bool?) == true;
+    if (useManualParams) {
+      return config.maxReps;
+    }
     return config.getAdaptiveMaxReps(exercise);
   }
 
@@ -170,6 +180,10 @@ abstract class BaseProgressionStrategy {
 
   /// Versión síncrona para compatibilidad
   int getMinRepsSync(ProgressionConfig config, Exercise exercise) {
+    final useManualParams = (config.customParameters['use_manual_params'] as bool?) == true;
+    if (useManualParams) {
+      return config.minReps;
+    }
     return config.getAdaptiveMinReps(exercise);
   }
 
@@ -194,6 +208,10 @@ abstract class BaseProgressionStrategy {
 
   /// Versión síncrona para compatibilidad
   int getBaseSetsSync(ProgressionConfig config, Exercise exercise) {
+    final useManualParams = (config.customParameters['use_manual_params'] as bool?) == true;
+    if (useManualParams) {
+      return config.baseSets;
+    }
     return config.getAdaptiveBaseSets(exercise);
   }
 
