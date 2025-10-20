@@ -50,6 +50,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
   void initState() {
     super.initState();
     _loadTemplateDefaults();
+    _loadActiveConfigIfAny();
   }
 
   void _loadTemplateDefaults() {
@@ -117,6 +118,37 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         break;
       default:
         break;
+    }
+  }
+
+  /// Carga la configuración activa guardada (si existe) y pre-rellena el formulario
+  Future<void> _loadActiveConfigIfAny() async {
+    try {
+      final currentConfig = await ref.read(progressionNotifierProvider.future);
+      if (currentConfig == null) return;
+
+      // Si el tipo coincide con el de la pantalla actual, aplicar sus valores
+      if (currentConfig.type == widget.progressionType) {
+        setState(() {
+          _selectedConfig = null; // mantener modo manual visible
+          _unit = currentConfig.unit;
+          _primaryTarget = currentConfig.primaryTarget;
+          _secondaryTarget = currentConfig.secondaryTarget;
+          _incrementValue = currentConfig.incrementValue;
+          _incrementFrequency = currentConfig.incrementFrequency;
+          _cycleLength = currentConfig.cycleLength;
+          _deloadWeek = currentConfig.deloadWeek;
+          _deloadPercentage = currentConfig.deloadPercentage;
+          _minReps = currentConfig.minReps;
+          _maxReps = currentConfig.maxReps;
+          _baseSets = currentConfig.baseSets;
+          _customParameters
+            ..clear()
+            ..addAll(currentConfig.customParameters);
+        });
+      }
+    } catch (_) {
+      // Ignorar errores de carga silenciosamente; se mantendrán los defaults
     }
   }
 
@@ -718,7 +750,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             value: (_customParameters['double_factor_mode'] as String?) ?? 'alternate',
             decoration: const InputDecoration(
               labelText: 'Modo Double Factor',
-              helperText: 'alternate (peso/reps alternado), both (ambos), composite (prioriza peso)'
+              helperText: 'alternate (peso/reps alternado), both (ambos), composite (prioriza peso)',
             ),
             items: const [
               DropdownMenuItem(value: 'alternate', child: Text('alternate')),
@@ -814,7 +846,8 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
 
       // Construir configuración a guardar: si hay preset seleccionado, usarlo como base,
       // pero siempre sobrescribir con los valores del formulario (unidad, objetivos, parámetros personalizados, etc.).
-      final baseConfig = _selectedConfig ??
+      final baseConfig =
+          _selectedConfig ??
           ProgressionConfig(
             id: '',
             isGlobal: true,
@@ -849,10 +882,7 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
         minReps: _minReps,
         maxReps: _maxReps,
         baseSets: _baseSets,
-        customParameters: {
-          ...baseConfig.customParameters,
-          ..._customParameters,
-        },
+        customParameters: {...baseConfig.customParameters, ..._customParameters},
       );
 
       await progressionNotifier.setProgressionConfig(configToSave);
