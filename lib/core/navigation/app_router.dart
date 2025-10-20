@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/home/pages/home_page.dart';
-import '../../features/home/pages/create_routine_page.dart';
-import '../../features/home/pages/routine_list_page.dart';
+
+import '../../features/data_management/pages/data_management_page.dart';
+import '../../features/exercise/notifiers/exercise_notifier.dart';
 import '../../features/exercise/pages/exercise_detail_page.dart';
+import '../../features/exercise/pages/exercise_form_page.dart';
 import '../../features/exercise/pages/exercise_list_page.dart';
 import '../../features/exercise/pages/exercise_selection_page.dart';
-import '../../features/exercise/pages/exercise_form_page.dart';
+import '../../features/home/notifiers/routine_notifier.dart';
+import '../../features/home/pages/create_routine_page.dart';
+import '../../features/home/pages/home_page.dart';
+import '../../features/home/pages/routine_list_page.dart';
+import '../../features/home/pages/section_templates_page.dart';
+import '../../features/progression/pages/progression_configuration_page.dart';
+import '../../features/progression/pages/progression_selection_page.dart';
+import '../../features/sessions/pages/session_history_page.dart';
 import '../../features/sessions/pages/session_page.dart';
 import '../../features/sessions/pages/session_summary_page.dart';
-import '../../features/sessions/pages/session_history_page.dart';
-import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
-import '../../features/home/pages/section_templates_page.dart';
-import '../../features/data_management/pages/data_management_page.dart';
-import '../../features/progression/pages/progression_selection_page.dart';
-import '../../features/progression/pages/progression_configuration_page.dart';
-import '../../features/home/notifiers/routine_notifier.dart';
-import '../../features/exercise/notifiers/exercise_notifier.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/statistics/pages/statistics_page.dart';
 
 class AppRouter {
   static const String home = '/';
@@ -42,7 +43,11 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: home,
     routes: [
-      GoRoute(path: home, name: 'home', builder: (context, state) => const HomePage()),
+      GoRoute(
+        path: home,
+        name: 'home',
+        builder: (context, state) => const HomePage(),
+      ),
       GoRoute(
         path: createRoutine,
         name: 'createRoutine',
@@ -57,24 +62,37 @@ class AppRouter {
                 final routineAsync = ref.watch(routineNotifierProvider);
                 return routineAsync.when(
                   data: (routines) {
-                    final routine = routines.firstWhere(
-                      (r) => r.id == routineId,
-                      orElse: () => throw Exception('Rutina no encontrada'),
-                    );
+                    final matching = routines.where((r) => r.id == routineId);
+                    if (matching.isEmpty) {
+                      // Si la rutina ya no existe (por ejemplo, se borró mientras estábamos en la pantalla),
+                      // devolvemos la página de creación para evitar un crash.
+                      return const CreateRoutinePage();
+                    }
+                    final routine = matching.first;
                     return CreateRoutinePage(routineToEdit: routine);
                   },
-                  loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+                  loading:
+                      () => const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      ),
                   error:
                       (error, stack) => Scaffold(
                         body: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                              const Icon(
+                                Icons.error_outline,
+                                size: 64,
+                                color: Colors.red,
+                              ),
                               const SizedBox(height: 16),
                               Text('Error: $error'),
                               const SizedBox(height: 16),
-                              ElevatedButton(onPressed: () => context.go(home), child: const Text('Volver al inicio')),
+                              ElevatedButton(
+                                onPressed: () => context.go(home),
+                                child: const Text('Volver al inicio'),
+                              ),
                             ],
                           ),
                         ),
@@ -87,18 +105,32 @@ class AppRouter {
           return const CreateRoutinePage();
         },
       ),
-      GoRoute(path: routineList, name: 'routineList', builder: (context, state) => const RoutineListPage()),
-      GoRoute(path: exerciseList, name: 'exerciseList', builder: (context, state) => const ExerciseListPage()),
+      GoRoute(
+        path: routineList,
+        name: 'routineList',
+        builder: (context, state) => const RoutineListPage(),
+      ),
+      GoRoute(
+        path: exerciseList,
+        name: 'exerciseList',
+        builder: (context, state) => const ExerciseListPage(),
+      ),
       GoRoute(
         path: exerciseSelection,
         name: 'exerciseSelection',
         builder: (context, state) {
           final routineId = state.uri.queryParameters['routineId'];
           final sectionId = state.uri.queryParameters['sectionId'];
-          final title = state.uri.queryParameters['title'] ?? 'Seleccionar Ejercicios';
+          final title =
+              state.uri.queryParameters['title'] ?? 'Seleccionar Ejercicios';
           final subtitle = state.uri.queryParameters['subtitle'];
 
-          return ExerciseSelectionPage(routineId: routineId, sectionId: sectionId, title: title, subtitle: subtitle);
+          return ExerciseSelectionPage(
+            routineId: routineId,
+            sectionId: sectionId,
+            title: title,
+            subtitle: subtitle,
+          );
         },
       ),
       // IMPORTANT: Specific routes must come BEFORE the generic '/exercise/:id'
@@ -110,7 +142,11 @@ class AppRouter {
           final sectionId = state.uri.queryParameters['sectionId'];
           final returnTo = state.uri.queryParameters['returnTo'];
 
-          return ExerciseFormPage(routineId: routineId, sectionId: sectionId, returnTo: returnTo);
+          return ExerciseFormPage(
+            routineId: routineId,
+            sectionId: sectionId,
+            returnTo: returnTo,
+          );
         },
       ),
       GoRoute(
@@ -129,14 +165,21 @@ class AppRouter {
                   );
                   return ExerciseFormPage(exerciseToEdit: exercise);
                 },
-                loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+                loading:
+                    () => const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    ),
                 error:
                     (error, stack) => Scaffold(
                       body: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                            const Icon(
+                              Icons.error_outline,
+                              size: 64,
+                              color: Colors.red,
+                            ),
                             const SizedBox(height: 16),
                             Text('Error: $error'),
                             const SizedBox(height: 16),
@@ -161,7 +204,11 @@ class AppRouter {
           return ExerciseDetailPage(exerciseId: exerciseId);
         },
       ),
-      GoRoute(path: session, name: 'session', builder: (context, state) => const SessionPage()),
+      GoRoute(
+        path: session,
+        name: 'session',
+        builder: (context, state) => const SessionPage(),
+      ),
       GoRoute(
         path: sessionSummary,
         name: 'sessionSummary',
@@ -170,15 +217,31 @@ class AppRouter {
           return SessionSummaryPage(sessionId: sessionId);
         },
       ),
-      GoRoute(path: sessionHistory, name: 'sessionHistory', builder: (context, state) => const SessionHistoryPage()),
-      GoRoute(path: statistics, name: 'statistics', builder: (context, state) => const StatisticsPage()),
-      GoRoute(path: settings, name: 'settings', builder: (context, state) => const SettingsPage()),
+      GoRoute(
+        path: sessionHistory,
+        name: 'sessionHistory',
+        builder: (context, state) => const SessionHistoryPage(),
+      ),
+      GoRoute(
+        path: statistics,
+        name: 'statistics',
+        builder: (context, state) => const StatisticsPage(),
+      ),
+      GoRoute(
+        path: settings,
+        name: 'settings',
+        builder: (context, state) => const SettingsPage(),
+      ),
       GoRoute(
         path: sectionTemplates,
         name: 'sectionTemplates',
         builder: (context, state) => const SectionTemplatesPage(),
       ),
-      GoRoute(path: dataManagement, name: 'dataManagement', builder: (context, state) => const DataManagementPage()),
+      GoRoute(
+        path: dataManagement,
+        name: 'dataManagement',
+        builder: (context, state) => const DataManagementPage(),
+      ),
       GoRoute(
         path: progressionSelection,
         name: 'progressionSelection',
@@ -191,7 +254,11 @@ class AppRouter {
           final extra = state.extra as Map<String, dynamic>?;
           final progressionType = extra?['progressionType'];
           if (progressionType == null) {
-            return const Scaffold(body: Center(child: Text('Error: Tipo de progresión no especificado')));
+            return const Scaffold(
+              body: Center(
+                child: Text('Error: Tipo de progresión no especificado'),
+              ),
+            );
           }
           return ProgressionConfigurationPage(progressionType: progressionType);
         },
@@ -205,11 +272,20 @@ class AppRouter {
               children: [
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
-                Text('Página no encontrada', style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  'Página no encontrada',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 const SizedBox(height: 8),
-                Text('La página que buscas no existe', style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  'La página que buscas no existe',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: 16),
-                ElevatedButton(onPressed: () => context.go(home), child: const Text('Volver al inicio')),
+                ElevatedButton(
+                  onPressed: () => context.go(home),
+                  child: const Text('Volver al inicio'),
+                ),
               ],
             ),
           ),

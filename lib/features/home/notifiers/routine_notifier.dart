@@ -1,9 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../../common/enums/section_muscle_group_enum.dart';
+import '../../../common/enums/week_day_enum.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
-import '../../../common/enums/week_day_enum.dart';
-import '../../../common/enums/section_muscle_group_enum.dart';
 import 'routine_section_template_notifier.dart';
 
 part 'routine_notifier.g.dart';
@@ -32,9 +33,18 @@ class RoutineNotifier extends _$RoutineNotifier {
     // Compute next available display order
     final currentRoutines = await routineService.getAllRoutines();
     final nextOrder =
-        currentRoutines.isEmpty ? 0 : (currentRoutines.map((r) => r.order ?? 0).reduce((a, b) => a > b ? a : b) + 1);
+        currentRoutines.isEmpty
+            ? 0
+            : (currentRoutines
+                    .map((r) => r.order ?? 0)
+                    .reduce((a, b) => a > b ? a : b) +
+                1);
 
-    final newRoutine = routine.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now(), order: nextOrder);
+    final newRoutine = routine.copyWith(
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      order: nextOrder,
+    );
 
     await routineService.saveRoutine(newRoutine);
     state = AsyncValue.data(await routineService.getAllRoutines());
@@ -81,7 +91,9 @@ class RoutineNotifier extends _$RoutineNotifier {
     for (final routine in currentRoutines) {
       for (final section in routine.sections) {
         if (section.id == sectionId) {
-          final updatedSection = section.copyWith(isCollapsed: !section.isCollapsed);
+          final updatedSection = section.copyWith(
+            isCollapsed: !section.isCollapsed,
+          );
 
           final updatedSections =
               routine.sections.map((s) {
@@ -155,7 +167,63 @@ class RoutineNotifier extends _$RoutineNotifier {
     await reorderRoutines(routineIds);
   }
 
-  Future<void> addSectionsToRoutine(String routineId, List<String> sectionTemplateIds) async {
+  /// Verifica si un ejercicio ya existe en alguna sección de la rutina
+  bool isExerciseInRoutine(String routineId, String exerciseId) {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return false;
+
+    final routine = currentRoutines.firstWhere(
+      (r) => r.id == routineId,
+      orElse: () => throw Exception('Routine not found'),
+    );
+
+    // Buscar el ejercicio en todas las secciones de la rutina
+    for (final section in routine.sections) {
+      for (final routineExercise in section.exercises) {
+        if (routineExercise.exerciseId == exerciseId) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /// Verifica si alguno de los ejercicios ya existe en la rutina
+  List<String> getDuplicateExerciseIds(
+    String routineId,
+    List<String> exerciseIds,
+  ) {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return [];
+
+    final routine = currentRoutines.firstWhere(
+      (r) => r.id == routineId,
+      orElse: () => throw Exception('Routine not found'),
+    );
+
+    final duplicateIds = <String>[];
+
+    // Buscar ejercicios duplicados en todas las secciones de la rutina
+    for (final exerciseId in exerciseIds) {
+      for (final section in routine.sections) {
+        for (final routineExercise in section.exercises) {
+          if (routineExercise.exerciseId == exerciseId) {
+            duplicateIds.add(exerciseId);
+            break;
+          }
+        }
+        if (duplicateIds.contains(exerciseId)) break;
+      }
+    }
+
+    return duplicateIds;
+  }
+
+  Future<void> addSectionsToRoutine(
+    String routineId,
+    List<String> sectionTemplateIds,
+  ) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) {
       return;
@@ -171,7 +239,9 @@ class RoutineNotifier extends _$RoutineNotifier {
       final routine = currentRoutines[routineIndex];
 
       // Get section templates
-      final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
+      final sectionTemplates = await ref.read(
+        routineSectionTemplateNotifierProvider.future,
+      );
 
       // Create sections based on selected templates
       final newSections =
