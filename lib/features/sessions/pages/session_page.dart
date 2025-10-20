@@ -300,7 +300,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                             )
                           else
                             SizedBox(
-                              height: 310,
+                              height: 320,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(
