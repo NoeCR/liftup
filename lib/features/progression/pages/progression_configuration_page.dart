@@ -712,6 +712,56 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
           ),
         ]);
         break;
+      case ProgressionType.doubleFactor:
+        widgets.addAll([
+          DropdownButtonFormField<String>(
+            value: (_customParameters['double_factor_mode'] as String?) ?? 'alternate',
+            decoration: const InputDecoration(
+              labelText: 'Modo Double Factor',
+              helperText: 'alternate (peso/reps alternado), both (ambos), composite (prioriza peso)'
+            ),
+            items: const [
+              DropdownMenuItem(value: 'alternate', child: Text('alternate')),
+              DropdownMenuItem(value: 'both', child: Text('both')),
+              DropdownMenuItem(value: 'composite', child: Text('composite')),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _customParameters['double_factor_mode'] = value;
+              });
+            },
+            onSaved: (value) {
+              _customParameters['double_factor_mode'] = value ?? 'alternate';
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            initialValue: _customParameters['min_reps']?.toString() ?? _minReps.toString(),
+            decoration: InputDecoration(
+              labelText: 'progression.minReps'.tr(),
+              helperText: 'progression.minRepsHelper'.tr(),
+            ),
+            keyboardType: TextInputType.number,
+            onSaved: (value) {
+              final v = int.tryParse(value ?? '');
+              if (v != null) _customParameters['min_reps'] = v;
+            },
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            initialValue: _customParameters['max_reps']?.toString() ?? _maxReps.toString(),
+            decoration: InputDecoration(
+              labelText: 'progression.maxReps'.tr(),
+              helperText: 'progression.maxRepsHelper'.tr(),
+            ),
+            keyboardType: TextInputType.number,
+            onSaved: (value) {
+              final v = int.tryParse(value ?? '');
+              if (v != null) _customParameters['max_reps'] = v;
+            },
+          ),
+        ]);
+        break;
       default:
         widgets.add(
           Text(
@@ -762,9 +812,9 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
     try {
       final progressionNotifier = ref.read(progressionNotifierProvider.notifier);
 
-      // Si hay un preset seleccionado, usar sus valores; si no, usar los valores manuales
-      final configToSave =
-          _selectedConfig ??
+      // Construir configuración a guardar: si hay preset seleccionado, usarlo como base,
+      // pero siempre sobrescribir con los valores del formulario (unidad, objetivos, parámetros personalizados, etc.).
+      final baseConfig = _selectedConfig ??
           ProgressionConfig(
             id: '',
             isGlobal: true,
@@ -786,6 +836,24 @@ class _ProgressionConfigurationPageState extends ConsumerState<ProgressionConfig
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),
           );
+
+      final configToSave = baseConfig.copyWith(
+        unit: _unit,
+        primaryTarget: _primaryTarget,
+        secondaryTarget: _secondaryTarget,
+        incrementValue: _incrementValue,
+        incrementFrequency: _incrementFrequency,
+        cycleLength: _cycleLength,
+        deloadWeek: _deloadWeek,
+        deloadPercentage: _deloadPercentage,
+        minReps: _minReps,
+        maxReps: _maxReps,
+        baseSets: _baseSets,
+        customParameters: {
+          ...baseConfig.customParameters,
+          ..._customParameters,
+        },
+      );
 
       await progressionNotifier.setProgressionConfig(configToSave);
 
