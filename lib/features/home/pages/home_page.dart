@@ -97,9 +97,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
 
             if (selectedRoutineId != null) {
               try {
-                selectedRoutine = routines.firstWhere(
-                  (routine) => routine.id == selectedRoutineId,
-                );
+                selectedRoutine = routines.firstWhere((routine) => routine.id == selectedRoutineId);
               } catch (e) {
                 // If selected routine not found, use first routine
                 if (routines.isNotEmpty) {
@@ -126,22 +124,14 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     );
   }
 
-  Widget _buildRoutineContent(
-    Routine routine,
-    AsyncValue<List<Exercise>> exerciseAsync,
-  ) {
+  Widget _buildRoutineContent(Routine routine, AsyncValue<List<Exercise>> exerciseAsync) {
     // Show all sections of the routine
     if (routine.sections.isEmpty) {
       return _buildNoSectionsYet();
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        16,
-        16,
-        16,
-        kBottomNavigationBarHeight + AppTheme.spacingL,
-      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, kBottomNavigationBarHeight + AppTheme.spacingL),
       itemCount: routine.sections.length,
       itemBuilder: (context, index) {
         final section = routine.sections[index];
@@ -150,11 +140,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     );
   }
 
-  Widget _buildRoutineSection(
-    RoutineSection section,
-    AsyncValue<List<Exercise>> exerciseAsync,
-    Routine routine,
-  ) {
+  Widget _buildRoutineSection(RoutineSection section, AsyncValue<List<Exercise>> exerciseAsync, Routine routine) {
     return Column(
       children: [
         SectionHeader(
@@ -163,9 +149,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
           iconName: section.iconName,
           muscleGroup: section.muscleGroup,
           onToggleCollapsed: () {
-            ref
-                .read(routineNotifierProvider.notifier)
-                .toggleSectionCollapsed(section.id);
+            ref.read(routineNotifierProvider.notifier).toggleSectionCollapsed(section.id);
           },
         ),
         if (!section.isCollapsed) ...[
@@ -207,21 +191,12 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                 height: 308,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.spacingS,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),
                   itemCount: exerciseCards.length + 1,
                   itemBuilder: (context, index) {
                     if (index == exerciseCards.length) {
                       // Last item: card to add exercises
-                      return SizedBox(
-                        width: 320,
-                        child: _buildEmptySection(
-                          section.name,
-                          routine,
-                          section,
-                        ),
-                      );
+                      return SizedBox(width: 320, child: _buildEmptySection(section.name, routine, section));
                     }
                     return SizedBox(width: 320, child: exerciseCards[index]);
                   },
@@ -244,19 +219,13 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.fitness_center_outlined,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(Icons.fitness_center_outlined, size: 64, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
           Text(context.tr('app.welcome'), style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             context.tr('app.createFirstRoutine'),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
@@ -279,22 +248,13 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.category_outlined,
-            size: 64,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          Icon(Icons.category_outlined, size: 64, color: colorScheme.onSurfaceVariant),
           const SizedBox(height: 16),
-          Text(
-            context.tr('home.noSectionsConfigured'),
-            style: theme.textTheme.headlineSmall,
-          ),
+          Text(context.tr('home.noSectionsConfigured'), style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             context.tr('home.addSectionsToStart'),
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
         ],
@@ -302,11 +262,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
     );
   }
 
-  Widget _buildEmptySection(
-    String sectionName,
-    Routine routine,
-    RoutineSection section,
-  ) {
+  Widget _buildEmptySection(String sectionName, Routine routine, RoutineSection section) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -316,10 +272,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.3),
-          style: BorderStyle.solid,
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3), style: BorderStyle.solid),
       ),
       child: Consumer(
         builder: (context, ref, _) {
@@ -330,8 +283,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                     data:
                         (sessions) => sessions.any(
                           (s) =>
-                              (s.status == SessionStatus.active ||
-                                  s.status == SessionStatus.paused) &&
+                              (s.status == SessionStatus.active || s.status == SessionStatus.paused) &&
                               s.endTime == null,
                         ),
                     orElse: () => false,
@@ -357,17 +309,15 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                     Icon(
                       Icons.add_circle_outline,
                       size: 48,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant
-                          .withValues(alpha: hasActiveSession ? 0.4 : 1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant.withValues(alpha: hasActiveSession ? 0.4 : 1),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       hasActiveSession
                           ? context.tr('home.editingBlockedDuringSession')
-                          : context.tr(
-                            'home.addExercisesToSection',
-                            namedArgs: {'sectionName': sectionName},
-                          ),
+                          : context.tr('home.addExercisesToSection', namedArgs: {'sectionName': sectionName}),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -405,16 +355,11 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         children: [
           Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text(
-            context.tr('errors.errorLoadingData'),
-            style: theme.textTheme.headlineSmall,
-          ),
+          Text(context.tr('errors.errorLoadingData'), style: theme.textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(
             error,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
+            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -453,18 +398,13 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             title: Text(context.tr('home.resetDatabase')),
             content: Text(context.tr('home.resetDatabaseDescription')),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('common.cancel')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('common.cancel'))),
               FilledButton(
                 onPressed: () async {
                   Navigator.of(context).pop();
                   await _resetDatabase();
                 },
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                ),
+                style: FilledButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.error),
                 child: Text(context.tr('home.reset')),
               ),
             ],
@@ -515,12 +455,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              context.tr(
-                'home.databaseResetError',
-                namedArgs: {'error': e.toString()},
-              ),
-            ),
+            content: Text(context.tr('home.databaseResetError', namedArgs: {'error': e.toString()})),
             backgroundColor: Colors.red,
           ),
         );
@@ -536,10 +471,7 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
             title: Text(context.tr('home.manageRoutinesTitle')),
             content: Text(context.tr('home.manageRoutinesDescription')),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(context.tr('home.understood')),
-              ),
+              TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(context.tr('home.understood'))),
             ],
           ),
     );

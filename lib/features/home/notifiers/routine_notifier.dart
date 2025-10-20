@@ -33,18 +33,9 @@ class RoutineNotifier extends _$RoutineNotifier {
     // Compute next available display order
     final currentRoutines = await routineService.getAllRoutines();
     final nextOrder =
-        currentRoutines.isEmpty
-            ? 0
-            : (currentRoutines
-                    .map((r) => r.order ?? 0)
-                    .reduce((a, b) => a > b ? a : b) +
-                1);
+        currentRoutines.isEmpty ? 0 : (currentRoutines.map((r) => r.order ?? 0).reduce((a, b) => a > b ? a : b) + 1);
 
-    final newRoutine = routine.copyWith(
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      order: nextOrder,
-    );
+    final newRoutine = routine.copyWith(createdAt: DateTime.now(), updatedAt: DateTime.now(), order: nextOrder);
 
     await routineService.saveRoutine(newRoutine);
     state = AsyncValue.data(await routineService.getAllRoutines());
@@ -91,9 +82,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     for (final routine in currentRoutines) {
       for (final section in routine.sections) {
         if (section.id == sectionId) {
-          final updatedSection = section.copyWith(
-            isCollapsed: !section.isCollapsed,
-          );
+          final updatedSection = section.copyWith(isCollapsed: !section.isCollapsed);
 
           final updatedSections =
               routine.sections.map((s) {
@@ -190,10 +179,7 @@ class RoutineNotifier extends _$RoutineNotifier {
   }
 
   /// Verifica si alguno de los ejercicios ya existe en la rutina
-  List<String> getDuplicateExerciseIds(
-    String routineId,
-    List<String> exerciseIds,
-  ) {
+  List<String> getDuplicateExerciseIds(String routineId, List<String> exerciseIds) {
     final currentRoutines = state.value;
     if (currentRoutines == null) return [];
 
@@ -220,10 +206,7 @@ class RoutineNotifier extends _$RoutineNotifier {
     return duplicateIds;
   }
 
-  Future<void> addSectionsToRoutine(
-    String routineId,
-    List<String> sectionTemplateIds,
-  ) async {
+  Future<void> addSectionsToRoutine(String routineId, List<String> sectionTemplateIds) async {
     final currentRoutines = state.value;
     if (currentRoutines == null) {
       return;
@@ -239,9 +222,7 @@ class RoutineNotifier extends _$RoutineNotifier {
       final routine = currentRoutines[routineIndex];
 
       // Get section templates
-      final sectionTemplates = await ref.read(
-        routineSectionTemplateNotifierProvider.future,
-      );
+      final sectionTemplates = await ref.read(routineSectionTemplateNotifierProvider.future);
 
       // Create sections based on selected templates
       final newSections =
