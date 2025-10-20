@@ -24,10 +24,7 @@ class SessionCalculations {
   /// Calculates average weight per repetition
   /// Formula: sum(weight * reps) / totalReps
   static double calculateAverageWeightPerRep(List<ExerciseSet> sets) {
-    final totalWeightLifted = sets.fold(
-      0.0,
-      (sum, set) => sum + (set.weight * set.reps),
-    );
+    final totalWeightLifted = sets.fold(0.0, (sum, set) => sum + (set.weight * set.reps));
     final totalReps = calculateTotalReps(sets);
     return totalReps > 0 ? totalWeightLifted / totalReps : 0.0;
   }
@@ -43,18 +40,13 @@ class SessionCalculations {
   /// Calculates average weight per set
   /// Formula: sum(weight * reps) / totalSets
   static double calculateAverageWeightPerSet(List<ExerciseSet> sets) {
-    final totalWeightLifted = sets.fold(
-      0.0,
-      (sum, set) => sum + (set.weight * set.reps),
-    );
+    final totalWeightLifted = sets.fold(0.0, (sum, set) => sum + (set.weight * set.reps));
     final totalSets = calculateTotalSets(sets);
     return totalSets > 0 ? totalWeightLifted / totalSets : 0.0;
   }
 
   /// Groups sets by exercise ID and calculates totals for each exercise
-  static Map<String, ExerciseTotals> calculateExerciseTotals(
-    List<ExerciseSet> sets,
-  ) {
+  static Map<String, ExerciseTotals> calculateExerciseTotals(List<ExerciseSet> sets) {
     final Map<String, List<ExerciseSet>> groupedSets = {};
 
     for (final set in sets) {
