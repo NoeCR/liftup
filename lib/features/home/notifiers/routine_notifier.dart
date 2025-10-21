@@ -1,9 +1,10 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../../common/enums/section_muscle_group_enum.dart';
+import '../../../common/enums/week_day_enum.dart';
 import '../models/routine.dart';
 import '../services/routine_service.dart';
-import '../../../common/enums/week_day_enum.dart';
-import '../../../common/enums/section_muscle_group_enum.dart';
 import 'routine_section_template_notifier.dart';
 
 part 'routine_notifier.g.dart';
@@ -153,6 +154,56 @@ class RoutineNotifier extends _$RoutineNotifier {
 
     // Reordenar todas las rutinas
     await reorderRoutines(routineIds);
+  }
+
+  /// Verifica si un ejercicio ya existe en alguna sección de la rutina
+  bool isExerciseInRoutine(String routineId, String exerciseId) {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return false;
+
+    final routine = currentRoutines.firstWhere(
+      (r) => r.id == routineId,
+      orElse: () => throw Exception('Routine not found'),
+    );
+
+    // Buscar el ejercicio en todas las secciones de la rutina
+    for (final section in routine.sections) {
+      for (final routineExercise in section.exercises) {
+        if (routineExercise.exerciseId == exerciseId) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /// Verifica si alguno de los ejercicios ya existe en la rutina
+  List<String> getDuplicateExerciseIds(String routineId, List<String> exerciseIds) {
+    final currentRoutines = state.value;
+    if (currentRoutines == null) return [];
+
+    final routine = currentRoutines.firstWhere(
+      (r) => r.id == routineId,
+      orElse: () => throw Exception('Routine not found'),
+    );
+
+    final duplicateIds = <String>[];
+
+    // Buscar ejercicios duplicados en todas las secciones de la rutina
+    for (final exerciseId in exerciseIds) {
+      for (final section in routine.sections) {
+        for (final routineExercise in section.exercises) {
+          if (routineExercise.exerciseId == exerciseId) {
+            duplicateIds.add(exerciseId);
+            break;
+          }
+        }
+        if (duplicateIds.contains(exerciseId)) break;
+      }
+    }
+
+    return duplicateIds;
   }
 
   Future<void> addSectionsToRoutine(String routineId, List<String> sectionTemplateIds) async {

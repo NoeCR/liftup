@@ -1,12 +1,13 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
-import '../notifiers/exercise_notifier.dart';
-import '../models/exercise.dart';
+
+import '../../home/models/routine.dart';
 import '../../home/notifiers/routine_exercise_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
-import '../../home/models/routine.dart';
+import '../models/exercise.dart';
+import '../notifiers/exercise_notifier.dart';
 
 class ExerciseSelectionPage extends ConsumerStatefulWidget {
   final String? routineId;
@@ -542,6 +543,33 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
             ),
           );
           return;
+        }
+
+        // Validar duplicados si tenemos una rutina
+        if (widget.routineId != null) {
+          final routineNotifier = ref.read(routineNotifierProvider.notifier);
+          final selectedExerciseIds = selectedExercises.map((e) => e.id).toList();
+          final duplicateIds = routineNotifier.getDuplicateExerciseIds(widget.routineId!, selectedExerciseIds);
+
+          if (duplicateIds.isNotEmpty) {
+            if (!mounted) return;
+
+            // Obtener nombres de ejercicios duplicados
+            final duplicateExerciseNames =
+                duplicateIds.map((id) {
+                  final exercise = exercises.firstWhere((e) => e.id == id);
+                  return exercise.name;
+                }).toList();
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Los siguientes ejercicios ya están en la rutina: ${duplicateExerciseNames.join(', ')}'),
+                backgroundColor: Colors.orange,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+            return;
+          }
         }
 
         // Add exercises to the in-memory notifier for immediate UI feedback

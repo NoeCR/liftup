@@ -13,7 +13,7 @@ void main() {
         expect(result, equals(0.0));
       });
 
-      test('should calculate total weight for single set', () {
+      test('should return maximum weight for single set', () {
         // Arrange
         final sets = [
           ExerciseSet(
@@ -30,10 +30,10 @@ void main() {
         final result = SessionCalculations.calculateTotalWeight(sets);
 
         // Assert
-        expect(result, equals(600.0)); // 60.0 * 10
+        expect(result, equals(60.0)); // Maximum weight used
       });
 
-      test('should calculate total weight for multiple sets', () {
+      test('should return maximum weight for multiple sets', () {
         // Arrange
         final sets = [
           ExerciseSet(
@@ -66,7 +66,7 @@ void main() {
         final result = SessionCalculations.calculateTotalWeight(sets);
 
         // Assert
-        expect(result, equals(1540.0)); // (60*10) + (65*8) + (70*6) = 600 + 520 + 420 = 1540
+        expect(result, equals(70.0)); // Maximum weight used (70.0)
       });
 
       test('should handle zero weight and reps', () {
@@ -94,7 +94,7 @@ void main() {
         final result = SessionCalculations.calculateTotalWeight(sets);
 
         // Assert
-        expect(result, equals(0.0));
+        expect(result, equals(60.0)); // Maximum weight used (60.0)
       });
     });
 
@@ -395,10 +395,10 @@ void main() {
         expect(result.containsKey('exercise-1'), isTrue);
 
         final totals = result['exercise-1']!;
-        expect(totals.totalWeight, equals(1120.0)); // (60*10) + (65*8)
+        expect(totals.totalWeight, equals(65.0)); // Maximum weight used (65.0)
         expect(totals.totalReps, equals(18)); // 10 + 8
         expect(totals.totalSets, equals(2));
-        expect(totals.averageWeightPerRep, equals(1120.0 / 18));
+        expect(totals.averageWeightPerRep, equals(1120.0 / 18)); // Still uses total weight lifted for average
         expect(totals.averageRepsPerSet, equals(9.0)); // 18 / 2
         expect(totals.averageWeightPerSet, equals(560.0)); // 1120 / 2
       });
@@ -441,12 +441,12 @@ void main() {
         expect(result.containsKey('exercise-2'), isTrue);
 
         final exercise1Totals = result['exercise-1']!;
-        expect(exercise1Totals.totalWeight, equals(1120.0)); // (60*10) + (65*8)
+        expect(exercise1Totals.totalWeight, equals(65.0)); // Maximum weight used (65.0)
         expect(exercise1Totals.totalReps, equals(18)); // 10 + 8
         expect(exercise1Totals.totalSets, equals(2));
 
         final exercise2Totals = result['exercise-2']!;
-        expect(exercise2Totals.totalWeight, equals(450.0)); // 30*15
+        expect(exercise2Totals.totalWeight, equals(30.0)); // Maximum weight used (30.0)
         expect(exercise2Totals.totalReps, equals(15));
         expect(exercise2Totals.totalSets, equals(1));
       });

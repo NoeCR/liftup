@@ -2,10 +2,11 @@ import '../../exercise/models/exercise_set.dart';
 
 /// Utility class for session-related calculations
 class SessionCalculations {
-  /// Calculates total weight lifted in a session
-  /// Formula: sum(weight * reps) for each set
+  /// Calculates the maximum weight used in the exercise
+  /// Formula: max(weight) for each set
   static double calculateTotalWeight(List<ExerciseSet> sets) {
-    return sets.fold(0.0, (sum, set) => sum + (set.weight * set.reps));
+    if (sets.isEmpty) return 0.0;
+    return sets.map((set) => set.weight).reduce((a, b) => a > b ? a : b);
   }
 
   /// Calculates total repetitions performed in a session
@@ -21,11 +22,11 @@ class SessionCalculations {
   }
 
   /// Calculates average weight per repetition
-  /// Formula: totalWeight / totalReps
+  /// Formula: sum(weight * reps) / totalReps
   static double calculateAverageWeightPerRep(List<ExerciseSet> sets) {
-    final totalWeight = calculateTotalWeight(sets);
+    final totalWeightLifted = sets.fold(0.0, (sum, set) => sum + (set.weight * set.reps));
     final totalReps = calculateTotalReps(sets);
-    return totalReps > 0 ? totalWeight / totalReps : 0.0;
+    return totalReps > 0 ? totalWeightLifted / totalReps : 0.0;
   }
 
   /// Calculates average repetitions per set
@@ -37,11 +38,11 @@ class SessionCalculations {
   }
 
   /// Calculates average weight per set
-  /// Formula: totalWeight / totalSets
+  /// Formula: sum(weight * reps) / totalSets
   static double calculateAverageWeightPerSet(List<ExerciseSet> sets) {
-    final totalWeight = calculateTotalWeight(sets);
+    final totalWeightLifted = sets.fold(0.0, (sum, set) => sum + (set.weight * set.reps));
     final totalSets = calculateTotalSets(sets);
-    return totalSets > 0 ? totalWeight / totalSets : 0.0;
+    return totalSets > 0 ? totalWeightLifted / totalSets : 0.0;
   }
 
   /// Groups sets by exercise ID and calculates totals for each exercise
@@ -73,7 +74,7 @@ class SessionCalculations {
 
 /// Data class for exercise totals
 class ExerciseTotals {
-  final double totalWeight;
+  final double totalWeight; // Maximum weight used in the exercise
   final int totalReps;
   final int totalSets;
   final double averageWeightPerRep;

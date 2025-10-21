@@ -55,14 +55,11 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
             }
 
             // Auto-select routine based on day of week or first routine if none selected
-            if (_selectedMenuOption.isEmpty ||
-                !routines.any((r) => r.name == _selectedMenuOption)) {
+            if (_selectedMenuOption.isEmpty || !routines.any((r) => r.name == _selectedMenuOption)) {
               if (routines.isNotEmpty) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   // Get auto-selected routine or fallback to first
-                  final autoSelectionInfo = ref.read(
-                    autoRoutineSelectionNotifierProvider,
-                  );
+                  final autoSelectionInfo = ref.read(autoRoutineSelectionNotifierProvider);
 
                   Routine? routineToSelect;
                   if (autoSelectionInfo.hasSelection) {
@@ -72,9 +69,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
                   }
 
                   if (routineToSelect != null) {
-                    final index = routines.indexWhere(
-                      (r) => r.id == routineToSelect!.id,
-                    );
+                    final index = routines.indexWhere((r) => r.id == routineToSelect!.id);
                     if (index != -1) {
                       setState(() {
                         _selectedMenuOption = routineToSelect!.name;
@@ -85,8 +80,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
                         duration: const Duration(milliseconds: 300),
                         curve: Curves.easeInOut,
                       );
-                      ref.read(selectedRoutineIdProvider.notifier).state =
-                          routineToSelect.id;
+                      ref.read(selectedRoutineIdProvider.notifier).state = routineToSelect.id;
                     }
                   }
                 });
@@ -105,8 +99,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
                         _currentPage = index;
                         _selectedMenuOption = routines[index].name;
                       });
-                      ref.read(selectedRoutineIdProvider.notifier).state =
-                          routines[index].id;
+                      ref.read(selectedRoutineIdProvider.notifier).state = routines[index].id;
                     },
                     itemCount: routines.length,
                     itemBuilder: (context, index) {
@@ -134,10 +127,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
         .maybeWhen(
           data:
               (sessions) => sessions.any(
-                (s) =>
-                    (s.status == SessionStatus.active ||
-                        s.status == SessionStatus.paused) &&
-                    s.endTime == null,
+                (s) => (s.status == SessionStatus.active || s.status == SessionStatus.paused) && s.endTime == null,
               ),
           orElse: () => false,
         );
@@ -157,11 +147,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.radiusL),
             boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withValues(alpha: 0.15),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
+              BoxShadow(color: colorScheme.shadow.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, 8)),
             ],
           ),
           child: ClipRRect(
@@ -177,10 +163,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.3),
-                        Colors.black.withValues(alpha: 0.7),
-                      ],
+                      colors: [Colors.black.withValues(alpha: 0.3), Colors.black.withValues(alpha: 0.7)],
                     ),
                   ),
                 ),
@@ -191,9 +174,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
                     children: [
                       Text(
                         routine.name,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           shadows: [
@@ -232,15 +213,8 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
                     onTap: () => _showBackgroundImageSelector(routine),
                     child: Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+                      child: const Icon(Icons.edit, color: Colors.white, size: 16),
                     ),
                   ),
                 ),
@@ -284,16 +258,13 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
 
   Widget _buildDefaultBackground(Routine routine) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: BackgroundImageService.getRoutineGradient(routine.name),
-      ),
+      decoration: BoxDecoration(gradient: BackgroundImageService.getRoutineGradient(routine.name)),
       child: const Icon(Icons.fitness_center, size: 80, color: Colors.white),
     );
   }
 
   Future<void> _showBackgroundImageSelector(Routine routine) async {
-    final currentImage =
-        await BackgroundImageService.getBackgroundImageForRoutine(routine.id);
+    final currentImage = await BackgroundImageService.getBackgroundImageForRoutine(routine.id);
 
     if (!mounted) return;
 
@@ -306,16 +277,10 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
             currentImagePath: currentImage,
             onImageSelected: (imagePath) async {
               if (imagePath != null) {
-                await BackgroundImageService.setBackgroundImageForRoutine(
-                  routine.id,
-                  imagePath,
-                );
+                await BackgroundImageService.setBackgroundImageForRoutine(routine.id, imagePath);
               } else {
                 // Remove current image
-                await BackgroundImageService.setBackgroundImageForRoutine(
-                  routine.id,
-                  '',
-                );
+                await BackgroundImageService.setBackgroundImageForRoutine(routine.id, '');
               }
               if (mounted) {
                 setState(() {});
@@ -337,10 +302,7 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
             width: _currentPage == index ? 24 : 8,
             height: 8,
             decoration: BoxDecoration(
-              color:
-                  _currentPage == index
-                      ? colorScheme.primary
-                      : colorScheme.outline.withValues(alpha: 0.4),
+              color: _currentPage == index ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -361,17 +323,11 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.fitness_center_outlined,
-              size: 48,
-              color: Theme.of(context).colorScheme.outline,
-            ),
+            Icon(Icons.fitness_center_outlined, size: 48, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: AppTheme.spacingM),
             Text(
               context.tr('home.noRoutines'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
-              ),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.outline),
             ),
           ],
         ),
@@ -403,17 +359,11 @@ class _RoutineCarouselState extends ConsumerState<RoutineCarousel> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 48,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
             const SizedBox(height: AppTheme.spacingM),
             Text(
               context.tr('home.errorLoadingRoutines'),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.error),
             ),
           ],
         ),

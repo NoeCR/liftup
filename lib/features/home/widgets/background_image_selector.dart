@@ -23,8 +23,7 @@ class BackgroundImageSelector extends StatefulWidget {
   });
 
   @override
-  State<BackgroundImageSelector> createState() =>
-      _BackgroundImageSelectorState();
+  State<BackgroundImageSelector> createState() => _BackgroundImageSelectorState();
 }
 
 class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
@@ -157,15 +156,10 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
                 Expanded(
                   child: Text(
                     context.tr('home.selectBackgroundImage'),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
-                ),
+                IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close)),
               ],
             ),
             const SizedBox(height: AppTheme.spacingM),
@@ -196,9 +190,7 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
             if (_selectedImagePath != null) ...[
               Text(
                 context.tr('home.currentSelection'),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: AppTheme.spacingS),
               Container(
@@ -219,9 +211,7 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
             // Available images
             Text(
               context.tr('home.availableImages'),
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: AppTheme.spacingS),
 
@@ -234,19 +224,16 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
                       ? Center(
                         child: Text(
                           context.tr('home.noImagesAvailable'),
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.outline,
-                          ),
+                          style: theme.textTheme.bodyLarge?.copyWith(color: colorScheme.outline),
                         ),
                       )
                       : GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: AppTheme.spacingS,
-                              mainAxisSpacing: AppTheme.spacingS,
-                              childAspectRatio: 1.2,
-                            ),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: AppTheme.spacingS,
+                          mainAxisSpacing: AppTheme.spacingS,
+                          childAspectRatio: 1.2,
+                        ),
                         itemCount: _availableImages.length,
                         itemBuilder: (context, index) {
                           final imagePath = _availableImages[index];
@@ -262,16 +249,9 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  AppTheme.radiusM,
-                                ),
+                                borderRadius: BorderRadius.circular(AppTheme.radiusM),
                                 border: Border.all(
-                                  color:
-                                      isSelected
-                                          ? colorScheme.primary
-                                          : colorScheme.outline.withValues(
-                                            alpha: 0.3,
-                                          ),
+                                  color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.3),
                                   width: isSelected ? 2 : 1,
                                 ),
                               ),
@@ -279,45 +259,27 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
                                 fit: StackFit.expand,
                                 children: [
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                      AppTheme.radiusM,
-                                    ),
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusM),
                                     child: _buildImagePreview(imagePath),
                                   ),
                                   if (isSelected)
                                     Container(
                                       decoration: BoxDecoration(
-                                        color: colorScheme.primary.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          AppTheme.radiusM,
-                                        ),
+                                        color: colorScheme.primary.withValues(alpha: 0.3),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusM),
                                       ),
-                                      child: const Icon(
-                                        Icons.check_circle,
-                                        color: Colors.white,
-                                        size: 32,
-                                      ),
+                                      child: const Icon(Icons.check_circle, color: Colors.white, size: 32),
                                     ),
                                   if (isCustom)
                                     Positioned(
                                       top: 4,
                                       right: 4,
                                       child: GestureDetector(
-                                        onTap:
-                                            () => _removeCustomImage(imagePath),
+                                        onTap: () => _removeCustomImage(imagePath),
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            color: colorScheme.error,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
+                                          decoration: BoxDecoration(color: colorScheme.error, shape: BoxShape.circle),
+                                          child: const Icon(Icons.close, color: Colors.white, size: 16),
                                         ),
                                       ),
                                     ),
@@ -365,10 +327,7 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
         imagePath,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.image_not_supported),
-          );
+          return Container(color: Colors.grey[300], child: const Icon(Icons.image_not_supported));
         },
       );
     } else {
@@ -376,10 +335,7 @@ class _BackgroundImageSelectorState extends State<BackgroundImageSelector> {
         File(imagePath),
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.image_not_supported),
-          );
+          return Container(color: Colors.grey[300], child: const Icon(Icons.image_not_supported));
         },
       );
     }

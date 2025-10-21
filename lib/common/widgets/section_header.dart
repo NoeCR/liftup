@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../common/enums/section_muscle_group_enum.dart';
 import '../themes/app_theme.dart';
 
@@ -26,7 +27,7 @@ class SectionHeader extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingS),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: AppTheme.spacingXS),
       child: Material(
         color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(AppTheme.radiusM),

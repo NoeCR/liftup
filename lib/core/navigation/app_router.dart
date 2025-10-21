@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/home/pages/home_page.dart';
-import '../../features/home/pages/create_routine_page.dart';
-import '../../features/home/pages/routine_list_page.dart';
+
+import '../../features/data_management/pages/data_management_page.dart';
+import '../../features/exercise/notifiers/exercise_notifier.dart';
 import '../../features/exercise/pages/exercise_detail_page.dart';
+import '../../features/exercise/pages/exercise_form_page.dart';
 import '../../features/exercise/pages/exercise_list_page.dart';
 import '../../features/exercise/pages/exercise_selection_page.dart';
-import '../../features/exercise/pages/exercise_form_page.dart';
+import '../../features/home/notifiers/routine_notifier.dart';
+import '../../features/home/pages/create_routine_page.dart';
+import '../../features/home/pages/home_page.dart';
+import '../../features/home/pages/routine_list_page.dart';
+import '../../features/home/pages/section_templates_page.dart';
+import '../../features/progression/pages/progression_configuration_page.dart';
+import '../../features/progression/pages/progression_selection_page.dart';
+import '../../features/sessions/pages/session_history_page.dart';
 import '../../features/sessions/pages/session_page.dart';
 import '../../features/sessions/pages/session_summary_page.dart';
-import '../../features/sessions/pages/session_history_page.dart';
-import '../../features/statistics/pages/statistics_page.dart';
 import '../../features/settings/pages/settings_page.dart';
-import '../../features/home/pages/section_templates_page.dart';
-import '../../features/data_management/pages/data_management_page.dart';
-import '../../features/progression/pages/progression_selection_page.dart';
-import '../../features/progression/pages/progression_configuration_page.dart';
-import '../../features/home/notifiers/routine_notifier.dart';
-import '../../features/exercise/notifiers/exercise_notifier.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/statistics/pages/statistics_page.dart';
 
 class AppRouter {
   static const String home = '/';
@@ -57,10 +58,13 @@ class AppRouter {
                 final routineAsync = ref.watch(routineNotifierProvider);
                 return routineAsync.when(
                   data: (routines) {
-                    final routine = routines.firstWhere(
-                      (r) => r.id == routineId,
-                      orElse: () => throw Exception('Rutina no encontrada'),
-                    );
+                    final matching = routines.where((r) => r.id == routineId);
+                    if (matching.isEmpty) {
+                      // Si la rutina ya no existe (por ejemplo, se borró mientras estábamos en la pantalla),
+                      // devolvemos la página de creación para evitar un crash.
+                      return const CreateRoutinePage();
+                    }
+                    final routine = matching.first;
                     return CreateRoutinePage(routineToEdit: routine);
                   },
                   loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),

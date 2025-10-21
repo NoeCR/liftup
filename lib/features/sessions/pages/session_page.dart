@@ -174,8 +174,8 @@ class _SessionPageState extends ConsumerState<SessionPage> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      margin: const EdgeInsets.all(AppTheme.spacingM),
-      padding: const EdgeInsets.all(AppTheme.spacingL),
+      margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingL, vertical: AppTheme.spacingS),
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingM),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(AppTheme.radiusL),
@@ -187,22 +187,22 @@ class _SessionPageState extends ConsumerState<SessionPage> {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             context.tr('session.workoutTime'),
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: theme.textTheme.titleSmall?.copyWith(
               color: colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: AppTheme.spacingS),
           ValueListenableBuilder<int>(
             valueListenable: _elapsedSecondsVN,
             builder: (context, elapsedSeconds, child) {
               return Text(
                 _formatHms(elapsedSeconds),
-                style: theme.textTheme.headlineLarge?.copyWith(
+                style: theme.textTheme.titleLarge?.copyWith(
                   color: colorScheme.onPrimaryContainer,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -271,7 +271,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
                             )
                           else
                             SizedBox(
-                              height: 360,
+                              height: 320,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS),

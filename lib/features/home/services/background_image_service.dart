@@ -29,10 +29,7 @@ class BackgroundImageService {
   }
 
   /// Establece la imagen de fondo para una rutina específica
-  static Future<void> setBackgroundImageForRoutine(
-    String routineId,
-    String imagePath,
-  ) async {
+  static Future<void> setBackgroundImageForRoutine(String routineId, String imagePath) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('$_prefsKey:$routineId', imagePath);
   }
@@ -65,10 +62,7 @@ class BackgroundImageService {
     customImages.add(imagePath);
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      'custom_background_images',
-      json.encode(customImages),
-    );
+    await prefs.setString('custom_background_images', json.encode(customImages));
   }
 
   /// Elimina una imagen personalizada
@@ -77,10 +71,7 @@ class BackgroundImageService {
     customImages.remove(imagePath);
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      'custom_background_images',
-      json.encode(customImages),
-    );
+    await prefs.setString('custom_background_images', json.encode(customImages));
   }
 
   /// Obtiene todas las imágenes disponibles (por defecto + personalizadas)
@@ -104,12 +95,7 @@ class BackgroundImageService {
   /// Obtiene un color de fondo basado en el nombre de la rutina
   static Color getRoutineColor(String routineName) {
     final hash = routineName.hashCode;
-    return Color.fromARGB(
-      255,
-      (hash & 0xFF0000) >> 16,
-      (hash & 0x00FF00) >> 8,
-      hash & 0x0000FF,
-    );
+    return Color.fromARGB(255, (hash & 0xFF0000) >> 16, (hash & 0x00FF00) >> 8, hash & 0x0000FF);
   }
 
   /// Obtiene un gradiente de fondo basado en el nombre de la rutina
