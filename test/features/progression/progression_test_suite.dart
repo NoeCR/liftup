@@ -115,10 +115,7 @@ void main() {
         expect(testExercise.id, isNotEmpty);
         expect(testExercise.name, equals('Test Exercise'));
         expect(testExercise.category, equals(ExerciseCategory.chest));
-        expect(
-          testExercise.difficulty,
-          equals(ExerciseDifficulty.intermediate),
-        );
+        expect(testExercise.difficulty, equals(ExerciseDifficulty.intermediate));
         expect(testExercise.exerciseType, equals(ExerciseType.multiJoint));
         expect(testExercise.loadType, equals(LoadType.barbell));
       });
@@ -128,11 +125,7 @@ void main() {
       test('Linear Progression Strategy should work correctly', () {
         final strategy = LinearProgressionStrategy();
 
-        final increment = strategy.getIncrementValueSync(
-          testConfig,
-          testExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(testConfig, testExercise, testState);
 
         expect(increment, greaterThan(0));
         expect(increment, isA<double>());
@@ -141,11 +134,7 @@ void main() {
       test('Double Factor Progression Strategy should work correctly', () {
         final strategy = DoubleFactorProgressionStrategy();
 
-        final increment = strategy.getIncrementValueSync(
-          testConfig,
-          testExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(testConfig, testExercise, testState);
 
         expect(increment, greaterThan(0));
         expect(increment, isA<double>());
@@ -161,11 +150,7 @@ void main() {
         );
 
         final strategy = LinearProgressionStrategy();
-        final increment = strategy.getIncrementValueSync(
-          manualConfig,
-          testExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(manualConfig, testExercise, testState);
 
         expect(increment, equals(5.0));
       });
@@ -183,46 +168,28 @@ void main() {
 
     group('Integration Tests', () {
       test('Different Exercise Types should work', () {
-        final isolationExercise = testExercise.copyWith(
-          exerciseType: ExerciseType.isolation,
-        );
+        final isolationExercise = testExercise.copyWith(exerciseType: ExerciseType.isolation);
 
         final strategy = LinearProgressionStrategy();
-        final increment = strategy.getIncrementValueSync(
-          testConfig,
-          isolationExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(testConfig, isolationExercise, testState);
 
         expect(increment, greaterThan(0));
       });
 
       test('Different Load Types should work', () {
-        final dumbbellExercise = testExercise.copyWith(
-          loadType: LoadType.dumbbell,
-        );
+        final dumbbellExercise = testExercise.copyWith(loadType: LoadType.dumbbell);
 
         final strategy = LinearProgressionStrategy();
-        final increment = strategy.getIncrementValueSync(
-          testConfig,
-          dumbbellExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(testConfig, dumbbellExercise, testState);
 
         expect(increment, greaterThan(0));
       });
 
       test('Different Difficulty Levels should work', () {
-        final beginnerExercise = testExercise.copyWith(
-          difficulty: ExerciseDifficulty.beginner,
-        );
+        final beginnerExercise = testExercise.copyWith(difficulty: ExerciseDifficulty.beginner);
 
         final strategy = LinearProgressionStrategy();
-        final increment = strategy.getIncrementValueSync(
-          testConfig,
-          beginnerExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(testConfig, beginnerExercise, testState);
 
         expect(increment, greaterThan(0));
       });
@@ -256,16 +223,10 @@ void main() {
       });
 
       test('Null use_manual_params should use adaptive values', () {
-        final configWithNull = testConfig.copyWith(
-          customParameters: {'use_manual_params': null},
-        );
+        final configWithNull = testConfig.copyWith(customParameters: {'use_manual_params': null});
 
         final strategy = LinearProgressionStrategy();
-        final increment = strategy.getIncrementValueSync(
-          configWithNull,
-          testExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(configWithNull, testExercise, testState);
 
         // Debería usar valores adaptativos, no manuales
         expect(increment, isNot(equals(2.5)));
@@ -276,11 +237,7 @@ void main() {
         final configWithoutKey = testConfig.copyWith(customParameters: {});
 
         final strategy = LinearProgressionStrategy();
-        final increment = strategy.getIncrementValueSync(
-          configWithoutKey,
-          testExercise,
-          testState,
-        );
+        final increment = strategy.getIncrementValueSync(configWithoutKey, testExercise, testState);
 
         // Debería usar valores adaptativos por defecto
         expect(increment, isNot(equals(2.5)));

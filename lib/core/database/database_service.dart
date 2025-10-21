@@ -37,135 +37,109 @@ class DatabaseService implements IDatabaseService {
   // Initialize the database service
   @override
   Future<void> initialize() async {
-    print('DatabaseService.initialize() called - isInitialized: $_isInitialized');
-
     if (!_isInitialized) {
       try {
-        print('Starting DatabaseService initialization');
         await _initializeHive();
         _isInitialized = true;
-        print('DatabaseService initialized successfully - isInitialized: $_isInitialized');
+        LoggingService.instance.info('DatabaseService initialized successfully');
       } catch (e, stackTrace) {
-        print('Error initializing DatabaseService: $e');
-        print('Stack trace: $stackTrace');
+        LoggingService.instance.error('Error initializing DatabaseService', e, stackTrace, {
+          'component': 'database_initialization',
+        });
         rethrow;
       }
-    } else {
-      print('DatabaseService already initialized');
     }
   }
 
   Future<void> _initializeHive() async {
     try {
-      print('Opening Hive boxes...');
-
-      // List of all box names
-      final boxNames = [
-        _exercisesBox,
-        _routinesBox,
-        _sessionsBox,
-        _progressBox,
-        _settingsBox,
-        _routineSectionTemplatesBox,
-        _progressionConfigsBox,
-        _progressionStatesBox,
-        _progressionTemplatesBox,
+      // List of all box names with their types
+      final boxConfigs = [
+        (_exercisesBox, null),
+        (_routinesBox, null),
+        (_sessionsBox, null),
+        (_progressBox, null),
+        (_settingsBox, null),
+        (_routineSectionTemplatesBox, null),
+        (_progressionConfigsBox, ProgressionConfig),
+        (_progressionStatesBox, ProgressionState),
+        (_progressionTemplatesBox, ProgressionTemplate),
       ];
 
-      print('Box names: $boxNames');
-
-      // Open boxes that are not already open with correct types
+      // Open all boxes in parallel
       final openPromises = <Future>[];
-      for (final boxName in boxNames) {
+      for (final (boxName, type) in boxConfigs) {
         if (!Hive.isBoxOpen(boxName)) {
           Future<Box> openPromise;
-          switch (boxName) {
-            case _progressionConfigsBox:
-              openPromise = Hive.openBox<ProgressionConfig>(boxName);
-              break;
-            case _progressionStatesBox:
-              openPromise = Hive.openBox<ProgressionState>(boxName);
-              break;
-            case _progressionTemplatesBox:
-              openPromise = Hive.openBox<ProgressionTemplate>(boxName);
-              break;
-            default:
-              openPromise = Hive.openBox(boxName);
-              break;
+          if (type == ProgressionConfig) {
+            openPromise = Hive.openBox<ProgressionConfig>(boxName);
+          } else if (type == ProgressionState) {
+            openPromise = Hive.openBox<ProgressionState>(boxName);
+          } else if (type == ProgressionTemplate) {
+            openPromise = Hive.openBox<ProgressionTemplate>(boxName);
+          } else {
+            openPromise = Hive.openBox(boxName);
           }
           openPromises.add(openPromise);
-          LoggingService.instance.debug('Opening box: $boxName');
-        } else {
-          LoggingService.instance.debug('Box already open: $boxName');
         }
       }
 
-      // Wait for all boxes to be opened
+      // Wait for all boxes to be opened in parallel
       if (openPromises.isNotEmpty) {
         await Future.wait(openPromises);
       }
 
-      // Verify all boxes are open and accessible
-      print('All Hive boxes initialized successfully - boxes opened: ${boxNames.length}');
-    } catch (e, stackTrace) {
-      print('Error opening Hive boxes: $e');
-      print('Stack trace: $stackTrace');
+      LoggingService.instance.info('All Hive boxes initialized successfully', {'boxes_opened': boxConfigs.length});
+    } catch (e) {
+      LoggingService.instance.warning('Error opening Hive boxes, attempting recovery', {'error': e.toString()});
 
       // If there's an error, clear all data and try again
-      LoggingService.instance.warning('Attempting to clear and reinitialize boxes');
       await _clearAllBoxes();
+      await _retryInitializeHive();
+    }
+  }
 
-      try {
-        // List of all box names
-        final boxNames = [
-          _exercisesBox,
-          _routinesBox,
-          _sessionsBox,
-          _progressBox,
-          _settingsBox,
-          _routineSectionTemplatesBox,
-          _progressionConfigsBox,
-          _progressionStatesBox,
-          _progressionTemplatesBox,
-        ];
+  Future<void> _retryInitializeHive() async {
+    try {
+      final boxConfigs = [
+        (_exercisesBox, null),
+        (_routinesBox, null),
+        (_sessionsBox, null),
+        (_progressBox, null),
+        (_settingsBox, null),
+        (_routineSectionTemplatesBox, null),
+        (_progressionConfigsBox, ProgressionConfig),
+        (_progressionStatesBox, ProgressionState),
+        (_progressionTemplatesBox, ProgressionTemplate),
+      ];
 
-        // Open boxes that are not already open with correct types
-        final openPromises = <Future>[];
-        for (final boxName in boxNames) {
-          if (!Hive.isBoxOpen(boxName)) {
-            Future<Box> openPromise;
-            switch (boxName) {
-              case _progressionConfigsBox:
-                openPromise = Hive.openBox<ProgressionConfig>(boxName);
-                break;
-              case _progressionStatesBox:
-                openPromise = Hive.openBox<ProgressionState>(boxName);
-                break;
-              case _progressionTemplatesBox:
-                openPromise = Hive.openBox<ProgressionTemplate>(boxName);
-                break;
-              default:
-                openPromise = Hive.openBox(boxName);
-                break;
-            }
-            openPromises.add(openPromise);
-            LoggingService.instance.debug('Retry opening box: $boxName');
+      final openPromises = <Future>[];
+      for (final (boxName, type) in boxConfigs) {
+        if (!Hive.isBoxOpen(boxName)) {
+          Future<Box> openPromise;
+          if (type == ProgressionConfig) {
+            openPromise = Hive.openBox<ProgressionConfig>(boxName);
+          } else if (type == ProgressionState) {
+            openPromise = Hive.openBox<ProgressionState>(boxName);
+          } else if (type == ProgressionTemplate) {
+            openPromise = Hive.openBox<ProgressionTemplate>(boxName);
           } else {
-            LoggingService.instance.debug('Box already open during retry: $boxName');
+            openPromise = Hive.openBox(boxName);
           }
+          openPromises.add(openPromise);
         }
-
-        // Wait for all boxes to be opened
-        if (openPromises.isNotEmpty) {
-          await Future.wait(openPromises);
-        }
-        LoggingService.instance.info('Hive boxes reinitialized successfully after clear');
-      } catch (retryError, retryStackTrace) {
-        LoggingService.instance.fatal('Failed to reinitialize Hive boxes after clear', retryError, retryStackTrace, {
-          'component': 'hive_retry_initialization',
-        });
-        rethrow;
       }
+
+      if (openPromises.isNotEmpty) {
+        await Future.wait(openPromises);
+      }
+
+      LoggingService.instance.info('Hive boxes reinitialized successfully after recovery');
+    } catch (retryError, retryStackTrace) {
+      LoggingService.instance.fatal('Failed to reinitialize Hive boxes after recovery', retryError, retryStackTrace, {
+        'component': 'hive_retry_initialization',
+      });
+      rethrow;
     }
   }
 

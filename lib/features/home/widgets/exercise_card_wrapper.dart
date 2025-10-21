@@ -55,11 +55,18 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
 
   @override
   void dispose() {
+    // Cancel timer and stop ringtone
     _restTimer?.cancel();
-    // Asegurar que detenemos cualquier tono activo
+    _restTimer = null;
+
+    // Stop any active ringtone
     try {
       FlutterRingtonePlayer().stop();
-    } catch (_) {}
+    } catch (_) {
+      // Ignore errors when stopping ringtone
+    }
+
+    // Dispose ValueNotifiers
     _showRestOverlayVN.dispose();
     _restSecondsVN.dispose();
     _isRingtonePlayingVN.dispose();
