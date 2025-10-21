@@ -28,51 +28,84 @@ void main() async {
 
 /// Runs after Sentry has been initialized successfully
 void _runApp() async {
-  print('Starting _runApp()');
-
-  // Initialize logging service
-  print('Initializing LoggingService');
+  // Initialize logging service first (needed for error logging)
   LoggingService.instance.initialize();
-  print('LoggingService initialized');
 
-  // Initialize user context service
-  print('Initializing UserContextService');
-  await UserContextService.instance.initialize();
-  print('UserContextService initialized');
-
-  // Configure Sentry alerts and metrics
-  print('Configuring Sentry');
-  if (SentryDsnConfig.isAlertsEnabled) {
-    SentryAlertsConfig.configureAlerts();
-  }
-  await SentryMetricsConfig.initialize();
-  print('Sentry configured');
-
-  // Start metrics and health monitoring when enabled
-  if (SentryDsnConfig.isMetricsMonitoringEnabled) {
-    MetricsMonitor.instance.startMonitoring();
-    HealthMonitor.instance.startMonitoring();
-  }
-
-  // Configure global error handling
+  // Configure global error handling early
   _setupGlobalErrorHandling();
 
-  // Initialize Hive and register adapters once
-  print('Initializing Hive');
-  await Hive.initFlutter();
-  HiveAdapters.registerAdapters();
-  print('Hive initialized');
+  // Initialize services in parallel where possible
+  await _initializeServicesInParallel();
 
-  // Initialize database singleton before running the app
+  // Initialize database and progression templates
+  await _initializeDatabaseAndTemplates();
+
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('es'), Locale('en')],
+      path: 'assets/locales',
+      fallbackLocale: const Locale('es'),
+      child: const ProviderScope(child: LiftlyApp()),
+    ),
+  );
+}
+
+/// Initialize services that can run in parallel
+Future<void> _initializeServicesInParallel() async {
   try {
-    print('About to initialize DatabaseService');
-    print('DatabaseService instance created');
-    final dbService = DatabaseService.getInstance();
-    print('Calling initialize method');
-    await dbService.initialize();
-    print('Database initialized successfully');
+    // Initialize Hive and user context in parallel
+    await Future.wait([Hive.initFlutter(), UserContextService.instance.initialize()]);
 
-    // Initialize progression templates
+    // Register Hive adapters after initialization
+    HiveAdapters.registerAdapters();
+
+    // Configure Sentry components in parallel
+    final sentryTasks = <Future>[];
+
+    if (SentryDsnConfig.isAlertsEnabled) {
+      sentryTasks.add(Future(() => SentryAlertsConfig.configureAlerts()));
+    }
+
+    sentryTasks.add(SentryMetricsConfig.initialize());
+
+    await Future.wait(sentryTasks);
+
+    // Start monitoring services if enabled
+    if (SentryDsnConfig.isMetricsMonitoringEnabled) {
+      MetricsMonitor.instance.startMonitoring();
+      HealthMonitor.instance.startMonitoring();
+    }
+
+    LoggingService.instance.info('Core services initialized successfully');
+  } catch (e, stackTrace) {
+    LoggingService.instance.error('Failed to initialize core services', e, stackTrace, {
+      'component': 'core_services_initialization',
+    });
+    rethrow;
+  }
+}
+
+/// Initialize database and progression templates
+Future<void> _initializeDatabaseAndTemplates() async {
+  try {
+    final dbService = DatabaseService.getInstance();
+    await dbService.initialize();
+
+    // Initialize progression templates in background to not block UI
+    _initializeProgressionTemplatesInBackground();
+
+    LoggingService.instance.info('Database initialized successfully');
+  } catch (e, stackTrace) {
+    LoggingService.instance.error('Failed to initialize database', e, stackTrace, {
+      'component': 'database_initialization',
+    });
+    rethrow;
+  }
+}
+
+/// Initialize progression templates in background
+void _initializeProgressionTemplatesInBackground() {
+  Future(() async {
     try {
       final container = ProviderContainer();
       final templateService = container.read(progressionTemplateServiceProvider.notifier);
@@ -84,22 +117,7 @@ void _runApp() async {
         'component': 'progression_templates_initialization',
       });
     }
-  } catch (e, stackTrace) {
-    print('Error initializing database: $e');
-    print('Stack trace: $stackTrace');
-    // If initialization fails, show error but do not auto-reset
-    print('Database initialization failed. User can manually reset from settings if needed.');
-    rethrow; // Re-throw to prevent app from running with broken database
-  }
-
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('es'), Locale('en')],
-      path: 'assets/locales',
-      fallbackLocale: const Locale('es'),
-      child: const ProviderScope(child: LiftlyApp()),
-    ),
-  );
+  });
 }
 
 /// Configures global error handling

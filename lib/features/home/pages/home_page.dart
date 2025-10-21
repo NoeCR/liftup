@@ -32,18 +32,28 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
   void didPopNext() {
     // Runs when returning to this page from another
     super.didPopNext();
-    // Invalidar el estado para forzar la recarga
-    ref.invalidate(routineNotifierProvider);
-    ref.invalidate(exerciseNotifierProvider);
+    // Only refresh if data might have changed
+    _refreshDataIfNeeded();
   }
 
   @override
   void initState() {
     super.initState();
-    // Refrescar estado al inicializar
+    // Defer data loading to avoid blocking UI
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(routineNotifierProvider);
+      _refreshDataIfNeeded();
     });
+  }
+
+  void _refreshDataIfNeeded() {
+    // Only invalidate if providers are in error state or haven't been loaded
+    final routineState = ref.read(routineNotifierProvider);
+    final exerciseState = ref.read(exerciseNotifierProvider);
+
+    if (routineState is AsyncError || exerciseState is AsyncError) {
+      ref.invalidate(routineNotifierProvider);
+      ref.invalidate(exerciseNotifierProvider);
+    }
   }
 
   @override
