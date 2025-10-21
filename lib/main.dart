@@ -54,7 +54,10 @@ void _runApp() async {
 Future<void> _initializeServicesInParallel() async {
   try {
     // Initialize Hive and user context in parallel
-    await Future.wait([Hive.initFlutter(), UserContextService.instance.initialize()]);
+    await Future.wait([
+      Hive.initFlutter(),
+      UserContextService.instance.initialize(),
+    ]);
 
     // Register Hive adapters after initialization
     HiveAdapters.registerAdapters();
@@ -78,9 +81,12 @@ Future<void> _initializeServicesInParallel() async {
 
     LoggingService.instance.info('Core services initialized successfully');
   } catch (e, stackTrace) {
-    LoggingService.instance.error('Failed to initialize core services', e, stackTrace, {
-      'component': 'core_services_initialization',
-    });
+    LoggingService.instance.error(
+      'Failed to initialize core services',
+      e,
+      stackTrace,
+      {'component': 'core_services_initialization'},
+    );
     rethrow;
   }
 }
@@ -96,9 +102,12 @@ Future<void> _initializeDatabaseAndTemplates() async {
 
     LoggingService.instance.info('Database initialized successfully');
   } catch (e, stackTrace) {
-    LoggingService.instance.error('Failed to initialize database', e, stackTrace, {
-      'component': 'database_initialization',
-    });
+    LoggingService.instance.error(
+      'Failed to initialize database',
+      e,
+      stackTrace,
+      {'component': 'database_initialization'},
+    );
     rethrow;
   }
 }
@@ -108,14 +117,21 @@ void _initializeProgressionTemplatesInBackground() {
   Future(() async {
     try {
       final container = ProviderContainer();
-      final templateService = container.read(progressionTemplateServiceProvider.notifier);
+      final templateService = container.read(
+        progressionTemplateServiceProvider.notifier,
+      );
       await templateService.initializeBuiltInTemplates();
       container.dispose();
-      LoggingService.instance.info('Progression templates initialized successfully');
+      LoggingService.instance.info(
+        'Progression templates initialized successfully',
+      );
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error initializing progression templates', e, stackTrace, {
-        'component': 'progression_templates_initialization',
-      });
+      LoggingService.instance.error(
+        'Error initializing progression templates',
+        e,
+        stackTrace,
+        {'component': 'progression_templates_initialization'},
+      );
     }
   });
 }
@@ -124,16 +140,23 @@ void _initializeProgressionTemplatesInBackground() {
 void _setupGlobalErrorHandling() {
   // Capture Flutter errors
   FlutterError.onError = (FlutterErrorDetails details) {
-    LoggingService.instance.error('Flutter Error: ${details.exception}', details.exception, details.stack, {
-      'component': 'flutter_error',
-      'library': details.library,
-      'context': details.context?.toString(),
-    });
+    LoggingService.instance.error(
+      'Flutter Error: ${details.exception}',
+      details.exception,
+      details.stack,
+      {
+        'component': 'flutter_error',
+        'library': details.library,
+        'context': details.context?.toString(),
+      },
+    );
   };
 
   // Capture platform errors
   PlatformDispatcher.instance.onError = (error, stack) {
-    LoggingService.instance.error('Platform Error: $error', error, stack, {'component': 'platform_error'});
+    LoggingService.instance.error('Platform Error: $error', error, stack, {
+      'component': 'platform_error',
+    });
     return true;
   };
 }
