@@ -145,7 +145,7 @@ class LiftlyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider);
-    
+
     return MaterialApp.router(
       title: 'Liftly',
       debugShowCheckedModeBanner: false,

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Provider para gestionar el estado del tema de la aplicación
 class ThemeNotifier extends StateNotifier<ThemeMode> {
   static const String _themeKey = 'app_theme_mode';
-  
+
   ThemeNotifier() : super(ThemeMode.system) {
     _loadThemePreference();
   }

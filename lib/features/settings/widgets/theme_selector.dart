@@ -67,47 +67,43 @@ class ThemeSelector extends ConsumerWidget {
   void _showThemeDialog(BuildContext context, WidgetRef ref, ThemeNotifier themeNotifier) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Seleccionar Tema'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildThemeOption(
-              context,
-              ref,
-              themeNotifier,
-              ThemeMode.light,
-              Icons.light_mode,
-              'Tema Claro',
-              'Usar siempre el tema claro',
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Seleccionar Tema'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildThemeOption(
+                  context,
+                  ref,
+                  themeNotifier,
+                  ThemeMode.light,
+                  Icons.light_mode,
+                  'Tema Claro',
+                  'Usar siempre el tema claro',
+                ),
+                _buildThemeOption(
+                  context,
+                  ref,
+                  themeNotifier,
+                  ThemeMode.dark,
+                  Icons.dark_mode,
+                  'Tema Oscuro',
+                  'Usar siempre el tema oscuro',
+                ),
+                _buildThemeOption(
+                  context,
+                  ref,
+                  themeNotifier,
+                  ThemeMode.system,
+                  Icons.brightness_auto,
+                  'Sistema',
+                  'Seguir configuración del sistema',
+                ),
+              ],
             ),
-            _buildThemeOption(
-              context,
-              ref,
-              themeNotifier,
-              ThemeMode.dark,
-              Icons.dark_mode,
-              'Tema Oscuro',
-              'Usar siempre el tema oscuro',
-            ),
-            _buildThemeOption(
-              context,
-              ref,
-              themeNotifier,
-              ThemeMode.system,
-              Icons.brightness_auto,
-              'Sistema',
-              'Seguir configuración del sistema',
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
+            actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar'))],
           ),
-        ],
-      ),
     );
   }
 
@@ -129,28 +125,16 @@ class ThemeSelector extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(vertical: 4),
       color: isSelected ? colorScheme.primaryContainer : null,
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.primary,
-        ),
+        leading: Icon(icon, color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.primary),
         title: Text(
           title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            color: isSelected ? colorScheme.onPrimaryContainer : null,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(color: isSelected ? colorScheme.onPrimaryContainer : null),
         ),
         subtitle: Text(
           subtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: isSelected ? colorScheme.onPrimaryContainer : null,
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(color: isSelected ? colorScheme.onPrimaryContainer : null),
         ),
-        trailing: isSelected
-            ? Icon(
-                Icons.check_circle,
-                color: colorScheme.primary,
-              )
-            : null,
+        trailing: isSelected ? Icon(Icons.check_circle, color: colorScheme.primary) : null,
         onTap: () {
           themeNotifier.setTheme(themeMode);
           Navigator.of(context).pop();
