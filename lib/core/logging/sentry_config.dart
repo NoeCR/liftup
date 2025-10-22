@@ -100,7 +100,8 @@ class SentryConfig {
       // Set release info from package info
       if (packageInfo != null) {
         try {
-          options.release = '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+          options.release =
+              '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
         } catch (e) {
           // Fallback to static version if package info fails
           options.release = 'liftly@1.0.0+1';
