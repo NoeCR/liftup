@@ -11,6 +11,7 @@ import 'core/database/database_service.dart';
 import 'core/database/hive_adapters.dart';
 import 'core/logging/logging.dart';
 import 'core/navigation/app_router.dart';
+import 'core/theme/theme_provider.dart';
 import 'features/progression/services/progression_template_service.dart';
 
 void main() async {
@@ -138,17 +139,19 @@ void _setupGlobalErrorHandling() {
   };
 }
 
-class LiftlyApp extends StatelessWidget {
+class LiftlyApp extends ConsumerWidget {
   const LiftlyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+    
     return MaterialApp.router(
       title: 'Liftly',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       localizationsDelegates: [
         ...context.localizationDelegates,
         GlobalMaterialLocalizations.delegate,

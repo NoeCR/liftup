@@ -14,6 +14,7 @@ import '../../sessions/notifiers/session_notifier.dart';
 import '../../statistics/notifiers/progress_notifier.dart';
 import '../../progression/notifiers/progression_notifier.dart';
 import '../widgets/language_selector.dart';
+import '../widgets/theme_selector.dart';
 
 // Global key for ScaffoldMessenger
 final GlobalKey<ScaffoldMessengerState> globalScaffoldKey = GlobalKey<ScaffoldMessengerState>();
@@ -59,15 +60,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ]),
             const SizedBox(height: 24),
             _buildSettingsSection(context, context.tr('settings.application'), [
-              _buildSettingsTile(
-                context,
-                icon: Icons.palette,
-                title: 'Theme',
-                subtitle: 'Switch light/dark mode',
-                onTap: () {
-                  // Theme selection functionality
-                },
-              ),
+              const ThemeSelector(),
               const LanguageSelector(),
             ]),
             const SizedBox(height: 24),
