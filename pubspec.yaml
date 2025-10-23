@@ -65,6 +65,7 @@ dependencies:
   equatable: ^2.0.5
   json_annotation: ^4.8.1
   easy_localization: ^3.0.7
+  shared_preferences: ^2.2.2
 
   # Logging & Error Tracking
   sentry_flutter: ^8.0.0
