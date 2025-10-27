@@ -31,7 +31,6 @@ void main() {
     });
 
     test('toggleFavorite should add exercise to favorites', () async {
-
       // Simular que el ejercicio no es favorito inicialmente
       notifier.state = <String>{};
 
