@@ -297,7 +297,7 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard> with Ticker
             mainAxisSize: MainAxisSize.min,
             children: [
               // Indicador de que se puede arrastrar
-              Icon(Icons.drag_handle, size: 16, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+              Icon(Icons.drag_handle, size: 16, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               const SizedBox(width: 8),
               Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurfaceVariant),
             ],

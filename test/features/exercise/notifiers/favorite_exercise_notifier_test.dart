@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/exercise/notifiers/favorite_exercise_notifier.dart';
 
 void main() {
@@ -32,21 +31,6 @@ void main() {
     });
 
     test('toggleFavorite should add exercise to favorites', () async {
-      // Mock del servicio de ejercicios
-      final mockExercise = Exercise(
-        id: 'test-exercise',
-        name: 'Test Exercise',
-        description: 'Test',
-        imageUrl: '',
-        muscleGroups: [],
-        tips: [],
-        commonMistakes: [],
-        category: ExerciseCategory.chest,
-        difficulty: ExerciseDifficulty.beginner,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        isFavorite: false,
-      );
 
       // Simular que el ejercicio no es favorito inicialmente
       notifier.state = <String>{};

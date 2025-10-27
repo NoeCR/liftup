@@ -32,7 +32,6 @@ class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseLis
   bool _isReordering = false;
 
   late AnimationController _reorderAnimationController;
-  late Animation<double> _reorderAnimation;
 
   @override
   void initState() {
@@ -40,8 +39,6 @@ class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseLis
     _exercises = List.from(widget.exercises);
 
     _reorderAnimationController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
-
-    _reorderAnimation = CurvedAnimation(parent: _reorderAnimationController, curve: Curves.easeInOut);
   }
 
   @override
