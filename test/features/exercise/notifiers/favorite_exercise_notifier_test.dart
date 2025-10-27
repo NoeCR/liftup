@@ -1,12 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liftly/features/exercise/notifiers/favorite_exercise_notifier.dart';
 
 void main() {
   group('FavoriteExerciseNotifier Tests', () {
+    late ProviderContainer container;
     late FavoriteExerciseNotifier notifier;
 
     setUp(() {
-      notifier = FavoriteExerciseNotifier();
+      container = ProviderContainer();
+      notifier = container.read(favoriteExerciseNotifierProvider.notifier);
+    });
+
+    tearDown(() {
+      container.dispose();
     });
 
     test('initial state should be empty', () {

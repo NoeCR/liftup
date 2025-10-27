@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/exercise/utils/exercise_sorting.dart';
 import 'package:liftly/features/home/notifiers/routine_exercise_notifier.dart';
@@ -6,9 +7,12 @@ import 'package:liftly/features/home/notifiers/routine_exercise_notifier.dart';
 void main() {
   group('Favorites and Removal Integration Tests', () {
     late List<Exercise> testExercises;
+    late ProviderContainer container;
     late RoutineExerciseNotifier routineExerciseNotifier;
 
     setUp(() {
+      container = ProviderContainer();
+      routineExerciseNotifier = container.read(routineExerciseNotifierProvider.notifier);
       testExercises = [
         Exercise(
           id: '1',
@@ -67,8 +71,10 @@ void main() {
           isFavorite: true,
         ),
       ];
+    });
 
-      routineExerciseNotifier = RoutineExerciseNotifier();
+    tearDown(() {
+      container.dispose();
     });
 
     test('should maintain favorites first ordering after adding exercises to routine', () {

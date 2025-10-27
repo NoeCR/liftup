@@ -1,13 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liftly/features/exercise/models/exercise.dart';
 import 'package:liftly/features/home/notifiers/routine_exercise_notifier.dart';
 
 void main() {
   group('RoutineExerciseNotifier Tests', () {
+    late ProviderContainer container;
     late RoutineExerciseNotifier notifier;
 
     setUp(() {
-      notifier = RoutineExerciseNotifier();
+      container = ProviderContainer();
+      notifier = container.read(routineExerciseNotifierProvider.notifier);
+    });
+
+    tearDown(() {
+      container.dispose();
     });
 
     test('initial state should be empty', () {
@@ -113,8 +120,8 @@ void main() {
       // Intentar eliminar de una sección que no existe
       notifier.removeExerciseFromSection('non-existent-section', 'exercise1');
 
-      // No debería haber errores
-      expect(notifier.state, isEmpty);
+      // No debería haber errores y la sección debería estar vacía
+      expect(notifier.getExercisesForSection('non-existent-section'), isEmpty);
     });
 
     test('clearSection should remove all exercises from section', () {
