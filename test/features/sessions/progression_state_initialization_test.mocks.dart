@@ -141,6 +141,15 @@ class MockExerciseNotifier extends _i1.Mock implements _i5.ExerciseNotifier {
           as _i6.Future<List<_i3.Exercise>>);
 
   @override
+  _i6.Future<void> toggleFavorite(String? exerciseId) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFavorite, [exerciseId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   void listenSelf(
     void Function(_i2.AsyncValue<List<_i3.Exercise>>?, _i2.AsyncValue<List<_i3.Exercise>>)? listener, {
     void Function(Object, StackTrace)? onError,

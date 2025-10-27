@@ -309,6 +309,15 @@ class MockExerciseNotifier extends _i1.Mock implements _i11.ExerciseNotifier {
           as _i9.Future<List<_i4.Exercise>>);
 
   @override
+  _i9.Future<void> toggleFavorite(String? exerciseId) =>
+      (super.noSuchMethod(
+            Invocation.method(#toggleFavorite, [exerciseId]),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
   void listenSelf(
     void Function(_i2.AsyncValue<List<_i4.Exercise>>?, _i2.AsyncValue<List<_i4.Exercise>>)? listener, {
     void Function(Object, StackTrace)? onError,
@@ -448,6 +457,19 @@ class MockRoutineNotifier extends _i1.Mock implements _i12.RoutineNotifier {
             returnValueForMissingStub: _i9.Future<void>.value(),
           )
           as _i9.Future<void>);
+
+  @override
+  bool isExerciseInRoutine(String? routineId, String? exerciseId) =>
+      (super.noSuchMethod(Invocation.method(#isExerciseInRoutine, [routineId, exerciseId]), returnValue: false)
+          as bool);
+
+  @override
+  List<String> getDuplicateExerciseIds(String? routineId, List<String>? exerciseIds) =>
+      (super.noSuchMethod(
+            Invocation.method(#getDuplicateExerciseIds, [routineId, exerciseIds]),
+            returnValue: <String>[],
+          )
+          as List<String>);
 
   @override
   _i9.Future<void> addSectionsToRoutine(String? routineId, List<String>? sectionTemplateIds) =>

@@ -9,13 +9,13 @@ import '../../../common/widgets/section_header.dart';
 import '../../../core/database/database_service.dart';
 import '../../exercise/models/exercise.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../exercise/widgets/favorite_exercise_wrapper.dart';
 import '../../sessions/models/workout_session.dart';
 import '../../sessions/notifiers/session_notifier.dart';
 import '../models/routine.dart';
 import '../notifiers/routine_notifier.dart';
 import '../notifiers/selected_routine_provider.dart';
 import '../widgets/auto_selection_info_card.dart';
-import '../widgets/exercise_card_wrapper.dart';
 import '../widgets/routine_carousel.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -66,6 +66,11 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
         title: Text(context.tr('app.title')),
         backgroundColor: colorScheme.surface,
         actions: [
+          IconButton(
+            tooltip: 'Test Animation',
+            onPressed: () => context.push('/animation-test'),
+            icon: const Icon(Icons.animation),
+          ),
           IconButton(
             tooltip: context.tr('home.manageRoutines'),
             onPressed: () => _showRoutineManagement(context, ref),
@@ -169,7 +174,8 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                 return _buildEmptySection(section.name, routine, section);
               }
 
-              final exerciseCards =
+              // Obtener ejercicios y ordenarlos con favoritos primero
+              final exerciseList =
                   section.exercises.map((routineExercise) {
                     final exercise = exercises.firstWhere(
                       (e) => e.id == routineExercise.exerciseId,
@@ -188,8 +194,25 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                             updatedAt: DateTime.now(),
                           ),
                     );
+                    return {'routineExercise': routineExercise, 'exercise': exercise};
+                  }).toList();
 
-                    return ExerciseCardWrapper(
+              // Ordenar con favoritos primero
+              exerciseList.sort((a, b) {
+                final aExercise = a['exercise'] as Exercise;
+                final bExercise = b['exercise'] as Exercise;
+                final aIsFavorite = aExercise.isFavorite;
+                final bIsFavorite = bExercise.isFavorite;
+                if (aIsFavorite && !bIsFavorite) return -1;
+                if (!aIsFavorite && bIsFavorite) return 1;
+                return 0;
+              });
+
+              final exerciseCards =
+                  exerciseList.map((item) {
+                    final routineExercise = item['routineExercise'] as RoutineExercise;
+                    final exercise = item['exercise'] as Exercise;
+                    return FavoriteExerciseWrapper(
                       routineExercise: routineExercise,
                       exercise: exercise,
                       onTap: () => context.push('/exercise/${exercise.id}'),

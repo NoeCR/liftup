@@ -1,6 +1,7 @@
-import 'package:hive/hive.dart';
 import 'package:equatable/equatable.dart';
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../../common/enums/muscle_group_enum.dart';
 
 part 'exercise.g.dart';
@@ -68,6 +69,9 @@ class Exercise extends Equatable {
   @HiveField(19)
   final LoadType loadType;
 
+  @HiveField(20)
+  final bool isFavorite;
+
   const Exercise({
     required this.id,
     required this.name,
@@ -89,6 +93,7 @@ class Exercise extends Equatable {
     this.isProgressionLocked = false,
     this.exerciseType = ExerciseType.multiJoint,
     this.loadType = LoadType.barbell,
+    this.isFavorite = false,
   });
 
   factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
@@ -115,6 +120,7 @@ class Exercise extends Equatable {
     bool? isProgressionLocked,
     ExerciseType? exerciseType,
     LoadType? loadType,
+    bool? isFavorite,
   }) {
     return Exercise(
       id: id ?? this.id,
@@ -137,6 +143,7 @@ class Exercise extends Equatable {
       isProgressionLocked: isProgressionLocked ?? this.isProgressionLocked,
       exerciseType: exerciseType ?? this.exerciseType,
       loadType: loadType ?? this.loadType,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 
@@ -162,6 +169,7 @@ class Exercise extends Equatable {
     isProgressionLocked,
     exerciseType,
     loadType,
+    isFavorite,
   ];
 }
 

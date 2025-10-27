@@ -8,6 +8,7 @@ import '../../features/exercise/pages/exercise_detail_page.dart';
 import '../../features/exercise/pages/exercise_form_page.dart';
 import '../../features/exercise/pages/exercise_list_page.dart';
 import '../../features/exercise/pages/exercise_selection_page.dart';
+import '../../features/exercise/widgets/simple_animation_test.dart';
 import '../../features/home/notifiers/routine_notifier.dart';
 import '../../features/home/pages/create_routine_page.dart';
 import '../../features/home/pages/home_page.dart';
@@ -39,6 +40,7 @@ class AppRouter {
   static const String dataManagement = '/data-management';
   static const String progressionSelection = '/progression-selection';
   static const String progressionConfiguration = '/progression-configuration';
+  static const String animationTest = '/animation-test';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -200,6 +202,7 @@ class AppRouter {
           return ProgressionConfigurationPage(progressionType: progressionType);
         },
       ),
+      GoRoute(path: animationTest, name: 'animationTest', builder: (context, state) => const SimpleAnimationTest()),
     ],
     errorBuilder:
         (context, state) => Scaffold(

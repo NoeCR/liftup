@@ -2,7 +2,7 @@ import '../../exercise/models/exercise.dart';
 import '../../home/models/routine.dart';
 
 /// Enum for different exercise sorting types
-enum ExerciseSortType { name, lastPerformed, category }
+enum ExerciseSortType { name, lastPerformed, category, favoritesFirst }
 
 /// Helper class for exercise search operations in UI
 class ExerciseSearchHelper {
@@ -63,6 +63,20 @@ class ExerciseSearchHelper {
   static List<Exercise> sortExercisesByName(List<Exercise> exercises) {
     final sortedExercises = [...exercises];
     sortedExercises.sort((a, b) => a.name.compareTo(b.name));
+    return sortedExercises;
+  }
+
+  /// Sorts exercises with favorites first, then by name
+  static List<Exercise> sortExercisesWithFavoritesFirst(List<Exercise> exercises) {
+    final sortedExercises = [...exercises];
+    sortedExercises.sort((a, b) {
+      // Si uno es favorito y el otro no, el favorito va primero
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+
+      // Si ambos son favoritos o ninguno es favorito, ordenar por nombre
+      return a.name.compareTo(b.name);
+    });
     return sortedExercises;
   }
 
@@ -136,6 +150,16 @@ class ExerciseSearchHelper {
         break;
       case ExerciseSortType.category:
         exerciseList.sort((a, b) => a.exercise.category.name.compareTo(b.exercise.category.name));
+        break;
+      case ExerciseSortType.favoritesFirst:
+        exerciseList.sort((a, b) {
+          // Si uno es favorito y el otro no, el favorito va primero
+          if (a.exercise.isFavorite && !b.exercise.isFavorite) return -1;
+          if (!a.exercise.isFavorite && b.exercise.isFavorite) return 1;
+
+          // Si ambos son favoritos o ninguno es favorito, ordenar por nombre
+          return a.exercise.name.compareTo(b.exercise.name);
+        });
         break;
     }
 

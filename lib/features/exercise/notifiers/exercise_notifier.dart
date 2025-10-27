@@ -1,8 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../../common/enums/muscle_group_enum.dart';
 import '../models/exercise.dart';
 import '../services/exercise_service.dart';
-import '../../../common/enums/muscle_group_enum.dart';
 
 part 'exercise_notifier.g.dart';
 
@@ -69,6 +70,56 @@ class ExerciseNotifier extends _$ExerciseNotifier {
   Future<List<Exercise>> searchExercises(String query) async {
     final exerciseService = ref.read(exerciseServiceProvider);
     return await exerciseService.searchExercises(query);
+  }
+
+  /// Alterna el estado de favorito de un ejercicio
+  Future<void> toggleFavorite(String exerciseId) async {
+    final exerciseService = ref.read(exerciseServiceProvider);
+    final exercise = await exerciseService.getExerciseById(exerciseId);
+
+    if (exercise == null) return;
+
+    final updatedExercise = exercise.copyWith(isFavorite: !exercise.isFavorite, updatedAt: DateTime.now());
+
+    await exerciseService.saveExercise(updatedExercise);
+
+    // Actualizar el estado
+    ref.invalidateSelf();
+    state = AsyncValue.data(await exerciseService.getAllExercises());
+  }
+
+  /// Reordena la lista de ejercicios según el orden proporcionado
+  Future<void> reorderExercises(List<Exercise> reorderedExercises) async {
+    final exerciseService = ref.read(exerciseServiceProvider);
+
+    // Actualizar el orden de cada ejercicio
+    for (int i = 0; i < reorderedExercises.length; i++) {
+      final exercise = reorderedExercises[i];
+      final updatedExercise = exercise.copyWith(
+        updatedAt: DateTime.now(),
+        // Aquí podrías agregar un campo de orden si lo necesitas
+        // order: i,
+      );
+      await exerciseService.saveExercise(updatedExercise);
+    }
+
+    // Actualizar el estado con la nueva lista ordenada
+    state = AsyncValue.data(reorderedExercises);
+  }
+
+  /// Obtiene los ejercicios ordenados con favoritos primero
+  Future<List<Exercise>> getExercisesWithFavoritesFirst() async {
+    final exerciseService = ref.read(exerciseServiceProvider);
+    final exercises = await exerciseService.getAllExercises();
+
+    // Ordenar con favoritos primero, luego por nombre
+    exercises.sort((a, b) {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      return a.name.compareTo(b.name);
+    });
+
+    return exercises;
   }
 
   Future<void> _loadInitialExercises() async {
