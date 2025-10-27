@@ -35,9 +35,7 @@ List<Exercise> sortExercisesWithFavoritesFirstByName(List<Exercise> exercises) {
 }
 
 /// Ordena una lista de ejercicios con favoritos primero y luego por categoría
-List<Exercise> sortExercisesWithFavoritesFirstByCategory(
-  List<Exercise> exercises,
-) {
+List<Exercise> sortExercisesWithFavoritesFirstByCategory(List<Exercise> exercises) {
   final sortedExercises = List<Exercise>.from(exercises);
 
   // Ordenar: favoritos primero, luego por categoría

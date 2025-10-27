@@ -23,13 +23,10 @@ class ReorderableExerciseList extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ReorderableExerciseList> createState() =>
-      _ReorderableExerciseListState();
+  ConsumerState<ReorderableExerciseList> createState() => _ReorderableExerciseListState();
 }
 
-class _ReorderableExerciseListState
-    extends ConsumerState<ReorderableExerciseList>
-    with TickerProviderStateMixin {
+class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseList> with TickerProviderStateMixin {
   List<Exercise> _exercises = [];
   int? _draggedIndex;
   bool _isReordering = false;
@@ -41,10 +38,7 @@ class _ReorderableExerciseListState
     super.initState();
     _exercises = List.from(widget.exercises);
 
-    _reorderAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
+    _reorderAnimationController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
   }
 
   @override

@@ -30,8 +30,7 @@ class AnimatedExerciseCard extends StatefulWidget {
   State<AnimatedExerciseCard> createState() => _AnimatedExerciseCardState();
 }
 
-class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
-    with TickerProviderStateMixin {
+class _AnimatedExerciseCardState extends State<AnimatedExerciseCard> with TickerProviderStateMixin {
   late AnimationController _elevationController;
   late AnimationController _scaleController;
   late AnimationController _favoriteController;
@@ -50,40 +49,34 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
     _wasFavorite = widget.exercise.isFavoriteValue;
 
     // Controlador para la elevación de la tarjeta
-    _elevationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+    _elevationController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
 
     // Controlador para el escalado durante el drag
-    _scaleController = AnimationController(
-      duration: const Duration(milliseconds: 150),
-      vsync: this,
-    );
+    _scaleController = AnimationController(duration: const Duration(milliseconds: 150), vsync: this);
 
     // Controlador para la animación del favorito
-    _favoriteController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+    _favoriteController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
 
     // Animaciones
-    _elevationAnimation = Tween<double>(begin: 0.0, end: 8.0).animate(
-      CurvedAnimation(parent: _elevationController, curve: Curves.easeOut),
-    );
+    _elevationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 8.0,
+    ).animate(CurvedAnimation(parent: _elevationController, curve: Curves.easeOut));
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 1.05,
     ).animate(CurvedAnimation(parent: _scaleController, curve: Curves.easeOut));
 
-    _favoriteScaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(parent: _favoriteController, curve: Curves.easeInOut),
-    );
+    _favoriteScaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.15,
+    ).animate(CurvedAnimation(parent: _favoriteController, curve: Curves.easeInOut));
 
-    _favoriteRotationAnimation = Tween<double>(begin: 0.0, end: 0.05).animate(
-      CurvedAnimation(parent: _favoriteController, curve: Curves.easeInOut),
-    );
+    _favoriteRotationAnimation = Tween<double>(
+      begin: 0.0,
+      end: 0.05,
+    ).animate(CurvedAnimation(parent: _favoriteController, curve: Curves.easeInOut));
   }
 
   @override
@@ -184,20 +177,11 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
             child: Transform.rotate(
               angle: _favoriteRotationAnimation.value,
               child: Container(
-                margin: const EdgeInsets.symmetric(
-                  horizontal: AppTheme.spacingM,
-                  vertical: AppTheme.spacingXS,
-                ),
+                margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingXS),
                 child: Material(
-                  elevation:
-                      widget.isDragging
-                          ? _elevationAnimation.value
-                          : (_isPressed ? 4.0 : 2.0),
+                  elevation: widget.isDragging ? _elevationAnimation.value : (_isPressed ? 4.0 : 2.0),
                   borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                  color:
-                      widget.isBeingDragged
-                          ? colorScheme.surfaceContainerHighest
-                          : colorScheme.surface,
+                  color: widget.isBeingDragged ? colorScheme.surfaceContainerHighest : colorScheme.surface,
                   child: GestureDetector(
                     onTap: widget.onTap,
                     onLongPress: widget.onLongPress,
@@ -254,10 +238,7 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
         // Título
         Text(
           widget.exercise.name,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
         ),
 
         const SizedBox(height: AppTheme.spacingXS),
@@ -267,9 +248,7 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
           widget.exercise.description,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
+          style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
         ),
 
         const SizedBox(height: AppTheme.spacingS),
@@ -281,12 +260,7 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
           children:
               widget.exercise.muscleGroups.map((muscle) {
                 return Chip(
-                  label: Text(
-                    muscle.name,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  label: Text(muscle.name, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500)),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 );
               }).toList(),
@@ -302,13 +276,8 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
         // Botón de favorito
         IconButton(
           icon: Icon(
-            widget.exercise.isFavoriteValue
-                ? Icons.favorite
-                : Icons.favorite_border,
-            color:
-                widget.exercise.isFavoriteValue
-                    ? Colors.red
-                    : colorScheme.onSurfaceVariant,
+            widget.exercise.isFavoriteValue ? Icons.favorite : Icons.favorite_border,
+            color: widget.exercise.isFavoriteValue ? Colors.red : colorScheme.onSurfaceVariant,
           ),
           onPressed: widget.onFavoriteToggle,
         ),
@@ -317,32 +286,17 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
         if (widget.isDragging)
           Container(
             padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: colorScheme.primary,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Icon(
-              Icons.drag_handle,
-              color: colorScheme.onPrimary,
-              size: 16,
-            ),
+            decoration: BoxDecoration(color: colorScheme.primary, borderRadius: BorderRadius.circular(4)),
+            child: Icon(Icons.drag_handle, color: colorScheme.onPrimary, size: 16),
           )
         else
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Indicador de que se puede arrastrar
-              Icon(
-                Icons.drag_handle,
-                size: 16,
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
-              ),
+              Icon(Icons.drag_handle, size: 16, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
               const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: colorScheme.onSurfaceVariant,
-              ),
+              Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurfaceVariant),
             ],
           ),
       ],
@@ -358,9 +312,7 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
       return Image.asset(
         path,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) =>
-                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+        errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
       );
     }
 
@@ -368,20 +320,15 @@ class _AnimatedExerciseCardState extends State<AnimatedExerciseCard>
       return Image.network(
         path,
         fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) =>
-                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+        errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
       );
     }
 
-    final String filePath =
-        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    final String filePath = path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
     return Image.file(
       File(filePath),
       fit: BoxFit.cover,
-      errorBuilder:
-          (context, error, stackTrace) =>
-              Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
+      errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
     );
   }
 }

@@ -21,10 +21,7 @@ class FavoriteExerciseNotifier extends _$FavoriteExerciseNotifier {
       if (exercise == null) return;
 
       // Crear una copia del ejercicio con el estado de favorito invertido
-      final updatedExercise = exercise.copyWith(
-        isFavorite: !exercise.isFavoriteValue,
-        updatedAt: DateTime.now(),
-      );
+      final updatedExercise = exercise.copyWith(isFavorite: !exercise.isFavoriteValue, updatedAt: DateTime.now());
 
       // Guardar el ejercicio actualizado
       await exerciseService.saveExercise(updatedExercise);
@@ -57,10 +54,7 @@ class FavoriteExerciseNotifier extends _$FavoriteExerciseNotifier {
       final allExercises = await exerciseService.getAllExercises();
 
       final favoriteIds =
-          allExercises
-              .where((exercise) => exercise.isFavoriteValue)
-              .map((exercise) => exercise.id)
-              .toSet();
+          allExercises.where((exercise) => exercise.isFavoriteValue).map((exercise) => exercise.id).toSet();
 
       state = favoriteIds;
     } catch (e) {

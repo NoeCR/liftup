@@ -26,8 +26,7 @@ class SimpleAnimatedCard extends ConsumerStatefulWidget {
   ConsumerState<SimpleAnimatedCard> createState() => _SimpleAnimatedCardState();
 }
 
-class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
-    with SingleTickerProviderStateMixin {
+class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -39,10 +38,7 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
     super.initState();
     _wasFavorite = widget.exercise.isFavoriteValue;
 
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
+    _controller = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
@@ -110,14 +106,8 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
             angle: _rotationAnimation.value,
             child: Card(
               elevation: widget.isSelected ? 4 : 2,
-              color:
-                  widget.isSelected
-                      ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-                      : null,
-              margin: const EdgeInsets.symmetric(
-                horizontal: AppTheme.spacingM,
-                vertical: AppTheme.spacingXS,
-              ),
+              color: widget.isSelected ? colorScheme.primaryContainer.withValues(alpha: 0.3) : null,
+              margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingXS),
               child: InkWell(
                 onTap: widget.onTap,
                 onLongPress: widget.onLongPress,
@@ -131,9 +121,7 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
                         children: [
                           // Imagen del ejercicio
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              AppTheme.radiusS,
-                            ),
+                            borderRadius: BorderRadius.circular(AppTheme.radiusS),
                             child: Container(
                               width: 60,
                               height: 60,
@@ -145,17 +133,9 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) =>
-                                                Icon(
-                                                  Icons.fitness_center,
-                                                  color:
-                                                      colorScheme
-                                                          .onSurfaceVariant,
-                                                ),
+                                                Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
                                       )
-                                      : Icon(
-                                        Icons.fitness_center,
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
+                                      : Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
                             ),
                           ),
 
@@ -182,9 +162,7 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
                                   widget.exercise.description,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
+                                  style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
                                 ),
 
                                 const SizedBox(height: AppTheme.spacingS),
@@ -194,19 +172,13 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
                                   spacing: AppTheme.spacingXS,
                                   runSpacing: AppTheme.spacingXS,
                                   children:
-                                      widget.exercise.muscleGroups.map((
-                                        muscle,
-                                      ) {
+                                      widget.exercise.muscleGroups.map((muscle) {
                                         return Chip(
                                           label: Text(
                                             muscle.name,
-                                            style: theme.textTheme.bodySmall
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                            style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
                                           ),
-                                          materialTapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
+                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                         );
                                       }).toList(),
                                 ),
@@ -218,13 +190,8 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
                           if (widget.showFavoriteButton)
                             IconButton(
                               icon: Icon(
-                                widget.exercise.isFavoriteValue
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color:
-                                    widget.exercise.isFavoriteValue
-                                        ? Colors.red
-                                        : colorScheme.onSurfaceVariant,
+                                widget.exercise.isFavoriteValue ? Icons.favorite : Icons.favorite_border,
+                                color: widget.exercise.isFavoriteValue ? Colors.red : colorScheme.onSurfaceVariant,
                               ),
                               onPressed: _toggleFavorite,
                             ),
@@ -238,15 +205,8 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
                         right: 8,
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.check,
-                            color: colorScheme.onPrimary,
-                            size: 16,
-                          ),
+                          decoration: BoxDecoration(color: colorScheme.primary, shape: BoxShape.circle),
+                          child: Icon(Icons.check, color: colorScheme.onPrimary, size: 16),
                         ),
                       ),
                   ],

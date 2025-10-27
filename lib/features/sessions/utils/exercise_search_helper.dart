@@ -25,10 +25,7 @@ class ExerciseSearchHelper {
   }
 
   /// Gets an exercise by ID with fallback
-  static Exercise? getExerciseById(
-    String exerciseId,
-    Map<String, Exercise> exerciseMap,
-  ) {
+  static Exercise? getExerciseById(String exerciseId, Map<String, Exercise> exerciseMap) {
     return exerciseMap[exerciseId];
   }
 
@@ -58,10 +55,7 @@ class ExerciseSearchHelper {
   }
 
   /// Gets a routine by ID with fallback
-  static Routine? getRoutineById(
-    String routineId,
-    Map<String, Routine> routineMap,
-  ) {
+  static Routine? getRoutineById(String routineId, Map<String, Routine> routineMap) {
     return routineMap[routineId];
   }
 
@@ -73,9 +67,7 @@ class ExerciseSearchHelper {
   }
 
   /// Sorts exercises with favorites first, then by name
-  static List<Exercise> sortExercisesWithFavoritesFirst(
-    List<Exercise> exercises,
-  ) {
+  static List<Exercise> sortExercisesWithFavoritesFirst(List<Exercise> exercises) {
     final sortedExercises = [...exercises];
     sortedExercises.sort((a, b) {
       // Si uno es favorito y el otro no, el favorito va primero
@@ -96,9 +88,7 @@ class ExerciseSearchHelper {
   }
 
   /// Groups exercises by category
-  static Map<ExerciseCategory, List<Exercise>> groupExercisesByCategory(
-    List<Exercise> exercises,
-  ) {
+  static Map<ExerciseCategory, List<Exercise>> groupExercisesByCategory(List<Exercise> exercises) {
     final Map<ExerciseCategory, List<Exercise>> grouped = {};
     for (final exercise in exercises) {
       grouped.putIfAbsent(exercise.category, () => []).add(exercise);
@@ -107,10 +97,7 @@ class ExerciseSearchHelper {
   }
 
   /// Searches exercises by name (case-insensitive)
-  static List<Exercise> searchExercisesByName(
-    List<Exercise> exercises,
-    String query,
-  ) {
+  static List<Exercise> searchExercisesByName(List<Exercise> exercises, String query) {
     if (query.isEmpty) return exercises;
 
     final lowercaseQuery = query.toLowerCase();
@@ -120,23 +107,17 @@ class ExerciseSearchHelper {
   }
 
   /// Searches exercises by muscle group
-  static List<Exercise> searchExercisesByMuscleGroup(
-    List<Exercise> exercises,
-    String muscleGroup,
-  ) {
+  static List<Exercise> searchExercisesByMuscleGroup(List<Exercise> exercises, String muscleGroup) {
     if (muscleGroup.isEmpty) return exercises;
 
     final lowercaseMuscleGroup = muscleGroup.toLowerCase();
     return exercises.where((exercise) {
-      return exercise.muscleGroups.any(
-        (mg) => mg.name.toLowerCase().contains(lowercaseMuscleGroup),
-      );
+      return exercise.muscleGroups.any((mg) => mg.name.toLowerCase().contains(lowercaseMuscleGroup));
     }).toList();
   }
 
   /// Creates a sorted list of routine exercises with their corresponding Exercise objects
-  static List<({RoutineExercise routineExercise, Exercise exercise})>
-  createSortedExerciseList(
+  static List<({RoutineExercise routineExercise, Exercise exercise})> createSortedExerciseList(
     List<RoutineExercise> routineExercises,
     List<Exercise> exercises, {
     String? defaultName,
@@ -144,8 +125,7 @@ class ExerciseSearchHelper {
   }) {
     final exerciseMap = createExerciseMap(exercises);
 
-    final List<({RoutineExercise routineExercise, Exercise exercise})>
-    exerciseList = [];
+    final List<({RoutineExercise routineExercise, Exercise exercise})> exerciseList = [];
 
     for (final routineExercise in routineExercises) {
       final exercise = getExerciseByIdWithFallback(
@@ -163,28 +143,19 @@ class ExerciseSearchHelper {
         break;
       case ExerciseSortType.lastPerformed:
         exerciseList.sort((a, b) {
-          final aDate =
-              a.exercise.lastPerformedAt ??
-              DateTime.fromMillisecondsSinceEpoch(0);
-          final bDate =
-              b.exercise.lastPerformedAt ??
-              DateTime.fromMillisecondsSinceEpoch(0);
+          final aDate = a.exercise.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bDate = b.exercise.lastPerformedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
           return aDate.compareTo(bDate); // older first
         });
         break;
       case ExerciseSortType.category:
-        exerciseList.sort(
-          (a, b) =>
-              a.exercise.category.name.compareTo(b.exercise.category.name),
-        );
+        exerciseList.sort((a, b) => a.exercise.category.name.compareTo(b.exercise.category.name));
         break;
       case ExerciseSortType.favoritesFirst:
         exerciseList.sort((a, b) {
           // Si uno es favorito y el otro no, el favorito va primero
-          if (a.exercise.isFavoriteValue && !b.exercise.isFavoriteValue)
-            return -1;
-          if (!a.exercise.isFavoriteValue && b.exercise.isFavoriteValue)
-            return 1;
+          if (a.exercise.isFavoriteValue && !b.exercise.isFavoriteValue) return -1;
+          if (!a.exercise.isFavoriteValue && b.exercise.isFavoriteValue) return 1;
 
           // Si ambos son favoritos o ninguno es favorito, ordenar por nombre
           return a.exercise.name.compareTo(b.exercise.name);

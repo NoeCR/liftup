@@ -20,12 +20,10 @@ class FavoriteAnimationWidget extends StatefulWidget {
   });
 
   @override
-  State<FavoriteAnimationWidget> createState() =>
-      _FavoriteAnimationWidgetState();
+  State<FavoriteAnimationWidget> createState() => _FavoriteAnimationWidgetState();
 }
 
-class _FavoriteAnimationWidgetState extends State<FavoriteAnimationWidget>
-    with TickerProviderStateMixin {
+class _FavoriteAnimationWidgetState extends State<FavoriteAnimationWidget> with TickerProviderStateMixin {
   late AnimationController _liftController;
   late AnimationController _moveController;
   late AnimationController _dropController;
@@ -43,22 +41,13 @@ class _FavoriteAnimationWidgetState extends State<FavoriteAnimationWidget>
     super.initState();
 
     // Controlador para la elevación inicial
-    _liftController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+    _liftController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
 
     // Controlador para el movimiento
-    _moveController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-      vsync: this,
-    );
+    _moveController = AnimationController(duration: const Duration(milliseconds: 400), vsync: this);
 
     // Controlador para el descenso final
-    _dropController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
+    _dropController = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
 
     // Animación de elevación
     _liftAnimation = Tween<double>(
@@ -67,17 +56,16 @@ class _FavoriteAnimationWidgetState extends State<FavoriteAnimationWidget>
     ).animate(CurvedAnimation(parent: _liftController, curve: Curves.easeOut));
 
     // Animación de movimiento
-    _moveAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _moveController, curve: Curves.easeInOut),
-    );
+    _moveAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _moveController, curve: Curves.easeInOut));
 
     // Animación de posición
     _positionAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: Offset(0, -(widget.currentIndex - widget.targetIndex).toDouble()),
-    ).animate(
-      CurvedAnimation(parent: _moveController, curve: Curves.easeInOut),
-    );
+    ).animate(CurvedAnimation(parent: _moveController, curve: Curves.easeInOut));
 
     // Animación de escala
     _scaleAnimation = Tween<double>(
@@ -147,9 +135,7 @@ class _FavoriteAnimationWidgetState extends State<FavoriteAnimationWidget>
       ]),
       builder: (context, child) {
         return Transform.translate(
-          offset:
-              _positionAnimation.value *
-              80, // Ajustar según el tamaño de la tarjeta
+          offset: _positionAnimation.value * 80, // Ajustar según el tamaño de la tarjeta
           child: Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
@@ -177,12 +163,7 @@ class FavoriteAnimationList extends StatefulWidget {
   final Widget Function(Exercise, int) itemBuilder;
   final Function(Exercise)? onFavoriteToggle;
 
-  const FavoriteAnimationList({
-    super.key,
-    required this.exercises,
-    required this.itemBuilder,
-    this.onFavoriteToggle,
-  });
+  const FavoriteAnimationList({super.key, required this.exercises, required this.itemBuilder, this.onFavoriteToggle});
 
   @override
   State<FavoriteAnimationList> createState() => _FavoriteAnimationListState();
@@ -208,14 +189,11 @@ class _FavoriteAnimationListState extends State<FavoriteAnimationList> {
             final exercise = entry.value;
 
             // Si este ejercicio está siendo animado, usar el widget de animación
-            if (_animatingExercise?.id == exercise.id &&
-                _animatingIndex == index) {
+            if (_animatingExercise?.id == exercise.id && _animatingIndex == index) {
               return FavoriteAnimationWidget(
                 exercise: exercise,
                 currentIndex: index,
-                targetIndex: widget.exercises.indexWhere(
-                  (e) => !e.isFavoriteValue,
-                ),
+                targetIndex: widget.exercises.indexWhere((e) => !e.isFavoriteValue),
                 onAnimationComplete: _onAnimationComplete,
                 itemBuilder: widget.itemBuilder,
               );
@@ -223,11 +201,8 @@ class _FavoriteAnimationListState extends State<FavoriteAnimationList> {
 
             // Si es el ejercicio que se está moviendo pero no es el que se está animando,
             // mostrar un placeholder vacío
-            if (_animatingExercise?.id == exercise.id &&
-                _animatingIndex != index) {
-              return const SizedBox(
-                height: 80,
-              ); // Altura aproximada de una tarjeta
+            if (_animatingExercise?.id == exercise.id && _animatingIndex != index) {
+              return const SizedBox(height: 80); // Altura aproximada de una tarjeta
             }
 
             // Ejercicio normal

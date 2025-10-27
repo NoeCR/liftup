@@ -77,17 +77,12 @@ class ExerciseCard extends StatelessWidget {
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(AppTheme.radiusL),
-                    ),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.radiusL)),
                     child: Container(
                       height: 120,
                       width: double.infinity,
                       color: Colors.transparent,
-                      child: _buildAdaptiveImage(
-                        exercise?.imageUrl ?? '',
-                        colorScheme,
-                      ),
+                      child: _buildAdaptiveImage(exercise?.imageUrl ?? '', colorScheme),
                     ),
                   ),
                   // Botón de favorito
@@ -107,14 +102,9 @@ class ExerciseCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Icon(
-                              exercise?.isFavoriteValue == true
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
+                              exercise?.isFavoriteValue == true ? Icons.favorite : Icons.favorite_border,
                               size: 20,
-                              color:
-                                  exercise?.isFavoriteValue == true
-                                      ? Colors.red
-                                      : colorScheme.onSurface,
+                              color: exercise?.isFavoriteValue == true ? Colors.red : colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -138,10 +128,7 @@ class ExerciseCard extends StatelessWidget {
                           child: Icon(
                             isLocked ? Icons.lock : Icons.lock_open,
                             size: 20,
-                            color:
-                                isLocked
-                                    ? colorScheme.error
-                                    : colorScheme.onSurface,
+                            color: isLocked ? colorScheme.error : colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -194,11 +181,7 @@ class ExerciseCard extends StatelessWidget {
                               ),
                               const SizedBox(height: AppTheme.spacingXS),
                               if (exercise != null)
-                                _buildInfoChip(
-                                  context,
-                                  exercise!.category.displayName,
-                                  Icons.category,
-                                ),
+                                _buildInfoChip(context, exercise!.category.displayName, Icons.category),
                             ],
                           ),
                         ],
@@ -206,8 +189,7 @@ class ExerciseCard extends StatelessWidget {
                     ),
                     const SizedBox(width: AppTheme.spacingM),
                     // RIGHT: Controls (only in session), for bottom alignment match left height
-                    if (showSetsControls)
-                      _buildSeriesControlColumn(context, colorScheme),
+                    if (showSetsControls) _buildSeriesControlColumn(context, colorScheme),
                   ],
                 ),
               ),
@@ -223,9 +205,7 @@ class ExerciseCard extends StatelessWidget {
                         onPressed: onRemove,
                         icon: const Icon(Icons.delete_outline, size: 18),
                         label: const Text('Eliminar'),
-                        style: TextButton.styleFrom(
-                          foregroundColor: colorScheme.error,
-                        ),
+                        style: TextButton.styleFrom(foregroundColor: colorScheme.error),
                       ),
                     ],
                   ),
@@ -237,63 +217,35 @@ class ExerciseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoChip(
-    BuildContext context,
-    String text,
-    IconData icon, {
-    bool isFromProgression = false,
-  }) {
+  Widget _buildInfoChip(BuildContext context, String text, IconData icon, {bool isFromProgression = false}) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     // Cambiar color si viene de progresión
     final chipColor =
-        isFromProgression
-            ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-            : colorScheme.surfaceContainerHighest;
+        isFromProgression ? colorScheme.primaryContainer.withValues(alpha: 0.3) : colorScheme.surfaceContainerHighest;
 
-    final textColor =
-        isFromProgression
-            ? colorScheme.onPrimaryContainer
-            : colorScheme.onSurfaceVariant;
+    final textColor = isFromProgression ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.spacingS,
-        vertical: AppTheme.spacingXS,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacingS, vertical: AppTheme.spacingXS),
       decoration: BoxDecoration(
         color: chipColor,
         borderRadius: BorderRadius.circular(AppTheme.radiusS),
-        border:
-            isFromProgression
-                ? Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.3),
-                  width: 1,
-                )
-                : null,
+        border: isFromProgression ? Border.all(color: colorScheme.primary.withValues(alpha: 0.3), width: 1) : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: textColor),
           const SizedBox(width: AppTheme.spacingXS),
-          Text(
-            text,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: textColor,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(text, style: theme.textTheme.bodySmall?.copyWith(color: textColor, fontWeight: FontWeight.w500)),
         ],
       ),
     );
   }
 
-  Widget _buildSeriesControlColumn(
-    BuildContext context,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildSeriesControlColumn(BuildContext context, ColorScheme colorScheme) {
     final theme = Theme.of(context);
     final totalSets = displayValues?.sets ?? exercise?.defaultSets ?? 4;
 
@@ -324,24 +276,15 @@ class ExerciseCard extends StatelessWidget {
           child: Center(
             child: IconButton(
               icon: const Icon(Icons.add, size: 20),
-              onPressed:
-                  performedSets < totalSets && !isResting
-                      ? () => onRepsChanged?.call(performedSets + 1)
-                      : null,
+              onPressed: performedSets < totalSets && !isResting ? () => onRepsChanged?.call(performedSets + 1) : null,
               style: IconButton.styleFrom(
                 visualDensity: VisualDensity.compact,
                 fixedSize: const Size(48, 48),
                 backgroundColor:
-                    performedSets < totalSets && !isResting
-                        ? colorScheme.primary
-                        : colorScheme.surfaceContainerHighest,
+                    performedSets < totalSets && !isResting ? colorScheme.primary : colorScheme.surfaceContainerHighest,
                 foregroundColor:
-                    performedSets < totalSets && !isResting
-                        ? colorScheme.onPrimary
-                        : colorScheme.onSurfaceVariant,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                ),
+                    performedSets < totalSets && !isResting ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTheme.radiusM)),
                 padding: EdgeInsets.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
@@ -355,11 +298,7 @@ class ExerciseCard extends StatelessWidget {
 
   Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
     if (path.isEmpty) {
-      return Icon(
-        Icons.fitness_center,
-        size: 48,
-        color: colorScheme.onSurfaceVariant,
-      );
+      return Icon(Icons.fitness_center, size: 48, color: colorScheme.onSurfaceVariant);
     }
 
     if (path.startsWith('assets/')) {
@@ -369,11 +308,7 @@ class ExerciseCard extends StatelessWidget {
         width: double.infinity,
         height: 120,
         errorBuilder:
-            (context, error, stackTrace) => Icon(
-              Icons.fitness_center,
-              size: 48,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            (context, error, stackTrace) => Icon(Icons.fitness_center, size: 48, color: colorScheme.onSurfaceVariant),
       );
     }
 
@@ -384,27 +319,18 @@ class ExerciseCard extends StatelessWidget {
         width: double.infinity,
         height: 120,
         errorBuilder:
-            (context, error, stackTrace) => Icon(
-              Icons.fitness_center,
-              size: 48,
-              color: colorScheme.onSurfaceVariant,
-            ),
+            (context, error, stackTrace) => Icon(Icons.fitness_center, size: 48, color: colorScheme.onSurfaceVariant),
       );
     }
 
-    final String filePath =
-        path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
+    final String filePath = path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
     return Image.file(
       File(filePath),
       fit: BoxFit.cover,
       width: double.infinity,
       height: 120,
       errorBuilder:
-          (context, error, stackTrace) => Icon(
-            Icons.fitness_center,
-            size: 48,
-            color: colorScheme.onSurfaceVariant,
-          ),
+          (context, error, stackTrace) => Icon(Icons.fitness_center, size: 48, color: colorScheme.onSurfaceVariant),
     );
   }
 

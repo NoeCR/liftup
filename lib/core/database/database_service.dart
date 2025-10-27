@@ -41,16 +41,11 @@ class DatabaseService implements IDatabaseService {
       try {
         await _initializeHive();
         _isInitialized = true;
-        LoggingService.instance.info(
-          'DatabaseService initialized successfully',
-        );
+        LoggingService.instance.info('DatabaseService initialized successfully');
       } catch (e, stackTrace) {
-        LoggingService.instance.error(
-          'Error initializing DatabaseService',
-          e,
-          stackTrace,
-          {'component': 'database_initialization'},
-        );
+        LoggingService.instance.error('Error initializing DatabaseService', e, stackTrace, {
+          'component': 'database_initialization',
+        });
         rethrow;
       }
     }
@@ -94,36 +89,24 @@ class DatabaseService implements IDatabaseService {
         await Future.wait(openPromises);
       }
 
-      LoggingService.instance.info('All Hive boxes initialized successfully', {
-        'boxes_opened': boxConfigs.length,
-      });
+      LoggingService.instance.info('All Hive boxes initialized successfully', {'boxes_opened': boxConfigs.length});
     } catch (e) {
-      LoggingService.instance.warning(
-        'Error opening Hive boxes, attempting recovery',
-        {'error': e.toString(), 'errorType': e.runtimeType.toString()},
-      );
+      LoggingService.instance.warning('Error opening Hive boxes, attempting recovery', {
+        'error': e.toString(),
+        'errorType': e.runtimeType.toString(),
+      });
 
       // Check if it's a type cast error specifically
-      if (e.toString().contains(
-            'type \'Null\' is not a subtype of type \'bool\'',
-          ) ||
-          e.toString().contains(
-            'type \'Null\' is not a subtype of type \'int\'',
-          ) ||
-          e.toString().contains(
-            'type \'Null\' is not a subtype of type \'double\'',
-          )) {
-        LoggingService.instance.warning(
-          'Detected type cast error, clearing corrupted data',
-        );
+      if (e.toString().contains('type \'Null\' is not a subtype of type \'bool\'') ||
+          e.toString().contains('type \'Null\' is not a subtype of type \'int\'') ||
+          e.toString().contains('type \'Null\' is not a subtype of type \'double\'')) {
+        LoggingService.instance.warning('Detected type cast error, clearing corrupted data');
         await _clearAllBoxes();
         // Retry after clearing for type cast errors
         await _retryInitializeHive();
       } else {
         // For other errors, clear all boxes and retry
-        LoggingService.instance.warning(
-          'Detected general error, clearing all data and retrying',
-        );
+        LoggingService.instance.warning('Detected general error, clearing all data and retrying');
         await _clearAllBoxes();
         await _retryInitializeHive();
       }
@@ -165,16 +148,11 @@ class DatabaseService implements IDatabaseService {
         await Future.wait(openPromises);
       }
 
-      LoggingService.instance.info(
-        'Hive boxes reinitialized successfully after recovery',
-      );
+      LoggingService.instance.info('Hive boxes reinitialized successfully after recovery');
     } catch (retryError, retryStackTrace) {
-      LoggingService.instance.fatal(
-        'Failed to reinitialize Hive boxes after recovery',
-        retryError,
-        retryStackTrace,
-        {'component': 'hive_retry_initialization'},
-      );
+      LoggingService.instance.fatal('Failed to reinitialize Hive boxes after recovery', retryError, retryStackTrace, {
+        'component': 'hive_retry_initialization',
+      });
       rethrow;
     }
   }
@@ -203,26 +181,20 @@ class DatabaseService implements IDatabaseService {
             LoggingService.instance.debug('Cleared box: $boxName');
           }
         } catch (e) {
-          LoggingService.instance.warning('Failed to clear box: $boxName', {
-            'error': e.toString(),
-          });
+          LoggingService.instance.warning('Failed to clear box: $boxName', {'error': e.toString()});
           // Box might not exist, continue with others
         }
       }
 
       LoggingService.instance.info('All boxes cleared successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error clearing boxes', e, stackTrace, {
-        'component': 'clear_boxes',
-      });
+      LoggingService.instance.error('Error clearing boxes', e, stackTrace, {'component': 'clear_boxes'});
     }
   }
 
   Box get exercisesBox {
     if (!_isInitialized) {
-      LoggingService.instance.error(
-        'DatabaseService not initialized when accessing exercisesBox',
-      );
+      LoggingService.instance.error('DatabaseService not initialized when accessing exercisesBox');
       throw Exception('DatabaseService not initialized');
     }
     return Hive.box(_exercisesBox);
@@ -271,10 +243,10 @@ class DatabaseService implements IDatabaseService {
     try {
       return Hive.box<ProgressionConfig>(_progressionConfigsBox);
     } catch (e) {
-      LoggingService.instance.warning(
-        'Box type conflict detected, attempting to resolve',
-        {'boxName': _progressionConfigsBox, 'error': e.toString()},
-      );
+      LoggingService.instance.warning('Box type conflict detected, attempting to resolve', {
+        'boxName': _progressionConfigsBox,
+        'error': e.toString(),
+      });
       // Force close and reopen the box with correct type
       if (Hive.isBoxOpen(_progressionConfigsBox)) {
         Hive.box(_progressionConfigsBox).close();
@@ -291,10 +263,10 @@ class DatabaseService implements IDatabaseService {
     try {
       return Hive.box<ProgressionState>(_progressionStatesBox);
     } catch (e) {
-      LoggingService.instance.warning(
-        'Box type conflict detected, attempting to resolve',
-        {'boxName': _progressionStatesBox, 'error': e.toString()},
-      );
+      LoggingService.instance.warning('Box type conflict detected, attempting to resolve', {
+        'boxName': _progressionStatesBox,
+        'error': e.toString(),
+      });
       // Force close and reopen the box with correct type
       if (Hive.isBoxOpen(_progressionStatesBox)) {
         Hive.box(_progressionStatesBox).close();
@@ -311,10 +283,10 @@ class DatabaseService implements IDatabaseService {
     try {
       return Hive.box<ProgressionTemplate>(_progressionTemplatesBox);
     } catch (e) {
-      LoggingService.instance.warning(
-        'Box type conflict detected, attempting to resolve',
-        {'boxName': _progressionTemplatesBox, 'error': e.toString()},
-      );
+      LoggingService.instance.warning('Box type conflict detected, attempting to resolve', {
+        'boxName': _progressionTemplatesBox,
+        'error': e.toString(),
+      });
       // Force close and reopen the box with correct type
       if (Hive.isBoxOpen(_progressionTemplatesBox)) {
         Hive.box(_progressionTemplatesBox).close();
@@ -341,18 +313,14 @@ class DatabaseService implements IDatabaseService {
 
       LoggingService.instance.info('All application data cleared successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error clearing all data', e, stackTrace, {
-        'component': 'clear_all_data',
-      });
+      LoggingService.instance.error('Error clearing all data', e, stackTrace, {'component': 'clear_all_data'});
       rethrow;
     }
   }
 
   Future<void> forceResetDatabase() async {
     try {
-      LoggingService.instance.warning(
-        'Force resetting database - this will delete all data',
-      );
+      LoggingService.instance.warning('Force resetting database - this will delete all data');
 
       // Close all boxes if they exist
       try {
@@ -378,9 +346,7 @@ class DatabaseService implements IDatabaseService {
       ];
 
       final directory = await getApplicationDocumentsDirectory();
-      LoggingService.instance.debug(
-        'Deleting database files from: ${directory.path}',
-      );
+      LoggingService.instance.debug('Deleting database files from: ${directory.path}');
 
       for (final boxName in boxes) {
         try {
@@ -396,35 +362,25 @@ class DatabaseService implements IDatabaseService {
             LoggingService.instance.debug('Deleted file: ${lockFile.path}');
           }
         } catch (e) {
-          LoggingService.instance.warning(
-            'Failed to delete files for box: $boxName',
-            {'error': e.toString()},
-          );
+          LoggingService.instance.warning('Failed to delete files for box: $boxName', {'error': e.toString()});
           // Continue with other boxes if one fails
         }
       }
 
       // Reinitialize Hive
       await _initializeHive();
-      LoggingService.instance.info(
-        'Database reset and initialized successfully',
-      );
+      LoggingService.instance.info('Database reset and initialized successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error('Error resetting database', e, stackTrace, {
-        'component': 'force_reset_database',
-      });
+      LoggingService.instance.error('Error resetting database', e, stackTrace, {'component': 'force_reset_database'});
 
       // Try to initialize normally as fallback
       try {
         await _initializeHive();
         LoggingService.instance.info('Fallback initialization successful');
       } catch (fallbackError, fallbackStackTrace) {
-        LoggingService.instance.fatal(
-          'Fallback initialization failed',
-          fallbackError,
-          fallbackStackTrace,
-          {'component': 'fallback_initialization'},
-        );
+        LoggingService.instance.fatal('Fallback initialization failed', fallbackError, fallbackStackTrace, {
+          'component': 'fallback_initialization',
+        });
         rethrow;
       }
     }
@@ -437,12 +393,7 @@ class DatabaseService implements IDatabaseService {
       await Hive.close();
       LoggingService.instance.info('DatabaseService closed successfully');
     } catch (e, stackTrace) {
-      LoggingService.instance.error(
-        'Error closing DatabaseService',
-        e,
-        stackTrace,
-        {'component': 'close_database'},
-      );
+      LoggingService.instance.error('Error closing DatabaseService', e, stackTrace, {'component': 'close_database'});
       rethrow;
     }
   }
