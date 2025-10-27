@@ -123,19 +123,19 @@ void main() {
     });
 
     test('should handle list with only favorites', () {
-      final onlyFavorites = testExercises.where((e) => e.isFavorite).toList();
+      final onlyFavorites = testExercises.where((e) => e.isFavoriteValue).toList();
       final sorted = sortExercisesWithFavoritesFirst(onlyFavorites);
 
       expect(sorted.length, 2);
-      expect(sorted.every((e) => e.isFavorite), isTrue);
+      expect(sorted.every((e) => e.isFavoriteValue), isTrue);
     });
 
     test('should handle list with no favorites', () {
-      final noFavorites = testExercises.where((e) => !e.isFavorite).toList();
+      final noFavorites = testExercises.where((e) => !e.isFavoriteValue).toList();
       final sorted = sortExercisesWithFavoritesFirst(noFavorites);
 
       expect(sorted.length, 2);
-      expect(sorted.every((e) => !e.isFavorite), isTrue);
+      expect(sorted.every((e) => !e.isFavoriteValue), isTrue);
     });
 
     test('should maintain order within favorites and non-favorites', () {

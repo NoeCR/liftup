@@ -26,7 +26,8 @@ class ExerciseSelectionPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ExerciseSelectionPage> createState() => _ExerciseSelectionPageState();
+  ConsumerState<ExerciseSelectionPage> createState() =>
+      _ExerciseSelectionPageState();
 }
 
 class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
@@ -40,7 +41,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
   double _defaultWeight = 0.0;
   int _defaultRestSeconds = 60;
 
-  final List<String> _categories = ['Todos', ...ExerciseCategory.values.map((category) => category.displayName)];
+  final List<String> _categories = [
+    'Todos',
+    ...ExerciseCategory.values.map((category) => category.displayName),
+  ];
 
   @override
   void dispose() {
@@ -61,7 +65,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           if (_selectedExercises.isNotEmpty)
             TextButton(
               onPressed: _addSelectedExercises,
-              child: Text(context.tr('exercises.addCount', namedArgs: {'count': _selectedExercises.length.toString()})),
+              child: Text(
+                context.tr(
+                  'exercises.addCount',
+                  namedArgs: {'count': _selectedExercises.length.toString()},
+                ),
+              ),
             ),
         ],
       ),
@@ -78,7 +87,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                   decoration: InputDecoration(
                     hintText: context.tr('exercises.searchExercises'),
                     prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onChanged: (value) {
                     setState(() {});
@@ -141,12 +152,15 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                         }
 
                         final exercise = filteredExercises[index - 1];
-                        final isSelected = _selectedExercises.contains(exercise.id);
+                        final isSelected = _selectedExercises.contains(
+                          exercise.id,
+                        );
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: SimpleAnimatedCard(
                             exercise: exercise,
+                            isSelected: isSelected,
                             onTap: () {
                               setState(() {
                                 if (isSelected) {
@@ -162,7 +176,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                       },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading:
+                      () => const Center(child: CircularProgressIndicator()),
                   error: (error, stack) => _buildErrorState(error.toString()),
                 );
               },
@@ -180,7 +195,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     if (_selectedCategory != 'Todos') {
       filtered =
           filtered
-              .where((exercise) => exercise.category.displayName.toLowerCase() == _selectedCategory.toLowerCase())
+              .where(
+                (exercise) =>
+                    exercise.category.displayName.toLowerCase() ==
+                    _selectedCategory.toLowerCase(),
+              )
               .toList();
     }
 
@@ -218,7 +237,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       icon = Icons.search_off;
     } else if (isFiltering) {
       title = context.tr('exercises.noExercisesInCategory');
-      subtitle = context.tr('exercises.noExercisesForCategory', namedArgs: {'category': _selectedCategory});
+      subtitle = context.tr(
+        'exercises.noExercisesForCategory',
+        namedArgs: {'category': _selectedCategory},
+      );
       icon = Icons.category_outlined;
     } else {
       title = context.tr('exercises.noExercisesYet');
@@ -234,11 +256,17 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           children: [
             Icon(icon, size: 64, color: colorScheme.onSurfaceVariant),
             const SizedBox(height: 16),
-            Text(title, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+            Text(
+              title,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -254,7 +282,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                 }
                 queryParams['returnTo'] = 'selection';
 
-                final uri = Uri(path: '/exercise/create', queryParameters: queryParams);
+                final uri = Uri(
+                  path: '/exercise/create',
+                  queryParameters: queryParams,
+                );
                 context.push(uri.toString());
               },
               icon: const Icon(Icons.add),
@@ -296,11 +327,16 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         children: [
           Icon(Icons.error_outline, size: 64, color: colorScheme.error),
           const SizedBox(height: 16),
-          Text('Error al cargar ejercicios', style: theme.textTheme.headlineSmall),
+          Text(
+            'Error al cargar ejercicios',
+            style: theme.textTheme.headlineSmall,
+          ),
           const SizedBox(height: 8),
           Text(
             error,
-            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -316,7 +352,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     );
   }
 
-  Widget _buildCreateExerciseItem(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildCreateExerciseItem(
+    BuildContext context,
+    ColorScheme colorScheme,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8, top: 8),
       child: ListTile(
@@ -338,7 +377,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           }
           queryParams['returnTo'] = 'selection';
 
-          final uri = Uri(path: '/exercise/create', queryParameters: queryParams);
+          final uri = Uri(
+            path: '/exercise/create',
+            queryParameters: queryParams,
+          );
           context.push(uri.toString());
         },
       ),
@@ -366,8 +408,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
     final setsController = TextEditingController(text: _defaultSets.toString());
     final repsController = TextEditingController(text: _defaultReps.toString());
-    final weightController = TextEditingController(text: _defaultWeight.toStringAsFixed(1));
-    final restController = TextEditingController(text: _defaultRestSeconds.toString());
+    final weightController = TextEditingController(
+      text: _defaultWeight.toStringAsFixed(1),
+    );
+    final restController = TextEditingController(
+      text: _defaultRestSeconds.toString(),
+    );
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -378,24 +424,37 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Show info about previous values if available
-              if (_selectedExercises.isNotEmpty && _findLastUsedParamsForExercise(_selectedExercises.first) != null)
+              if (_selectedExercises.isNotEmpty &&
+                  _findLastUsedParamsForExercise(_selectedExercises.first) !=
+                      null)
                 Container(
                   padding: const EdgeInsets.all(8),
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           'Valores previos del ejercicio mostrados. Puedes modificarlos si es necesario.',
                           style: Theme.of(
                             context,
-                          ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                          ).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                          ),
                         ),
                       ),
                     ],
@@ -432,7 +491,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                   Expanded(
                     child: TextField(
                       controller: weightController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         labelText: context.tr('exercises.weight'),
                         border: OutlineInputBorder(),
@@ -455,8 +516,14 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text(context.tr('common.cancel'))),
-            FilledButton(onPressed: () => Navigator.of(context).pop(true), child: Text(context.tr('common.confirm'))),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(context.tr('common.cancel')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(context.tr('common.confirm')),
+            ),
           ],
         );
       },
@@ -467,8 +534,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
     final parsedSets = int.tryParse(setsController.text.trim()) ?? _defaultSets;
     final parsedReps = int.tryParse(repsController.text.trim()) ?? _defaultReps;
-    final parsedWeight = double.tryParse(weightController.text.trim()) ?? _defaultWeight;
-    final parsedRest = int.tryParse(restController.text.trim()) ?? _defaultRestSeconds;
+    final parsedWeight =
+        double.tryParse(weightController.text.trim()) ?? _defaultWeight;
+    final parsedRest =
+        int.tryParse(restController.text.trim()) ?? _defaultRestSeconds;
 
     _defaultSets = parsedSets;
     _defaultReps = parsedReps;
@@ -480,7 +549,10 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
     final exercises = exerciseAsync.valueOrNull;
 
     if (exercises != null) {
-      final selectedExercises = exercises.where((exercise) => _selectedExercises.contains(exercise.id)).toList();
+      final selectedExercises =
+          exercises
+              .where((exercise) => _selectedExercises.contains(exercise.id))
+              .toList();
 
       if (selectedExercises.isNotEmpty) {
         // Resolver la sección destino: si no viene por parámetro y tenemos rutina,
@@ -492,7 +564,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           if (routines != null) {
             final routine = routines.firstWhere(
               (r) => r.id == widget.routineId,
-              orElse: () => routines.isNotEmpty ? routines.first : throw Exception('No routines available'),
+              orElse:
+                  () =>
+                      routines.isNotEmpty
+                          ? routines.first
+                          : throw Exception('No routines available'),
             );
             if (routine.sections.isNotEmpty) {
               resolvedSectionId = routine.sections.first.id;
@@ -504,7 +580,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('No se pudo determinar la sección de la rutina. Crea una sección primero.'),
+              content: Text(
+                'No se pudo determinar la sección de la rutina. Crea una sección primero.',
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -514,8 +592,12 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         // Validar duplicados si tenemos una rutina
         if (widget.routineId != null) {
           final routineNotifier = ref.read(routineNotifierProvider.notifier);
-          final selectedExerciseIds = selectedExercises.map((e) => e.id).toList();
-          final duplicateIds = routineNotifier.getDuplicateExerciseIds(widget.routineId!, selectedExerciseIds);
+          final selectedExerciseIds =
+              selectedExercises.map((e) => e.id).toList();
+          final duplicateIds = routineNotifier.getDuplicateExerciseIds(
+            widget.routineId!,
+            selectedExerciseIds,
+          );
 
           if (duplicateIds.isNotEmpty) {
             if (!mounted) return;
@@ -529,7 +611,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Los siguientes ejercicios ya están en la rutina: ${duplicateExerciseNames.join(', ')}'),
+                content: Text(
+                  'Los siguientes ejercicios ya están en la rutina: ${duplicateExerciseNames.join(', ')}',
+                ),
                 backgroundColor: Colors.orange,
                 duration: const Duration(seconds: 4),
               ),
@@ -539,7 +623,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         }
 
         // Add exercises to the in-memory notifier for immediate UI feedback
-        ref.read(routineExerciseNotifierProvider.notifier).addExercisesToSection(resolvedSectionId, selectedExercises);
+        ref
+            .read(routineExerciseNotifierProvider.notifier)
+            .addExercisesToSection(resolvedSectionId, selectedExercises);
 
         // Persistir cambios en la rutina si tenemos routineId
         if (widget.routineId != null) {
@@ -557,7 +643,9 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${selectedExercises.length} ejercicios agregados exitosamente'),
+            content: Text(
+              '${selectedExercises.length} ejercicios agregados exitosamente',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -592,17 +680,25 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       );
 
       // Guardar el ejercicio actualizado
-      await ref.read(exerciseNotifierProvider.notifier).updateExercise(updatedExercise);
+      await ref
+          .read(exerciseNotifierProvider.notifier)
+          .updateExercise(updatedExercise);
     }
 
     // Get current routine
     final routineAsync = ref.read(routineNotifierProvider);
     routineAsync.whenData((routines) {
-      final routine = routines.firstWhere((r) => r.id == routineId, orElse: () => throw Exception('Routine not found'));
+      final routine = routines.firstWhere(
+        (r) => r.id == routineId,
+        orElse: () => throw Exception('Routine not found'),
+      );
 
       // Create RoutineExercise objects (weight/sets/reps now stored in Exercise)
       // Calcular orden a partir de los existentes en la sección
-      final targetSection = routine.sections.firstWhere((s) => s.id == sectionId, orElse: () => routine.sections.first);
+      final targetSection = routine.sections.firstWhere(
+        (s) => s.id == sectionId,
+        orElse: () => routine.sections.first,
+      );
       final baseOrder = targetSection.exercises.length;
 
       final routineExercises =
@@ -611,7 +707,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
               .entries
               .map(
                 (entry) => RoutineExercise(
-                  id: '${entry.value.id}_${DateTime.now().millisecondsSinceEpoch}',
+                  id:
+                      '${entry.value.id}_${DateTime.now().millisecondsSinceEpoch}',
                   routineSectionId: sectionId,
                   exerciseId: entry.value.id,
                   notes: '',
@@ -624,12 +721,17 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
       final updatedSections =
           routine.sections.map((section) {
             if (section.id == sectionId) {
-              return section.copyWith(exercises: [...section.exercises, ...routineExercises]);
+              return section.copyWith(
+                exercises: [...section.exercises, ...routineExercises],
+              );
             }
             return section;
           }).toList();
 
-      final updatedRoutine = routine.copyWith(sections: updatedSections, updatedAt: DateTime.now());
+      final updatedRoutine = routine.copyWith(
+        sections: updatedSections,
+        updatedAt: DateTime.now(),
+      );
 
       // Save the updated routine
       ref.read(routineNotifierProvider.notifier).updateRoutine(updatedRoutine);

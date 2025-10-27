@@ -92,13 +92,13 @@ void main() {
       final sortedExercises = sortExercisesWithFavoritesFirst(exercises);
 
       // Verificar que los favoritos están primero
-      expect(sortedExercises[0].isFavorite, isTrue);
-      expect(sortedExercises[1].isFavorite, isTrue);
-      expect(sortedExercises[2].isFavorite, isFalse);
-      expect(sortedExercises[3].isFavorite, isFalse);
+      expect(sortedExercises[0].isFavoriteValue, isTrue);
+      expect(sortedExercises[1].isFavoriteValue, isTrue);
+      expect(sortedExercises[2].isFavoriteValue, isFalse);
+      expect(sortedExercises[3].isFavoriteValue, isFalse);
 
       // Verificar que los favoritos son 'Press de Banca' y 'Flexiones'
-      final favoriteNames = sortedExercises.where((e) => e.isFavorite).map((e) => e.name).toList();
+      final favoriteNames = sortedExercises.where((e) => e.isFavoriteValue).map((e) => e.name).toList();
       expect(favoriteNames, contains('Press de Banca'));
       expect(favoriteNames, contains('Flexiones'));
     });

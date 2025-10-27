@@ -11,6 +11,7 @@ class SimpleAnimatedCard extends ConsumerStatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final bool showFavoriteButton;
+  final bool isSelected;
 
   const SimpleAnimatedCard({
     super.key,
@@ -18,13 +19,15 @@ class SimpleAnimatedCard extends ConsumerStatefulWidget {
     this.onTap,
     this.onLongPress,
     this.showFavoriteButton = true,
+    this.isSelected = false,
   });
 
   @override
   ConsumerState<SimpleAnimatedCard> createState() => _SimpleAnimatedCardState();
 }
 
-class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard> with SingleTickerProviderStateMixin {
+class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _rotationAnimation;
@@ -34,9 +37,12 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard> with Si
   @override
   void initState() {
     super.initState();
-    _wasFavorite = widget.exercise.isFavorite;
+    _wasFavorite = widget.exercise.isFavoriteValue;
 
-    _controller = AnimationController(duration: const Duration(milliseconds: 600), vsync: this);
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
 
     _scaleAnimation = Tween<double>(
       begin: 1.0,
@@ -60,15 +66,13 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard> with Si
     super.didUpdateWidget(oldWidget);
 
     // Animar cuando se marca como favorito
-    if (!_wasFavorite && widget.exercise.isFavorite) {
-      print('🎯 SimpleAnimatedCard: Detectado cambio a favorito');
+    if (!_wasFavorite && widget.exercise.isFavoriteValue) {
       _animateFavorite();
     }
-    _wasFavorite = widget.exercise.isFavorite;
+    _wasFavorite = widget.exercise.isFavoriteValue;
   }
 
   void _animateFavorite() {
-    print('🎯 SimpleAnimatedCard: Iniciando animación de favorito');
     HapticFeedback.lightImpact();
 
     _controller.forward().then((_) {
@@ -77,15 +81,10 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard> with Si
   }
 
   Future<void> _toggleFavorite() async {
-    print('🎯 SimpleAnimatedCard: Toggle favorite para ${widget.exercise.name}');
-
     try {
       final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
       await exerciseNotifier.toggleFavorite(widget.exercise.id);
-
-      print('🎯 SimpleAnimatedCard: Toggle completado');
     } catch (e) {
-      print('🎯 SimpleAnimatedCard: Error al actualizar favorito: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -110,95 +109,147 @@ class _SimpleAnimatedCardState extends ConsumerState<SimpleAnimatedCard> with Si
           child: Transform.rotate(
             angle: _rotationAnimation.value,
             child: Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(horizontal: AppTheme.spacingM, vertical: AppTheme.spacingXS),
+              elevation: widget.isSelected ? 4 : 2,
+              color:
+                  widget.isSelected
+                      ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+                      : null,
+              margin: const EdgeInsets.symmetric(
+                horizontal: AppTheme.spacingM,
+                vertical: AppTheme.spacingXS,
+              ),
               child: InkWell(
                 onTap: widget.onTap,
                 onLongPress: widget.onLongPress,
                 borderRadius: BorderRadius.circular(AppTheme.radiusM),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppTheme.spacingM),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Imagen del ejercicio
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusS),
-                        child: Container(
-                          width: 60,
-                          height: 60,
-                          color: colorScheme.surfaceContainerHighest,
-                          child:
-                              widget.exercise.imageUrl.isNotEmpty
-                                  ? Image.asset(
-                                    widget.exercise.imageUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) =>
-                                            Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
-                                  )
-                                  : Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
-                        ),
-                      ),
-
-                      const SizedBox(width: AppTheme.spacingM),
-
-                      // Contenido principal
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Nombre del ejercicio
-                            Text(
-                              widget.exercise.name,
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
-                              ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(AppTheme.spacingM),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Imagen del ejercicio
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                              AppTheme.radiusS,
                             ),
-
-                            const SizedBox(height: AppTheme.spacingXS),
-
-                            // Descripción
-                            Text(
-                              widget.exercise.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
-                            ),
-
-                            const SizedBox(height: AppTheme.spacingS),
-
-                            // Grupos musculares
-                            Wrap(
-                              spacing: AppTheme.spacingXS,
-                              runSpacing: AppTheme.spacingXS,
-                              children:
-                                  widget.exercise.muscleGroups.map((muscle) {
-                                    return Chip(
-                                      label: Text(
-                                        muscle.name,
-                                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              color: colorScheme.surfaceContainerHighest,
+                              child:
+                                  widget.exercise.imageUrl.isNotEmpty
+                                      ? Image.asset(
+                                        widget.exercise.imageUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Icon(
+                                                  Icons.fitness_center,
+                                                  color:
+                                                      colorScheme
+                                                          .onSurfaceVariant,
+                                                ),
+                                      )
+                                      : Icon(
+                                        Icons.fitness_center,
+                                        color: colorScheme.onSurfaceVariant,
                                       ),
-                                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    );
-                                  }).toList(),
                             ),
-                          ],
+                          ),
+
+                          const SizedBox(width: AppTheme.spacingM),
+
+                          // Contenido principal
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Nombre del ejercicio
+                                Text(
+                                  widget.exercise.name,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                ),
+
+                                const SizedBox(height: AppTheme.spacingXS),
+
+                                // Descripción
+                                Text(
+                                  widget.exercise.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+
+                                const SizedBox(height: AppTheme.spacingS),
+
+                                // Grupos musculares
+                                Wrap(
+                                  spacing: AppTheme.spacingXS,
+                                  runSpacing: AppTheme.spacingXS,
+                                  children:
+                                      widget.exercise.muscleGroups.map((
+                                        muscle,
+                                      ) {
+                                        return Chip(
+                                          label: Text(
+                                            muscle.name,
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                          ),
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        );
+                                      }).toList(),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Botón de favorito
+                          if (widget.showFavoriteButton)
+                            IconButton(
+                              icon: Icon(
+                                widget.exercise.isFavoriteValue
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color:
+                                    widget.exercise.isFavoriteValue
+                                        ? Colors.red
+                                        : colorScheme.onSurfaceVariant,
+                              ),
+                              onPressed: _toggleFavorite,
+                            ),
+                        ],
+                      ),
+                    ),
+                    // Ícono de checkmark para ejercicios seleccionados
+                    if (widget.isSelected)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            color: colorScheme.onPrimary,
+                            size: 16,
+                          ),
                         ),
                       ),
-
-                      // Botón de favorito
-                      if (widget.showFavoriteButton)
-                        IconButton(
-                          icon: Icon(
-                            widget.exercise.isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: widget.exercise.isFavorite ? Colors.red : colorScheme.onSurfaceVariant,
-                          ),
-                          onPressed: _toggleFavorite,
-                        ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),

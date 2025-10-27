@@ -21,21 +21,24 @@ class FavoriteExerciseNotifier extends _$FavoriteExerciseNotifier {
       if (exercise == null) return;
 
       // Crear una copia del ejercicio con el estado de favorito invertido
-      final updatedExercise = exercise.copyWith(isFavorite: !exercise.isFavorite, updatedAt: DateTime.now());
+      final updatedExercise = exercise.copyWith(
+        isFavorite: !exercise.isFavoriteValue,
+        updatedAt: DateTime.now(),
+      );
 
       // Guardar el ejercicio actualizado
       await exerciseService.saveExercise(updatedExercise);
 
       // Actualizar el estado local
       final currentFavorites = state;
-      if (updatedExercise.isFavorite) {
+      if (updatedExercise.isFavoriteValue) {
         state = {...currentFavorites, exerciseId};
       } else {
         state = currentFavorites.where((id) => id != exerciseId).toSet();
       }
     } catch (e) {
       // En caso de error, no actualizar el estado
-      print('Error al actualizar favorito: $e');
+      // Error handling - could be logged to a proper logging service
     }
   }
 
@@ -53,11 +56,15 @@ class FavoriteExerciseNotifier extends _$FavoriteExerciseNotifier {
       final exerciseService = ref.read(exerciseServiceProvider);
       final allExercises = await exerciseService.getAllExercises();
 
-      final favoriteIds = allExercises.where((exercise) => exercise.isFavorite).map((exercise) => exercise.id).toSet();
+      final favoriteIds =
+          allExercises
+              .where((exercise) => exercise.isFavoriteValue)
+              .map((exercise) => exercise.id)
+              .toSet();
 
       state = favoriteIds;
     } catch (e) {
-      print('Error al cargar favoritos: $e');
+      // Error handling - could be logged to a proper logging service
     }
   }
 

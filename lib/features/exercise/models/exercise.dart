@@ -70,7 +70,7 @@ class Exercise extends Equatable {
   final LoadType loadType;
 
   @HiveField(20)
-  final bool isFavorite;
+  final bool? isFavorite;
 
   const Exercise({
     required this.id,
@@ -93,10 +93,14 @@ class Exercise extends Equatable {
     this.isProgressionLocked = false,
     this.exerciseType = ExerciseType.multiJoint,
     this.loadType = LoadType.barbell,
-    this.isFavorite = false,
+    this.isFavorite,
   });
 
-  factory Exercise.fromJson(Map<String, dynamic> json) => _$ExerciseFromJson(json);
+  /// Getter para obtener el valor de isFavorite con fallback a false
+  bool get isFavoriteValue => isFavorite ?? false;
+
+  factory Exercise.fromJson(Map<String, dynamic> json) =>
+      _$ExerciseFromJson(json);
   Map<String, dynamic> toJson() => _$ExerciseToJson(this);
 
   Exercise copyWith({
@@ -249,10 +253,18 @@ enum ExerciseDifficulty {
 @HiveType(typeId: 20)
 enum ExerciseType {
   @HiveField(0)
-  multiJoint('Multi-joint', 'Exercises involving multiple joints', 'exerciseType.multiJoint'),
+  multiJoint(
+    'Multi-joint',
+    'Exercises involving multiple joints',
+    'exerciseType.multiJoint',
+  ),
 
   @HiveField(1)
-  isolation('Isolation', 'Exercises focusing on a specific muscle group', 'exerciseType.isolation');
+  isolation(
+    'Isolation',
+    'Exercises focusing on a specific muscle group',
+    'exerciseType.isolation',
+  );
 
   const ExerciseType(this.displayName, this.description, this.displayNameKey);
 
@@ -282,7 +294,11 @@ enum LoadType {
   kettlebell('Kettlebell', 'Kettlebell exercises', 'loadType.kettlebell'),
 
   @HiveField(6)
-  resistanceBand('Banda Elástica', 'Resistance band exercises', 'loadType.resistanceBand'),
+  resistanceBand(
+    'Banda Elástica',
+    'Resistance band exercises',
+    'loadType.resistanceBand',
+  ),
 
   @HiveField(7)
   plate('Disco', 'Plate-loaded exercises', 'loadType.plate');

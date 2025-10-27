@@ -23,10 +23,13 @@ class ReorderableExerciseList extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ReorderableExerciseList> createState() => _ReorderableExerciseListState();
+  ConsumerState<ReorderableExerciseList> createState() =>
+      _ReorderableExerciseListState();
 }
 
-class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseList> with TickerProviderStateMixin {
+class _ReorderableExerciseListState
+    extends ConsumerState<ReorderableExerciseList>
+    with TickerProviderStateMixin {
   List<Exercise> _exercises = [];
   int? _draggedIndex;
   bool _isReordering = false;
@@ -38,7 +41,10 @@ class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseLis
     super.initState();
     _exercises = List.from(widget.exercises);
 
-    _reorderAnimationController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
+    _reorderAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
   }
 
   @override
@@ -111,25 +117,21 @@ class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseLis
   }
 
   Future<void> _onFavoriteToggle(Exercise exercise) async {
-    print('🎯 ReorderableExerciseList: Toggle favorite para ${exercise.name}');
-    print('🎯 Estado actual isFavorite: ${exercise.isFavorite}');
-
     try {
       final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
       await exerciseNotifier.toggleFavorite(exercise.id);
 
-      print('🎯 ReorderableExerciseList: Toggle completado');
-
       // Feedback háptico
       HapticFeedback.lightImpact();
 
-      // Animar el movimiento a la parte superior si se marca como favorito
-      if (exercise.isFavorite) {
-        print('🎯 ReorderableExerciseList: Ejecutando animación hacia arriba');
-        await _animateToTop(exercise);
+      // Verificar el nuevo estado después del toggle
+      final updatedExercise = _exercises.firstWhere((e) => e.id == exercise.id);
+
+      // Animar el movimiento a la parte superior si se marcó como favorito
+      if (updatedExercise.isFavoriteValue) {
+        await _animateToTop(updatedExercise);
       }
     } catch (e) {
-      print('🎯 ReorderableExerciseList: Error al actualizar favorito: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -146,7 +148,7 @@ class _ReorderableExerciseListState extends ConsumerState<ReorderableExerciseLis
     if (currentIndex == -1 || currentIndex == 0) return;
 
     // Encontrar la posición correcta para el favorito
-    final favoriteIndex = _exercises.indexWhere((e) => !e.isFavorite);
+    final favoriteIndex = _exercises.indexWhere((e) => !e.isFavoriteValue);
     final targetIndex = favoriteIndex == -1 ? 0 : favoriteIndex;
 
     setState(() {

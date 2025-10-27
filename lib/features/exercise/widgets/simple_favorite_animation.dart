@@ -44,26 +44,19 @@ class _SimpleFavoriteAnimationState extends State<SimpleFavoriteAnimation> with 
   void didUpdateWidget(SimpleFavoriteAnimation oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    print('🎯 SimpleFavoriteAnimation: didUpdateWidget - old: ${oldWidget.isFavorite}, new: ${widget.isFavorite}');
-
     // Si cambió de no favorito a favorito, animar
     if (!oldWidget.isFavorite && widget.isFavorite) {
-      print('🎯 SimpleFavoriteAnimation: Detectado cambio a favorito, iniciando animación');
       _animateFavorite();
     }
   }
 
   void _animateFavorite() {
-    print('🎯 SimpleFavoriteAnimation: Iniciando animación de favorito');
-
     // Feedback háptico
     HapticFeedback.lightImpact();
 
     // Animar
     _controller.forward().then((_) {
-      print('🎯 SimpleFavoriteAnimation: Animación hacia adelante completada');
       _controller.reverse().then((_) {
-        print('🎯 SimpleFavoriteAnimation: Animación hacia atrás completada');
         widget.onAnimationComplete?.call();
       });
     });

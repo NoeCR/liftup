@@ -186,14 +186,14 @@ void main() {
     test('should maintain favorites first ordering after removal', () {
       // Simular que tenemos ejercicios ordenados con favoritos primero
       final sortedExercises =
-          testExercises.where((exercise) => exercise.isFavorite).toList()
-            ..addAll(testExercises.where((exercise) => !exercise.isFavorite));
+          testExercises.where((exercise) => exercise.isFavoriteValue).toList()
+            ..addAll(testExercises.where((exercise) => !exercise.isFavoriteValue));
 
       // Verificar que los favoritos están primero
-      expect(sortedExercises[0].isFavorite, isTrue);
-      expect(sortedExercises[1].isFavorite, isTrue);
-      expect(sortedExercises[2].isFavorite, isFalse);
-      expect(sortedExercises[3].isFavorite, isFalse);
+      expect(sortedExercises[0].isFavoriteValue, isTrue);
+      expect(sortedExercises[1].isFavoriteValue, isTrue);
+      expect(sortedExercises[2].isFavoriteValue, isFalse);
+      expect(sortedExercises[3].isFavoriteValue, isFalse);
 
       // Simular eliminación de un ejercicio favorito
       final afterRemoval =

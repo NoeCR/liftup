@@ -26,7 +26,11 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     final exerciseService = ref.read(exerciseServiceProvider);
     final uuid = const Uuid();
 
-    final newExercise = exercise.copyWith(id: uuid.v4(), createdAt: DateTime.now(), updatedAt: DateTime.now());
+    final newExercise = exercise.copyWith(
+      id: uuid.v4(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
 
     await exerciseService.saveExercise(newExercise);
 
@@ -62,7 +66,9 @@ class ExerciseNotifier extends _$ExerciseNotifier {
     return await exerciseService.getExerciseById(id);
   }
 
-  Future<List<Exercise>> getExercisesByCategory(ExerciseCategory category) async {
+  Future<List<Exercise>> getExercisesByCategory(
+    ExerciseCategory category,
+  ) async {
     final exerciseService = ref.read(exerciseServiceProvider);
     return await exerciseService.getExercisesByCategory(category);
   }
@@ -79,7 +85,10 @@ class ExerciseNotifier extends _$ExerciseNotifier {
 
     if (exercise == null) return;
 
-    final updatedExercise = exercise.copyWith(isFavorite: !exercise.isFavorite, updatedAt: DateTime.now());
+    final updatedExercise = exercise.copyWith(
+      isFavorite: !exercise.isFavoriteValue,
+      updatedAt: DateTime.now(),
+    );
 
     await exerciseService.saveExercise(updatedExercise);
 
@@ -92,19 +101,38 @@ class ExerciseNotifier extends _$ExerciseNotifier {
   Future<void> reorderExercises(List<Exercise> reorderedExercises) async {
     final exerciseService = ref.read(exerciseServiceProvider);
 
-    // Actualizar el orden de cada ejercicio
-    for (int i = 0; i < reorderedExercises.length; i++) {
-      final exercise = reorderedExercises[i];
-      final updatedExercise = exercise.copyWith(
-        updatedAt: DateTime.now(),
-        // Aquí podrías agregar un campo de orden si lo necesitas
-        // order: i,
-      );
-      await exerciseService.saveExercise(updatedExercise);
-    }
+    try {
+      // Actualizar el orden de cada ejercicio y recopilar los ejercicios actualizados
+      final List<Exercise> updatedExercises = [];
 
-    // Actualizar el estado con la nueva lista ordenada
-    state = AsyncValue.data(reorderedExercises);
+      for (int i = 0; i < reorderedExercises.length; i++) {
+        final exercise = reorderedExercises[i];
+        final updatedExercise = exercise.copyWith(
+          updatedAt: DateTime.now(),
+          // Aquí podrías agregar un campo de orden si lo necesitas
+          // order: i,
+        );
+
+        // Guardar cada ejercicio individualmente
+        await exerciseService.saveExercise(updatedExercise);
+        updatedExercises.add(updatedExercise);
+      }
+
+      // Solo después de que todas las operaciones de guardado se completen exitosamente,
+      // actualizar el estado refetching desde el servicio para garantizar consistencia
+      final allExercises = await exerciseService.getAllExercises();
+      state = AsyncValue.data(allExercises);
+    } catch (e) {
+      // En caso de error, refetch desde el servicio para restaurar el estado consistente
+      try {
+        final allExercises = await exerciseService.getAllExercises();
+        state = AsyncValue.data(allExercises);
+      } catch (refetchError) {
+        // Si incluso el refetch falla, mantener el estado actual pero marcar como error
+        state = AsyncValue.error(refetchError, StackTrace.current);
+      }
+      rethrow; // Re-lanzar el error original para que el UI pueda manejarlo
+    }
   }
 
   /// Obtiene los ejercicios ordenados con favoritos primero
@@ -114,8 +142,8 @@ class ExerciseNotifier extends _$ExerciseNotifier {
 
     // Ordenar con favoritos primero, luego por nombre
     exercises.sort((a, b) {
-      if (a.isFavorite && !b.isFavorite) return -1;
-      if (!a.isFavorite && b.isFavorite) return 1;
+      if (a.isFavoriteValue && !b.isFavoriteValue) return -1;
+      if (!a.isFavoriteValue && b.isFavoriteValue) return 1;
       return a.name.compareTo(b.name);
     });
 
@@ -130,10 +158,15 @@ class ExerciseNotifier extends _$ExerciseNotifier {
       Exercise(
         id: uuid.v4(),
         name: 'Press de Banca',
-        description: 'Ejercicio fundamental para el desarrollo del pecho, hombros y tríceps.',
+        description:
+            'Ejercicio fundamental para el desarrollo del pecho, hombros y tríceps.',
         imageUrl: 'assets/images/bench_press.png',
         videoUrl: 'https://example.com/bench_press.mp4',
-        muscleGroups: [MuscleGroup.pectoralMajor, MuscleGroup.anteriorDeltoid, MuscleGroup.tricepsLateralHead],
+        muscleGroups: [
+          MuscleGroup.pectoralMajor,
+          MuscleGroup.anteriorDeltoid,
+          MuscleGroup.tricepsLateralHead,
+        ],
         tips: [
           'Mantén los pies firmes en el suelo',
           'Contrae el core durante todo el movimiento',
@@ -154,10 +187,15 @@ class ExerciseNotifier extends _$ExerciseNotifier {
       Exercise(
         id: uuid.v4(),
         name: 'Sentadillas',
-        description: 'Ejercicio compuesto que trabaja principalmente las piernas y glúteos.',
+        description:
+            'Ejercicio compuesto que trabaja principalmente las piernas y glúteos.',
         imageUrl: 'assets/images/squats.png',
         videoUrl: 'https://example.com/squats.mp4',
-        muscleGroups: [MuscleGroup.rectusFemoris, MuscleGroup.gluteusMaximus, MuscleGroup.bicepsFemoris],
+        muscleGroups: [
+          MuscleGroup.rectusFemoris,
+          MuscleGroup.gluteusMaximus,
+          MuscleGroup.bicepsFemoris,
+        ],
         tips: [
           'Mantén el pecho erguido',
           'Baja hasta que los muslos estén paralelos al suelo',
@@ -178,11 +216,20 @@ class ExerciseNotifier extends _$ExerciseNotifier {
       Exercise(
         id: uuid.v4(),
         name: 'Dominadas',
-        description: 'Ejercicio de tracción que desarrolla la espalda y bíceps.',
+        description:
+            'Ejercicio de tracción que desarrolla la espalda y bíceps.',
         imageUrl: 'assets/images/pull_ups.png',
         videoUrl: 'https://example.com/pull_ups.mp4',
-        muscleGroups: [MuscleGroup.latissimusDorsi, MuscleGroup.bicepsLongHead, MuscleGroup.rhomboids],
-        tips: ['Mantén el core activado', 'Tira con los codos hacia abajo', 'Completa el rango de movimiento'],
+        muscleGroups: [
+          MuscleGroup.latissimusDorsi,
+          MuscleGroup.bicepsLongHead,
+          MuscleGroup.rhomboids,
+        ],
+        tips: [
+          'Mantén el core activado',
+          'Tira con los codos hacia abajo',
+          'Completa el rango de movimiento',
+        ],
         commonMistakes: [
           'Balancearse excesivamente',
           'No subir hasta que el mentón pase la barra',
