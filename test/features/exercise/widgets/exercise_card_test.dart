@@ -35,18 +35,11 @@ void main() {
       );
     });
 
-    testWidgets('should display exercise information correctly', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display exercise information correctly', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
-          home: Scaffold(
-            body: ExerciseCard(
-              routineExercise: testRoutineExercise,
-              exercise: testExercise,
-            ),
-          ),
+          home: Scaffold(body: ExerciseCard(routineExercise: testRoutineExercise, exercise: testExercise)),
         ),
       );
 
@@ -57,65 +50,57 @@ void main() {
       expect(find.text('Pecho'), findsOneWidget);
     });
 
-    testWidgets(
-      'should display favorite button when onToggleFavorite is provided',
-      (WidgetTester tester) async {
-        bool favoriteToggled = false;
+    testWidgets('should display favorite button when onToggleFavorite is provided', (WidgetTester tester) async {
+      bool favoriteToggled = false;
 
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ExerciseCard(
-                routineExercise: testRoutineExercise,
-                exercise: testExercise,
-                onToggleFavorite: () {
-                  favoriteToggled = true;
-                },
-              ),
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: Scaffold(
+            body: ExerciseCard(
+              routineExercise: testRoutineExercise,
+              exercise: testExercise,
+              onToggleFavorite: () {
+                favoriteToggled = true;
+              },
             ),
           ),
-        );
+        ),
+      );
 
-        // Verificar que el botón de favorito está presente
-        expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+      // Verificar que el botón de favorito está presente
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
 
-        // Tocar el botón de favorito
-        await tester.tap(find.byIcon(Icons.favorite_border));
-        await tester.pump();
+      // Tocar el botón de favorito
+      await tester.tap(find.byIcon(Icons.favorite_border));
+      await tester.pump();
 
-        // Verificar que se llamó la función
-        expect(favoriteToggled, isTrue);
-      },
-    );
+      // Verificar que se llamó la función
+      expect(favoriteToggled, isTrue);
+    });
 
-    testWidgets(
-      'should display filled favorite icon when exercise is favorite',
-      (WidgetTester tester) async {
-        final favoriteExercise = testExercise.copyWith(isFavorite: true);
+    testWidgets('should display filled favorite icon when exercise is favorite', (WidgetTester tester) async {
+      final favoriteExercise = testExercise.copyWith(isFavorite: true);
 
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ExerciseCard(
-                routineExercise: testRoutineExercise,
-                exercise: favoriteExercise,
-                onToggleFavorite: () {},
-              ),
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: Scaffold(
+            body: ExerciseCard(
+              routineExercise: testRoutineExercise,
+              exercise: favoriteExercise,
+              onToggleFavorite: () {},
             ),
           ),
-        );
+        ),
+      );
 
-        // Verificar que se muestra el ícono de favorito lleno
-        expect(find.byIcon(Icons.favorite), findsOneWidget);
-        expect(find.byIcon(Icons.favorite_border), findsNothing);
-      },
-    );
+      // Verificar que se muestra el ícono de favorito lleno
+      expect(find.byIcon(Icons.favorite), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border), findsNothing);
+    });
 
-    testWidgets('should display remove button when onRemove is provided', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display remove button when onRemove is provided', (WidgetTester tester) async {
       bool removeCalled = false;
 
       await tester.pumpWidget(
@@ -145,7 +130,20 @@ void main() {
       expect(removeCalled, isTrue);
     });
 
-    testWidgets('should not display remove button when onRemove is null', (
+    testWidgets('should not display remove button when onRemove is null', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: Scaffold(body: ExerciseCard(routineExercise: testRoutineExercise, exercise: testExercise)),
+        ),
+      );
+
+      // Verificar que el botón de eliminar no está presente
+      expect(find.text('Eliminar'), findsNothing);
+      expect(find.byIcon(Icons.delete_outline), findsNothing);
+    });
+
+    testWidgets('should display both favorite and remove buttons when both callbacks are provided', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -155,54 +153,26 @@ void main() {
             body: ExerciseCard(
               routineExercise: testRoutineExercise,
               exercise: testExercise,
+              onToggleFavorite: () {},
+              onRemove: () {},
             ),
           ),
         ),
       );
 
-      // Verificar que el botón de eliminar no está presente
-      expect(find.text('Eliminar'), findsNothing);
-      expect(find.byIcon(Icons.delete_outline), findsNothing);
+      // Verificar que ambos botones están presentes
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+      expect(find.text('Eliminar'), findsOneWidget);
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
 
-    testWidgets(
-      'should display both favorite and remove buttons when both callbacks are provided',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: AppTheme.lightTheme,
-            home: Scaffold(
-              body: ExerciseCard(
-                routineExercise: testRoutineExercise,
-                exercise: testExercise,
-                onToggleFavorite: () {},
-                onRemove: () {},
-              ),
-            ),
-          ),
-        );
-
-        // Verificar que ambos botones están presentes
-        expect(find.byIcon(Icons.favorite_border), findsOneWidget);
-        expect(find.text('Eliminar'), findsOneWidget);
-        expect(find.byIcon(Icons.delete_outline), findsOneWidget);
-      },
-    );
-
-    testWidgets('should handle exercise with no image gracefully', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle exercise with no image gracefully', (WidgetTester tester) async {
       final exerciseWithoutImage = testExercise.copyWith(imageUrl: '');
 
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
-          home: Scaffold(
-            body: ExerciseCard(
-              routineExercise: testRoutineExercise,
-              exercise: exerciseWithoutImage,
-            ),
-          ),
+          home: Scaffold(body: ExerciseCard(routineExercise: testRoutineExercise, exercise: exerciseWithoutImage)),
         ),
       );
 
@@ -210,9 +180,7 @@ void main() {
       expect(find.byIcon(Icons.fitness_center), findsWidgets);
     });
 
-    testWidgets('should display exercise with display values correctly', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display exercise with display values correctly', (WidgetTester tester) async {
       final displayValues = ExerciseDisplayValues(
         sets: 3,
         reps: 12,
@@ -241,9 +209,7 @@ void main() {
       expect(find.text('50.0 kg'), findsOneWidget); // Weight
     });
 
-    testWidgets('should handle tap on card when onTap is provided', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should handle tap on card when onTap is provided', (WidgetTester tester) async {
       bool tapped = false;
 
       await tester.pumpWidget(
@@ -269,9 +235,7 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('should display lock button when exercise is locked', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display lock button when exercise is locked', (WidgetTester tester) async {
       final lockedExercise = testExercise.copyWith(isProgressionLocked: true);
 
       await tester.pumpWidget(
@@ -292,9 +256,7 @@ void main() {
       expect(find.byIcon(Icons.lock), findsOneWidget);
     });
 
-    testWidgets('should display unlock button when exercise is not locked', (
-      WidgetTester tester,
-    ) async {
+    testWidgets('should display unlock button when exercise is not locked', (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,
