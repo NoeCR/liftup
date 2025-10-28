@@ -1,13 +1,15 @@
-import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
-import '../notifiers/exercise_notifier.dart';
-import '../models/exercise.dart';
+
 import '../../../common/enums/muscle_group_enum.dart';
-import '../../../common/widgets/custom_bottom_navigation.dart';
 import '../../../common/themes/app_theme.dart';
+import '../../../common/widgets/custom_bottom_navigation.dart';
+import '../../sessions/utils/exercise_search_helper.dart';
+import '../models/exercise.dart';
+import '../notifiers/exercise_notifier.dart';
+import '../widgets/reorderable_exercise_list.dart';
 
 class ExerciseListPage extends ConsumerStatefulWidget {
   const ExerciseListPage({super.key});
@@ -152,75 +154,21 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
           data: (exercises) {
             final filteredExercises = _filterExercises(exercises);
 
-            if (filteredExercises.isEmpty) {
-              return _buildEmptyState();
-            }
-
-            return ListView.builder(
-              itemCount: filteredExercises.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                final exercise = filteredExercises[index];
-                return _buildExerciseCard(exercise);
+            return ReorderableExerciseList(
+              exercises: filteredExercises,
+              onExerciseTap: (exercise) => context.push('/exercise/${exercise.id}'),
+              onFavoriteToggle: (exercise) async {
+                final exerciseNotifier = ref.read(exerciseNotifierProvider.notifier);
+                await exerciseNotifier.toggleFavorite(exercise.id);
               },
+              emptyBuilder: () => _buildEmptyState(),
+              errorBuilder: (error) => _buildErrorState(error),
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, stack) => _buildErrorState(error.toString()),
         );
       },
-    );
-  }
-
-  Widget _buildExerciseCard(Exercise exercise) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Card(
-      child: ListTile(
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(AppTheme.radiusS),
-          child: Container(
-            width: 60,
-            height: 60,
-            color: colorScheme.surfaceContainerHighest,
-            child: _buildAdaptiveImage(exercise.imageUrl, colorScheme),
-          ),
-        ),
-        title: Text(
-          exercise.name,
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: colorScheme.onSurface),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: AppTheme.spacingXS),
-            Text(
-              exercise.description,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: AppTheme.spacingS),
-            Wrap(
-              spacing: AppTheme.spacingXS,
-              runSpacing: AppTheme.spacingXS,
-              children:
-                  exercise.muscleGroups.map((muscle) {
-                    return Chip(
-                      label: Text(
-                        muscle.displayName,
-                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500),
-                      ),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    );
-                  }).toList(),
-            ),
-          ],
-        ),
-        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurfaceVariant),
-        onTap: () => context.push('/exercise/${exercise.id}'),
-      ),
     );
   }
 
@@ -348,7 +296,8 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
           }).toList();
     }
 
-    return filtered;
+    // Ordenar con favoritos primero
+    return ExerciseSearchHelper.sortExercisesWithFavoritesFirst(filtered);
   }
 
   String _getCategoryName(ExerciseCategory category) {
@@ -555,34 +504,5 @@ class _ExerciseListPageState extends ConsumerState<ExerciseListPage> {
       case ExerciseDifficulty.advanced:
         return 'Avanzado';
     }
-  }
-
-  Widget _buildAdaptiveImage(String path, ColorScheme colorScheme) {
-    if (path.isEmpty) {
-      return Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant);
-    }
-
-    if (path.startsWith('assets/')) {
-      return Image.asset(
-        path,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
-      );
-    }
-
-    if (path.startsWith('http')) {
-      return Image.network(
-        path,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
-      );
-    }
-
-    final String filePath = path.startsWith('file:') ? path.replaceFirst('file://', '') : path;
-    return Image.file(
-      File(filePath),
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Icon(Icons.fitness_center, color: colorScheme.onSurfaceVariant),
-    );
   }
 }

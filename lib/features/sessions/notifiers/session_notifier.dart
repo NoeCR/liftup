@@ -224,14 +224,14 @@ class SessionNotifier extends _$SessionNotifier {
                 }
               } catch (e) {
                 // Log error for individual exercise but continue with others
-                print('Error loading progression for exercise ${routineExercise.exerciseId}: $e');
+                // Error handling - could be logged to a proper logging service
               }
             }
           }
         }
       } catch (e) {
         // Log error but don't fail session creation
-        print('Error loading progression values for routine $routineId: $e');
+        // Error handling - could be logged to a proper logging service
       }
     }
 

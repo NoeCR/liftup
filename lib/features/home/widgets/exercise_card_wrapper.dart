@@ -23,6 +23,7 @@ class ExerciseCardWrapper extends ConsumerStatefulWidget {
   final VoidCallback onTap;
   final bool showSetsControls;
   final String? routineId;
+  final VoidCallback? onFavoriteToggle;
 
   const ExerciseCardWrapper({
     required this.routineExercise,
@@ -30,6 +31,7 @@ class ExerciseCardWrapper extends ConsumerStatefulWidget {
     required this.onTap,
     this.showSetsControls = false,
     this.routineId,
+    this.onFavoriteToggle,
     super.key,
   });
 
@@ -157,6 +159,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                 final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
                 await exerciseNotifier.updateExercise(updated);
               },
+              onToggleFavorite: widget.onFavoriteToggle,
               performedSets: performedSets,
               showSetsControls: widget.showSetsControls,
               isResting: false,
@@ -205,6 +208,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                   final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
                   await exerciseNotifier.updateExercise(updated);
                 },
+                onToggleFavorite: widget.onFavoriteToggle,
                 performedSets: performedSets,
                 showSetsControls: widget.showSetsControls,
                 isResting: _showRestOverlayVN.value,
@@ -251,6 +255,7 @@ class _ExerciseCardWrapperState extends ConsumerState<ExerciseCardWrapper> {
                   final updated = widget.exercise.copyWith(isProgressionLocked: !widget.exercise.isProgressionLocked);
                   await exerciseNotifier.updateExercise(updated);
                 },
+                onToggleFavorite: widget.onFavoriteToggle,
                 performedSets: performedSets,
                 showSetsControls: widget.showSetsControls,
                 isResting: _showRestOverlayVN.value,

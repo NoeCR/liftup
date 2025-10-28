@@ -91,11 +91,25 @@ class DatabaseService implements IDatabaseService {
 
       LoggingService.instance.info('All Hive boxes initialized successfully', {'boxes_opened': boxConfigs.length});
     } catch (e) {
-      LoggingService.instance.warning('Error opening Hive boxes, attempting recovery', {'error': e.toString()});
+      LoggingService.instance.warning('Error opening Hive boxes, attempting recovery', {
+        'error': e.toString(),
+        'errorType': e.runtimeType.toString(),
+      });
 
-      // If there's an error, clear all data and try again
-      await _clearAllBoxes();
-      await _retryInitializeHive();
+      // Check if it's a type cast error specifically
+      if (e.toString().contains('type \'Null\' is not a subtype of type \'bool\'') ||
+          e.toString().contains('type \'Null\' is not a subtype of type \'int\'') ||
+          e.toString().contains('type \'Null\' is not a subtype of type \'double\'')) {
+        LoggingService.instance.warning('Detected type cast error, clearing corrupted data');
+        await _clearAllBoxes();
+        // Retry after clearing for type cast errors
+        await _retryInitializeHive();
+      } else {
+        // For other errors, clear all boxes and retry
+        LoggingService.instance.warning('Detected general error, clearing all data and retrying');
+        await _clearAllBoxes();
+        await _retryInitializeHive();
+      }
     }
   }
 

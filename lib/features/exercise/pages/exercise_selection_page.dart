@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import '../../home/models/routine.dart';
 import '../../home/notifiers/routine_exercise_notifier.dart';
 import '../../home/notifiers/routine_notifier.dart';
+import '../../sessions/utils/exercise_search_helper.dart';
 import '../models/exercise.dart';
 import '../notifiers/exercise_notifier.dart';
+import '../widgets/simple_animated_card.dart';
 
 class ExerciseSelectionPage extends ConsumerStatefulWidget {
   final String? routineId;
@@ -141,48 +143,11 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                         final exercise = filteredExercises[index - 1];
                         final isSelected = _selectedExercises.contains(exercise.id);
 
-                        return Card(
+                        return Container(
                           margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor:
-                                  isSelected ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                isSelected ? Icons.check : Icons.fitness_center,
-                                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                            title: Text(exercise.name),
-                            subtitle: Text(
-                              exercise.category.displayName,
-                              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.info_outline),
-                                  onPressed: () {
-                                    context.push('/exercise/${exercise.id}');
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    isSelected ? Icons.remove_circle : Icons.add_circle,
-                                    color: isSelected ? colorScheme.error : colorScheme.primary,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (isSelected) {
-                                        _selectedExercises.remove(exercise.id);
-                                      } else {
-                                        _selectedExercises.add(exercise.id);
-                                      }
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+                          child: SimpleAnimatedCard(
+                            exercise: exercise,
+                            isSelected: isSelected,
                             onTap: () {
                               setState(() {
                                 if (isSelected) {
@@ -192,6 +157,7 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
                                 }
                               });
                             },
+                            showFavoriteButton: true,
                           ),
                         );
                       },
@@ -232,7 +198,8 @@ class _ExerciseSelectionPageState extends ConsumerState<ExerciseSelectionPage> {
               .toList();
     }
 
-    return filtered;
+    // Ordenar con favoritos primero
+    return ExerciseSearchHelper.sortExercisesWithFavoritesFirst(filtered);
   }
 
   Widget _buildEmptyState() {

@@ -22,6 +22,8 @@ class ExerciseCard extends StatelessWidget {
   final bool isResting;
   final bool isLocked;
   final VoidCallback? onToggleLock;
+  final VoidCallback? onToggleFavorite;
+  final VoidCallback? onRemove;
   final ExerciseDisplayValues? displayValues;
 
   const ExerciseCard({
@@ -40,6 +42,8 @@ class ExerciseCard extends StatelessWidget {
     this.isResting = false,
     this.isLocked = false,
     this.onToggleLock,
+    this.onToggleFavorite,
+    this.onRemove,
     this.displayValues,
   });
 
@@ -81,6 +85,32 @@ class ExerciseCard extends StatelessWidget {
                       child: _buildAdaptiveImage(exercise?.imageUrl ?? '', colorScheme),
                     ),
                   ),
+                  // Botón de favorito
+                  if (onToggleFavorite != null)
+                    Positioned(
+                      top: AppTheme.spacingS,
+                      left: AppTheme.spacingS,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkResponse(
+                          onTap: onToggleFavorite,
+                          radius: 24,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              exercise?.isFavoriteValue == true ? Icons.favorite : Icons.favorite_border,
+                              size: 20,
+                              color: exercise?.isFavoriteValue == true ? Colors.red : colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  // Botón de bloqueo
                   Positioned(
                     top: AppTheme.spacingS,
                     right: AppTheme.spacingS,
@@ -163,6 +193,23 @@ class ExerciseCard extends StatelessWidget {
                   ],
                 ),
               ),
+
+              // Botón de eliminar (si está habilitado)
+              if (onRemove != null)
+                Padding(
+                  padding: const EdgeInsets.all(AppTheme.spacingM),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton.icon(
+                        onPressed: onRemove,
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                        label: const Text('Eliminar'),
+                        style: TextButton.styleFrom(foregroundColor: colorScheme.error),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
         ),

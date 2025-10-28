@@ -14,7 +14,7 @@ import '../../exercise/notifiers/exercise_notifier.dart';
 import '../../home/models/routine.dart';
 import '../../home/notifiers/routine_notifier.dart';
 import '../../home/notifiers/selected_routine_provider.dart';
-import '../../home/widgets/exercise_card_wrapper.dart';
+import '../../exercise/widgets/favorite_exercise_wrapper.dart';
 import '../../progression/notifiers/progression_notifier.dart';
 import '../../progression/widgets/progression_status_widget.dart';
 import '../../sessions/models/workout_session.dart';
@@ -44,7 +44,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
       routineExercises,
       exercises,
       defaultName: context.tr('exercises.title'),
-      sortType: ExerciseSortType.lastPerformed,
+      sortType: ExerciseSortType.favoritesFirst,
     );
   }
 
@@ -288,7 +288,7 @@ class _SessionPageState extends ConsumerState<SessionPage> {
 
                                   return SizedBox(
                                     width: 320,
-                                    child: ExerciseCardWrapper(
+                                    child: FavoriteExerciseWrapper(
                                       routineExercise: re,
                                       exercise: ex,
                                       showSetsControls: true,

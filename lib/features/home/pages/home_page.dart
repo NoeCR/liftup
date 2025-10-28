@@ -9,14 +9,54 @@ import '../../../common/widgets/section_header.dart';
 import '../../../core/database/database_service.dart';
 import '../../exercise/models/exercise.dart';
 import '../../exercise/notifiers/exercise_notifier.dart';
+import '../../exercise/widgets/favorite_exercise_wrapper.dart';
 import '../../sessions/models/workout_session.dart';
 import '../../sessions/notifiers/session_notifier.dart';
+import '../../sessions/utils/exercise_search_helper.dart';
 import '../models/routine.dart';
 import '../notifiers/routine_notifier.dart';
 import '../notifiers/selected_routine_provider.dart';
 import '../widgets/auto_selection_info_card.dart';
-import '../widgets/exercise_card_wrapper.dart';
 import '../widgets/routine_carousel.dart';
+
+/// Provider memoizado que calcula los ejercicios ordenados para una sección específica
+/// Solo se recalcula cuando cambian los ejercicios o la sección
+final sortedSectionExercisesProvider = Provider.family<
+  List<Map<String, dynamic>>,
+  ({String sectionId, List<RoutineExercise> sectionExercises, List<Exercise> allExercises})
+>((ref, params) {
+  final exerciseList =
+      params.sectionExercises.map((routineExercise) {
+        final exercise = params.allExercises.firstWhere(
+          (e) => e.id == routineExercise.exerciseId,
+          orElse:
+              () => Exercise(
+                id: '',
+                name: 'Ejercicio no encontrado',
+                description: '',
+                imageUrl: '',
+                muscleGroups: [],
+                tips: [],
+                commonMistakes: [],
+                category: ExerciseCategory.fullBody,
+                difficulty: ExerciseDifficulty.beginner,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+        );
+        return {'routineExercise': routineExercise, 'exercise': exercise};
+      }).toList();
+
+  // Ordenar con favoritos primero usando la utilidad existente
+  final exercises = exerciseList.map((item) => item['exercise'] as Exercise).toList();
+  final sortedExercises = ExerciseSearchHelper.sortExercisesWithFavoritesFirst(exercises);
+
+  // Reconstruir la lista manteniendo la relación con RoutineExercise
+  return sortedExercises.map((exercise) {
+    final routineExercise = params.sectionExercises.firstWhere((re) => re.exerciseId == exercise.id);
+    return {'routineExercise': routineExercise, 'exercise': exercise};
+  }).toList();
+});
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -169,27 +209,20 @@ class _HomePageState extends ConsumerState<HomePage> with RouteAware {
                 return _buildEmptySection(section.name, routine, section);
               }
 
-              final exerciseCards =
-                  section.exercises.map((routineExercise) {
-                    final exercise = exercises.firstWhere(
-                      (e) => e.id == routineExercise.exerciseId,
-                      orElse:
-                          () => Exercise(
-                            id: '',
-                            name: context.tr('errors.exerciseNotFound'),
-                            description: '',
-                            imageUrl: '',
-                            muscleGroups: [],
-                            tips: [],
-                            commonMistakes: [],
-                            category: ExerciseCategory.fullBody,
-                            difficulty: ExerciseDifficulty.beginner,
-                            createdAt: DateTime.now(),
-                            updatedAt: DateTime.now(),
-                          ),
-                    );
+              // Usar el provider memoizado para obtener ejercicios ordenados
+              final exerciseList = ref.watch(
+                sortedSectionExercisesProvider((
+                  sectionId: section.id,
+                  sectionExercises: section.exercises,
+                  allExercises: exercises,
+                )),
+              );
 
-                    return ExerciseCardWrapper(
+              final exerciseCards =
+                  exerciseList.map((item) {
+                    final routineExercise = item['routineExercise'] as RoutineExercise;
+                    final exercise = item['exercise'] as Exercise;
+                    return FavoriteExerciseWrapper(
                       routineExercise: routineExercise,
                       exercise: exercise,
                       onTap: () => context.push('/exercise/${exercise.id}'),
